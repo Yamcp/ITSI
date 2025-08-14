@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Controllers;
+namespace App\Controllers\admin;
 
 use App\Models\InstitucionesConveniosModel;
 use App\Models\TiposInstitucionModel;
+use App\Controllers\BaseController;
 
 class InstitucionesConveniosController extends BaseController
 {
@@ -28,7 +29,7 @@ class InstitucionesConveniosController extends BaseController
             'instituciones' => $instituciones
         ];
 
-        return view('instituciones/index', $data);
+        return view('admin/convenios/convenios', $data);
     }
 
     public function create()

@@ -73,7 +73,7 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link" href="<?= base_url('vinculacion/convenios') ?>" aria-expanded="false">
+                    <a class="sidebar-link" href="<?= base_url('admin/convenios') ?>" aria-expanded="false">
                         <span>
                             <i class="fa-solid fa-handshake fs-6"></i>
                         </span>

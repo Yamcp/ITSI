@@ -19,5 +19,5 @@ $routes->group('admin', ['namespace' => 'App\Controllers\admin'], function ($rou
     $routes->get('perfil', 'PerfilAdminController::index');          // Ver el perfil del administrador
     $routes->post('perfil/update', 'PerfilAdminController::update'); // Actualizar el perfil del administrador
     $routes->get('educacion', 'ActividadesEducacionController::index');    // Ver la sección de educación
-    $routes->get('convenios', 'ConveniosController::index');        // Ver la sección de convenios
+    $routes->get('convenios', 'InstitucionesConveniosController::index');        // Ver la sección de convenios
 });
