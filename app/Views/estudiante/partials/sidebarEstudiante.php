@@ -1,10 +1,10 @@
-<!-- app/Views/partials/sidebarAdmin.php -->
+<!-- app/Views/partials/sidebarEstudiante.php -->
 <!-- Sidebar Start -->
 <aside class="left-sidebar">
     <!-- Sidebar scroll-->
     <div>
         <div class="brand-logo d-flex align-items-center justify-content-between">
-            <a href="<?= base_url('admin/dashboard') ?>" class="text-nowrap logo-img">
+            <a href="<?= base_url('estudiante/dashboard') ?>" class="text-nowrap logo-img">
                 <img src="<?= base_url('sistema/assets/images/logos/logo.png') ?>" alt="Logo" style="width: 30px; height: auto;" />
                 <span class="ms-2 fw-bold" style="font-size: 1.3rem; color: #000;">Dep. Vinculación </span>
             </a>
@@ -20,7 +20,7 @@
                     <span class="hide-menu">INICIO</span>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link" href="<?= base_url('admin/dashboard') ?>" aria-expanded="false">
+                    <a class="sidebar-link" href="<?= base_url('estudiante/dashboard') ?>" aria-expanded="false">
                         <span>
                             <iconify-icon icon="solar:home-smile-bold-duotone" class="fs-6"></iconify-icon>
                         </span>
@@ -36,23 +36,7 @@
                         <span>
                             <iconify-icon icon="solar:layers-minimalistic-bold-duotone" class="fs-6"></iconify-icon>
                         </span>
-                        <span class="hide-menu">Registro de cursos</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="<?= base_url('vinculacion/convenios') ?>" aria-expanded="false">
-                        <span>
-                            <iconify-icon icon="solar:file-text-bold-duotone" class="fs-6"></iconify-icon>
-                        </span>
-                        <span class="hide-menu">Evaluaciones</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="<?= base_url('vinculacion/proyectos') ?>" aria-expanded="false">
-                        <span>
-                            <iconify-icon icon="solar:text-field-focus-bold-duotone" class="fs-6"></iconify-icon>
-                        </span>
-                        <span class="hide-menu">Estadísticas</span>
+                        <span class="hide-menu">Mis cursos</span>
                     </a>
                 </li>
                 <li class="nav-small-cap">
@@ -75,14 +59,6 @@
                         <span class="hide-menu">Servicio Comunitario</span>
                     </a>
                 </li>
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="<?= base_url('vinculacion/convenios') ?>" aria-expanded="false">
-                        <span>
-                            <iconify-icon icon="solar:file-text-bold-duotone" class="fs-6"></iconify-icon>
-                        </span>
-                        <span class="hide-menu">Convenios</span>
-                    </a>
-                </li>
                 <li class="nav-small-cap">
                     <iconify-icon icon="solar:menu-dots-linear" class="nav-small-cap-icon fs-4" class="fs-6"></iconify-icon>
                     <span class="hide-menu">INVESTIGACIÓN</span>
@@ -93,14 +69,6 @@
                             <iconify-icon icon="solar:sticker-smile-circle-2-bold-duotone" class="fs-6"></iconify-icon>
                         </span>
                         <span class="hide-menu">Proyectos</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="<?= base_url('investigacion/publicaciones') ?>" aria-expanded="false">
-                        <span>
-                            <iconify-icon icon="solar:planet-3-bold-duotone" class="fs-6"></iconify-icon>
-                        </span>
-                        <span class="hide-menu">Publicaciones</span>
                     </a>
                 </li>
             </ul>

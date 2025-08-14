@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión | Bienestar Estudiantil</title>
+    <title>Iniciar Sesión | Departamento de Vinculación</title>
     <link href="<?= base_url('login/assets/css/bootstrap.min.css') ?>" rel="stylesheet">
     <!-- Bootstrap Icons CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
@@ -181,7 +181,7 @@
                 </form>
             </div>
             <footer class="text-center mt-3 text-muted small">
-                &copy; <?= date('Y') ?> Bienestar Estudiantil
+                &copy; <?= date('Y') ?> Departamento de Vinculación
             </footer>
         </div>
     </div>

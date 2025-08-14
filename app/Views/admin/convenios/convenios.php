@@ -32,7 +32,10 @@
                             <tr>
                                 <td>Ejemplo</td>
                                 <td>correo@ejemplo.com</td>
-                                <td>Si</td>
+                                <td>años</td>
+                                <td>Ejemplo</td>
+                                <td>Ejemplo</td>
+                                <td>Ejemplo</td>
                                 <td>
                                     <button class="btn btn-sm btn-warning">Editar</button>
                                     <button class="btn btn-sm btn-danger">Eliminar</button>
@@ -62,44 +65,61 @@
                                 <input type="text" class="form-control" name="nombre" required>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label>Descripción</label>
-                                <textarea class="form-control" name="descripcion" required></textarea>
+                                <label>RUC</label>
+                                <input type="text" class="form-control" name="ruc" required>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label>Objetivos</label>
-                                <textarea class="form-control" name="objetivos" required></textarea>
+                                <label>Telefono</label>
+                                <input type="text" class="form-control" name="direccion" required>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label>Duración (horas)</label>
-                                <input type="number" class="form-control" name="duracion" required>
+                                <label>Email</label>
+                                <input type="text" class="form-control" name="email" required>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label>Fecha de Inicio</label>
+                                <label>Representante Legal</label>
+                                <input type="text" class="form-control" name="nombre_representante" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label>Contacto</label>
+                                <input type="text" class="form-control" name="contacto" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label>Telefono del contacto</label>
+                                <input type="text" class="form-control" name="telefono_contacto" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label>Email del contacto</label>
+                                <input type="text" class="form-control" name="email_contacto" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label>Área de Interés</label>
+                                <input type="text" class="form-control" name="area_interes" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label>Fecha Inicio</label>
                                 <input type="date" class="form-control" name="fecha_inicio" required>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label>Fecha de Fin</label>
+                                <label>Fecha Fin</label>
                                 <input type="date" class="form-control" name="fecha_fin" required>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label>Lugar</label>
-                                <input type="text" class="form-control" name="lugar" required>
+                                <label>Observaciones</label>
+                                <input type="text" class="form-control" name="observaciones" required>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label>Horario</label>
-                                <input type="text" class="form-control" name="horario" required>
+                                <label>Archivo</label>
+                                <input type="file" class="form-control" name="archivo" required>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label>Certificado (Sí/No)</label>
-                                <select class="form-control" name="certificado" required>
-                                    <option value="Si">Sí</option>
-                                    <option value="No">No</option>
-                                </select>
+                                <label>Renovable</label>
+                                <input type="checkbox" class="form-control" name="renovable" required>
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label>Detalles</label>
-                                <textarea class="form-control" name="detalles" required></textarea>
-                            </div>
+                                <label>Tipo de Convenio</label>
+                                <input type="text" class="form-control" name="renovable" required>
+                            </div>                            
                         </div>
                     </div>
                 </div>

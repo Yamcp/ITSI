@@ -35,23 +35,7 @@
                         <span>
                             <iconify-icon icon="solar:layers-minimalistic-bold-duotone" class="fs-6"></iconify-icon>
                         </span>
-                        <span class="hide-menu">Registro de cursos</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="<?= base_url('vinculacion/convenios') ?>" aria-expanded="false">
-                        <span>
-                            <iconify-icon icon="solar:file-text-bold-duotone" class="fs-6"></iconify-icon>
-                        </span>
-                        <span class="hide-menu">Evaluaciones</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="<?= base_url('vinculacion/proyectos') ?>" aria-expanded="false">
-                        <span>
-                            <iconify-icon icon="solar:text-field-focus-bold-duotone" class="fs-6"></iconify-icon>
-                        </span>
-                        <span class="hide-menu">Estadísticas</span>
+                        <span class="hide-menu">Mis cursos</span>
                     </a>
                 </li>
                 <li class="nav-small-cap">
@@ -59,47 +43,11 @@
                     <span class="hide-menu">PRÁCTICAS</span>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link" href="<?= base_url('practicas/preprofesionales') ?>" aria-expanded="false">
-                        <span>
-                            <iconify-icon icon="solar:login-3-bold-duotone" class="fs-6"></iconify-icon>
-                        </span>
-                        <span class="hide-menu">Preprofesionales</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="<?= base_url('practicas/servicio-comunitario') ?>" aria-expanded="false">
-                        <span>
-                            <iconify-icon icon="solar:user-plus-rounded-bold-duotone" class="fs-6"></iconify-icon>
-                        </span>
-                        <span class="hide-menu">Servicio Comunitario</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
                     <a class="sidebar-link" href="<?= base_url('vinculacion/convenios') ?>" aria-expanded="false">
                         <span>
                             <iconify-icon icon="solar:file-text-bold-duotone" class="fs-6"></iconify-icon>
                         </span>
-                        <span class="hide-menu">Convenios</span>
-                    </a>
-                </li>
-                <li class="nav-small-cap">
-                    <iconify-icon icon="solar:menu-dots-linear" class="nav-small-cap-icon fs-4" class="fs-6"></iconify-icon>
-                    <span class="hide-menu">INVESTIGACIÓN</span>
-                </li>
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="<?= base_url('investigacion/proyectos') ?>" aria-expanded="false">
-                        <span>
-                            <iconify-icon icon="solar:sticker-smile-circle-2-bold-duotone" class="fs-6"></iconify-icon>
-                        </span>
-                        <span class="hide-menu">Proyectos</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="<?= base_url('investigacion/publicaciones') ?>" aria-expanded="false">
-                        <span>
-                            <iconify-icon icon="solar:planet-3-bold-duotone" class="fs-6"></iconify-icon>
-                        </span>
-                        <span class="hide-menu">Publicaciones</span>
+                        <span class="hide-menu">Seguimientos</span>
                     </a>
                 </li>
             </ul>
