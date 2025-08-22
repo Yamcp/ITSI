@@ -3,24 +3,24 @@
 namespace App\Controllers;
 
 use App\Models\DocumentosInvestigacionModel;
-use App\Models\AreasTematicasModel;
+use App\Models\LineasInvestigacionModel;
 
 class DocumentosInvestigacionController extends BaseController
 {
     protected $documentosModel;
-    protected $areasTematicasModel;
+    protected $lineasInvestigacionModel;
 
     public function __construct()
     {
         $this->documentosModel = new DocumentosInvestigacionModel();
-        $this->areasTematicasModel = new AreasTematicasModel();
+        $this->lineasInvestigacionModel = new LineasInvestigacionModel();
     }
 
     public function index()
     {
         $documentos = $this->documentosModel
-            ->select('TAB_DOCUMENTOS_INVESTIGACION.*, TAB_AREAS_TEMATICAS.NOMBRE as AREA_TEMATICA')
-            ->join('TAB_AREAS_TEMATICAS', 'TAB_DOCUMENTOS_INVESTIGACION.ID_AREA_TEMATICA = TAB_AREAS_TEMATICAS.ID_AREA_TEMATICA')
+            ->select('TAB_DOCUMENTOS_INVESTIGACION.*, TAB_LINEAS_INVESTIGACION.NOMBRE as LINEA_INVESTIGACION')
+            ->join('TAB_LINEAS_INVESTIGACION', 'TAB_DOCUMENTOS_INVESTIGACION.ID_LINEA_INVESTIGACION = TAB_LINEAS_INVESTIGACION.ID_LINEA_INVESTIGACION')
             ->findAll();
 
         $data = [
@@ -35,7 +35,7 @@ class DocumentosInvestigacionController extends BaseController
     {
         $data = [
             'title' => 'Subir Documento de Investigación',
-            'areas_tematicas' => $this->areasTematicasModel->findAll()
+            'lineas_investigacion' => $this->lineasInvestigacionModel->findAll()
         ];
 
         return view('documentos/upload', $data);

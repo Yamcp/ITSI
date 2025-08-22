@@ -1,14 +1,16 @@
 <?php
 
 namespace App\Models;
-
 use CodeIgniter\Model;
 
 class TiposInstructoresModel extends Model
 {
-    protected $table = 'TAB_TIPOS_INSTRUCTORES';
+    protected $table = 'TAB_TIPO_INSTRUCTORES';
     protected $primaryKey = 'ID_TIPO_INSTRUCTOR';
-    protected $useAutoIncrement = true;
+    protected $allowedFields = ['TIPO'];
     protected $returnType = 'array';
-    protected $allowedFields = ['INSTRUCTOR'];
+    
+    protected $validationRules = [
+        'TIPO' => 'required|min_length[3]|max_length[50]|is_unique[TAB_TIPO_INSTRUCTORES.TIPO,ID_TIPO_INSTRUCTOR,{ID_TIPO_INSTRUCTOR}]'
+    ];
 }
