@@ -7,9 +7,8 @@ class DashboardAdminController extends BaseController
 {
     public function __construct()
     {
-        if (!session()->get('logged_in') && session()->get('rol')==1) {
-            return redirect()->to('/auth');
-
+        if (!session()->get('logged_in') || session()->get('rol') != 1) {
+            return redirect()->to('/');
         }
     }
     

@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Controllers;
+namespace App\Controllers\admin;
 
 use App\Models\AsignacionesPracticasModel;
 use App\Models\AsistenciasPracticasModel;
-use App\Models\SeguimientoPracticasModel;
+use App\Models\SeguimientosPracticasModel;
 use App\Models\TiposPracticasModel;
-use App\Models\EstadoPracticasModel;
+use App\Models\EstadosPracticasModel;
+use App\Controllers\BaseController;
 
-class PracticasController extends BaseController
+class PracticasAdminController extends BaseController
 {
     protected $asignacionesModel;
     protected $asistenciasModel;
@@ -20,9 +21,9 @@ class PracticasController extends BaseController
     {
         $this->asignacionesModel = new \App\Models\AsignacionesPracticasModel();
         $this->asistenciasModel = new \App\Models\AsistenciasPracticasModel();
-        $this->seguimientoModel = new \App\Models\SeguimientoPracticasModel();
+        $this->seguimientoModel = new \App\Models\SeguimientosPracticasModel();
         $this->tiposPracticasModel = new \App\Models\TiposPracticasModel();
-        $this->estadoPracticasModel = new \App\Models\EstadoPracticasModel();
+        $this->estadoPracticasModel = new \App\Models\EstadosPracticasModel();
     }
 
     public function index()
@@ -32,7 +33,7 @@ class PracticasController extends BaseController
             'asignaciones' => $this->asignacionesModel->getAsignacionCompleta()
         ];
 
-        return view('practicas/index', $data);
+        return view('admin/practicas/practicas_views', $data);
     }
 
     public function asignar()

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Models;
+
 use CodeIgniter\Model;
 
 class UsuariosModel extends Model
@@ -8,85 +9,273 @@ class UsuariosModel extends Model
     protected $table = 'TAB_USUARIOS';
     protected $primaryKey = 'ID_USUARIO';
     protected $allowedFields = ['ID_DATO_PERSONA', 'USUARIO', 'CONTRASENA', 'ESTADO'];
-    protected $returnType = 'array';
-    protected $useTimestamps = false;
 
-    // Validaciones
-    protected $validationRules = [
-        'USUARIO' => 'required|min_length[3]|max_length[50]|is_unique[TAB_USUARIOS.USUARIO,ID_USUARIO,{ID_USUARIO}]',
-        'CONTRASENA' => 'required|min_length[6]',
-        'ESTADO' => 'required|in_list[A,I]',
-        'ID_DATO_PERSONA' => 'required|integer'
-    ];
-
-    protected $validationMessages = [
-        'USUARIO' => [
-            'required' => 'El nombre de usuario es obligatorio',
-            'is_unique' => 'Este nombre de usuario ya existe',
-            'min_length' => 'El usuario debe tener al menos 3 caracteres'
-        ],
-        'CONTRASENA' => [
-            'required' => 'La contraseña es obligatoria',
-            'min_length' => 'La contraseña debe tener al menos 6 caracteres'
-        ]
-    ];
-
-    // Hash de contraseña automático
-    protected $beforeInsert = ['hashPassword'];
-    protected $beforeUpdate = ['hashPassword'];
-
-    protected function hashPassword(array $data)
+    public function verificarUsuario($usuario, $contrasena)
     {
-        if (isset($data['data']['CONTRASENA'])) {
-            $data['data']['CONTRASENA'] = password_hash($data['data']['CONTRASENA'], PASSWORD_BCRYPT);
+        try {
+            // Query para obtener información completa del usuario
+            $query = $this->db->query("
+                SELECT 
+                    u.ID_USUARIO as id,
+                    u.USUARIO as username,
+                    u.CONTRASENA as password_hash,
+                    u.ESTADO as estado,
+                    dp.NOMBRE as nombre,
+                    dp.APELLIDO as apellido,
+                    dp.EMAIL as email,
+                    tr.ID_TIPOS_ROLES as rol,
+                    tr.ROL as nombre_rol
+                FROM TAB_USUARIOS u
+                INNER JOIN TAB_DATOS_PERSONAS dp ON u.ID_DATO_PERSONA = dp.ID_DATO_PERSONA
+                INNER JOIN TAB_ROLES r ON u.ID_USUARIO = r.ID_USUARIO
+                INNER JOIN TAB_TIPOS_ROLES tr ON r.ID_TIPOS_ROLES = tr.ID_TIPOS_ROLES
+                WHERE u.USUARIO = ? AND u.ESTADO = '1'
+                LIMIT 1
+            ", [$usuario]);
+
+            $user = $query->getRow();
+
+            // Verificar contraseña (soporta tanto hash como texto plano para transición)
+            $passwordValid = false;
+            if ($user) {
+                // Primero intentar verificar como hash
+                if (password_verify($contrasena, $user->password_hash)) {
+                    $passwordValid = true;
+                } 
+                // Si falla, verificar como texto plano (para usuarios existentes)
+                else if ($contrasena === $user->password_hash) {
+                    $passwordValid = true;
+                    // Opcional: actualizar a hash para futuras verificaciones
+                    // $this->actualizarPasswordHash($user->id, $contrasena);
+                }
+            }
+            
+            if ($passwordValid) {
+                return [
+                    'status' => true,
+                    'usuario' => [
+                        'id' => $user->id,
+                        'username' => $user->username,
+                        'nombre' => $user->nombre,
+                        'apellido' => $user->apellido,
+                        'email' => $user->email,
+                        'rol' => $user->rol,
+                        'nombre_rol' => $user->nombre_rol,
+                        'estado' => $user->estado
+                    ]
+                ];
+            }
+
+            return [
+                'status' => false,
+                'mensaje' => 'Credenciales incorrectas'
+            ];
+
+        } catch (\Exception $e) {
+            log_message('error', 'Error en verificarUsuario: ' . $e->getMessage());
+            return [
+                'status' => false,
+                'mensaje' => 'Error interno del sistema'
+            ];
         }
-        return $data;
     }
 
-    // Función auxiliar para verificar rol
-    public function tieneRol($idUsuario, $roles)
+    /**
+     * Crear un nuevo usuario con contraseña hasheada
+     */
+    public function crearUsuario($datosPersona, $usuario, $contrasena, $rol = 3)
     {
-        $rolModel = new RolesModel();
-        $tipoRolModel = new TiposRolesModel();
+        $this->db->transStart();
+
+        try {
+            // Insertar datos personales
+            $this->db->table('TAB_DATOS_PERSONAS')->insert($datosPersona);
+            $idDatoPersona = $this->db->insertID();
+
+            // Insertar usuario
+            $datosUsuario = [
+                'ID_DATO_PERSONA' => $idDatoPersona,
+                'USUARIO' => $usuario,
+                'CONTRASENA' => password_hash($contrasena, PASSWORD_DEFAULT),
+                'ESTADO' => '1'
+            ];
+            $this->db->table('TAB_USUARIOS')->insert($datosUsuario);
+            $idUsuario = $this->db->insertID();
+
+            // Asignar rol
+            $datosRol = [
+                'ID_USUARIO' => $idUsuario,
+                'ID_TIPOS_ROLES' => $rol
+            ];
+            $this->db->table('TAB_ROLES')->insert($datosRol);
+
+            $this->db->transComplete();
+
+            if ($this->db->transStatus() === FALSE) {
+                return false;
+            }
+
+            return $idUsuario;
+
+        } catch (\Exception $e) {
+            $this->db->transRollback();
+            log_message('error', 'Error creando usuario: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Obtener información completa del usuario por ID
+     */
+    public function obtenerUsuarioPorId($idUsuario)
+    {
+        $query = $this->db->query("
+            SELECT 
+                u.ID_USUARIO as id,
+                u.USUARIO as username,
+                u.ESTADO as estado,
+                dp.NOMBRE as nombre,
+                dp.APELLIDO as apellido,
+                dp.EMAIL as email,
+                dp.CELULAR as celular,
+                tr.ID_TIPOS_ROLES as rol,
+                tr.ROL as nombre_rol
+            FROM TAB_USUARIOS u
+            INNER JOIN TAB_DATOS_PERSONAS dp ON u.ID_DATO_PERSONA = dp.ID_DATO_PERSONA
+            INNER JOIN TAB_ROLES r ON u.ID_USUARIO = r.ID_USUARIO
+            INNER JOIN TAB_TIPOS_ROLES tr ON r.ID_TIPOS_ROLES = tr.ID_TIPOS_ROLES
+            WHERE u.ID_USUARIO = ?
+        ", [$idUsuario]);
+
+        return $query->getRow();
+    }
+
+    /**
+     * Verificar si un nombre de usuario ya existe
+     */
+    public function usuarioExiste($usuario, $excludeId = null)
+    {
+        $builder = $this->where('USUARIO', $usuario);
         
-        if (!is_array($roles)) {
-            $roles = [$roles]; // Convertir a array si es un solo rol
+        if ($excludeId) {
+            $builder->where('ID_USUARIO !=', $excludeId);
         }
         
-        $tiposRoles = $tipoRolModel->whereIn('ROL', $roles)->findAll();
-        $rolIds = array_column($tiposRoles, 'ID_TIPOS_ROLES');
-        
-        $asignacion = $rolModel
-            ->where('ID_USUARIO', $idUsuario)
-            ->whereIn('ID_TIPOS_ROLES', $rolIds)
-            ->first();
-            
-        return !empty($asignacion);
+        return $builder->countAllResults() > 0;
     }
 
-    // Obtener datos completos del usuario con su perfil
-    public function getConPerfil($idUsuario)
+    /**
+     * Actualizar contraseña a hash
+     */
+    public function actualizarPasswordHash($idUsuario, $contrasena)
     {
-        $builder = $this->db->table('TAB_USUARIOS u')
-            ->select('u.*, dp.NOMBRE, dp.APELLIDO, dp.CEDULA, dp.EMAIL, dp.FOTO_URL, r.ID_TIPOS_ROLES, tr.ROL')
-            ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = u.ID_DATO_PERSONA', 'left')
-            ->join('TAB_ROLES r', 'r.ID_USUARIO = u.ID_USUARIO', 'left')
-            ->join('TAB_TIPOS_ROLES tr', 'tr.ID_TIPOS_ROLES = r.ID_TIPOS_ROLES', 'left')
-            ->where('u.ID_USUARIO', $idUsuario);
-            
-        return $builder->get()->getRowArray();
+        $hash = password_hash($contrasena, PASSWORD_DEFAULT);
+        return $this->update($idUsuario, ['CONTRASENA' => $hash]);
     }
-    
-    // Obtener todos los usuarios activos con sus roles
-    public function getUsuariosConRoles()
+
+    /**
+     * Obtener perfil completo del usuario para la vista de perfil
+     */
+    public function getUserProfile($idUsuario)
     {
-        $builder = $this->db->table('TAB_USUARIOS u')
-            ->select('u.ID_USUARIO, u.USUARIO, u.ESTADO, dp.NOMBRE, dp.APELLIDO, dp.EMAIL, tr.ROL')
-            ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = u.ID_DATO_PERSONA', 'left')
-            ->join('TAB_ROLES r', 'r.ID_USUARIO = u.ID_USUARIO', 'left')
-            ->join('TAB_TIPOS_ROLES tr', 'tr.ID_TIPOS_ROLES = r.ID_TIPOS_ROLES', 'left')
-            ->where('u.ESTADO', 'A');
+        try {
+            $query = $this->db->query("
+                SELECT 
+                    u.ID_USUARIO,
+                    u.USUARIO,
+                    u.ESTADO,
+                    u.CONTRASENA,
+                    dp.ID_DATO_PERSONA,
+                    dp.NOMBRE,
+                    dp.APELLIDO,
+                    dp.CEDULA,
+                    dp.CELULAR,
+                    dp.DIRECCION,
+                    dp.EMAIL,
+                    dp.GENERO,
+                    dp.ESTADO_CIVIL,
+                    dp.NACIONALIDAD,
+                    dp.FECHA_INGRESO,
+                    dp.ACTIVO,
+                    dp.FOTO_URL,
+                    tr.ID_TIPOS_ROLES,
+                    tr.ROL,
+                    r.ID_ROL,
+                    CASE 
+                        WHEN u.ESTADO = '1' THEN 'A'
+                        ELSE 'I'
+                    END as ESTADO_LETRA,
+                    CASE 
+                        WHEN dp.FECHA_INGRESO IS NOT NULL THEN dp.FECHA_INGRESO
+                        ELSE u.ID_USUARIO
+                    END as FECHA_REGISTRO
+                FROM TAB_USUARIOS u
+                INNER JOIN TAB_DATOS_PERSONAS dp ON u.ID_DATO_PERSONA = dp.ID_DATO_PERSONA
+                INNER JOIN TAB_ROLES r ON u.ID_USUARIO = r.ID_USUARIO
+                INNER JOIN TAB_TIPOS_ROLES tr ON r.ID_TIPOS_ROLES = tr.ID_TIPOS_ROLES
+                WHERE u.ID_USUARIO = ?
+                LIMIT 1
+            ", [$idUsuario]);
+
+            $result = $query->getRowArray();
             
-        return $builder->get()->getResultArray();
+            if ($result) {
+                // Formatear campos para la vista
+                $result['ESTADO'] = $result['ESTADO_LETRA'];
+                $result['ROL'] = $result['ROL'];
+                
+                // Asegurar que los campos opcionales tengan valores por defecto
+                $result['GENERO'] = $result['GENERO'] ?: '';
+                $result['ESTADO_CIVIL'] = $result['ESTADO_CIVIL'] ?: '';
+                $result['NACIONALIDAD'] = $result['NACIONALIDAD'] ?: '';
+                $result['FECHA_INGRESO'] = $result['FECHA_INGRESO'] ?: '';
+                $result['CELULAR'] = $result['CELULAR'] ?: '';
+                $result['DIRECCION'] = $result['DIRECCION'] ?: '';
+                $result['EMAIL'] = $result['EMAIL'] ?: '';
+                
+                return $result;
+            }
+            
+            return null;
+            
+        } catch (\Exception $e) {
+            log_message('error', 'Error en getUserProfile: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Actualizar perfil del usuario
+     */
+    public function actualizarPerfil($idUsuario, $datosPersona, $datosUsuario = [])
+    {
+        $this->db->transStart();
+        
+        try {
+            // Obtener el ID_DATO_PERSONA del usuario
+            $usuario = $this->find($idUsuario);
+            if (!$usuario) {
+                return false;
+            }
+            
+            // Actualizar datos personales
+            $this->db->table('TAB_DATOS_PERSONAS')
+                     ->where('ID_DATO_PERSONA', $usuario['ID_DATO_PERSONA'])
+                     ->update($datosPersona);
+            
+            // Actualizar datos de usuario si se proporcionan
+            if (!empty($datosUsuario)) {
+                $this->update($idUsuario, $datosUsuario);
+            }
+            
+            $this->db->transComplete();
+            
+            return $this->db->transStatus() !== false;
+            
+        } catch (\Exception $e) {
+            $this->db->transRollback();
+            log_message('error', 'Error actualizando perfil: ' . $e->getMessage());
+            return false;
+        }
     }
 }

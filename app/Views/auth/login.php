@@ -8,6 +8,7 @@
     <link href="<?= base_url('login/assets/css/bootstrap.min.css') ?>" rel="stylesheet">
     <!-- Bootstrap Icons CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="<?= base_url('public/login/authstyles.css') ?>" rel="stylesheet">
     <style>
         body {
             min-height: 100vh;
@@ -145,12 +146,12 @@
                     <h1 class="login-title">Sistema de Vinculación</h1>
                     <div class="login-subtitle">Por favor, inicie sesión para continuar</div>
                 </div>
-                <form action="<?= site_url('admin/dashboard') ?>" method="post" id="loginForm" autocomplete="off" novalidate>
+                <form action="<?= site_url('auth/autenticar') ?>" method="post" id="loginForm" autocomplete="off" novalidate>
                     <?= csrf_field() ?>
                     <div class="form-floating mb-3">
-                        <input type="text" class="form-control" id="identificador" name="identificador" placeholder="Cédula o Correo" required autofocus
+                        <input type="text" class="form-control" id="usuario" name="usuario" placeholder="Cédula o Correo" required autofocus
                             data-bs-toggle="tooltip" data-bs-placement="right" title="Ingrese su usuario o cédula">
-                        <label for="identificador"><i class="bi bi-person-circle me-2"></i>Usuario o Cédula</label>
+                        <label for="usuario"><i class="bi bi-person-circle me-2"></i>Usuario o Cédula</label>
                         <div class="invalid-feedback">
                             Este campo es obligatorio.
                         </div>

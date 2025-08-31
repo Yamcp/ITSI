@@ -10,6 +10,7 @@
 
     <!-- ESTILOS -->
     <link rel="stylesheet" href="<?= base_url('sistema/assets/css/styles.min.css') ?>" />
+    
 </head>
 
 <body>
@@ -51,8 +52,7 @@
     <script src="<?= base_url('sistema/assets/js/sidebarmenu.js') ?>"></script>
     <script src="<?= base_url('sistema/assets/js/app.min.js') ?>"></script>
     <script src="<?= base_url('sistema/assets/js/dashboard.js') ?>"></script>
-    <!-- Agrega esto en tu layout principal, normalmente en app/Views/admin/layouts/mainAdmin.php -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
 </body>
 

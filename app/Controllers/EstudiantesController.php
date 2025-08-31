@@ -4,7 +4,6 @@ namespace App\Controllers\admin;
 
 use App\Models\EstudiantesModel;
 use App\Models\DatosPersonasModel;
-use App\Models\AsignaturasModel;
 use App\Models\TiposEstadosModel;
 use App\Controllers\BaseController;
 
@@ -12,14 +11,12 @@ class EstudiantesController extends BaseController
 {
     protected $estudiantesModel;
     protected $datosPersonasModel;
-    protected $asignaturasModel;
     protected $tiposEstadosModel;
 
     public function __construct()
     {
         $this->estudiantesModel = new \App\Models\EstudiantesModel();
         $this->datosPersonasModel = new \App\Models\DatosPersonasModel();
-        $this->asignaturasModel = new \App\Models\AsignaturasModel();
         $this->tiposEstadosModel = new \App\Models\TiposEstadosModel();
     }
 
@@ -37,7 +34,6 @@ class EstudiantesController extends BaseController
     {
         $data = [
             'title' => 'Nuevo Estudiante',
-            'asignaturas' => $this->asignaturasModel->getAsignaturasConCarrera(),
             'estados' => $this->tiposEstadosModel->findAll()
         ];
 
@@ -137,7 +133,6 @@ class EstudiantesController extends BaseController
         $data = [
             'title' => 'Editar Estudiante',
             'estudiante' => $estudiante,
-            'asignaturas' => $this->asignaturasModel->getAsignaturasConCarrera(),
             'estados' => $this->tiposEstadosModel->findAll()
         ];
 

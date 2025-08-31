@@ -1,6 +1,5 @@
-<!-- app/Views/docente/partials/sidebarDocente.php -->
+<!-- Sidebar Start -->
 <aside class="left-sidebar">
-    <!-- Sidebar scroll-->
     <div>
         <div class="brand-logo d-flex align-items-center justify-content-between">
             <a href="<?= base_url('docente/dashboard') ?>" class="text-nowrap logo-img">
@@ -8,52 +7,48 @@
                 <span class="ms-2 fw-bold" style="font-size: 1.3rem; color: #000;">Dep. Vinculación </span>
             </a>
             <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
-                <i class="ti ti-x fs-8"></i>
+                <i class="fa-solid fa-xmark fs-8"></i>
             </div>
         </div>
-        <!-- Sidebar navigation-->
         <nav class="sidebar-nav scroll-sidebar" data-simplebar="">
             <ul id="sidebarnav">
                 <li class="nav-small-cap">
-                    <i class="ti ti-dots nav-small-cap-icon fs-6"></i>
+                    <i class="fa-solid fa-house nav-small-cap-icon fs-6"></i>
                     <span class="hide-menu">INICIO</span>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link" href="<?= base_url('docente/dashboard') ?>" aria-expanded="false">
+                    <a class="sidebar-link" href="<?= base_url('admin/dashboard') ?>" aria-expanded="false">
                         <span>
-                            <iconify-icon icon="solar:home-smile-bold-duotone" class="fs-6"></iconify-icon>
+                            <i class="fa-solid fa-gauge-high fs-6"></i>
                         </span>
                         <span class="hide-menu">Dashboard</span>
                     </a>
                 </li>
                 <li class="nav-small-cap">
-                    <i class="ti ti-dots nav-small-cap-icon fs-6"></i>
+                    <i class="fa-solid fa-book nav-small-cap-icon fs-6"></i>
                     <span class="hide-menu">EDUCACIÓN CONTINUA</span>
                 </li>
                 <li class="sidebar-item">
                     <a class="sidebar-link" href="<?= base_url('admin/educacion') ?>" aria-expanded="false">
                         <span>
-                            <iconify-icon icon="solar:layers-minimalistic-bold-duotone" class="fs-6"></iconify-icon>
+                            <i class="fa-solid fa-layer-group fs-6"></i>
                         </span>
                         <span class="hide-menu">Mis cursos</span>
                     </a>
                 </li>
                 <li class="nav-small-cap">
-                    <iconify-icon icon="solar:menu-dots-linear" class="nav-small-cap-icon fs-6" class="fs-6"></iconify-icon>
+                    <i class="fa-solid fa-briefcase nav-small-cap-icon fs-6"></i>
                     <span class="hide-menu">PRÁCTICAS</span>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link" href="<?= base_url('vinculacion/convenios') ?>" aria-expanded="false">
+                    <a class="sidebar-link" href="<?= base_url('admin/practicas') ?>" aria-expanded="false">
                         <span>
-                            <iconify-icon icon="solar:file-text-bold-duotone" class="fs-6"></iconify-icon>
+                            <i class="fa-solid fa-user-graduate fs-6"></i>
                         </span>
-                        <span class="hide-menu">Seguimientos</span>
+                        <span class="hide-menu">Practicas</span>
                     </a>
                 </li>
             </ul>
         </nav>
-        <!-- End Sidebar navigation -->
     </div>
-    <!-- End Sidebar scroll-->
 </aside>
-<!--  Sidebar End -->

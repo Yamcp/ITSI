@@ -3,7 +3,6 @@
 namespace App\Controllers\admin;
 
 use App\Models\UsuariosModel;
-use App\Models\DatosPersonasModel;
 use App\Controllers\BaseController;
 
 class PerfilAdminController extends BaseController
@@ -35,13 +34,13 @@ class PerfilAdminController extends BaseController
             'validation' => null
         ];
 
-        return view('admin/perfil/perfil', $data);
+        return view('admin/perfil/perfilAdmin', $data);
     }
 
     public function update()
     {
         if (!session()->get('logged_in')) {
-        return redirect()->to('/login');
+            return redirect()->to('/login');
         }
 
         $session = session();
@@ -50,22 +49,17 @@ class PerfilAdminController extends BaseController
             return redirect()->to(base_url('admin/perfil'));
         }
 
-        // Validación de datos del formulario
+        // Validación de datos del formulario (solo información personal)
         $rules = [
             'nombre' => 'required|min_length[3]|max_length[100]',
             'apellido' => 'required|min_length[3]|max_length[100]',
-            'cedula' => 'required|exact_length[10]|numeric',
-            'celular' => 'required|min_length[10]|max_length[10]|numeric',
-            'direccion' => 'required|min_length[5]',
-            'usuario' => 'required|min_length[3]|max_length[20]|alpha_numeric'
+            'celular' => 'permit_empty|min_length[10]|max_length[10]',
+            'direccion' => 'permit_empty|min_length[5]',
+            'email' => 'permit_empty|valid_email',
+            'genero' => 'permit_empty|in_list[Masculino,Femenino,No binario]',
+            'estado_civil' => 'permit_empty|in_list[Soltero/a,Casado/a,Divorciado/a,Viudo/a,Unión Libre]',
+            'nacionalidad' => 'permit_empty|min_length[3]|max_length[50]'
         ];
-
-        // Si se está intentando cambiar la contraseña
-        if ($this->request->getPost('password_nuevo')) {
-            $rules['password_actual'] = 'required';
-            $rules['password_nuevo'] = 'required|min_length[6]';
-            $rules['password_confirm'] = 'required|matches[password_nuevo]';
-        }
 
         if (!$this->validate($rules)) {
             return redirect()->back()->withInput()->with('validation', $this->validator);
@@ -73,68 +67,39 @@ class PerfilAdminController extends BaseController
 
         $userId = $session->get('id_usuario');
         $usuarioModel = new UsuariosModel();
-        $datoPersonaModel = new DatosPersonasModel();
 
         // Obtener información actual del usuario
-        $usuario = $usuarioModel->find($userId);
+        $usuario = $usuarioModel->getUserProfile($userId);
 
         if (!$usuario) {
             return redirect()->back()->with('error', 'Usuario no encontrado');
         }
 
-        // Verificar si el nombre de usuario ya existe (si se cambió)
-        if ($this->request->getPost('usuario') != $usuario['USUARIO']) {
-            $existingUser = $usuarioModel->where('USUARIO', $this->request->getPost('usuario'))
-                ->where('ID_USUARIO !=', $userId)
-                ->first();
-
-            if ($existingUser) {
-                return redirect()->back()->withInput()->with('error', 'El nombre de usuario ya está en uso');
-            }
-        }
-
-        // Actualizar datos de usuario
-        $usuarioData = [
-            'USUARIO' => $this->request->getPost('usuario')
-        ];
-
-        // Verificar si se está cambiando la contraseña
-        if ($this->request->getPost('password_nuevo')) {
-            // Verificar contraseña actual
-            if (!password_verify($this->request->getPost('password_actual'), $usuario['CONTRASENA'])) {
-                return redirect()->back()->withInput()->with('error', 'La contraseña actual es incorrecta');
-            }
-
-            $usuarioData['CONTRASENA'] = password_hash($this->request->getPost('password_nuevo'), PASSWORD_DEFAULT);
-        }
-
-        // Actualizar datos personales
-        $personaData = [
+        // Preparar datos personales para actualizar
+        $datosPersona = [
             'NOMBRE' => $this->request->getPost('nombre'),
             'APELLIDO' => $this->request->getPost('apellido'),
-            'CEDULA' => $this->request->getPost('cedula'),
-            'CELULAR' => $this->request->getPost('celular'),
-            'DIRECCION' => $this->request->getPost('direccion')
+            'CELULAR' => $this->request->getPost('celular') ?: null,
+            'DIRECCION' => $this->request->getPost('direccion') ?: null,
+            'EMAIL' => $this->request->getPost('email') ?: null,
+            'GENERO' => $this->request->getPost('genero') ?: null,
+            'ESTADO_CIVIL' => $this->request->getPost('estado_civil') ?: null,
+            'NACIONALIDAD' => $this->request->getPost('nacionalidad') ?: null
         ];
 
-        // Ejecutar actualización dentro de una transacción
-        $db = \Config\Database::connect();
-        $db->transStart();
+        // Si se proporciona fecha de ingreso, incluirla
+        if ($this->request->getPost('fecha_ingreso')) {
+            $datosPersona['FECHA_INGRESO'] = $this->request->getPost('fecha_ingreso');
+        }
 
-        $usuarioModel->update($userId, $usuarioData);
-        $datoPersonaModel->update($usuario['ID_DATO_PERSONA'], $personaData);
+        // Solo actualizar información personal (no contraseñas)
+        $datosUsuario = [];
 
-        $db->transComplete();
-
-        if ($db->transStatus() === false) {
+        // Actualizar perfil usando el nuevo método
+        if ($usuarioModel->actualizarPerfil($userId, $datosPersona, $datosUsuario)) {
+            return redirect()->to(base_url('admin/perfil'))->with('success', 'Perfil actualizado correctamente');
+        } else {
             return redirect()->back()->withInput()->with('error', 'Error al actualizar los datos');
         }
-
-        // Actualizar datos de sesión si es necesario
-        if ($this->request->getPost('usuario') != $usuario['USUARIO']) {
-            $session->set('username', $this->request->getPost('usuario'));
-        }
-
-        return redirect()->to(base_url('admin/perfil'))->with('success', 'Perfil actualizado correctamente');
     }
 }

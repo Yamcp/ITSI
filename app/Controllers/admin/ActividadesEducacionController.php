@@ -4,7 +4,7 @@ namespace App\Controllers\admin;
 
 use App\Models\ActividadesEducacionModel;
 use App\Models\InstructoresModel;
-use App\Models\AreasTematicasModel;
+use App\Models\LineasInvestigacionModel;
 use App\Models\TiposModalidadesModel;
 use App\Models\TiposActividadesModel;
 use App\Controllers\BaseController;
@@ -13,7 +13,7 @@ class ActividadesEducacionController extends BaseController
 {
     protected $actividadesModel;
     protected $instructoresModel;
-    protected $areasTematicasModel; // Corregido: sin tilde
+    protected $lineasInvestigacionModel;
     protected $tiposModalidadesModel;
     protected $tiposActividadesModel;
 
@@ -21,7 +21,7 @@ class ActividadesEducacionController extends BaseController
     {
         $this->actividadesModel = new ActividadesEducacionModel();
         $this->instructoresModel = new InstructoresModel();
-        $this->areasTematicasModel = new AreasTematicasModel(); // Corregido: sin tilde
+        $this->lineasInvestigacionModel = new LineasInvestigacionModel(); // Corregido: sin tilde
         $this->tiposModalidadesModel = new TiposModalidadesModel();
         $this->tiposActividadesModel = new TiposActividadesModel();
     }
@@ -41,20 +41,20 @@ class ActividadesEducacionController extends BaseController
             'actividades' => $actividades
         ];
 
-        return view('admin/educacion/educacion', $data);
+        return view('admin/educacion/actividades_educacion_views', $data);
     }
 
     public function create()
     {
         $data = [
             'title' => 'Nueva Actividad Educativa',
-            'instructores' => $this->instructoresModel->getInstructorCompleto(),
-            'areas_tematicas' => $this->areasTematicasModel->findAll(), // Corregido: sin tilde
+            'instructores' => $this->instructoresModel->getInstructoresConDatos(),
+            'lineas_investigacion' => $this->lineasInvestigacionModel->findAll(),
             'modalidades' => $this->tiposModalidadesModel->findAll(),
             'tipos_actividades' => $this->tiposActividadesModel->findAll()
         ];
 
-        return view('actividades/create', $data);
+        return view('admin/educacion/create', $data);
     }
 
     public function store()
@@ -75,7 +75,7 @@ class ActividadesEducacionController extends BaseController
         }
 
         $datos = [
-            'ID_AREA_TEMATICA' => $this->request->getPost('id_area_tematica'),
+            'ID_LINEA_INVESTIGACION' => $this->request->getPost('id_linea_investigacion'),
             'ID_INSTRUCTOR' => $this->request->getPost('id_instructor'),
             'ID_TIPO_MODALIDAD' => $this->request->getPost('id_tipo_modalidad'),
             'ID_TIPO_ACTIVIDAD' => $this->request->getPost('id_tipo_actividad'),
@@ -102,12 +102,12 @@ class ActividadesEducacionController extends BaseController
     public function show($id)
     {
         $actividad = $this->actividadesModel
-            ->select('TAB_ACTIVIDADES_EDUCACION.*, TAB_INSTRUCTORES.*, TAB_DATOS_PERSONAS.NOMBRE as NOMBRE_INSTRUCTOR, TAB_DATOS_PERSONAS.APELLIDO as APELLIDO_INSTRUCTOR, TAB_TIPOS_MODALIDADES.MODALIDAD, TAB_TIPOS_ACTIVIDADES.ACTIVIDAD, TAB_AREAS_TEMATICAS.NOMBRE as AREA_TEMATICA')
+            ->select('TAB_ACTIVIDADES_EDUCACION.*, TAB_INSTRUCTORES.*, TAB_DATOS_PERSONAS.NOMBRE as NOMBRE_INSTRUCTOR, TAB_DATOS_PERSONAS.APELLIDO as APELLIDO_INSTRUCTOR, TAB_TIPOS_MODALIDADES.MODALIDAD, TAB_TIPOS_ACTIVIDADES.ACTIVIDAD, TAB_LINEAS_INVESTIGACION.NOMBRE as LINEA_INVESTIGACION')
             ->join('TAB_INSTRUCTORES', 'TAB_ACTIVIDADES_EDUCACION.ID_INSTRUCTOR = TAB_INSTRUCTORES.ID_INSTRUCTOR')
             ->join('TAB_DATOS_PERSONAS', 'TAB_INSTRUCTORES.ID_DATO_PERSONA = TAB_DATOS_PERSONAS.ID_DATO_PERSONA')
             ->join('TAB_TIPOS_MODALIDADES', 'TAB_ACTIVIDADES_EDUCACION.ID_TIPO_MODALIDAD = TAB_TIPOS_MODALIDADES.ID_TIPO_MODALIDAD')
             ->join('TAB_TIPOS_ACTIVIDADES', 'TAB_ACTIVIDADES_EDUCACION.ID_TIPO_ACTIVIDAD = TAB_TIPOS_ACTIVIDADES.ID_TIPO_ACTIVIDAD')
-            ->join('TAB_AREAS_TEMATICAS', 'TAB_ACTIVIDADES_EDUCACION.ID_AREA_TEMATICA = TAB_AREAS_TEMATICAS.ID_AREA_TEMATICA')
+            ->join('TAB_LINEAS_INVESTIGACION', 'TAB_ACTIVIDADES_EDUCACION.ID_LINEA_INVESTIGACION = TAB_LINEAS_INVESTIGACION.ID_LINEA_INVESTIGACION')
             ->find($id);
 
         if (!$actividad) {
@@ -119,7 +119,7 @@ class ActividadesEducacionController extends BaseController
             'actividad' => $actividad
         ];
 
-        return view('actividades/show', $data);
+        return view('admin/educacion/show', $data);
     }
 
     public function calendario()
@@ -147,6 +147,6 @@ class ActividadesEducacionController extends BaseController
             'eventos' => json_encode($eventos)
         ];
 
-        return view('actividades/calendario', $data);
+        return view('admin/educacion/calendario', $data);
     }
 }

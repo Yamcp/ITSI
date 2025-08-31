@@ -13,7 +13,7 @@
                 <li class="nav-item me-3">
                     <span class="text-white fw-medium">
                         <i class="ti ti-user-circle me-1"></i>
-                        Bienvenido al sistema, <?= session('nombres') ?? '' ?>
+                        Bienvenido al sistema, <?= session('nombre') ?? 'Administrador' ?>
                     </span>
                 </li>
                 <li class="nav-item dropdown">
@@ -37,7 +37,7 @@
                                 <p class="mb-0 fs-3">Mi Cuenta</p>
                             </a>
                             <hr class="dropdown-divider">
-                            <a href="<?= base_url('login/cerrar-sesion') ?>" class="btn btn-outline-danger mx-3 mt-2 d-block">
+                            <a href="<?= base_url('auth/cerrar-sesion') ?>" class="btn btn-outline-danger mx-3 mt-2 d-block">
                                 <i class="ti ti-logout me-1"></i>Cerrar sesión
                             </a>
                         </div>

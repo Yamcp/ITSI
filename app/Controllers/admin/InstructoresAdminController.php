@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Controllers;
+namespace App\Controllers\admin;
 
 use App\Models\InstructoresModel;
 use App\Models\ActividadesEducacionModel;
-use App\Models\TipoInstructoresModel;
+use App\Models\TiposInstructoresModel;
+use App\Controllers\BaseController;
 
-class InstructoresController extends BaseController
+class InstructoresAdminController extends BaseController
 {
     protected $instructoresModel;
     protected $actividadesModel;
@@ -26,7 +27,7 @@ class InstructoresController extends BaseController
             'instructores' => $this->instructoresModel->getInstructoresConDatos()
         ];
 
-        return view('instructores/index', $data);
+        return view('admin/instructores/instructores_views', $data);
     }
 
     public function actividades($idInstructor)
@@ -45,6 +46,6 @@ class InstructoresController extends BaseController
             'actividades' => $actividades
         ];
 
-        return view('instructores/actividades', $data);
+        return view('admin/instructores/actividades', $data);
     }
 }

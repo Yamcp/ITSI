@@ -45,11 +45,11 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link" href="<?= base_url('vinculacion/proyectos') ?>" aria-expanded="false">
+                    <a class="sidebar-link" href="<?= base_url('admin/instructores') ?>" aria-expanded="false">
                         <span>
-                            <i class="fa-solid fa-chart-column fs-6"></i>
+                            <i class="fa-solid fa-person-chalkboard fs-6"></i>
                         </span>
-                        <span class="hide-menu">Estadísticas</span>
+                        <span class="hide-menu">Instructores</span>
                     </a>
                 </li>
                 <li class="nav-small-cap">
@@ -57,19 +57,11 @@
                     <span class="hide-menu">PRÁCTICAS</span>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link" href="<?= base_url('practicas/preprofesionales') ?>" aria-expanded="false">
+                    <a class="sidebar-link" href="<?= base_url('admin/practicas') ?>" aria-expanded="false">
                         <span>
                             <i class="fa-solid fa-user-graduate fs-6"></i>
                         </span>
-                        <span class="hide-menu">Preprofesionales</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="<?= base_url('practicas/servicio-comunitario') ?>" aria-expanded="false">
-                        <span>
-                            <i class="fa-solid fa-people-group fs-6"></i>
-                        </span>
-                        <span class="hide-menu">Servicio Comunitario</span>
+                        <span class="hide-menu">Practicas</span>
                     </a>
                 </li>
                 <li class="sidebar-item">
@@ -105,7 +97,7 @@
                     <span class="hide-menu">BACKUP</span>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link" href="<?= base_url('investigacion/proyectos') ?>" aria-expanded="false">
+                    <a class="sidebar-link" href="<?= base_url('admin/backup') ?>" aria-expanded="false">
                         <span>
                             <i class="fa-solid fa-cloud-arrow-up fs-6"></i>
                         </span>
@@ -116,4 +108,3 @@
         </nav>
     </div>
 </aside>
-<!--  Sidebar End -->

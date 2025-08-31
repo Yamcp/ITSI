@@ -3,18 +3,18 @@
 namespace App\Controllers\admin;
 
 use App\Models\InstitucionesConveniosModel;
-use App\Models\TiposInstitucionModel;
+use App\Models\TiposInstitucionesModel;
 use App\Controllers\BaseController;
 
-class InstitucionesConveniosController extends BaseController
+class InstitucionesConveniosAdminController extends BaseController
 {
     protected $institucionesModel;
-    protected $tiposInstitucionModel;
+    protected $tiposInstitucionesModel;
 
     public function __construct()
     {
         $this->institucionesModel = new \App\Models\InstitucionesConveniosModel();
-        $this->tiposInstitucionModel = new \App\Models\TiposInstitucionModel();
+        $this->tiposInstitucionesModel = new \App\Models\TiposInstitucionesModel();
     }
 
     public function index()
@@ -29,14 +29,14 @@ class InstitucionesConveniosController extends BaseController
             'instituciones' => $instituciones
         ];
 
-        return view('admin/convenios/convenios', $data);
+        return view('admin/convenios/convenios_views', $data);
     }
 
     public function create()
     {
         $data = [
             'title' => 'Nueva Institución',
-            'tipos_institucion' => $this->tiposInstitucionModel->findAll()
+            'tipos_institucion' => $this->tiposInstitucionesModel->findAll()
         ];
 
         return view('instituciones/create', $data);
@@ -94,7 +94,7 @@ class InstitucionesConveniosController extends BaseController
         }
 
         // Buscar convenios asociados
-        $conveniosModel = new \App\Models\ConveniosModel();
+        $conveniosModel = new \App\Models\InstitucionesConveniosModel();
         $convenios = $conveniosModel->where('ID_INSTITUCION_CONVENIO', $id)->findAll();
 
         $data = [
