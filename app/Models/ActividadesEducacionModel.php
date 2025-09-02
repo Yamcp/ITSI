@@ -73,4 +73,18 @@ class ActividadesEducacionModel extends Model
     {
         return $this->where('ID_TIPO_ACTIVIDAD', $idTipo)->findAll();
     }
+    
+    // Obtener todas las actividades con información relacionada (sin duplicados)
+    public function getActividadesConDatos()
+    {
+        $builder = $this->db->table('TAB_ACTIVIDADES_EDUCACION ae')
+            ->select('ae.*, ta.ACTIVIDAD as ACTIVIDAD, tm.MODALIDAD, i.ESPECIALIDAD, dp.NOMBRE, dp.APELLIDO')
+            ->join('TAB_TIPOS_ACTIVIDADES ta', 'ta.ID_TIPO_ACTIVIDAD = ae.ID_TIPO_ACTIVIDAD', 'left')
+            ->join('TAB_TIPOS_MODALIDADES tm', 'tm.ID_TIPO_MODALIDAD = ae.ID_TIPO_MODALIDAD', 'left')
+            ->join('TAB_INSTRUCTORES i', 'i.ID_INSTRUCTOR = ae.ID_INSTRUCTOR', 'left')
+            ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = i.ID_DATO_PERSONA', 'left')
+            ->orderBy('ae.FECHA_INICIO', 'DESC');
+            
+        return $builder->get()->getResultArray();
+    }
 }

@@ -83,13 +83,51 @@ class ExportacionesModel extends Model
     {
         return $this->select('
                 TAB_EXPORTACIONES.*,
-                TAB_USUARIOS.NOMBRE,
-                TAB_USUARIOS.APELLIDO,
-                TAB_USUARIOS.USUARIO
+                TAB_USUARIOS.USUARIO,
+                TAB_DATOS_PERSONAS.NOMBRE,
+                TAB_DATOS_PERSONAS.APELLIDO
             ')
             ->join('TAB_USUARIOS', 'TAB_USUARIOS.ID_USUARIO = TAB_EXPORTACIONES.ID_USUARIO', 'left')
+            ->join('TAB_DATOS_PERSONAS', 'TAB_DATOS_PERSONAS.ID_DATO_PERSONA = TAB_USUARIOS.ID_DATO_PERSONA', 'left')
             ->where('TAB_EXPORTACIONES.TIPO_EXPORTACION', 'backup')
             ->orderBy('TAB_EXPORTACIONES.FECHA_EXPORTACION', 'DESC')
             ->findAll();
+    }
+
+    // Método para obtener un backup específico con información del usuario
+    public function getBackupWithUser($id)
+    {
+        return $this->select('
+                TAB_EXPORTACIONES.*,
+                TAB_USUARIOS.USUARIO,
+                TAB_DATOS_PERSONAS.NOMBRE,
+                TAB_DATOS_PERSONAS.APELLIDO
+            ')
+            ->join('TAB_USUARIOS', 'TAB_USUARIOS.ID_USUARIO = TAB_EXPORTACIONES.ID_USUARIO', 'left')
+            ->join('TAB_DATOS_PERSONAS', 'TAB_DATOS_PERSONAS.ID_DATO_PERSONA = TAB_USUARIOS.ID_DATO_PERSONA', 'left')
+            ->where('TAB_EXPORTACIONES.ID_EXPORTACION', $id)
+            ->first();
+    }
+
+    // Método para crear un nuevo backup
+    public function crearBackup($data)
+    {
+        $backupData = [
+            'ID_USUARIO' => $data['ID_USUARIO'] ?? session('id_usuario'),
+            'FECHA_EXPORTACION' => date('Y-m-d H:i:s'),
+            'DESCRIPCION_EXPORTACION' => $data['DESCRIPCION_EXPORTACION'] ?? 'Backup del sistema',
+            'TIPO_EXPORTACION' => 'backup',
+            'ESTADO_EXPORTACION' => 'completado',
+            'ARCHIVO_EXPORTACION' => $data['ARCHIVO_EXPORTACION'] ?? null,
+            'TAMANO_ARCHIVO' => $data['TAMANO_ARCHIVO'] ?? null
+        ];
+
+        return $this->insert($backupData);
+    }
+
+    // Método para actualizar el estado de un backup
+    public function actualizarEstado($id, $estado)
+    {
+        return $this->update($id, ['ESTADO_EXPORTACION' => $estado]);
     }
 }

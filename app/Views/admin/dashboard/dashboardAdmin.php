@@ -130,7 +130,7 @@
                                     <i class="fas fa-users"></i>
                                 </div>
                                 <div>
-                                    <h3 class="mb-1" id="totalEstudiantes">1,247</h3>
+                                    <h3 class="mb-1" id="totalEstudiantes"><?= number_format($metricas['totalEstudiantes']) ?></h3>
                                     <p class="mb-0" style="color: #e0e0e0;">Total Estudiantes</p>
                                 </div>
                             </div>
@@ -148,7 +148,7 @@
                                     <i class="fas fa-chalkboard-teacher"></i>
                                 </div>
                                 <div>
-                                    <h3 class="mb-1" id="totalInstructores">89</h3>
+                                    <h3 class="mb-1" id="totalInstructores"><?= number_format($metricas['totalInstructores']) ?></h3>
                                     <p class="mb-0" style="color: #ffe6e6;">Instructores</p>
                                 </div>
                             </div>
@@ -166,7 +166,7 @@
                                     <i class="fas fa-graduation-cap"></i>
                                 </div>
                                 <div>
-                                    <h3 class="mb-1" id="actividadesActivas">156</h3>
+                                    <h3 class="mb-1" id="actividadesActivas"><?= number_format($metricas['actividadesActivas']) ?></h3>
                                     <p class="mb-0" style="color: #e0e0e0;">Actividades Activas</p>
                                 </div>
                             </div>
@@ -184,7 +184,7 @@
                                     <i class="fas fa-handshake"></i>
                                 </div>
                                 <div>
-                                    <h3 class="mb-1" id="conveniosVigentes">34</h3>
+                                    <h3 class="mb-1" id="conveniosVigentes"><?= number_format($metricas['conveniosVigentes']) ?></h3>
                                     <p class="mb-0" style="color: #e0e0e0;">Convenios Vigentes</p>
                                 </div>
                             </div>
@@ -268,123 +268,6 @@
             </div>
         </div>
 
-        <!-- Acciones Rápidas y Timeline -->
-        <div class="row mb-4">
-            <!-- Acciones Rápidas -->
-            <div class="col-xl-4 col-lg-5 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-bolt me-2 text-warning"></i>
-                            Acciones Rápidas
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row g-3">
-                            <div class="col-6">
-                                <div class="card quick-action-card text-center p-3" onclick="navegarA('practicas')">
-                                    <i class="fas fa-briefcase fa-2x text-primary mb-2"></i>
-                                    <h6 class="mb-1">Prácticas</h6>
-                                    <small class="text-muted">Gestionar</small>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="card quick-action-card text-center p-3" onclick="navegarA('convenios')">
-                                    <i class="fas fa-handshake fa-2x text-success mb-2"></i>
-                                    <h6 class="mb-1">Convenios</h6>
-                                    <small class="text-muted">Administrar</small>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="card quick-action-card text-center p-3" onclick="navegarA('educacion')">
-                                    <i class="fas fa-graduation-cap fa-2x text-info mb-2"></i>
-                                    <h6 class="mb-1">Educación</h6>
-                                    <small class="text-muted">Actividades</small>
-                                </div>
-                            </div>
-                            <div class="col-6">
-                                <div class="card quick-action-card text-center p-3" onclick="navegarA('instructores')">
-                                    <i class="fas fa-chalkboard-teacher fa-2x text-warning mb-2"></i>
-                                    <h6 class="mb-1">Instructores</h6>
-                                    <small class="text-muted">Gestionar</small>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Timeline de Actividades -->
-            <div class="col-xl-8 col-lg-7 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-history me-2 text-info"></i>
-                            Actividades Recientes
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="activity-timeline">
-                            <div class="timeline-item success">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <h6 class="mb-1">Nueva Práctica Asignada</h6>
-                                        <p class="text-muted mb-1">Se asignó práctica preprofesional a Ana Yandun en Banco del Pacífico</p>
-                                        <small class="text-muted">Hace 2 horas</small>
-                                    </div>
-                                    <span class="badge bg-success">Completado</span>
-                                </div>
-                            </div>
-                            
-                            <div class="timeline-item warning">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <h6 class="mb-1">Convenio por Vencer</h6>
-                                        <p class="text-muted mb-1">Convenio con Hospital San Vicente vence en 15 días</p>
-                                        <small class="text-muted">Hace 4 horas</small>
-                                    </div>
-                                    <span class="badge bg-warning text-dark">Pendiente</span>
-                                </div>
-                            </div>
-                            
-                            <div class="timeline-item info">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <h6 class="mb-1">Nueva Actividad Educativa</h6>
-                                        <p class="text-muted mb-1">Se registró curso "Desarrollo Web Full Stack" con Ing. Carlos Mendoza</p>
-                                        <small class="text-muted">Hace 6 horas</small>
-                                    </div>
-                                    <span class="badge bg-info">Nuevo</span>
-                                </div>
-                            </div>
-                            
-                            <div class="timeline-item success">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <h6 class="mb-1">Evaluación Completada</h6>
-                                        <p class="text-muted mb-1">Se completó evaluación del instructor Tec. Ana Ruiz</p>
-                                        <small class="text-muted">Hace 1 día</small>
-                                    </div>
-                                    <span class="badge bg-success">Completado</span>
-                                </div>
-                            </div>
-                            
-                            <div class="timeline-item warning">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <h6 class="mb-1">Documento Pendiente</h6>
-                                        <p class="text-muted mb-1">Pedro Aguirre debe subir informe semanal de práctica</p>
-                                        <small class="text-muted">Hace 2 días</small>
-                                    </div>
-                                    <span class="badge bg-warning text-dark">Pendiente</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Estadísticas Detalladas -->
         <div class="row mb-4">
             <!-- Próximos Vencimientos -->
@@ -408,24 +291,43 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td>Convenio Hospital San Vicente</td>
-                                        <td>15/09/2025</td>
-                                        <td><span class="badge bg-danger">15 días</span></td>
-                                        <td><span class="badge bg-warning text-dark">Crítico</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Práctica Ana Yandun</td>
-                                        <td>30/09/2025</td>
-                                        <td><span class="badge bg-warning text-dark">30 días</span></td>
-                                        <td><span class="badge bg-info">Normal</span></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Curso Desarrollo Web</td>
-                                        <td>15/10/2025</td>
-                                        <td><span class="badge bg-success">45 días</span></td>
-                                        <td><span class="badge bg-success">Seguro</span></td>
-                                    </tr>
+                                    <?php if (!empty($vencimientos['convenios'])): ?>
+                                        <?php foreach ($vencimientos['convenios'] as $convenio): ?>
+                                            <?php 
+                                            $fechaVencimiento = new DateTime($convenio['FECHA_FIN']);
+                                            $fechaActual = new DateTime();
+                                            $diasRestantes = $fechaActual->diff($fechaVencimiento)->days;
+                                            
+                                            $badgeClass = 'bg-success';
+                                            $estadoClass = 'bg-success';
+                                            $estado = 'Seguro';
+                                            
+                                            if ($diasRestantes <= 7) {
+                                                $badgeClass = 'bg-danger';
+                                                $estadoClass = 'bg-danger';
+                                                $estado = 'Crítico';
+                                            } elseif ($diasRestantes <= 15) {
+                                                $badgeClass = 'bg-warning text-dark';
+                                                $estadoClass = 'bg-warning text-dark';
+                                                $estado = 'Pendiente';
+                                            } elseif ($diasRestantes <= 30) {
+                                                $badgeClass = 'bg-info';
+                                                $estadoClass = 'bg-info';
+                                                $estado = 'Normal';
+                                            }
+                                            ?>
+                                            <tr>
+                                                <td><?= esc($convenio['INSTITUCION']) ?></td>
+                                                <td><?= date('d/m/Y', strtotime($convenio['FECHA_FIN'])) ?></td>
+                                                <td><span class="badge <?= $badgeClass ?>"><?= $diasRestantes ?> días</span></td>
+                                                <td><span class="badge <?= $estadoClass ?>"><?= $estado ?></span></td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <tr>
+                                            <td colspan="4" class="text-center text-muted">No hay convenios próximos a vencer</td>
+                                        </tr>
+                                    <?php endif; ?>
                                 </tbody>
                             </table>
                         </div>
@@ -446,20 +348,20 @@
                         <div class="row text-center">
                             <div class="col-6 mb-3">
                                 <div class="border-end">
-                                    <h4 class="text-primary mb-1">24</h4>
-                                    <p class="text-muted mb-0">Prácticas Activas</p>
+                                    <h4 class="text-primary mb-1"><?= number_format($metricas['totalEstudiantes']) ?></h4>
+                                    <p class="text-muted mb-0">Total Estudiantes</p>
                                 </div>
                             </div>
                             <div class="col-6 mb-3">
-                                <h4 class="text-success mb-1">156</h4>
-                                <p class="text-muted mb-0">Actividades Educativas</p>
+                                <h4 class="text-success mb-1"><?= number_format($metricas['actividadesActivas']) ?></h4>
+                                <p class="text-muted mb-0">Actividades Activas</p>
                             </div>
                             <div class="col-6">
-                                <h4 class="text-info mb-1">34</h4>
+                                <h4 class="text-info mb-1"><?= number_format($metricas['conveniosVigentes']) ?></h4>
                                 <p class="text-muted mb-0">Convenios Vigentes</p>
                             </div>
                             <div class="col-6">
-                                <h4 class="text-warning mb-1">89</h4>
+                                <h4 class="text-warning mb-1"><?= number_format($metricas['totalInstructores']) ?></h4>
                                 <p class="text-muted mb-0">Instructores</p>
                             </div>
                         </div>
@@ -487,29 +389,31 @@
 
     // Gráfica de Actividades por Mes
     const actividadesCtx = document.getElementById('actividadesChart').getContext('2d');
+    
+    // Preparar datos mensuales
+    <?php 
+    $estadisticasMensuales = $datosGraficas['estadisticasMensuales'];
+    $meses = array_column($estadisticasMensuales, 'mes');
+    $datosActividades = array_column($estadisticasMensuales, 'actividades');
+    $datosPracticas = array_column($estadisticasMensuales, 'practicas');
+    ?>
+    
     const actividadesChart = new Chart(actividadesCtx, {
         type: 'line',
         data: {
-            labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
+            labels: <?= json_encode($meses) ?>,
             datasets: [{
-                label: 'Cursos',
-                data: [12, 19, 15, 25, 22, 30, 28, 35, 32, 40, 38, 45],
+                label: 'Actividades Educativas',
+                data: <?= json_encode($datosActividades) ?>,
                 borderColor: '#667eea',
                 backgroundColor: 'rgba(102, 126, 234, 0.1)',
                 tension: 0.4,
                 fill: true
             }, {
-                label: 'Talleres',
-                data: [8, 12, 10, 18, 15, 22, 20, 28, 25, 32, 30, 38],
+                label: 'Prácticas Asignadas',
+                data: <?= json_encode($datosPracticas) ?>,
                 borderColor: '#f093fb',
                 backgroundColor: 'rgba(240, 147, 251, 0.1)',
-                tension: 0.4,
-                fill: true
-            }, {
-                label: 'Seminarios',
-                data: [3, 5, 4, 8, 6, 12, 10, 15, 12, 18, 16, 22],
-                borderColor: '#4facfe',
-                backgroundColor: 'rgba(79, 172, 254, 0.1)',
                 tension: 0.4,
                 fill: true
             }]
@@ -543,14 +447,18 @@
     const carrerasChart = new Chart(carrerasCtx, {
         type: 'doughnut',
         data: {
-            labels: ['Sistemas de Información', 'Desarrollo de Software', 'Redes y Telecomunicaciones', 'Otras'],
+            labels: <?= json_encode(array_column($distribucionCarreras, 'CARRERA')) ?>,
             datasets: [{
-                data: [45, 30, 20, 5],
+                data: <?= json_encode(array_column($distribucionCarreras, 'TOTAL')) ?>,
                 backgroundColor: [
                     '#667eea',
                     '#f093fb',
                     '#4facfe',
-                    '#43e97b'
+                    '#43e97b',
+                    '#ff6b6b',
+                    '#4ecdc4',
+                    '#45b7d1',
+                    '#96ceb4'
                 ],
                 borderWidth: 0
             }]
@@ -572,24 +480,28 @@
 
     // Gráfica de Rendimiento de Prácticas
     const practicasCtx = document.getElementById('practicasChart').getContext('2d');
+    
+    // Preparar datos de prácticas por estado
+    <?php 
+    $practicasPorEstado = $datosGraficas['practicasPorEstado'];
+    $estadosPracticas = [];
+    $datosPracticas = [];
+    $coloresPracticas = ['#28a745', '#ffc107', '#dc3545', '#17a2b8', '#6f42c1'];
+    
+    foreach ($practicasPorEstado as $index => $estado) {
+        $estadosPracticas[] = $estado['ESTADO'];
+        $datosPracticas[] = (int)$estado['total'];
+    }
+    ?>
+    
     const practicasChart = new Chart(practicasCtx, {
         type: 'bar',
         data: {
-            labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun'],
+            labels: <?= json_encode($estadosPracticas) ?>,
             datasets: [{
-                label: 'Completadas',
-                data: [65, 72, 68, 75, 80, 85],
-                backgroundColor: '#28a745',
-                borderRadius: 5
-            }, {
-                label: 'En Proceso',
-                data: [25, 28, 32, 30, 25, 20],
-                backgroundColor: '#ffc107',
-                borderRadius: 5
-            }, {
-                label: 'Pendientes',
-                data: [10, 8, 12, 15, 10, 8],
-                backgroundColor: '#dc3545',
+                label: 'Prácticas por Estado',
+                data: <?= json_encode($datosPracticas) ?>,
+                backgroundColor: <?= json_encode($coloresPracticas) ?>,
                 borderRadius: 5
             }]
         },
@@ -619,13 +531,15 @@
 
     // Gráfica de Evaluación de Instructores
     const evaluacionCtx = document.getElementById('evaluacionChart').getContext('2d');
+    
+    // Datos simulados para evaluación (puedes reemplazar con datos reales cuando tengas el modelo de evaluaciones)
     const evaluacionChart = new Chart(evaluacionCtx, {
         type: 'radar',
         data: {
             labels: ['Conocimiento Técnico', 'Comunicación', 'Puntualidad', 'Metodología', 'Evaluación', 'Disponibilidad'],
             datasets: [{
                 label: 'Promedio General',
-                data: [4.8, 4.6, 4.9, 4.7, 4.5, 4.8],
+                data: [4.2, 4.1, 4.3, 4.0, 4.1, 4.2],
                 borderColor: '#ffc107',
                 backgroundColor: 'rgba(255, 193, 7, 0.2)',
                 pointBackgroundColor: '#ffc107',
@@ -663,7 +577,9 @@
             'practicas': '/admin/practicas',
             'convenios': '/admin/convenios',
             'educacion': '/admin/educacion',
-            'instructores': '/admin/instructores'
+            'instructores': '/admin/instructores',
+            'documentos-practicas': '/admin/documentos-practicas',
+            'reportes': '/admin/reportes'
         };
         
         if (rutas[seccion]) {
@@ -671,26 +587,7 @@
         }
     }
 
-    // Simular datos en tiempo real
-    function actualizarMetricas() {
-        // Simular cambios en las métricas
-        const estudiantes = document.getElementById('totalEstudiantes');
-        const instructores = document.getElementById('totalInstructores');
-        const actividades = document.getElementById('actividadesActivas');
-        const convenios = document.getElementById('conveniosVigentes');
-        
-        // Simular incrementos aleatorios
-        setInterval(() => {
-            estudiantes.textContent = Math.floor(Math.random() * 50 + 1247);
-            instructores.textContent = Math.floor(Math.random() * 10 + 89);
-            actividades.textContent = Math.floor(Math.random() * 20 + 156);
-            convenios.textContent = Math.floor(Math.random() * 5 + 34);
-        }, 10000); // Actualizar cada 10 segundos
-    }
-
-    // Inicializar actualizaciones
-    document.addEventListener('DOMContentLoaded', function() {
-        actualizarMetricas();
-    });
+    // Los datos ahora se cargan desde la base de datos
+    // No es necesario simular datos en tiempo real
 </script>
 <?= $this->endSection() ?>

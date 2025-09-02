@@ -10,7 +10,7 @@
                 <i class="fa-solid fa-xmark fs-8"></i>
             </div>
         </div>
-        <nav class="sidebar-nav scroll-sidebar" data-simplebar="">
+        <nav class="sidebar-nav scroll-sidebar" data-simplebar="" style="margin-top: -29px;">
             <ul id="sidebarnav">
                 <li class="nav-small-cap">
                     <i class="fa-solid fa-house nav-small-cap-icon fs-6"></i>
@@ -37,7 +37,7 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link" href="<?= base_url('vinculacion/convenios') ?>" aria-expanded="false">
+                    <a class="sidebar-link" href="<?= base_url('admin/evaluaciones') ?>" aria-expanded="false">
                         <span>
                             <i class="fa-solid fa-clipboard-check fs-6"></i>
                         </span>
@@ -61,7 +61,23 @@
                         <span>
                             <i class="fa-solid fa-user-graduate fs-6"></i>
                         </span>
-                        <span class="hide-menu">Practicas</span>
+                        <span class="hide-menu">Prácticas</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link" href="<?= base_url('admin/documentos/practicas') ?>" aria-expanded="false">
+                        <span>
+                            <i class="fa-solid fa-folder-open fs-6"></i>
+                        </span>
+                        <span class="hide-menu">Documentos - Preprofesionales</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link" href="<?= base_url('admin/documentos/servicio-comunitario') ?>" aria-expanded="false">
+                        <span>
+                            <i class="fa-solid fa-hands-helping fs-6"></i>
+                        </span>
+                        <span class="hide-menu">Documentos - Servicio Comunitario</span>
                     </a>
                 </li>
                 <li class="sidebar-item">
@@ -70,26 +86,6 @@
                             <i class="fa-solid fa-handshake fs-6"></i>
                         </span>
                         <span class="hide-menu">Convenios</span>
-                    </a>
-                </li>
-                <li class="nav-small-cap">
-                    <i class="fa-solid fa-flask nav-small-cap-icon fs-4"></i>
-                    <span class="hide-menu">INVESTIGACIÓN</span>
-                </li>
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="<?= base_url('investigacion/proyectos') ?>" aria-expanded="false">
-                        <span>
-                            <i class="fa-solid fa-folder-open fs-6"></i>
-                        </span>
-                        <span class="hide-menu">Proyectos</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="<?= base_url('investigacion/publicaciones') ?>" aria-expanded="false">
-                        <span>
-                            <i class="fa-solid fa-file-lines fs-6"></i>
-                        </span>
-                        <span class="hide-menu">Publicaciones</span>
                     </a>
                 </li>
                 <li class="nav-small-cap">

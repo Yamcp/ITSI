@@ -12,18 +12,6 @@
         box-shadow: 0 10px 30px rgba(0,0,0,0.1);
     }
     
-    .stats-card {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        color: white;
-        border: none;
-        border-radius: 15px;
-        transition: transform 0.3s ease;
-    }
-    
-    .stats-card:hover {
-        transform: translateY(-5px);
-    }
-    
     .action-card {
         border: none;
         border-radius: 15px;
@@ -110,33 +98,41 @@
             </div>
         </div>
 
-        
         <!-- Acciones Rápidas -->
         <div class="row mb-4">
-            <div class="col-md-4 col-sm-6 mb-3">
+            <div class="col-md-3 col-sm-6 mb-3">
                 <div class="card text-center shadow-sm action-card h-100" onclick="showModal('modalNuevoBackup')">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <i class="fas fa-plus-circle fa-3x mb-3 text-primary"></i>
+                        <i class="fas fa-plus-circle fa-2x mb-3 text-primary"></i>
                         <div class="fw-bold text-primary">Generar Backup</div>
                         <small class="text-muted">Crear nuevo respaldo del sistema</small>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 col-sm-6 mb-3">
+            <div class="col-md-3 col-sm-6 mb-3">
                 <div class="card text-center shadow-sm action-card h-100" onclick="showModal('modalConfiguracion')">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <i class="fas fa-cog fa-3x mb-3 text-warning"></i>
+                        <i class="fas fa-cog fa-2x mb-3 text-warning"></i>
                         <div class="fw-bold text-warning">Configuración</div>
                         <small class="text-muted">Ajustar parámetros de backup</small>
                     </div>
                 </div>
             </div>
-            <div class="col-md-4 col-sm-6 mb-3">
+            <div class="col-md-3 col-sm-6 mb-3">
                 <div class="card text-center shadow-sm action-card h-100" onclick="exportarHistorial()">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <i class="fas fa-download fa-3x mb-3 text-success"></i>
+                        <i class="fas fa-download fa-2x mb-3 text-success"></i>
                         <div class="fw-bold text-success">Exportar Historial</div>
                         <small class="text-muted">Descargar registro de backups</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card text-center shadow-sm action-card h-100" onclick="showModal('modalFiltros')">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                        <i class="fas fa-filter fa-2x mb-3 text-info"></i>
+                        <div class="fw-bold text-info">Filtros</div>
+                        <small class="text-muted">Buscar backups específicos</small>
                     </div>
                 </div>
             </div>
@@ -151,12 +147,17 @@
                             <i class="fas fa-history me-2"></i>
                             Historial de Backups
                         </span>
-                        <button class="btn btn-light btn-sm" onclick="showModal('modalFiltros')">
-                            <i class="fas fa-filter me-1"></i>Filtros
-                        </button>
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-light btn-sm" onclick="limpiarFiltros()">
+                                <i class="fas fa-eraser me-1"></i>Limpiar
+                            </button>
+                            <button class="btn btn-light btn-sm" onclick="showModal('modalFiltros')">
+                                <i class="fas fa-filter me-1"></i>Filtros
+                            </button>
+                        </div>
                     </div>
                     <div class="card-body p-0">
-                        <?php if (!empty($exportaciones)): ?>
+                        <?php if (isset($exportaciones) && !empty($exportaciones)): ?>
                             <div class="table-responsive">
                                 <table class="table table-striped align-middle mb-0">
                                     <thead>
@@ -166,7 +167,7 @@
                                             <th>Fecha y Hora</th>
                                             <th>Descripción</th>
                                             <th>Estado</th>
-                                            <th>Tamaño</th>
+                                            <th>Tipo</th>
                                             <th>Acciones</th>
                                         </tr>
                                     </thead>
@@ -206,7 +207,7 @@
                                                     <span class="badge badge-modern bg-success text-white">Completado</span>
                                                 </td>
                                                 <td>
-                                                    <span class="badge bg-info">2.5 MB</span>
+                                                    <span class="badge bg-info">Sistema</span>
                                                 </td>
                                                 <td>
                                                     <div class="btn-group btn-group-sm">
@@ -237,6 +238,9 @@
                                 <i class="fas fa-database"></i>
                                 <h5>No hay backups registrados</h5>
                                 <p class="text-muted">Genera tu primer backup para comenzar a proteger la información del sistema.</p>
+                                <button class="btn btn-primary btn-modern" onclick="showModal('modalNuevoBackup')">
+                                    <i class="fas fa-plus me-2"></i>Generar Primer Backup
+                                </button>
                             </div>
                         <?php endif; ?>
                     </div>
@@ -376,6 +380,105 @@
     </div>
 </div>
 
+<!-- Modal Detalle de Backup -->
+<div class="modal fade" id="modalDetalleBackup" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header bg-info text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Detalle del Backup
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">Información General</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>ID:</strong> <span id="detalleId">-</span></p>
+                                        <p><strong>Usuario:</strong> <span id="detalleUsuario">-</span></p>
+                                        <p><strong>Fecha:</strong> <span id="detalleFecha">-</span></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Descripción:</strong> <span id="detalleDescripcion">-</span></p>
+                                        <p><strong>Estado:</strong> <span id="detalleEstado">-</span></p>
+                                        <p><strong>Tipo:</strong> <span id="detalleTipo">-</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">Información del Sistema</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Versión del Sistema:</strong> <span>1.0.0</span></p>
+                                        <p><strong>Base de Datos:</strong> <span>MySQL 8.0</span></p>
+                                        <p><strong>Servidor:</strong> <span>Apache 2.4</span></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>PHP:</strong> <span>8.1.0</span></p>
+                                        <p><strong>Framework:</strong> <span>CodeIgniter 4</span></p>
+                                        <p><strong>Fecha de Creación:</strong> <span id="detalleFechaCreacion">-</span></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">Estado del Backup</h6>
+                            </div>
+                            <div class="card-body text-center">
+                                <div class="progress-circle mb-3">
+                                    <canvas id="estadoChart" width="150" height="150"></canvas>
+                                </div>
+                                <h4 id="estadoPercent">100%</h4>
+                                <p class="text-muted" id="estadoDias">Completado</p>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">Acciones</h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-outline-success btn-sm" onclick="descargarBackup(currentBackupId)">
+                                        <i class="fas fa-download me-1"></i>Descargar Backup
+                                    </button>
+                                    <button class="btn btn-outline-warning btn-sm" onclick="restaurarBackup(currentBackupId)">
+                                        <i class="fas fa-undo me-1"></i>Restaurar Sistema
+                                    </button>
+                                    <button class="btn btn-outline-info btn-sm" onclick="verLogs(currentBackupId)">
+                                        <i class="fas fa-file-alt me-1"></i>Ver Logs
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                <button type="button" class="btn btn-primary">
+                    <i class="fas fa-edit me-1"></i>Editar Backup
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Filtros -->
 <div class="modal fade" id="modalFiltros" tabindex="-1">
     <div class="modal-dialog">
@@ -406,10 +509,8 @@
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="mb-3">
-                                    <label class="form-label">Fecha Hasta</label>
-                                    <input type="date" class="form-control" name="fecha_hasta">
-                                </label>
+                                <label class="form-label">Fecha Hasta</label>
+                                <input type="date" class="form-control" name="fecha_hasta">
                             </div>
                         </div>
                     </div>
@@ -438,106 +539,499 @@
 
 <?= $this->section('scripts') ?>
 <script>
+    // Variable global para el ID del backup actual
+    let currentBackupId = null;
+
     // Funciones principales
     function showModal(modalId) {
-        const modal = new bootstrap.Modal(document.getElementById(modalId));
-        modal.show();
+        console.log('showModal called with:', modalId);
+        try {
+            if (typeof bootstrap !== 'undefined') {
+                const modalElement = document.getElementById(modalId);
+                if (modalElement) {
+                    const modal = new bootstrap.Modal(modalElement);
+                    modal.show();
+                } else {
+                    console.error('Modal no encontrado:', modalId);
+                    alert('Modal no encontrado: ' + modalId);
+                }
+            } else {
+                console.error('Bootstrap no está disponible');
+                alert('Bootstrap no está disponible');
+            }
+        } catch (error) {
+            console.error('Error al abrir modal:', error);
+            alert('Error al abrir la ventana: ' + error.message);
+        }
     }
 
     function generarBackup() {
-        showNotification('Generando backup del sistema...', 'info');
-        // Aquí iría la lógica para generar el backup
-        setTimeout(() => {
-            showNotification('Backup generado exitosamente', 'success');
-            bootstrap.Modal.getInstance(document.getElementById('modalNuevoBackup')).hide();
-            // Recargar la página para mostrar el nuevo backup
-            location.reload();
-        }, 2000);
+        console.log('generarBackup called');
+        try {
+            const form = document.getElementById('formNuevoBackup');
+            const formData = new FormData(form);
+            
+            // Convertir FormData a JSON
+            const data = {
+                descripcion: formData.get('descripcion'),
+                tipo_backup: formData.get('tipo_backup'),
+                prioridad: formData.get('prioridad'),
+                fecha_programada: formData.get('fecha_programada'),
+                retencion: formData.get('retencion')
+            };
+
+            // Mostrar loading
+            const btnGenerar = document.querySelector('button[onclick="generarBackup()"]');
+            const originalText = btnGenerar.innerHTML;
+            btnGenerar.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Generando...';
+            btnGenerar.disabled = true;
+
+            fetch('<?= base_url('admin/backup/crear') ?>', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert('Backup generado exitosamente');
+                    // Cerrar modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalNuevoBackup'));
+                    if (modal) {
+                        modal.hide();
+                    }
+                    // Recargar la página para mostrar el nuevo backup
+                    location.reload();
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al generar backup: ' + error.message);
+            })
+            .finally(() => {
+                // Restaurar botón
+                btnGenerar.innerHTML = originalText;
+                btnGenerar.disabled = false;
+            });
+
+        } catch (error) {
+            console.error('Error al generar backup:', error);
+            alert('Error al generar backup: ' + error.message);
+        }
     }
 
     function descargarBackup(id) {
-        showNotification('Descargando backup...', 'info');
-        // Aquí iría la lógica para descargar el backup
-        setTimeout(() => {
-            showNotification('Descarga completada', 'success');
-        }, 1500);
+        console.log('descargarBackup called with id:', id);
+        try {
+            fetch('<?= base_url('admin/backup/descargar') ?>/' + id, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert('Descarga iniciada: ' + result.filename);
+                    // En un sistema real, aquí se iniciaría la descarga del archivo
+                    if (result.download_url) {
+                        window.open(result.download_url, '_blank');
+                    }
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al descargar: ' + error.message);
+            });
+        } catch (error) {
+            console.error('Error al descargar:', error);
+            alert('Error al descargar: ' + error.message);
+        }
     }
 
     function verDetalleBackup(id) {
-        showNotification('Mostrando detalles del backup...', 'info');
+        console.log('verDetalleBackup called with id:', id);
+        try {
+            currentBackupId = id;
+            
+            fetch('<?= base_url('admin/backup/detalle') ?>/' + id, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    const backup = result.data;
+                    
+                    // Llenar los campos del modal con datos reales
+                    document.getElementById('detalleId').textContent = backup.ID_EXPORTACION;
+                    document.getElementById('detalleUsuario').textContent = 
+                        (backup.NOMBRE && backup.APELLIDO) ? 
+                        backup.NOMBRE + ' ' + backup.APELLIDO : 
+                        backup.USUARIO || 'Usuario del Sistema';
+                    document.getElementById('detalleFecha').textContent = 
+                        new Date(backup.FECHA_EXPORTACION).toLocaleDateString();
+                    document.getElementById('detalleDescripcion').textContent = 
+                        backup.DESCRIPCION_EXPORTACION || 'Backup del sistema';
+                    document.getElementById('detalleEstado').textContent = 
+                        backup.ESTADO_EXPORTACION || 'Completado';
+                    document.getElementById('detalleTipo').textContent = 
+                        backup.TIPO_EXPORTACION || 'Sistema';
+                    document.getElementById('detalleFechaCreacion').textContent = 
+                        new Date(backup.FECHA_EXPORTACION).toLocaleDateString();
+                    
+                    // Dibujar el gráfico de estado
+                    drawEstadoChart(100);
+                    
+                    showModal('modalDetalleBackup');
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al obtener detalles: ' + error.message);
+            });
+            
+        } catch (error) {
+            console.error('Error al mostrar detalles:', error);
+            alert('Error al mostrar detalles: ' + error.message);
+        }
     }
 
     function eliminarBackup(id) {
-        if (confirm('¿Estás seguro de eliminar este backup? Esta acción no se puede deshacer.')) {
-            showNotification('Eliminando backup...', 'warning');
-            // Aquí iría la lógica para eliminar el backup
-            setTimeout(() => {
-                showNotification('Backup eliminado exitosamente', 'success');
-                // Recargar la página
-                location.reload();
-            }, 1000);
+        console.log('eliminarBackup called with id:', id);
+        try {
+            if (confirm('¿Estás seguro de eliminar este backup? Esta acción no se puede deshacer.')) {
+                fetch('<?= base_url('admin/backup/eliminar') ?>/' + id, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        alert('Backup eliminado exitosamente');
+                        location.reload();
+                    } else {
+                        alert('Error: ' + result.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al eliminar: ' + error.message);
+                });
+            }
+        } catch (error) {
+            console.error('Error al eliminar:', error);
+            alert('Error al eliminar: ' + error.message);
         }
     }
 
     function guardarConfiguracion() {
-        showNotification('Guardando configuración...', 'info');
-        setTimeout(() => {
-            showNotification('Configuración guardada exitosamente', 'success');
-            bootstrap.Modal.getInstance(document.getElementById('modalConfiguracion')).hide();
-        }, 1000);
+        console.log('guardarConfiguracion called');
+        try {
+            alert('Guardando configuración...');
+            setTimeout(() => {
+                alert('Configuración guardada exitosamente');
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalConfiguracion'));
+                if (modal) {
+                    modal.hide();
+                }
+            }, 1000);
+        } catch (error) {
+            console.error('Error al guardar configuración:', error);
+            alert('Error al guardar configuración: ' + error.message);
+        }
     }
 
     function aplicarFiltros() {
-        showNotification('Aplicando filtros...', 'info');
-        bootstrap.Modal.getInstance(document.getElementById('modalFiltros')).hide();
+        console.log('aplicarFiltros called');
+        try {
+            const form = document.getElementById('formFiltros');
+            const formData = new FormData(form);
+            
+            const data = {
+                filtro_usuario: formData.get('filtro_usuario'),
+                fecha_desde: formData.get('fecha_desde'),
+                fecha_hasta: formData.get('fecha_hasta'),
+                filtro_estado: formData.get('filtro_estado')
+            };
+
+            fetch('<?= base_url('admin/backup/filtrar') ?>', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    // Actualizar la tabla con los resultados filtrados
+                    actualizarTablaBackups(result.data);
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalFiltros'));
+                    if (modal) {
+                        modal.hide();
+                    }
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al aplicar filtros: ' + error.message);
+            });
+        } catch (error) {
+            console.error('Error al aplicar filtros:', error);
+            alert('Error al aplicar filtros: ' + error.message);
+        }
     }
 
     function limpiarFiltros() {
-        document.getElementById('formFiltros').reset();
-        showNotification('Filtros limpiados', 'info');
+        console.log('limpiarFiltros called');
+        try {
+            document.getElementById('formFiltros').reset();
+            alert('Filtros limpiados');
+        } catch (error) {
+            console.error('Error al limpiar filtros:', error);
+            alert('Error al limpiar filtros: ' + error.message);
+        }
     }
 
     function exportarHistorial() {
-        showNotification('Exportando historial...', 'info');
-        setTimeout(() => {
-            showNotification('Historial exportado exitosamente', 'success');
-        }, 1500);
+        console.log('exportarHistorial called');
+        try {
+            fetch('<?= base_url('admin/backup/exportar-historial') ?>', {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert('Historial exportado exitosamente: ' + result.filename);
+                    if (result.download_url) {
+                        window.open(result.download_url, '_blank');
+                    }
+                } else {
+                    alert('Error: ' + result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al exportar historial: ' + error.message);
+            });
+        } catch (error) {
+            console.error('Error al exportar historial:', error);
+            alert('Error al exportar historial: ' + error.message);
+        }
     }
 
-    function showNotification(message, type = 'info') {
-        const colors = {
-            success: '#27ae60',
-            error: '#e74c3c',
-            warning: '#f39c12',
-            info: '#3498db'
-        };
-
-        const notification = document.createElement('div');
-        notification.className = 'position-fixed top-0 end-0 m-3';
-        notification.style.zIndex = '9999';
-        notification.innerHTML = `
-            <div class="alert alert-${type} alert-dismissible fade show" role="alert" style="background: ${colors[type]}; color: white; border: none; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
-                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
-                ${message}
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
-            </div>
-        `;
-
-        document.body.appendChild(notification);
-
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.remove();
+    function restaurarBackup(id) {
+        console.log('restaurarBackup called with id:', id);
+        try {
+            if (confirm('¿Estás seguro de restaurar el sistema desde este backup? Esta acción puede sobrescribir datos actuales.')) {
+                fetch('<?= base_url('admin/backup/restaurar') ?>/' + id, {
+                    method: 'POST',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        alert('Sistema restaurado exitosamente');
+                    } else {
+                        alert('Error: ' + result.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Error al restaurar: ' + error.message);
+                });
             }
-        }, 5000);
+        } catch (error) {
+            console.error('Error al restaurar:', error);
+            alert('Error al restaurar: ' + error.message);
+        }
+    }
+
+    function verLogs(id) {
+        console.log('verLogs called with id:', id);
+        try {
+            alert('Mostrando logs del backup...');
+        } catch (error) {
+            console.error('Error al mostrar logs:', error);
+            alert('Error al mostrar logs: ' + error.message);
+        }
+    }
+
+    function drawEstadoChart(percentage) {
+        try {
+            const canvas = document.getElementById('estadoChart');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const radius = 60;
+
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Background circle
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+            ctx.strokeStyle = '#e9ecef';
+            ctx.lineWidth = 10;
+            ctx.stroke();
+
+            // Progress circle
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, -Math.PI / 2, (-Math.PI / 2) + (2 * Math.PI * percentage / 100));
+            ctx.strokeStyle = '#667eea';
+            ctx.lineWidth = 10;
+            ctx.lineCap = 'round';
+            ctx.stroke();
+        } catch (error) {
+            console.error('Error al dibujar gráfico:', error);
+        }
+    }
+
+    // Función para actualizar la tabla de backups dinámicamente
+    function actualizarTablaBackups(backups) {
+        try {
+            const tbody = document.querySelector('.backup-table tbody');
+            if (!tbody) return;
+
+            if (backups.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="text-center">
+                            <div class="empty-state">
+                                <i class="fas fa-database"></i>
+                                <h5>No se encontraron backups</h5>
+                                <p class="text-muted">No hay backups que coincidan con los filtros aplicados.</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let html = '';
+            backups.forEach((backup, index) => {
+                const fecha = new Date(backup.FECHA_EXPORTACION);
+                const nombreCompleto = (backup.NOMBRE && backup.APELLIDO) ? 
+                    backup.NOMBRE + ' ' + backup.APELLIDO : 
+                    'Usuario ID: ' + backup.ID_USUARIO;
+
+                html += `
+                    <tr>
+                        <td>
+                            <span class="badge bg-secondary">${backup.ID_EXPORTACION}</span>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(nombreCompleto)}&background=0d6efd&color=fff&size=32" 
+                                     class="rounded-circle me-2" alt="Usuario">
+                                <div>
+                                    <div class="fw-semibold">${nombreCompleto}</div>
+                                    <small class="text-muted">${backup.USUARIO || 'Sistema'}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="fw-semibold">${fecha.toLocaleDateString()}</div>
+                            <small class="text-muted">${fecha.toLocaleTimeString()}</small>
+                        </td>
+                        <td>
+                            <div class="fw-semibold">${backup.DESCRIPCION_EXPORTACION || 'Backup del sistema'}</div>
+                            <small class="text-muted">Respaldo automático</small>
+                        </td>
+                        <td>
+                            <span class="badge badge-modern bg-success text-white">Completado</span>
+                        </td>
+                        <td>
+                            <span class="badge bg-info">Sistema</span>
+                        </td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <button class="btn btn-outline-success btn-modern" 
+                                        onclick="descargarBackup(${backup.ID_EXPORTACION})" 
+                                        title="Descargar">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button class="btn btn-outline-info btn-modern" 
+                                        onclick="verDetalleBackup(${backup.ID_EXPORTACION})" 
+                                        title="Ver Detalle">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                                <button class="btn btn-outline-danger btn-modern" 
+                                        onclick="eliminarBackup(${backup.ID_EXPORTACION})" 
+                                        title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        } catch (error) {
+            console.error('Error al actualizar tabla:', error);
+        }
     }
 
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
-        // Set default date for new backup
-        const now = new Date();
-        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-        document.querySelector('input[name="fecha_programada"]').value = now.toISOString().slice(0, 16);
+        console.log('=== DOM LOADED ===');
+        
+        try {
+            // Verificar Bootstrap
+            if (typeof bootstrap === 'undefined') {
+                console.warn('⚠️ Bootstrap no está disponible');
+            } else {
+                console.log('✅ Bootstrap está disponible');
+            }
+
+            // Set default date for new backup
+            const fechaInput = document.querySelector('input[name="fecha_programada"]');
+            if (fechaInput) {
+                const now = new Date();
+                now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                fechaInput.value = now.toISOString().slice(0, 16);
+                console.log('✅ Fecha por defecto establecida');
+            }
+
+            console.log('✅ Backup page initialized successfully');
+
+        } catch (error) {
+            console.error('❌ Error en la inicialización:', error);
+        }
     });
+
+    // Verificar funciones después de un breve delay
+    setTimeout(() => {
+        console.log('=== VERIFICACIÓN FINAL ===');
+        console.log('showModal disponible:', typeof showModal);
+        console.log('exportarHistorial disponible:', typeof exportarHistorial);
+        console.log('==========================');
+    }, 100);
+
 </script>
 <?= $this->endSection() ?>

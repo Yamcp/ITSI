@@ -10,7 +10,7 @@
                 <i class="fa-solid fa-xmark fs-8"></i>
             </div>
         </div>
-        <nav class="sidebar-nav scroll-sidebar" data-simplebar="">
+        <nav class="sidebar-nav scroll-sidebar" data-simplebar="" style="margin-top: -29px;">
             <ul id="sidebarnav">
                 <li class="nav-small-cap">
                     <i class="fa-solid fa-house nav-small-cap-icon fs-6"></i>

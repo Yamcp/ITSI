@@ -20,7 +20,7 @@
         <!-- Estadísticas Rápidas -->
         <div class="row mb-4">
             <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #667eea 80%, #764ba2 100%); color: #fff; border: none;">
+                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #007bff 80%, #0056b3 100%); color: #fff; border: none;">
                     <div class="card-body">
                         <h2 class="card-title mb-2" id="totalInstructores" style="font-size:2.5rem;">12</h2>
                         <p class="card-text fw-bold" style="color: #e0e0e0;">Total Instructores</p>
@@ -28,7 +28,7 @@
                 </div>
             </div>
             <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #f093fb 80%, #f5576c 100%); color: #fff; border: none;">
+                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #28a745 80%, #155724 100%); color: #fff; border: none;">
                     <div class="card-body">
                         <h2 class="card-title mb-2" id="instructoresActivos" style="font-size:2.5rem;">8</h2>
                         <p class="card-text fw-bold" style="color: #ffe6e6;">Activos</p>
@@ -36,7 +36,7 @@
                 </div>
             </div>
             <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #4facfe 80%, #00f2fe 100%); color: #fff; border: none;">
+                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #ffc107 80%, #b38600 100%); color: #fff; border: none;">
                     <div class="card-body">
                         <h2 class="card-title mb-2" id="actividadesActivas" style="font-size:2.5rem;">15</h2>
                         <p class="card-text fw-bold" style="color: #e0e0e0;">Actividades Activas</p>
@@ -44,7 +44,7 @@
                 </div>
             </div>
             <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #43e97b 80%, #38f9d7 100%); color: #fff; border: none;">
+                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #dc3545 80%, #a71e2a 100%); color: #fff; border: none;">
                     <div class="card-body">
                         <h2 class="card-title mb-2" id="promedioEvaluacion" style="font-size:2.5rem;">4.8</h2>
                         <p class="card-text fw-bold" style="color: #e0e0e0;">Promedio Evaluación</p>
@@ -54,32 +54,22 @@
         </div>
 
         <!-- Acciones Rápidas -->
-        <div class="row mb-4">
+        <div class="row mb-4 justify-content-center">
             <div class="col-md-3 col-sm-6 mb-3">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="showModal('modalNuevoInstructor')" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-user-plus fa-2x mb-2"></i>
+                            <i class="fas fa-user-plus fa-2x mb-2" style="color: #28a745; text-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);"></i>
                             <div class="fw-bold">Nuevo Instructor</div>
                         </a>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm h-100" style="border: none;">
-                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="#" onclick="showModal('modalAsignarActividad')" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-tasks fa-2x mb-2"></i>
-                            <div class="fw-bold">Asignar Actividad</div>
-                        </a>
-                    </div>
-                </div>
-            </div>
+            </div>            
             <div class="col-md-3 col-sm-6 mb-3">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="generarReporte()" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-chart-bar fa-2x mb-2"></i>
+                            <i class="fas fa-chart-bar fa-2x mb-2" style="color: #ffc107; text-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);"></i>
                             <div class="fw-bold">Generar Reporte</div>
                         </a>
                     </div>
@@ -89,7 +79,7 @@
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="exportarDatos()" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-download fa-2x mb-2"></i>
+                            <i class="fas fa-download fa-2x mb-2" style="color: #dc3545; text-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);"></i>
                             <div class="fw-bold">Exportar Datos</div>
                         </a>
                     </div>
@@ -105,17 +95,17 @@
                         <ul class="nav nav-tabs nav-justified rounded-pill bg-light px-2 py-1" id="instructoresTabs" role="tablist" style="gap: 0.5rem;">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active rounded-pill fw-semibold text-primary" id="todos-tab" data-bs-toggle="tab" data-bs-target="#todos" type="button" role="tab" aria-selected="true">
-                                    <i class="fas fa-users me-2"></i>Todos
+                                    <i class="fas fa-users me-2" style="color: #007bff;"></i>Todos
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link rounded-pill fw-semibold text-success" id="internos-tab" data-bs-toggle="tab" data-bs-target="#internos" type="button" role="tab" aria-selected="false">
-                                    <i class="fas fa-building me-2"></i>Internos
+                                    <i class="fas fa-building me-2" style="color: #28a745;"></i>Internos
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link rounded-pill fw-semibold text-info" id="externos-tab" data-bs-toggle="tab" data-bs-target="#externos" type="button" role="tab" aria-selected="false">
-                                    <i class="fas fa-user-tie me-2"></i>Externos
+                                    <i class="fas fa-user-tie me-2" style="color: #17a2b8;"></i>Externos
                                 </button>
                             </li>
                         </ul>
@@ -431,35 +421,45 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
+                <div class="alert alert-info mb-3">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Nota:</strong> Los campos marcados con <span class="text-danger">*</span> son obligatorios.
+                </div>
                 <form id="formNuevoInstructor">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Tipo de Instructor</label>
+                                <label class="form-label">Tipo de Instructor<span class="text-danger">*</span></label>
                                 <select class="form-select" name="tipo_instructor" required>
                                     <option value="">Seleccionar...</option>
                                     <option value="1">Interno</option>
                                     <option value="2">Externo</option>
                                 </select>
+                                <div class="invalid-feedback">
+                                    Por favor selecciona un tipo de instructor.
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Título Profesional</label>
+                                <label class="form-label">Título Profesional<span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" name="titulo_profesional" required>
+                                <div class="invalid-feedback">
+                                    Por favor ingresa el título profesional.
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Nombre</label>
+                                <label class="form-label">Nombre<span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" name="nombre" required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Apellido</label>
+                                <label class="form-label">Apellido<span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" name="apellido" required>
                             </div>
                         </div>
@@ -467,13 +467,13 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Cédula</label>
+                                <label class="form-label">Cédula<span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" name="cedula" required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Email</label>
+                                <label class="form-label">Email<span class="text-danger">*</span></label>
                                 <input type="email" class="form-control" name="email" required>
                             </div>
                         </div>
@@ -481,13 +481,13 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Celular</label>
+                                <label class="form-label">Celular<span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" name="celular" required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Género</label>
+                                <label class="form-label">Género<span class="text-danger">*</span></label>
                                 <select class="form-select" name="genero" required>
                                     <option value="">Seleccionar...</option>
                                     <option value="Masculino">Masculino</option>
@@ -497,23 +497,23 @@
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Dirección</label>
+                        <label class="form-label">Dirección<span class="text-danger">*</span></label>
                         <textarea class="form-control" name="direccion" rows="2" required></textarea>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Especialidad</label>
+                        <label class="form-label">Especialidad<span class="text-danger">*</span></label>
                         <textarea class="form-control" name="especialidad" rows="3" placeholder="Describe las áreas de especialización del instructor..." required></textarea>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Nacionalidad</label>
+                                <label class="form-label">Nacionalidad<span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" name="nacionalidad" value="Ecuatoriana" required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Estado Civil</label>
+                                <label class="form-label">Estado Civil<span class="text-danger">*</span></label>
                                 <select class="form-select" name="estado_civil" required>
                                     <option value="">Seleccionar...</option>
                                     <option value="Soltero">Soltero</option>
@@ -678,70 +678,257 @@
     </div>
 </div>
 
+<!-- Modal Opciones de Reporte -->
+<div class="modal fade" id="modalOpcionesReporte" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-chart-bar me-2" style="color: #ffc107;"></i>Opciones de Reporte
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm">
+                            <div class="card-body text-center">
+                                <i class="fas fa-file-pdf fa-3x mb-3" style="color: #dc3545;"></i>
+                                <h5>Reporte PDF</h5>
+                                <p class="text-muted">Genera un reporte completo de instructores en formato PDF</p>
+                                <button class="btn btn-danger" onclick="generarReportePDF()">
+                                    <i class="fas fa-file-pdf me-2"></i>Generar PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Opciones de Exportación -->
+<div class="modal fade" id="modalOpcionesExportacion" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-download me-2" style="color: #dc3545;"></i>Opciones de Exportación
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-file-excel fa-3x mb-3" style="color: #28a745;"></i>
+                                <h6>Excel</h6>
+                                <p class="text-muted small">Exportar a formato Excel (.xlsx)</p>
+                                <button class="btn btn-success btn-sm" onclick="exportarExcel()">
+                                    <i class="fas fa-file-excel me-1"></i>Excel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-file-csv fa-3x mb-3" style="color: #007bff;"></i>
+                                <h6>CSV</h6>
+                                <p class="text-muted small">Exportar a formato CSV</p>
+                                <button class="btn btn-primary btn-sm" onclick="exportarCSV()">
+                                    <i class="fas fa-file-csv me-1"></i>CSV
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-    // Datos simulados
-    let instructoresData = {
-        todos: [
-            {
-                id: 1,
-                nombre: 'Ing. Carlos Mendoza',
-                email: 'carlos.mendoza@itsi.edu.ec',
-                tipo: 'Interno',
-                especialidad: 'Desarrollo de Software',
-                titulo: 'Ingeniería en Sistemas',
-                actividades: { activas: 3, completadas: 8 },
-                evaluacion: 4.9,
-                estado: 'Activo',
-                cedula: '1234567890',
-                celular: '0987654321',
-                genero: 'Masculino',
-                estadoCivil: 'Casado',
-                direccion: 'Av. Principal 123, Ibarra',
-                nacionalidad: 'Ecuatoriana'
-            },
-            {
-                id: 2,
-                nombre: 'Tec. Ana Ruiz',
-                email: 'ana.ruiz@empresa.com',
-                tipo: 'Externo',
-                especialidad: 'Hardware y Redes',
-                titulo: 'Técnico en Electrónica',
-                actividades: { activas: 2, completadas: 5 },
-                evaluacion: 4.7,
-                estado: 'Activo',
-                cedula: '0987654321',
-                celular: '0912345678',
-                genero: 'Femenino',
-                estadoCivil: 'Soltera',
-                direccion: 'Calle Secundaria 456, Quito',
-                nacionalidad: 'Ecuatoriana'
+    // Variables globales
+    let instructoresData = [];
+    let currentInstructorId = null;
+
+    // Cargar datos desde la base de datos
+    async function cargarInstructores() {
+        try {
+            const response = await fetch('<?= base_url('instructores/getInstructores') ?>');
+            const result = await response.json();
+            
+            if (result.success) {
+                instructoresData = result.data;
+                actualizarTablaInstructores();
+                cargarEstadisticas();
+            } else {
+                showNotification('Error al cargar instructores: ' + result.message, 'error');
             }
-        ]
-    };
+        } catch (error) {
+            showNotification('Error de conexión: ' + error.message, 'error');
+        }
+    }
+
+    // Cargar estadísticas
+    async function cargarEstadisticas() {
+        try {
+            const response = await fetch('<?= base_url('instructores/getEstadisticas') ?>');
+            const result = await response.json();
+            
+            if (result.success) {
+                const stats = result.data;
+                document.getElementById('totalInstructores').textContent = stats.total_instructores;
+                document.getElementById('instructoresActivos').textContent = stats.instructores_activos;
+                document.getElementById('actividadesActivas').textContent = stats.actividades_activas;
+                document.getElementById('promedioEvaluacion').textContent = stats.promedio_evaluacion;
+            }
+        } catch (error) {
+            console.error('Error al cargar estadísticas:', error);
+        }
+    }
+
+    // Actualizar tabla de instructores
+    function actualizarTablaInstructores() {
+        const tbodyTodos = document.getElementById('tablaTodos');
+        const tbodyInternos = document.getElementById('tablaInternos');
+        const tbodyExternos = document.getElementById('tablaExternos');
+        
+        // Limpiar tablas
+        tbodyTodos.innerHTML = '';
+        tbodyInternos.innerHTML = '';
+        tbodyExternos.innerHTML = '';
+        
+        instructoresData.forEach((instructor, index) => {
+            const row = crearFilaInstructor(instructor, index + 1);
+            
+            // Agregar a tabla "Todos"
+            tbodyTodos.appendChild(row.cloneNode(true));
+            
+            // Agregar a tabla específica según tipo
+            if (instructor.TIPO_INSTRUCTOR === 'Interno') {
+                tbodyInternos.appendChild(row.cloneNode(true));
+            } else if (instructor.TIPO_INSTRUCTOR === 'Externo') {
+                tbodyExternos.appendChild(row.cloneNode(true));
+            }
+        });
+    }
+
+    // Crear fila de instructor
+    function crearFilaInstructor(instructor, numero) {
+        const tr = document.createElement('tr');
+        
+        const tipoBadge = instructor.TIPO_INSTRUCTOR === 'Interno' ? 
+            '<span class="badge bg-success">Interno</span>' : 
+            '<span class="badge bg-info">Externo</span>';
+        
+        const actividadesActivas = instructor.actividades_activas || 0;
+        const actividadesCompletadas = instructor.actividades_completadas || 0;
+        
+        tr.innerHTML = `
+            <td>${numero.toString().padStart(3, '0')}</td>
+            <td>
+                <div class="d-flex align-items-center">
+                    <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(instructor.NOMBRE + '+' + instructor.APELLIDO)}&background=${instructor.TIPO_INSTRUCTOR === 'Interno' ? '0d6efd' : '198754'}&color=fff&size=32" class="rounded-circle me-2" alt="${instructor.NOMBRE.charAt(0)}${instructor.APELLIDO.charAt(0)}">
+                    <div>
+                        <div class="fw-semibold">${instructor.TITULO_PROFESIONAL} ${instructor.NOMBRE} ${instructor.APELLIDO}</div>
+                        <small class="text-muted">${instructor.EMAIL}</small>
+                    </div>
+                </div>
+            </td>
+            <td>${tipoBadge}</td>
+            <td>
+                <div>${instructor.ESPECIALIDAD}</div>
+                <small class="text-muted">${instructor.TITULO_PROFESIONAL}</small>
+            </td>
+            <td>
+                <span class="badge bg-info">${actividadesActivas} Activas</span>
+                <small class="text-muted d-block">${actividadesCompletadas} Completadas</small>
+            </td>
+            <td>
+                <div class="d-flex align-items-center">
+                    <span class="me-2">4.8</span>
+                    <div class="stars">
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="fas fa-star text-warning"></i>
+                        <i class="far fa-star text-warning"></i>
+                    </div>
+                </div>
+            </td>
+            <td><span class="badge bg-success">Activo</span></td>
+            <td>
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-primary" onclick="verDetalle(${instructor.ID_INSTRUCTOR})" title="Ver Detalle">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-outline-warning" onclick="editarInstructor(${instructor.ID_INSTRUCTOR})" title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="btn btn-outline-info" onclick="verActividades(${instructor.ID_INSTRUCTOR})" title="Actividades">
+                        <i class="fas fa-tasks"></i>
+                    </button>
+                </div>
+            </td>
+        `;
+        
+        return tr;
+    }
 
     function showModal(modalId) {
         const modal = new bootstrap.Modal(document.getElementById(modalId));
         modal.show();
     }
 
-    function verDetalle(id) {
-        let instructor = instructoresData.todos.find(i => i.id === id);
-        
-        if (instructor) {
-            document.getElementById('detalleNombre').textContent = instructor.nombre;
-            document.getElementById('detalleTitulo').textContent = instructor.titulo;
-            document.getElementById('detalleTipo').textContent = instructor.tipo;
-            document.getElementById('detalleEmail').textContent = instructor.email;
-            document.getElementById('detalleCedula').textContent = instructor.cedula;
-            document.getElementById('detalleCelular').textContent = instructor.celular;
-            document.getElementById('detalleGenero').textContent = instructor.genero;
-            document.getElementById('detalleEstadoCivil').textContent = instructor.estadoCivil;
-            document.getElementById('detalleDireccion').textContent = instructor.direccion;
-            document.getElementById('detalleEspecialidad').textContent = instructor.especialidad;
-            document.getElementById('totalActividadesInstructor').textContent = instructor.actividades.activas + instructor.actividades.completadas;
-            document.getElementById('evaluacionPromedio').textContent = instructor.evaluacion;
+    async function verDetalle(id) {
+        try {
+            const response = await fetch(`<?= base_url('instructores/getInstructor') ?>/${id}`);
+            const result = await response.json();
             
-            showModal('modalDetalleInstructor');
+            if (result.success) {
+                const instructor = result.data;
+                
+                document.getElementById('detalleNombre').textContent = `${instructor.TITULO_PROFESIONAL} ${instructor.NOMBRE} ${instructor.APELLIDO}`;
+                document.getElementById('detalleTitulo').textContent = instructor.TITULO_PROFESIONAL;
+                document.getElementById('detalleTipo').textContent = instructor.TIPO_INSTRUCTOR;
+                document.getElementById('detalleEmail').textContent = instructor.EMAIL;
+                document.getElementById('detalleCedula').textContent = instructor.CEDULA;
+                document.getElementById('detalleCelular').textContent = instructor.CELULAR;
+                document.getElementById('detalleGenero').textContent = instructor.GENERO;
+                document.getElementById('detalleEstadoCivil').textContent = instructor.ESTADO_CIVIL;
+                document.getElementById('detalleDireccion').textContent = instructor.DIRECCION;
+                document.getElementById('detalleEspecialidad').textContent = instructor.ESPECIALIDAD;
+                document.getElementById('totalActividadesInstructor').textContent = instructor.actividades ? instructor.actividades.length : 0;
+                document.getElementById('evaluacionPromedio').textContent = '4.8';
+                
+                // Actualizar tabla de actividades
+                const tbodyActividades = document.getElementById('tablaActividadesInstructor');
+                tbodyActividades.innerHTML = '';
+                
+                if (instructor.actividades && instructor.actividades.length > 0) {
+                    instructor.actividades.forEach(actividad => {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${actividad.NOMBRE_ACTIVIDAD}</td>
+                            <td><span class="badge bg-primary">Curso</span></td>
+                            <td><span class="badge bg-info">Presencial</span></td>
+                            <td>${new Date(actividad.FECHA_INICIO).toLocaleDateString()} - ${new Date(actividad.FECHA_FIN).toLocaleDateString()}</td>
+                            <td><span class="badge ${new Date(actividad.FECHA_FIN) >= new Date() ? 'bg-success' : 'bg-secondary'}">${new Date(actividad.FECHA_FIN) >= new Date() ? 'Activo' : 'Completado'}</span></td>
+                        `;
+                        tbodyActividades.appendChild(tr);
+                    });
+                }
+                
+                showModal('modalDetalleInstructor');
+            } else {
+                showNotification('Error al obtener detalles del instructor: ' + result.message, 'error');
+            }
+        } catch (error) {
+            showNotification('Error de conexión: ' + error.message, 'error');
         }
     }
 
@@ -761,17 +948,139 @@
         showNotification('Abriendo evaluación del instructor...', 'info');
     }
 
-    function guardarInstructor() {
-        showNotification('Instructor guardado exitosamente', 'success');
-        bootstrap.Modal.getInstance(document.getElementById('modalNuevoInstructor')).hide();
+    async function guardarInstructor() {
+        const form = document.getElementById('formNuevoInstructor');
+        const formData = new FormData(form);
+        
+        // Limpiar validaciones anteriores
+        form.classList.remove('was-validated');
+        const inputs = form.querySelectorAll('.form-control, .form-select');
+        inputs.forEach(input => {
+            input.classList.remove('is-invalid', 'is-valid');
+        });
+        
+        // Validar campos obligatorios
+        const camposObligatorios = [
+            'tipo_instructor', 
+            'titulo_profesional', 
+            'nombre', 
+            'apellido', 
+            'cedula', 
+            'email', 
+            'celular', 
+            'genero', 
+            'direccion', 
+            'especialidad', 
+            'nacionalidad', 
+            'estado_civil'
+        ];
+        
+        let hayErrores = false;
+        
+        camposObligatorios.forEach(campo => {
+            const input = form.querySelector(`[name="${campo}"]`);
+            const valor = formData.get(campo);
+            
+            if (!valor || valor.trim() === '') {
+                input.classList.add('is-invalid');
+                hayErrores = true;
+            } else {
+                input.classList.add('is-valid');
+            }
+        });
+        
+        // Validar formato de email
+        const email = formData.get('email');
+        const emailInput = form.querySelector('[name="email"]');
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (email && !emailRegex.test(email)) {
+            emailInput.classList.add('is-invalid');
+            hayErrores = true;
+        }
+        
+        // Validar formato de cédula (10 dígitos para Ecuador)
+        const cedula = formData.get('cedula');
+        const cedulaInput = form.querySelector('[name="cedula"]');
+        if (cedula && (cedula.length !== 10 || !/^\d+$/.test(cedula))) {
+            cedulaInput.classList.add('is-invalid');
+            hayErrores = true;
+        }
+        
+        // Validar formato de celular (10 dígitos para Ecuador)
+        const celular = formData.get('celular');
+        const celularInput = form.querySelector('[name="celular"]');
+        if (celular && (celular.length !== 10 || !/^\d+$/.test(celular))) {
+            celularInput.classList.add('is-invalid');
+            hayErrores = true;
+        }
+        
+        if (hayErrores) {
+            form.classList.add('was-validated');
+            showNotification('Por favor corrige los errores en el formulario', 'error');
+            return;
+        }
+        
+        // Enviar datos al servidor
+        try {
+            const response = await fetch('<?= base_url('instructores/crear') ?>', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const result = await response.json();
+            
+            if (result.success) {
+                showNotification('Instructor guardado exitosamente', 'success');
+                bootstrap.Modal.getInstance(document.getElementById('modalNuevoInstructor')).hide();
+                form.reset();
+                cargarInstructores(); // Recargar la lista
+                cargarEstadisticas(); // Actualizar estadísticas
+            } else {
+                if (result.errors) {
+                    // Mostrar errores específicos de validación
+                    let errorMessage = 'Errores de validación:\n';
+                    Object.keys(result.errors).forEach(campo => {
+                        errorMessage += `• ${result.errors[campo]}\n`;
+                    });
+                    showNotification(errorMessage, 'error');
+                } else {
+                    showNotification('Error al guardar instructor: ' + result.message, 'error');
+                }
+            }
+        } catch (error) {
+            showNotification('Error de conexión: ' + error.message, 'error');
+        }
     }
 
     function generarReporte() {
-        showNotification('Generando reporte...', 'info');
+        // Mostrar modal de opciones de reporte
+        showModal('modalOpcionesReporte');
     }
 
     function exportarDatos() {
-        showNotification('Exportando datos...', 'info');
+        // Mostrar modal de opciones de exportación
+        showModal('modalOpcionesExportacion');
+    }
+
+    function generarReportePDF() {
+        // Abrir reporte PDF en nueva ventana
+        window.open('<?= base_url('instructores/generarReporte') ?>', '_blank');
+        showNotification('Generando reporte PDF...', 'info');
+        bootstrap.Modal.getInstance(document.getElementById('modalOpcionesReporte')).hide();
+    }
+
+    function exportarExcel() {
+        // Descargar archivo Excel
+        window.location.href = '<?= base_url('instructores/exportarExcel') ?>';
+        showNotification('Exportando datos a Excel...', 'info');
+        bootstrap.Modal.getInstance(document.getElementById('modalOpcionesExportacion')).hide();
+    }
+
+    function exportarCSV() {
+        // Descargar archivo CSV
+        window.location.href = '<?= base_url('instructores/exportarCSV') ?>';
+        showNotification('Exportando datos a CSV...', 'info');
+        bootstrap.Modal.getInstance(document.getElementById('modalOpcionesExportacion')).hide();
     }
 
     function showNotification(message, type = 'info') {
@@ -804,10 +1113,105 @@
 
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
+        // Cargar datos iniciales
+        cargarInstructores();
+        cargarEstadisticas();
+        
         // Set default values
         const today = new Date().toISOString().split('T')[0];
         
-        // Add any initialization code here
+        // Cargar tipos de instructores en el select
+        cargarTiposInstructores();
+        
+        // Agregar validación en tiempo real
+        agregarValidacionTiempoReal();
     });
+
+    // Agregar validación en tiempo real a los campos
+    function agregarValidacionTiempoReal() {
+        const form = document.getElementById('formNuevoInstructor');
+        const inputs = form.querySelectorAll('.form-control, .form-select');
+        
+        inputs.forEach(input => {
+            input.addEventListener('blur', function() {
+                validarCampo(this);
+            });
+            
+            input.addEventListener('input', function() {
+                if (this.classList.contains('is-invalid')) {
+                    validarCampo(this);
+                }
+            });
+        });
+    }
+
+    // Validar campo individual
+    function validarCampo(input) {
+        const valor = input.value.trim();
+        const nombre = input.name;
+        
+        // Limpiar clases anteriores
+        input.classList.remove('is-valid', 'is-invalid');
+        
+        // Validar campo vacío
+        if (!valor) {
+            input.classList.add('is-invalid');
+            return false;
+        }
+        
+        // Validaciones específicas
+        let esValido = true;
+        
+        switch (nombre) {
+            case 'email':
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                esValido = emailRegex.test(valor);
+                break;
+            case 'cedula':
+                esValido = valor.length === 10 && /^\d+$/.test(valor);
+                break;
+            case 'celular':
+                esValido = valor.length === 10 && /^\d+$/.test(valor);
+                break;
+            case 'nombre':
+            case 'apellido':
+                esValido = valor.length >= 2;
+                break;
+            case 'titulo_profesional':
+            case 'especialidad':
+                esValido = valor.length >= 3;
+                break;
+        }
+        
+        if (esValido) {
+            input.classList.add('is-valid');
+        } else {
+            input.classList.add('is-invalid');
+        }
+        
+        return esValido;
+    }
+
+    // Cargar tipos de instructores para el formulario
+    async function cargarTiposInstructores() {
+        try {
+            const response = await fetch('<?= base_url('instructores/getTiposInstructores') ?>');
+            const result = await response.json();
+            
+            if (result.success) {
+                const select = document.querySelector('select[name="tipo_instructor"]');
+                select.innerHTML = '<option value="">Seleccionar...</option>';
+                
+                result.data.forEach(tipo => {
+                    const option = document.createElement('option');
+                    option.value = tipo.ID_TIPO_INSTRUCTOR;
+                    option.textContent = tipo.TIPO;
+                    select.appendChild(option);
+                });
+            }
+        } catch (error) {
+            console.error('Error al cargar tipos de instructores:', error);
+        }
+    }
 </script>
 <?= $this->endSection() ?>

@@ -60,7 +60,7 @@
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="showModal('modalNuevaPractica')" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-plus-circle fa-2x mb-2"></i>
+                            <i class="fas fa-plus-circle fa-2x mb-2" style="color: #28a745; text-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);"></i>
                             <div class="fw-bold">Nueva Práctica</div>
                         </a>
                     </div>
@@ -70,7 +70,7 @@
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="showModal('modalAsignarEstudiante')" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-user-plus fa-2x mb-2"></i>
+                            <i class="fas fa-user-plus fa-2x mb-2" style="color: #007bff; text-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);"></i>
                             <div class="fw-bold">Asignar Estudiante</div>
                         </a>
                     </div>
@@ -80,7 +80,7 @@
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="generateReport()" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-chart-bar fa-2x mb-2"></i>
+                            <i class="fas fa-chart-bar fa-2x mb-2" style="color: #ffc107; text-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);"></i>
                             <div class="fw-bold">Generar Reporte</div>
                         </a>
                     </div>
@@ -90,7 +90,7 @@
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="exportData()" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-download fa-2x mb-2"></i>
+                            <i class="fas fa-download fa-2x mb-2" style="color: #dc3545; text-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);"></i>
                             <div class="fw-bold">Exportar Datos</div>
                         </a>
                     </div>
