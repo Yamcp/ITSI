@@ -7,7 +7,7 @@ use App\Models\EvaluacionesEnlacesModel;
 use App\Models\ActividadesEducacionModel;
 use CodeIgniter\HTTP\ResponseInterface;
 
-class ReportesEvaluacionesController extends BaseController
+class ReportesEvaluacionesAdminController extends BaseController
 {
     protected $evaluacionesModel;
     protected $actividadesModel;
@@ -101,6 +101,9 @@ class ReportesEvaluacionesController extends BaseController
             $filtros = $this->obtenerFiltros();
             $evaluaciones = $this->evaluacionesModel->obtenerConFiltros($filtros);
             
+            // Cargar helper de Excel
+            helper('ExcelHelper');
+            
             // Crear archivo Excel
             $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
             $sheet = $spreadsheet->getActiveSheet();
@@ -108,34 +111,34 @@ class ReportesEvaluacionesController extends BaseController
             // Configurar encabezados
             $sheet->setTitle('Evaluaciones');
             
+            // Crear encabezado estándar con logo
+            \App\Helpers\ExcelHelper::createStandardHeader(
+                $sheet, 
+                'REPORTE DE EVALUACIONES', 
+                'Sistema de Gestión Académica ITSI',
+                'Logo PDF.jpg',
+                'A1',
+                'D1'
+            );
+            
             // Encabezados de columnas
             $headers = [
-                'A1' => 'ID',
-                'B1' => 'Nombre de Evaluación',
-                'C1' => 'Tipo',
-                'D1' => 'Curso',
-                'E1' => 'Estado',
-                'F1' => 'Fecha Creación',
-                'G1' => 'Fecha Vencimiento',
-                'H1' => 'Respuestas',
-                'I1' => 'Enlace'
+                'ID',
+                'Nombre de Evaluación',
+                'Tipo',
+                'Curso',
+                'Estado',
+                'Fecha Creación',
+                'Fecha Vencimiento',
+                'Respuestas',
+                'Enlace'
             ];
             
-            foreach ($headers as $cell => $value) {
-                $sheet->setCellValue($cell, $value);
-            }
-            
-            // Estilo para encabezados
-            $headerStyle = [
-                'font' => ['bold' => true, 'color' => ['rgb' => 'FFFFFF']],
-                'fill' => ['fillType' => \PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID, 'startColor' => ['rgb' => '4472C4']],
-                'alignment' => ['horizontal' => \PhpOffice\PhpSpreadsheet\Style\Alignment::HORIZONTAL_CENTER]
-            ];
-            
-            $sheet->getStyle('A1:I1')->applyFromArray($headerStyle);
+            // Crear encabezados de columnas con estilo
+            \App\Helpers\ExcelHelper::createColumnHeaders($sheet, $headers, 5, 'A');
             
             // Llenar datos
-            $row = 2;
+            $row = 6; // Empezar después del encabezado
             foreach ($evaluaciones as $eval) {
                 $sheet->setCellValue('A' . $row, $eval['ID_EVALUACION_ENLACE']);
                 $sheet->setCellValue('B' . $row, $eval['NOMBRE_EVALUACION']);
@@ -149,18 +152,19 @@ class ReportesEvaluacionesController extends BaseController
                 $row++;
             }
             
-            // Ajustar ancho de columnas
-            foreach (range('A', 'I') as $col) {
-                $sheet->getColumnDimension($col)->setAutoSize(true);
+            // Aplicar estilo a los datos
+            if ($row > 6) {
+                \App\Helpers\ExcelHelper::applyDataStyle($sheet, 'A6:I' . ($row - 1));
             }
+            
+            // Autoajustar ancho de columnas
+            \App\Helpers\ExcelHelper::autoSizeColumns($sheet, 'A', 'I');
             
             // Generar nombre del archivo
             $nombreArchivo = 'evaluaciones_' . date('Y-m-d_H-i-s') . '.xlsx';
             
             // Configurar headers para descarga
-            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-            header('Content-Disposition: attachment;filename="' . $nombreArchivo . '"');
-            header('Cache-Control: max-age=0');
+            \App\Helpers\ExcelHelper::setDownloadHeaders($nombreArchivo);
             
             // Escribir archivo
             $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
@@ -280,11 +284,16 @@ class ReportesEvaluacionesController extends BaseController
      */
     private function generarEncabezadoPDF($pdf)
     {
+        // Agregar logo usando el helper
+        helper('PdfHelper');
+        \App\Helpers\PdfHelper::addLogoToPdf($pdf, 'Logo PDF.jpg', 15, 10, 30);
+        
+        // Título del reporte
         $pdf->SetFont('helvetica', 'B', 16);
         $pdf->Cell(0, 10, 'REPORTE DE EVALUACIONES', 0, 1, 'C');
         $pdf->SetFont('helvetica', '', 10);
         $pdf->Cell(0, 5, 'Sistema de Gestión ITSI', 0, 1, 'C');
-        $pdf->Cell(0, 5, 'Fecha de generación: ' . date('d/m/Y H:i:s'), 0, 1, 'C');
+        $pdf->Cell(0, 5, 'Fecha de generación: ' . \App\Helpers\PdfHelper::getCurrentDateTime(), 0, 1, 'C');
         $pdf->Ln(10);
     }
 

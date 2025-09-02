@@ -7,7 +7,7 @@ use App\Models\DatosPersonasModel;
 use App\Models\TiposEstadosModel;
 use App\Controllers\BaseController;
 
-class EstudiantesController extends BaseController
+class EstudiantesAdminController extends BaseController
 {
     protected $estudiantesModel;
     protected $datosPersonasModel;

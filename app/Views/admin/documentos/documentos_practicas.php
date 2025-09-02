@@ -23,7 +23,7 @@
             <div class="col-md-3 col-sm-6">
                 <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #007bff 80%, #0056b3 100%); color: #fff; border: none;">
                     <div class="card-body">
-                        <h2 class="card-title mb-2" id="totalDocumentosPracticas" style="font-size:2.5rem;">12</h2>
+                        <h2 class="card-title mb-2" id="totalDocumentosPracticas" style="font-size:2.5rem;"><?= $estadisticas['total'] ?? 0 ?></h2>
                         <p class="card-text fw-bold" style="color: #e0e0e0;">Total Documentos</p>
                     </div>
                 </div>
@@ -31,7 +31,7 @@
             <div class="col-md-3 col-sm-6">
                 <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #28a745 80%, #155724 100%); color: #fff; border: none;">
                     <div class="card-body">
-                        <h2 class="card-title mb-2" id="documentosAprobadosPracticas" style="font-size:2.5rem;">3</h2>
+                        <h2 class="card-title mb-2" id="documentosAprobadosPracticas" style="font-size:2.5rem;"><?= $estadisticas['aprobados'] ?? 0 ?></h2>
                         <p class="card-text fw-bold" style="color: #e0e0e0;">Aprobados</p>
                     </div>
                 </div>
@@ -39,7 +39,7 @@
             <div class="col-md-3 col-sm-6">
                 <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #ffc107 80%, #b38600 100%); color: #fff; border: none;">
                     <div class="card-body">
-                        <h2 class="card-title mb-2" id="documentosPendientesPracticas" style="font-size:2.5rem;">9</h2>
+                        <h2 class="card-title mb-2" id="documentosPendientesPracticas" style="font-size:2.5rem;"><?= $estadisticas['pendientes'] ?? 0 ?></h2>
                         <p class="card-text fw-bold" style="color: #fffbe6;">Pendientes</p>
                     </div>
                 </div>
@@ -47,7 +47,7 @@
             <div class="col-md-3 col-sm-6">
                 <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #dc3545 80%, #a71e2a 100%); color: #fff; border: none;">
                     <div class="card-body">
-                        <h2 class="card-title mb-2" id="documentosRechazadosPracticas" style="font-size:2.5rem;">0</h2>
+                        <h2 class="card-title mb-2" id="documentosRechazadosPracticas" style="font-size:2.5rem;"><?= $estadisticas['rechazados'] ?? 0 ?></h2>
                         <p class="card-text fw-bold" style="color: #ffe0e0;">Rechazados</p>
                     </div>
                 </div>
@@ -624,18 +624,11 @@
                                 <label class="form-label">Tipo de Documento</label>
                                 <select class="form-select" name="tipo_documento" required>
                                     <option value="">Seleccionar tipo...</option>
-                                    <option value="oficio_asignacion_tutor">1.1. Oficio de Asignación de Tutor Docente</option>
-                                    <option value="oficio_personal_entidad">1.2. Oficio Personal a Entidad Receptora</option>
-                                    <option value="carta_aceptacion">1.3. Carta de Aceptación de Entidad Receptora</option>
-                                    <option value="solicitud_institucional">1.4. Solicitud Institucional Valorada</option>
-                                    <option value="certificado_culminacion">1.5. Certificado de Culminación (60 horas)</option>
-                                    <option value="rubrica_evaluacion_entidad">1.6. Rúbrica de Evaluación Entidad Receptora</option>
-                                    <option value="hojas_asistencia">1.7. Hojas de Asistencia de Estudiantes</option>
-                                    <option value="ficha_registro_actividades">1.8. Ficha de Registro de Actividades Realizadas</option>
-                                    <option value="ficha_control_seguimiento">1.9. Ficha de Control y Seguimiento Docente</option>
-                                    <option value="rubrica_evaluacion_docente">1.10. Rúbrica de Evaluación de Control y Seguimiento Docente</option>
-                                    <option value="rubrica_evaluacion_resultados">1.11. Rúbrica de Evaluación de Resultados</option>
-                                    <option value="respaldo_fotos">1.12. Respaldo en Fotos, Videos y Evidencias</option>
+                                    <?php if (isset($tipos_documentos)): ?>
+                                        <?php foreach ($tipos_documentos as $tipo): ?>
+                                            <option value="<?= $tipo['ID_TIPO_DOCUMENTO'] ?>"><?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?></option>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </select>
                             </div>
                         </div>
@@ -644,9 +637,11 @@
                                 <label class="form-label">Estudiante</label>
                                 <select class="form-select" name="estudiante" required>
                                     <option value="">Seleccionar estudiante...</option>
-                                    <option value="1">Yamilex Campues - Sistemas</option>
-                                    <option value="2">Ana Yandun - Desarrollo</option>
-                                    <option value="3">Pedro Aguirre - Desarrollo</option>
+                                    <?php if (isset($estudiantes)): ?>
+                                        <?php foreach ($estudiantes as $estudiante): ?>
+                                            <option value="<?= $estudiante['ID_USUARIO'] ?>"><?= $estudiante['NOMBRE'] ?> <?= $estudiante['APELLIDO'] ?> - <?= $estudiante['CEDULA'] ?></option>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </select>
                             </div>
                         </div>
@@ -689,11 +684,11 @@
                                 <label class="form-label">Estado de Revisión</label>
                                 <select class="form-select" name="estado_revision" required>
                                     <option value="">Seleccionar estado...</option>
-                                    <option value="pendiente">Pendiente de Revisión</option>
-                                    <option value="en_revision">En Revisión</option>
-                                    <option value="aprobado">Aprobado</option>
-                                    <option value="rechazado">Rechazado</option>
-                                    <option value="requiere_correccion">Requiere Corrección</option>
+                                    <?php if (isset($estados_revision)): ?>
+                                        <?php foreach ($estados_revision as $estado): ?>
+                                            <option value="<?= $estado['ID_ESTADO_REVISION'] ?>"><?= $estado['ESTADO'] ?></option>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </select>
                             </div>
                         </div>
@@ -744,29 +739,22 @@
                         <label class="form-label">Tipo de Documento</label>
                         <select class="form-select" name="filtro_tipo_documento">
                             <option value="">Todos los tipos</option>
-                            <option value="oficio_asignacion_tutor">1.1. Oficio de Asignación de Tutor Docente</option>
-                            <option value="oficio_personal_entidad">1.2. Oficio Personal a Entidad Receptora</option>
-                            <option value="carta_aceptacion">1.3. Carta de Aceptación de Entidad Receptora</option>
-                            <option value="solicitud_institucional">1.4. Solicitud Institucional Valorada</option>
-                            <option value="certificado_culminacion">1.5. Certificado de Culminación (60 horas)</option>
-                            <option value="rubrica_evaluacion_entidad">1.6. Rúbrica de Evaluación Entidad Receptora</option>
-                            <option value="hojas_asistencia">1.7. Hojas de Asistencia de Estudiantes</option>
-                            <option value="ficha_registro_actividades">1.8. Ficha de Registro de Actividades Realizadas</option>
-                            <option value="ficha_control_seguimiento">1.9. Ficha de Control y Seguimiento Docente</option>
-                            <option value="rubrica_evaluacion_docente">1.10. Rúbrica de Evaluación de Control y Seguimiento Docente</option>
-                            <option value="rubrica_evaluacion_resultados">1.11. Rúbrica de Evaluación de Resultados</option>
-                            <option value="respaldo_fotos">1.12. Respaldo en Fotos, Videos y Evidencias</option>
+                            <?php if (isset($tipos_documentos)): ?>
+                                <?php foreach ($tipos_documentos as $tipo): ?>
+                                    <option value="<?= $tipo['ID_TIPO_DOCUMENTO'] ?>"><?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?></option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </select>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Estado de Revisión</label>
                         <select class="form-select" name="filtro_estado">
                             <option value="">Todos los estados</option>
-                            <option value="pendiente">Pendiente de Revisión</option>
-                            <option value="en_revision">En Revisión</option>
-                            <option value="aprobado">Aprobado</option>
-                            <option value="rechazado">Rechazado</option>
-                            <option value="requiere_correccion">Requiere Corrección</option>
+                            <?php if (isset($estados_revision)): ?>
+                                <?php foreach ($estados_revision as $estado): ?>
+                                    <option value="<?= $estado['ID_ESTADO_REVISION'] ?>"><?= $estado['ESTADO'] ?></option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -830,11 +818,11 @@
                         <label class="form-label">Nuevo Estado</label>
                         <select class="form-select" name="nuevo_estado" required>
                             <option value="">Seleccionar nuevo estado...</option>
-                            <option value="pendiente">Pendiente de Revisión</option>
-                            <option value="en_revision">En Revisión</option>
-                            <option value="aprobado">Aprobado</option>
-                            <option value="rechazado">Rechazado</option>
-                            <option value="requiere_correccion">Requiere Corrección</option>
+                            <?php if (isset($estados_revision)): ?>
+                                <?php foreach ($estados_revision as $estado): ?>
+                                    <option value="<?= $estado['ID_ESTADO_REVISION'] ?>"><?= $estado['ESTADO'] ?></option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -971,27 +959,96 @@
     }
 
     function verDocumento(id) {
-        showNotification('Visualizando documento...', 'info');
+        // Abrir el documento en una nueva ventana
+        window.open(`<?= base_url('admin/documentos/practicas/ver') ?>/${id}`, '_blank');
     }
 
     function descargarDocumento(id) {
-        showNotification('Descargando documento...', 'success');
+        // Descargar el documento
+        window.location.href = `<?= base_url('admin/documentos/practicas/download') ?>/${id}`;
     }
 
     function eliminarDocumento(id) {
         if (confirm('¿Estás seguro de que quieres eliminar este documento?')) {
-            showNotification('Documento eliminado exitosamente', 'success');
+            fetch(`<?= base_url('admin/documentos/practicas/eliminar') ?>/${id}`, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    // Recargar la página para mostrar los cambios
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error al eliminar el documento', 'error');
+            });
         }
     }
 
     function subirDocumentoPractica() {
-        showNotification('Documento subido exitosamente', 'success');
-        bootstrap.Modal.getInstance(document.getElementById('modalSubirDocumentoPractica')).hide();
+        const form = document.getElementById('formSubirDocumentoPractica');
+        const formData = new FormData(form);
+        
+        // Agregar el archivo al FormData
+        const archivo = document.getElementById('archivoInputPractica').files[0];
+        if (archivo) {
+            formData.append('archivo', archivo);
+        }
+        
+        fetch('<?= base_url('admin/documentos/practicas/store') ?>', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message, 'success');
+                bootstrap.Modal.getInstance(document.getElementById('modalSubirDocumentoPractica')).hide();
+                form.reset();
+                // Recargar la página para mostrar los nuevos datos
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else {
+                showNotification(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error al subir el documento', 'error');
+        });
     }
 
     function aplicarFiltrosPracticas() {
-        showNotification('Filtros aplicados', 'info');
-        bootstrap.Modal.getInstance(document.getElementById('modalFiltrosPracticas')).hide();
+        const form = document.getElementById('formFiltrosPracticas');
+        const formData = new FormData(form);
+        
+        fetch('<?= base_url('admin/documentos/practicas/filtros') ?>', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Filtros aplicados correctamente', 'success');
+                bootstrap.Modal.getInstance(document.getElementById('modalFiltrosPracticas')).hide();
+                // Aquí podrías actualizar la vista con los datos filtrados
+                console.log('Documentos filtrados:', data.data);
+            } else {
+                showNotification('Error al aplicar filtros', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error al aplicar filtros', 'error');
+        });
     }
 
     function limpiarFiltrosPracticas() {
@@ -1004,7 +1061,22 @@
     }
 
     function generarReportePracticas() {
-        showNotification('Generando reporte...', 'info');
+        fetch('<?= base_url('admin/documentos/practicas/reporte') ?>')
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Reporte generado exitosamente', 'success');
+                // Aquí podrías mostrar el reporte o descargarlo
+                console.log('Datos del reporte:', data.data);
+                console.log('Estadísticas:', data.estadisticas);
+            } else {
+                showNotification('Error al generar el reporte', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error al generar el reporte', 'error');
+        });
     }
 
     function cambiarEstadoDocumento(id) {
@@ -1019,20 +1091,39 @@
     function guardarCambioEstado() {
         const nuevoEstado = document.querySelector('select[name="nuevo_estado"]').value;
         const comentarios = document.querySelector('textarea[name="comentarios_estado"]').value;
+        const documentoId = document.getElementById('documento_id_estado').value;
         
         if (!nuevoEstado) {
             showNotification('Debe seleccionar un nuevo estado', 'error');
             return;
         }
         
-        // Aquí se enviaría la petición al servidor
-        showNotification(`Estado cambiado a: ${nuevoEstado}`, 'success');
+        const formData = new FormData();
+        formData.append('estado', nuevoEstado);
+        formData.append('observaciones_revisor', comentarios);
         
-        // Cerrar modal
-        bootstrap.Modal.getInstance(document.getElementById('modalCambiarEstado')).hide();
-        
-        // Limpiar formulario
-        document.getElementById('formCambiarEstado').reset();
+        fetch(`<?= base_url('admin/documentos/practicas/cambiar-estado') ?>/${documentoId}`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message, 'success');
+                bootstrap.Modal.getInstance(document.getElementById('modalCambiarEstado')).hide();
+                document.getElementById('formCambiarEstado').reset();
+                // Recargar la página para mostrar los cambios
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else {
+                showNotification(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error al cambiar el estado', 'error');
+        });
     }
 
     function revisionMasiva() {

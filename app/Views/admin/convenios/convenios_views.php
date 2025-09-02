@@ -526,14 +526,15 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Duración (meses)<span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" name="duracion" id="duracion" min="1" max="60" required>
+                                <input type="number" class="form-control" name="duracion" id="duracion" min="1" max="60" required readonly>
+                                <small class="text-muted">Se calcula automáticamente basado en las fechas</small>
                                 <div class="invalid-feedback" id="error_duracion"></div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Renovable<span class="text-danger">*</span></label>
-                                <select class="form-select" name="renovable" id="renovable" required>
+                                <label class="form-label">Renovable</label>
+                                <select class="form-select" name="renovable" id="renovable">
                                     <option value="">Seleccionar...</option>
                                     <option value="1">Sí</option>
                                     <option value="0">No</option>
@@ -549,8 +550,8 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Archivo del Convenio</label>
-                        <input type="file" class="form-control" name="archivo_convenio" id="archivo_convenio" accept=".pdf,.doc,.docx">
-                        <small class="text-muted">Formatos permitidos: PDF, DOC, DOCX (Opcional)</small>
+                        <input type="file" class="form-control" name="archivo_convenio" id="archivo_convenio" accept=".pdf" required>
+                        <small class="text-muted">Formatos permitidos: PDF únicamente</small>
                         <div class="invalid-feedback" id="error_archivo_convenio"></div>
                     </div>
                     <div class="mb-3">
@@ -654,13 +655,6 @@
                                 <label class="form-label">Representante Legal<span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" name="representante_legal" id="representante_legal" required>
                                 <div class="invalid-feedback" id="error_representante_legal"></div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Persona de Contacto<span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="contacto" id="contacto" required>
-                                <div class="invalid-feedback" id="error_contacto"></div>
                             </div>
                         </div>
                     </div>
@@ -933,7 +927,7 @@
         limpiarErrores();
 
         // Validar campos obligatorios
-        const camposObligatorios = ['tipo_convenio', 'institucion', 'fecha_inicio', 'fecha_fin', 'duracion', 'renovable', 'objetivo'];
+        const camposObligatorios = ['tipo_convenio', 'institucion', 'fecha_inicio', 'fecha_fin', 'duracion', 'objetivo', 'archivo_convenio'];
         let hayErrores = false;
 
         camposObligatorios.forEach(campo => {
@@ -953,11 +947,28 @@
             hayErrores = true;
         }
 
-        // Validar duración
+        // Validar duración (se calcula automáticamente, solo verificar que esté presente)
         const duracion = parseInt(formData.get('duracion'));
-        if (duracion < 1 || duracion > 60) {
-            mostrarError('duracion', 'La duración debe estar entre 1 y 60 meses');
+        if (!duracion || duracion < 1) {
+            mostrarError('duracion', 'La duración debe ser calculada automáticamente. Verifica las fechas.');
             hayErrores = true;
+        }
+
+        // Validar archivo PDF
+        const archivo = formData.get('archivo_convenio');
+        if (archivo && archivo.size > 0) {
+            const extension = archivo.name.toLowerCase().split('.').pop();
+            if (extension !== 'pdf') {
+                mostrarError('archivo_convenio', 'Solo se permiten archivos PDF');
+                hayErrores = true;
+            }
+            
+            // Validar tamaño del archivo (máximo 10MB)
+            const maxSize = 10 * 1024 * 1024; // 10MB en bytes
+            if (archivo.size > maxSize) {
+                mostrarError('archivo_convenio', 'El archivo no puede superar los 10MB');
+                hayErrores = true;
+            }
         }
 
         if (hayErrores) {
@@ -1321,7 +1332,7 @@
     }
 
     function limpiarErrores() {
-        const campos = ['tipo_convenio', 'institucion', 'fecha_inicio', 'fecha_fin', 'duracion', 'renovable', 'objetivo'];
+        const campos = ['tipo_convenio', 'institucion', 'fecha_inicio', 'fecha_fin', 'duracion', 'renovable', 'objetivo', 'archivo_convenio'];
         campos.forEach(campo => {
             const elemento = document.getElementById(campo);
             const errorElement = document.getElementById(`error_${campo}`);
@@ -1366,6 +1377,39 @@
         });
     }
 
+    // Función para calcular duración automáticamente
+    function calcularDuracion() {
+        const fechaInicio = document.getElementById('fecha_inicio').value;
+        const fechaFin = document.getElementById('fecha_fin').value;
+        const campoDuracion = document.getElementById('duracion');
+
+        if (fechaInicio && fechaFin) {
+            const inicio = new Date(fechaInicio);
+            const fin = new Date(fechaFin);
+
+            if (fin >= inicio) {
+                // Calcular diferencia en meses
+                const diffTime = Math.abs(fin - inicio);
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                const diffMonths = Math.round(diffDays / 30.44); // Promedio de días por mes
+
+                campoDuracion.value = diffMonths;
+                
+                // Limpiar error si existe
+                campoDuracion.classList.remove('is-invalid');
+                const errorElement = document.getElementById('error_duracion');
+                if (errorElement) {
+                    errorElement.style.display = 'none';
+                }
+            } else {
+                campoDuracion.value = '';
+                mostrarError('fecha_fin', 'La fecha fin debe ser posterior a la fecha inicio');
+            }
+        } else {
+            campoDuracion.value = '';
+        }
+    }
+
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
         // Set default date for new convention
@@ -1376,6 +1420,13 @@
         const endDate = new Date();
         endDate.setMonth(endDate.getMonth() + 12);
         document.querySelector('input[name="fecha_fin"]').value = endDate.toISOString().split('T')[0];
+
+        // Calcular duración inicial
+        calcularDuracion();
+
+        // Agregar event listeners para calcular duración automáticamente
+        document.getElementById('fecha_inicio').addEventListener('change', calcularDuracion);
+        document.getElementById('fecha_fin').addEventListener('change', calcularDuracion);
 
         // Initialize estado chart
         drawEstadoChart(75);

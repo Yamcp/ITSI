@@ -363,41 +363,76 @@ class InstructoresAdminController extends BaseController
                 }));
             }
 
-            $filename = 'instructores_' . date('Y-m-d_H-i-s') . '.csv';
+            // Cargar helper de Excel
+            helper('ExcelHelper');
             
-            header('Content-Type: text/csv; charset=utf-8');
-            header('Content-Disposition: attachment; filename=' . $filename);
+            // Crear archivo Excel usando PhpSpreadsheet
+            $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
             
-            $output = fopen('php://output', 'w');
+            // Configurar encabezados
+            $sheet->setTitle('Instructores');
             
-            // BOM para UTF-8
-            fprintf($output, chr(0xEF).chr(0xBB).chr(0xBF));
+            // Crear encabezado estándar con logo
+            \App\Helpers\ExcelHelper::createStandardHeader(
+                $sheet, 
+                'REPORTE DE INSTRUCTORES', 
+                'Sistema de Gestión Académica ITSI',
+                'Logo PDF.jpg',
+                'A1',
+                'D1'
+            );
             
-            // Encabezados
-            fputcsv($output, [
-                'ID', 'Nombre', 'Apellido', 'Cédula', 'Email', 'Celular', 
-                'Tipo', 'Especialidad', 'Título', 'Total Actividades', 'Actividades Activas'
-            ]);
+            // Encabezados de columnas
+            $headers = [
+                'ID',
+                'Nombre',
+                'Apellido',
+                'Cédula',
+                'Email',
+                'Celular',
+                'Tipo',
+                'Especialidad',
+                'Título',
+                'Total Actividades',
+                'Actividades Activas'
+            ];
             
-            // Datos
+            // Crear encabezados de columnas con estilo
+            \App\Helpers\ExcelHelper::createColumnHeaders($sheet, $headers, 5, 'A');
+            
+            // Llenar datos
+            $row = 6;
             foreach ($instructores as $instructor) {
-                fputcsv($output, [
-                    $instructor['ID_INSTRUCTOR'],
-                    $instructor['NOMBRE'],
-                    $instructor['APELLIDO'],
-                    $instructor['CEDULA'],
-                    $instructor['EMAIL'],
-                    $instructor['CELULAR'],
-                    $instructor['TIPO_INSTRUCTOR'],
-                    $instructor['ESPECIALIDAD'],
-                    $instructor['TITULO_PROFESIONAL'],
-                    $instructor['total_actividades'],
-                    $instructor['actividades_activas']
-                ]);
+                $sheet->setCellValue('A' . $row, $instructor['ID_INSTRUCTOR']);
+                $sheet->setCellValue('B' . $row, $instructor['NOMBRE']);
+                $sheet->setCellValue('C' . $row, $instructor['APELLIDO']);
+                $sheet->setCellValue('D' . $row, $instructor['CEDULA']);
+                $sheet->setCellValue('E' . $row, $instructor['EMAIL']);
+                $sheet->setCellValue('F' . $row, $instructor['CELULAR']);
+                $sheet->setCellValue('G' . $row, $instructor['TIPO_INSTRUCTOR']);
+                $sheet->setCellValue('H' . $row, $instructor['ESPECIALIDAD']);
+                $sheet->setCellValue('I' . $row, $instructor['TITULO_PROFESIONAL']);
+                $sheet->setCellValue('J' . $row, $instructor['total_actividades']);
+                $sheet->setCellValue('K' . $row, $instructor['actividades_activas']);
+                $row++;
             }
             
-            fclose($output);
-            exit;
+            // Aplicar estilo a los datos
+            if ($row > 6) {
+                \App\Helpers\ExcelHelper::applyDataStyle($sheet, 'A6:K' . ($row - 1));
+            }
+            
+            // Autoajustar columnas
+            \App\Helpers\ExcelHelper::autoSizeColumns($sheet, 'A', 'K');
+            
+            // Configurar headers para descarga
+            $filename = 'instructores_' . date('Y-m-d_H-i-s') . '.xlsx';
+            \App\Helpers\ExcelHelper::setDownloadHeaders($filename);
+            
+            // Escribir archivo
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+            $writer->save('php://output');
 
         } catch (\Exception $e) {
             return $this->response->setJSON([

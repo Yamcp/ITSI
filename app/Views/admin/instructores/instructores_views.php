@@ -758,7 +758,7 @@
     // Cargar datos desde la base de datos
     async function cargarInstructores() {
         try {
-            const response = await fetch('<?= base_url('instructores/getInstructores') ?>');
+            const response = await fetch('<?= base_url('admin/instructores/getInstructores') ?>');
             const result = await response.json();
             
             if (result.success) {
@@ -776,7 +776,7 @@
     // Cargar estadísticas
     async function cargarEstadisticas() {
         try {
-            const response = await fetch('<?= base_url('instructores/getEstadisticas') ?>');
+            const response = await fetch('<?= base_url('admin/instructores/getEstadisticas') ?>');
             const result = await response.json();
             
             if (result.success) {
@@ -886,7 +886,7 @@
 
     async function verDetalle(id) {
         try {
-            const response = await fetch(`<?= base_url('instructores/getInstructor') ?>/${id}`);
+            const response = await fetch(`<?= base_url('admin/instructores/getInstructor') ?>/${id}`);
             const result = await response.json();
             
             if (result.success) {
@@ -1022,7 +1022,7 @@
         
         // Enviar datos al servidor
         try {
-            const response = await fetch('<?= base_url('instructores/crear') ?>', {
+            const response = await fetch('<?= base_url('admin/instructores/crear') ?>', {
                 method: 'POST',
                 body: formData
             });
@@ -1064,21 +1064,21 @@
 
     function generarReportePDF() {
         // Abrir reporte PDF en nueva ventana
-        window.open('<?= base_url('instructores/generarReporte') ?>', '_blank');
+        window.open('<?= base_url('admin/instructores/generarReporte') ?>', '_blank');
         showNotification('Generando reporte PDF...', 'info');
         bootstrap.Modal.getInstance(document.getElementById('modalOpcionesReporte')).hide();
     }
 
     function exportarExcel() {
         // Descargar archivo Excel
-        window.location.href = '<?= base_url('instructores/exportarExcel') ?>';
+        window.location.href = '<?= base_url('admin/instructores/exportarExcel') ?>';
         showNotification('Exportando datos a Excel...', 'info');
         bootstrap.Modal.getInstance(document.getElementById('modalOpcionesExportacion')).hide();
     }
 
     function exportarCSV() {
         // Descargar archivo CSV
-        window.location.href = '<?= base_url('instructores/exportarCSV') ?>';
+        window.location.href = '<?= base_url('admin/instructores/exportarCSV') ?>';
         showNotification('Exportando datos a CSV...', 'info');
         bootstrap.Modal.getInstance(document.getElementById('modalOpcionesExportacion')).hide();
     }
@@ -1195,7 +1195,7 @@
     // Cargar tipos de instructores para el formulario
     async function cargarTiposInstructores() {
         try {
-            const response = await fetch('<?= base_url('instructores/getTiposInstructores') ?>');
+            const response = await fetch('<?= base_url('admin/instructores/getTiposInstructores') ?>');
             const result = await response.json();
             
             if (result.success) {

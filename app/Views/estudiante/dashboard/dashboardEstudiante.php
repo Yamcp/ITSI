@@ -65,24 +65,27 @@
 <?= $this->section('content') ?>
 <div class="body-wrapper">
     <div class="container-fluid">
-        <!-- Header con saludo personalizado -->
-        <div class="welcome-card">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <h2 class="mb-2">
-                        <i class="fas fa-user-graduate me-2"></i>
-                        ¡Bienvenido, <?= session()->get('nombre') ?>!
-                    </h2>
-                    <p class="mb-0 opacity-75">
-                        <i class="fas fa-calendar-alt me-2"></i>
-                        <span id="fechaActual"></span> - 
-                        <span id="horaActual"></span>
-                    </p>
-                </div>
-                <div class="col-md-4 text-end">
-                    <div class="d-flex flex-column align-items-end">
-                        <span class="badge bg-light text-dark fs-6 mb-2">Estudiante</span>
-                        <small class="opacity-75">Panel de Control</small>
+        <!-- Header del Dashboard -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="mb-1">
+                            <i class="fas fa-tachometer-alt me-2 text-primary"></i>
+                            Panel de Control
+                        </h2>
+                        <p class="text-muted mb-0">Bienvenido al Sistema del Departamento de Vinculación</p>
+                    </div>
+                    <div class="text-end">
+                    <span class="badge bg-light text-dark fs-6 mb-2">Estudiante</span>
+                        <p class="mb-0 text-muted">
+                            <i class="fas fa-calendar-alt me-1"></i>
+                            <?= date('d/m/Y') ?>
+                        </p>
+                        <p class="mb-0 text-muted">
+                            <i class="fas fa-clock me-1"></i>
+                            <span id="currentTime"></span>
+                        </p>
                     </div>
                 </div>
             </div>

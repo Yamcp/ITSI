@@ -766,41 +766,38 @@
         window.location.href = '<?= base_url('admin/reportes-evaluaciones') ?>';
     }
 
-    function exportarEvaluaciones() {
-        // Mostrar opciones de exportación
-        const opciones = `
-            <div class="d-flex gap-2">
-                <button class="btn btn-danger btn-sm" onclick="exportarPDF()">
-                    <i class="fas fa-file-pdf me-1"></i>PDF
-                </button>
-                <button class="btn btn-success btn-sm" onclick="exportarExcel()">
-                    <i class="fas fa-file-excel me-1"></i>Excel
-                </button>
-                <button class="btn btn-warning btn-sm" onclick="exportarCSV()">
-                    <i class="fas fa-file-csv me-1"></i>CSV
-                </button>
-            </div>
-        `;
-        
-        // Crear modal temporal para opciones de exportación
+    function showModalOpcionesExportacion() {
         const modal = document.createElement('div');
         modal.className = 'modal fade';
+        modal.id = 'modalOpcionesExportacion';
         modal.innerHTML = `
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">
-                            <i class="fas fa-download me-2"></i>
-                            Opciones de Exportación
+                            <i class="fas fa-download me-2"></i>Opciones de Exportación
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <p>Selecciona el formato de exportación:</p>
-                        ${opciones}
+                        <p class="mb-3">Selecciona el formato de exportación:</p>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-danger" onclick="exportarFormato('pdf')">
+                                <i class="fas fa-file-pdf me-2"></i>Exportar como PDF
+                            </button>
+                            <button class="btn btn-outline-success" onclick="exportarFormato('excel')">
+                                <i class="fas fa-file-excel me-2"></i>Exportar como Excel
+                            </button>                            
+                        </div>
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Los archivos se descargarán automáticamente en tu navegador
+                            </small>
+                        </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                     </div>
                 </div>
             </div>
@@ -814,6 +811,33 @@
         modal.addEventListener('hidden.bs.modal', () => {
             document.body.removeChild(modal);
         });
+    }
+
+    function exportarEvaluaciones() {
+        showModalOpcionesExportacion();
+    }
+
+    function exportarFormato(formato) {
+        // Cerrar el modal primero
+        const modal = document.getElementById('modalOpcionesExportacion');
+        if (modal) {
+            const bsModal = bootstrap.Modal.getInstance(modal);
+            if (bsModal) {
+                bsModal.hide();
+            }
+        }
+        
+        // Ejecutar la exportación según el formato
+        switch(formato) {
+            case 'pdf':
+                exportarPDF();
+                break;
+            case 'excel':
+                exportarExcel();
+                break;
+            default:
+                showNotification('Formato de exportación no válido', 'error');
+        }
     }
 
     function exportarPDF() {

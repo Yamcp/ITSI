@@ -23,7 +23,7 @@
             <div class="col-md-3 col-sm-6">
                 <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #007bff 80%, #0056b3 100%); color: #fff; border: none;">
                     <div class="card-body">
-                        <h2 class="card-title mb-2" id="totalPracticas" style="font-size:2.5rem;">24</h2>
+                        <h2 class="card-title mb-2" id="totalPracticas" style="font-size:2.5rem;"><?= $estadisticas['totalPracticas'] ?></h2>
                         <p class="card-text fw-bold" style="color: #e0e0e0;">Total Prácticas</p>
                     </div>
                 </div>
@@ -31,7 +31,7 @@
             <div class="col-md-3 col-sm-6">
                 <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #28a745 80%, #155724 100%); color: #fff; border: none;">
                     <div class="card-body">
-                        <h2 class="card-title mb-2" id="practicasActivas" style="font-size:2.5rem;">12</h2>
+                        <h2 class="card-title mb-2" id="practicasActivas" style="font-size:2.5rem;"><?= $estadisticas['practicasActivas'] ?></h2>
                         <p class="card-text fw-bold" style="color: #e0e0e0;">Prácticas Activas</p>
                     </div>
                 </div>
@@ -39,7 +39,7 @@
             <div class="col-md-3 col-sm-6">
                 <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #17a2b8 80%, #0c5460 100%); color: #fff; border: none;">
                     <div class="card-body">
-                        <h2 class="card-title mb-2" id="practicasFinalizadas" style="font-size:2.5rem;">8</h2>
+                        <h2 class="card-title mb-2" id="practicasFinalizadas" style="font-size:2.5rem;"><?= $estadisticas['practicasFinalizadas'] ?></h2>
                         <p class="card-text fw-bold" style="color: #e0e0e0;">Finalizadas</p>
                     </div>
                 </div>
@@ -47,7 +47,7 @@
             <div class="col-md-3 col-sm-6">
                 <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #ffc107 80%, #b38600 100%); color: #fff; border: none;">
                     <div class="card-body">
-                        <h2 class="card-title mb-2" id="practicasPendientes" style="font-size:2.5rem;">4</h2>
+                        <h2 class="card-title mb-2" id="practicasPendientes" style="font-size:2.5rem;"><?= $estadisticas['practicasPendientes'] ?></h2>
                         <p class="card-text fw-bold" style="color: #fffbe6;">Pendientes</p>
                     </div>
                 </div>
@@ -156,96 +156,78 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody id="tablaPreprofesionales">
-                                                    <tr>
-                                                        <td>001</td>
-                                                        <td>
-                                                            <div class="d-flex align-items-center">
-                                                                <img src="https://ui-avatars.com/api/?name=Yamilex+Campues&background=0d6efd&color=fff&size=32" class="rounded-circle me-2" alt="YC">
-                                                                <div>
-                                                                    <div class="fw-semibold">Yamilex Campues</div>
-                                                                    <small class="text-muted">Sistemas de Información</small>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <div>Hospital San Vicente de Paúl</div>
-                                                            <small class="text-muted">Sector Público</small>
-                                                        </td>
-                                                        <td>
-                                                            <div>Jun 2025 - Ago 2025</div>
-                                                            <small class="text-muted">3 meses</small>
-                                                        </td>
-                                                        <td>
-                                                            <span class="badge bg-info">240/240h</span>
-                                                        </td>
-                                                        <td>
-                                                            <span class="badge bg-success text-white">Completada</span>
-                                                        </td>
-                                                        <td>
-                                                            <div class="progress" style="height: 8px;">
-                                                                <div class="progress-bar bg-success" style="width: 100%"></div>
-                                                            </div>
-                                                            <small class="text-muted">100%</small>
-                                                        </td>
-                                                        <td>
-                                                            <div class="btn-group btn-group-sm">
-                                                                <button class="btn btn-outline-primary" onclick="verDetalle(1)" title="Ver Detalle">
-                                                                    <i class="fas fa-eye"></i>
-                                                                </button>
-                                                                <button class="btn btn-outline-warning" onclick="editarPractica(1)" title="Editar">
-                                                                    <i class="fas fa-edit"></i>
-                                                                </button>
-                                                                <button class="btn btn-outline-success" onclick="descargarReporte(1)" title="Reporte">
-                                                                    <i class="fas fa-download"></i>
-                                                                </button>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>002</td>
-                                                        <td>
-                                                            <div class="d-flex align-items-center">
-                                                                <img src="https://ui-avatars.com/api/?name=Ana+Yandun&background=6c757d&color=fff&size=32" class="rounded-circle me-2" alt="AY">
-                                                                <div>
-                                                                    <div class="fw-semibold">Ana Yandun</div>
-                                                                    <small class="text-muted">Desarrollo de Software</small>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <div>Banco del Pacífico</div>
-                                                            <small class="text-muted">Sector Privado</small>
-                                                        </td>
-                                                        <td>
-                                                            <div>Jul 2025 - Sep 2025</div>
-                                                            <small class="text-muted">3 meses</small>
-                                                        </td>
-                                                        <td>
-                                                            <span class="badge bg-warning text-dark">180/240h</span>
-                                                        </td>
-                                                        <td>
-                                                            <span class="badge bg-warning text-dark">En Proceso</span>
-                                                        </td>
-                                                        <td>
-                                                            <div class="progress" style="height: 8px;">
-                                                                <div class="progress-bar bg-warning" style="width: 75%"></div>
-                                                            </div>
-                                                            <small class="text-muted">75%</small>
-                                                        </td>
-                                                        <td>
-                                                            <div class="btn-group btn-group-sm">
-                                                                <button class="btn btn-outline-primary" onclick="verDetalle(2)" title="Ver Detalle">
-                                                                    <i class="fas fa-eye"></i>
-                                                                </button>
-                                                                <button class="btn btn-outline-warning" onclick="editarPractica(2)" title="Editar">
-                                                                    <i class="fas fa-edit"></i>
-                                                                </button>
-                                                                <button class="btn btn-outline-info" onclick="registrarAsistencia(2)" title="Asistencia">
-                                                                    <i class="fas fa-clock"></i>
-                                                                </button>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
+                                                    <?php if (!empty($practicasPreprofesionales)): ?>
+                                                        <?php foreach ($practicasPreprofesionales as $index => $practica): ?>
+                                                            <tr>
+                                                                <td><?= str_pad($practica['ID_PRACTICA_PREPROFESIONAL'], 3, '0', STR_PAD_LEFT) ?></td>
+                                                                <td>
+                                                                    <div class="d-flex align-items-center">
+                                                                        <img src="https://ui-avatars.com/api/?name=<?= urlencode($practica['ESTUDIANTE_NOMBRE']) ?>&background=0d6efd&color=fff&size=32" class="rounded-circle me-2" alt="<?= substr($practica['ESTUDIANTE_NOMBRE'], 0, 2) ?>">
+                                                                        <div>
+                                                                            <div class="fw-semibold"><?= $practica['ESTUDIANTE_NOMBRE'] ?></div>
+                                                                            <small class="text-muted"><?= $practica['CARRERA_NOMBRE'] ?></small>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <div><?= $practica['INSTITUCION_NOMBRE'] ?></div>
+                                                                    <small class="text-muted"><?= $practica['TIPO_INSTITUCION'] ?></small>
+                                                                </td>
+                                                                <td>
+                                                                    <div><?= date('M Y', strtotime($practica['FECHA_INICIO'])) ?> - <?= date('M Y', strtotime($practica['FECHA_FIN'])) ?></div>
+                                                                    <small class="text-muted"><?= $practica['HORAS_PRACTICAS'] ?>h</small>
+                                                                </td>
+                                                                <td>
+                                                                    <span class="badge bg-info"><?= $practica['HORAS_PRACTICAS'] ?>h</span>
+                                                                </td>
+                                                                <td>
+                                                                    <?php
+                                                                    $estadoClass = '';
+                                                                    switch($practica['ESTADO_PRACTICA']) {
+                                                                        case 'Completada':
+                                                                            $estadoClass = 'bg-success text-white';
+                                                                            break;
+                                                                        case 'En Progreso':
+                                                                            $estadoClass = 'bg-warning text-dark';
+                                                                            break;
+                                                                        case 'Pendiente':
+                                                                            $estadoClass = 'bg-info text-dark';
+                                                                            break;
+                                                                        default:
+                                                                            $estadoClass = 'bg-secondary text-white';
+                                                                    }
+                                                                    ?>
+                                                                    <span class="badge <?= $estadoClass ?>"><?= $practica['ESTADO_PRACTICA'] ?></span>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="progress" style="height: 8px;">
+                                                                        <div class="progress-bar bg-success" style="width: 100%"></div>
+                                                                    </div>
+                                                                    <small class="text-muted">100%</small>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="btn-group btn-group-sm">
+                                                                        <button class="btn btn-outline-primary" onclick="verDetalle(<?= $practica['ID_PRACTICA_PREPROFESIONAL'] ?>, 'preprofesional')" title="Ver Detalle">
+                                                                            <i class="fas fa-eye"></i>
+                                                                        </button>
+                                                                        <button class="btn btn-outline-warning" onclick="editarPractica(<?= $practica['ID_PRACTICA_PREPROFESIONAL'] ?>)" title="Editar">
+                                                                            <i class="fas fa-edit"></i>
+                                                                        </button>
+                                                                        <button class="btn btn-outline-info" onclick="registrarAsistencia(<?= $practica['ID_PRACTICA_PREPROFESIONAL'] ?>, 'preprofesional')" title="Asistencia">
+                                                                            <i class="fas fa-clock"></i>
+                                                                        </button>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        <?php endforeach; ?>
+                                                    <?php else: ?>
+                                                        <tr>
+                                                            <td colspan="8" class="text-center text-muted py-4">
+                                                                <i class="fas fa-inbox fa-2x mb-2"></i><br>
+                                                                No hay prácticas preprofesionales registradas
+                                                            </td>
+                                                        </tr>
+                                                    <?php endif; ?>
                                                 </tbody>
                                             </table>
                                         </div>
@@ -281,51 +263,78 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody id="tablaServicio">
-                                                    <tr>
-                                                        <td>SC001</td>
-                                                        <td>
-                                                            <div class="d-flex align-items-center">
-                                                                <img src="https://ui-avatars.com/api/?name=Pedro+Aguirre&background=198754&color=fff&size=32" class="rounded-circle me-2" alt="PA">
-                                                                <div>
-                                                                    <div class="fw-semibold">Pedro Aguirre</div>
-                                                                    <small class="text-muted">Desarrollo de Software</small>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <div>Fundación Niños del Ecuador</div>
-                                                            <small class="text-muted">ONG</small>
-                                                        </td>
-                                                        <td>
-                                                            <div>Ago 2025 - Oct 2025</div>
-                                                            <small class="text-muted">3 meses</small>
-                                                        </td>
-                                                        <td>
-                                                            <span class="badge bg-info text-dark">45/96h</span>
-                                                        </td>
-                                                        <td>
-                                                            <span class="badge bg-info text-dark">Iniciado</span>
-                                                        </td>
-                                                        <td>
-                                                            <div class="progress" style="height: 8px;">
-                                                                <div class="progress-bar bg-info" style="width: 47%"></div>
-                                                            </div>
-                                                            <small class="text-muted">47%</small>
-                                                        </td>
-                                                        <td>
-                                                            <div class="btn-group btn-group-sm">
-                                                                <button class="btn btn-outline-primary" onclick="verDetalle(3)" title="Ver Detalle">
-                                                                    <i class="fas fa-eye"></i>
-                                                                </button>
-                                                                <button class="btn btn-outline-warning" onclick="editarPractica(3)" title="Editar">
-                                                                    <i class="fas fa-edit"></i>
-                                                                </button>
-                                                                <button class="btn btn-outline-info" onclick="registrarAsistencia(3)" title="Asistencia">
-                                                                    <i class="fas fa-clock"></i>
-                                                                </button>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
+                                                    <?php if (!empty($serviciosComunitarios)): ?>
+                                                        <?php foreach ($serviciosComunitarios as $index => $servicio): ?>
+                                                            <tr>
+                                                                <td>SC<?= str_pad($servicio['ID_SERVICIO_COMUNITARIO'], 3, '0', STR_PAD_LEFT) ?></td>
+                                                                <td>
+                                                                    <div class="d-flex align-items-center">
+                                                                        <img src="https://ui-avatars.com/api/?name=<?= urlencode($servicio['ESTUDIANTE_NOMBRE']) ?>&background=198754&color=fff&size=32" class="rounded-circle me-2" alt="<?= substr($servicio['ESTUDIANTE_NOMBRE'], 0, 2) ?>">
+                                                                        <div>
+                                                                            <div class="fw-semibold"><?= $servicio['ESTUDIANTE_NOMBRE'] ?></div>
+                                                                            <small class="text-muted"><?= $servicio['CARRERA_NOMBRE'] ?></small>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                                <td>
+                                                                    <div><?= $servicio['INSTITUCION_NOMBRE'] ?></div>
+                                                                    <small class="text-muted"><?= $servicio['TIPO_INSTITUCION'] ?></small>
+                                                                </td>
+                                                                <td>
+                                                                    <div><?= date('M Y', strtotime($servicio['FECHA_INICIO'])) ?> - <?= date('M Y', strtotime($servicio['FECHA_FIN'])) ?></div>
+                                                                    <small class="text-muted"><?= $servicio['HORAS_SERVICIO'] ?>h</small>
+                                                                </td>
+                                                                <td>
+                                                                    <span class="badge bg-info text-dark"><?= $servicio['HORAS_SERVICIO'] ?>h</span>
+                                                                </td>
+                                                                <td>
+                                                                    <?php
+                                                                    $estadoClass = '';
+                                                                    switch($servicio['ESTADO_SERVICIO']) {
+                                                                        case 'Completado':
+                                                                            $estadoClass = 'bg-success text-white';
+                                                                            break;
+                                                                        case 'En Progreso':
+                                                                            $estadoClass = 'bg-warning text-dark';
+                                                                            break;
+                                                                        case 'Pendiente':
+                                                                            $estadoClass = 'bg-info text-dark';
+                                                                            break;
+                                                                        default:
+                                                                            $estadoClass = 'bg-secondary text-white';
+                                                                    }
+                                                                    ?>
+                                                                    <span class="badge <?= $estadoClass ?>"><?= $servicio['ESTADO_SERVICIO'] ?></span>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="progress" style="height: 8px;">
+                                                                        <div class="progress-bar bg-info" style="width: 47%"></div>
+                                                                    </div>
+                                                                    <small class="text-muted">47%</small>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="btn-group btn-group-sm">
+                                                                        <button class="btn btn-outline-primary" onclick="verDetalle(<?= $servicio['ID_SERVICIO_COMUNITARIO'] ?>, 'servicio')" title="Ver Detalle">
+                                                                            <i class="fas fa-eye"></i>
+                                                                        </button>
+                                                                        <button class="btn btn-outline-warning" onclick="editarPractica(<?= $servicio['ID_SERVICIO_COMUNITARIO'] ?>)" title="Editar">
+                                                                            <i class="fas fa-edit"></i>
+                                                                        </button>
+                                                                        <button class="btn btn-outline-info" onclick="registrarAsistencia(<?= $servicio['ID_SERVICIO_COMUNITARIO'] ?>, 'servicio')" title="Asistencia">
+                                                                            <i class="fas fa-clock"></i>
+                                                                        </button>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        <?php endforeach; ?>
+                                                    <?php else: ?>
+                                                        <tr>
+                                                            <td colspan="8" class="text-center text-muted py-4">
+                                                                <i class="fas fa-inbox fa-2x mb-2"></i><br>
+                                                                No hay servicios comunitarios registrados
+                                                            </td>
+                                                        </tr>
+                                                    <?php endif; ?>
                                                 </tbody>
                                             </table>
                                         </div>
@@ -355,42 +364,47 @@
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            <tr>
-                                                                <td>
-                                                                    <div class="d-flex align-items-center">
-                                                                        <img src="https://ui-avatars.com/api/?name=Yamilex+Campues&background=0d6efd&color=fff&size=32" class="rounded-circle me-2" alt="YC">
-                                                                        Yamilex Campues
-                                                                    </div>
-                                                                </td>
-                                                                <td><span class="badge bg-primary">Preprofesional</span></td>
-                                                                <td>240/240h</td>
-                                                                <td>Hace 2 días</td>
-                                                                <td><span class="badge bg-success text-white">Completada</span></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>
-                                                                    <div class="d-flex align-items-center">
-                                                                        <img src="https://ui-avatars.com/api/?name=Ana+Yandun&background=6c757d&color=fff&size=32" class="rounded-circle me-2" alt="AY">
-                                                                        Ana Yandun
-                                                                    </div>
-                                                                </td>
-                                                                <td><span class="badge bg-primary">Preprofesional</span></td>
-                                                                <td>180/240h</td>
-                                                                <td>Hoy</td>
-                                                                <td><span class="badge bg-warning text-dark">En Proceso</span></td>
-                                                            </tr>
-                                                            <tr>
-                                                                <td>
-                                                                    <div class="d-flex align-items-center">
-                                                                        <img src="https://ui-avatars.com/api/?name=Pedro+Aguirre&background=198754&color=fff&size=32" class="rounded-circle me-2" alt="PA">
-                                                                        Pedro Aguirre
-                                                                    </div>
-                                                                </td>
-                                                                <td><span class="badge bg-success">Servicio Com.</span></td>
-                                                                <td>45/96h</td>
-                                                                <td>Hace 1 día</td>
-                                                                <td><span class="badge bg-info text-dark">Iniciado</span></td>
-                                                            </tr>
+                                                            <?php if (!empty($seguimiento['actividadesRecientes'])): ?>
+                                                                <?php foreach ($seguimiento['actividadesRecientes'] as $actividad): ?>
+                                                                    <tr>
+                                                                        <td>
+                                                                            <div class="d-flex align-items-center">
+                                                                                <img src="https://ui-avatars.com/api/?name=<?= urlencode($actividad['ESTUDIANTE_NOMBRE']) ?>&background=0d6efd&color=fff&size=32" class="rounded-circle me-2" alt="<?= substr($actividad['ESTUDIANTE_NOMBRE'], 0, 2) ?>">
+                                                                                <?= $actividad['ESTUDIANTE_NOMBRE'] ?>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td><span class="badge bg-primary"><?= $actividad['TIPO_PRACTICA'] ?></span></td>
+                                                                        <td><?= $actividad['HORAS_CUMPLIDAS'] ?>/<?= $actividad['HORAS_TOTALES'] ?>h</td>
+                                                                        <td><?= $this->tiempoTranscurrido($actividad['FECHA_REPORTE']) ?></td>
+                                                                        <td>
+                                                                            <?php
+                                                                            $estadoClass = '';
+                                                                            switch($actividad['ESTADO_PRACTICA']) {
+                                                                                case 'Completada':
+                                                                                    $estadoClass = 'bg-success text-white';
+                                                                                    break;
+                                                                                case 'En Progreso':
+                                                                                    $estadoClass = 'bg-warning text-dark';
+                                                                                    break;
+                                                                                case 'Pendiente':
+                                                                                    $estadoClass = 'bg-info text-dark';
+                                                                                    break;
+                                                                                default:
+                                                                                    $estadoClass = 'bg-secondary text-white';
+                                                                            }
+                                                                            ?>
+                                                                            <span class="badge <?= $estadoClass ?>"><?= $actividad['ESTADO_PRACTICA'] ?></span>
+                                                                        </td>
+                                                                    </tr>
+                                                                <?php endforeach; ?>
+                                                            <?php else: ?>
+                                                                <tr>
+                                                                    <td colspan="5" class="text-center text-muted py-4">
+                                                                        <i class="fas fa-inbox fa-2x mb-2"></i><br>
+                                                                        No hay actividades recientes
+                                                                    </td>
+                                                                </tr>
+                                                            <?php endif; ?>
                                                         </tbody>
                                                     </table>
                                                 </div>
@@ -445,45 +459,54 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="formNuevaPractica">
+                <form id="formNuevaPractica" novalidate>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Tipo de Práctica</label>
+                                <label class="form-label">Tipo de Práctica <span class="text-danger">*</span></label>
                                 <select class="form-select" name="tipo_practica" required>
                                     <option value="">Seleccionar...</option>
                                     <option value="1">Prácticas de Servicio Comunitario</option>
                                     <option value="2">Prácticas Preprofesionales</option>
                                 </select>
+                                <div class="invalid-feedback">
+                                    Por favor selecciona un tipo de práctica.
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Estudiante</label>
+                                <label class="form-label">Estudiante <span class="text-danger">*</span></label>
                                 <select class="form-select" name="estudiante" required>
                                     <option value="">Seleccionar estudiante...</option>
                                     <option value="1">Yamilex Campues - Sistemas</option>
                                     <option value="2">Ana Yandun - Desarrollo</option>
                                     <option value="3">Pedro Aguirre - Desarrollo</option>
                                 </select>
+                                <div class="invalid-feedback">
+                                    Por favor selecciona un estudiante.
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Institución</label>
+                                <label class="form-label">Institución <span class="text-danger">*</span></label>
                                 <select class="form-select" name="institucion" required>
                                     <option value="">Seleccionar institución...</option>
                                     <option value="1">Hospital San Vicente de Paúl</option>
                                     <option value="2">Banco del Pacífico</option>
                                     <option value="3">Fundación Niños del Ecuador</option>
                                 </select>
+                                <div class="invalid-feedback">
+                                    Por favor selecciona una institución.
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Estado</label>
+                                <label class="form-label">Estado <span class="text-danger">*</span></label>
                                 <select class="form-select" name="estado" required>
                                     <option value="">Seleccionar estado...</option>
                                     <option value="1">Pendiente</option>
@@ -491,40 +514,61 @@
                                     <option value="3">Completada</option>
                                     <option value="4">Cancelada</option>
                                 </select>
+                                <div class="invalid-feedback">
+                                    Por favor selecciona un estado.
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Fecha Inicio</label>
+                                <label class="form-label">Fecha Inicio <span class="text-danger">*</span></label>
                                 <input type="date" class="form-control" name="fecha_inicio" required>
+                                <div class="invalid-feedback">
+                                    Por favor selecciona una fecha de inicio.
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Fecha Fin</label>
+                                <label class="form-label">Fecha Fin <span class="text-danger">*</span></label>
                                 <input type="date" class="form-control" name="fecha_fin" required>
+                                <div class="invalid-feedback">
+                                    Por favor selecciona una fecha de fin.
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Horas Totales</label>
-                                <input type="number" class="form-control" name="horas_total" min="1" required>
+                                <label class="form-label">Horas Totales <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" name="horas_total" min="1" max="1000" required>
+                                <div class="invalid-feedback">
+                                    Por favor ingresa un número válido de horas (mínimo 1, máximo 1000).
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Cronograma</label>
-                                <input type="text" class="form-control" name="cronograma" placeholder="Ej: Lunes a Viernes 8:00-17:00" required>
+                                <label class="form-label">Cronograma <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="cronograma" placeholder="Ej: Lunes a Viernes 8:00-17:00" minlength="10" maxlength="100" required>
+                                <div class="invalid-feedback">
+                                    Por favor ingresa un cronograma válido (mínimo 10 caracteres).
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Descripción</label>
-                        <textarea class="form-control" name="descripcion" rows="4" placeholder="Describe las actividades a realizar..." required></textarea>
+                        <label class="form-label">Descripción <span class="text-danger">*</span></label>
+                        <textarea class="form-control" name="descripcion" rows="4" placeholder="Describe las actividades a realizar..." minlength="20" maxlength="500" required></textarea>
+                        <div class="invalid-feedback">
+                            Por favor ingresa una descripción detallada (mínimo 20 caracteres).
+                        </div>
+                        <div class="form-text">
+                            <span id="descripcion-count">0</span>/500 caracteres
+                        </div>
                     </div>
                 </form>
             </div>
@@ -675,32 +719,50 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="formAsistencia">
+                <form id="formAsistencia" novalidate>
                     <div class="mb-3">
-                        <label class="form-label">Fecha</label>
+                        <label class="form-label">Fecha <span class="text-danger">*</span></label>
                         <input type="date" class="form-control" name="fecha_asistencia" required>
+                        <div class="invalid-feedback">
+                            Por favor selecciona una fecha válida.
+                        </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Hora de Entrada</label>
+                                <label class="form-label">Hora de Entrada <span class="text-danger">*</span></label>
                                 <input type="time" class="form-control" name="hora_entrada" required>
+                                <div class="invalid-feedback">
+                                    Por favor selecciona una hora de entrada.
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Hora de Salida</label>
+                                <label class="form-label">Hora de Salida <span class="text-danger">*</span></label>
                                 <input type="time" class="form-control" name="hora_salida" required>
+                                <div class="invalid-feedback">
+                                    Por favor selecciona una hora de salida.
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Actividades del Día</label>
-                        <textarea class="form-control" name="actividades_dia" rows="4" placeholder="Describe las actividades realizadas durante el día..." required></textarea>
+                        <label class="form-label">Actividades del Día <span class="text-danger">*</span></label>
+                        <textarea class="form-control" name="actividades_dia" rows="4" placeholder="Describe las actividades realizadas durante el día..." minlength="10" maxlength="300" required></textarea>
+                        <div class="invalid-feedback">
+                            Por favor describe las actividades realizadas (mínimo 10 caracteres).
+                        </div>
+                        <div class="form-text">
+                            <span id="actividades-count">0</span>/300 caracteres
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Observaciones</label>
-                        <textarea class="form-control" name="observaciones" rows="3" placeholder="Observaciones adicionales..."></textarea>
+                        <textarea class="form-control" name="observaciones" rows="3" placeholder="Observaciones adicionales..." maxlength="200"></textarea>
+                        <div class="form-text">
+                            <span id="observaciones-count">0</span>/200 caracteres
+                        </div>
                     </div>
                 </form>
             </div>
@@ -708,6 +770,129 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" class="btn btn-success" onclick="guardarAsistencia()">
                     <i class="fas fa-save me-1"></i>Registrar Asistencia
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Asignar Estudiante -->
+<div class="modal fade" id="modalAsignarEstudiante" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-plus me-2"></i>
+                    Asignar Estudiante a Práctica
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formAsignarEstudiante" novalidate>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Estudiante <span class="text-danger">*</span></label>
+                                <select class="form-select" name="estudiante_asignar" required>
+                                    <option value="">Seleccionar estudiante...</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Por favor selecciona un estudiante.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Tipo de Práctica <span class="text-danger">*</span></label>
+                                <select class="form-select" name="tipo_practica_asignar" required>
+                                    <option value="">Seleccionar tipo...</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Por favor selecciona un tipo de práctica.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Institución <span class="text-danger">*</span></label>
+                                <select class="form-select" name="institucion_asignar" required>
+                                    <option value="">Seleccionar institución...</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Por favor selecciona una institución.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Estado <span class="text-danger">*</span></label>
+                                <select class="form-select" name="estado_asignar" required>
+                                    <option value="">Seleccionar estado...</option>
+                                </select>
+                                <div class="invalid-feedback">
+                                    Por favor selecciona un estado.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Fecha Inicio <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" name="fecha_inicio_asignar" required>
+                                <div class="invalid-feedback">
+                                    Por favor selecciona una fecha de inicio.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Fecha Fin <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" name="fecha_fin_asignar" required>
+                                <div class="invalid-feedback">
+                                    Por favor selecciona una fecha de fin.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Horas Totales <span class="text-danger">*</span></label>
+                                <input type="number" class="form-control" name="horas_total_asignar" min="1" max="1000" required>
+                                <div class="invalid-feedback">
+                                    Por favor ingresa un número válido de horas (mínimo 1, máximo 1000).
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Cronograma <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="cronograma_asignar" placeholder="Ej: Lunes a Viernes 8:00-17:00" minlength="10" maxlength="100" required>
+                                <div class="invalid-feedback">
+                                    Por favor ingresa un cronograma válido (mínimo 10 caracteres).
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción <span class="text-danger">*</span></label>
+                        <textarea class="form-control" name="descripcion_asignar" rows="4" placeholder="Describe las actividades a realizar..." minlength="20" maxlength="500" required></textarea>
+                        <div class="invalid-feedback">
+                            Por favor ingresa una descripción detallada (mínimo 20 caracteres).
+                        </div>
+                        <div class="form-text">
+                            <span id="descripcion-asignar-count">0</span>/500 caracteres
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" onclick="asignarEstudiante()">
+                    <i class="fas fa-user-plus me-1"></i>Asignar Estudiante
                 </button>
             </div>
         </div>
@@ -782,87 +967,251 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Datos simulados
-    let practicasData = {
-        preprofesionales: [
-            {
-                id: 1,
-                estudiante: 'Yamilex Campues',
-                carrera: 'Sistemas de Información',
-                institucion: 'Hospital San Vicente de Paúl',
-                sector: 'Público',
-                fechaInicio: '2025-06-01',
-                fechaFin: '2025-08-30',
-                horasTotal: 240,
-                horasCumplidas: 240,
-                estado: 'Completada',
-                progreso: 100,
-                descripcion: 'Desarrollo e implementación de sistema de gestión hospitalaria'
-            },
-            {
-                id: 2,
-                estudiante: 'Ana Yandun',
-                carrera: 'Desarrollo de Software',
-                institucion: 'Banco del Pacífico',
-                sector: 'Privado',
-                fechaInicio: '2025-07-01',
-                fechaFin: '2025-09-30',
-                horasTotal: 240,
-                horasCumplidas: 180,
-                estado: 'En Proceso',
-                progreso: 75,
-                descripcion: 'Desarrollo de aplicaciones móviles para servicios bancarios'
-            }
-        ],
-        servicio: [
-            {
-                id: 3,
-                estudiante: 'Pedro Aguirre',
-                carrera: 'Desarrollo de Software',
-                institucion: 'Fundación Niños del Ecuador',
-                sector: 'ONG',
-                fechaInicio: '2025-08-01',
-                fechaFin: '2025-10-30',
-                horasTotal: 96,
-                horasCumplidas: 45,
-                estado: 'Iniciado',
-                progreso: 47,
-                descripcion: 'Desarrollo de plataforma educativa para niños en situación vulnerable'
-            }
-        ]
-    };
+    // Variables globales
+    let datosModal = null;
 
     // Funciones principales
     function showModal(modalId) {
+        if (modalId === 'modalNuevaPractica' || modalId === 'modalAsignarEstudiante') {
+            cargarDatosModal();
+        }
         const modal = new bootstrap.Modal(document.getElementById(modalId));
         modal.show();
     }
 
-    function verDetalle(id) {
-        // Buscar la práctica en ambos arrays
-        let practica = [...practicasData.preprofesionales, ...practicasData.servicio].find(p => p.id === id);
-        
-        if (practica) {
-            document.getElementById('detalleEstudiante').textContent = practica.estudiante;
-            document.getElementById('detalleCarrera').textContent = practica.carrera;
-            document.getElementById('detalleTipo').textContent = id <= 2 ? 'Preprofesional' : 'Servicio Comunitario';
-            document.getElementById('detalleInstitucion').textContent = practica.institucion;
-            document.getElementById('detallePeriodo').textContent = `${practica.fechaInicio} - ${practica.fechaFin}`;
-            document.getElementById('detalleEstado').textContent = practica.estado;
-            document.getElementById('detalleDescripcion').textContent = practica.descripcion;
-            document.getElementById('progressPercent').textContent = `${practica.progreso}%`;
-            document.getElementById('progressHours').textContent = `${practica.horasCumplidas} de ${practica.horasTotal} horas`;
-            
-            drawProgressChart(practica.progreso);
-            showModal('modalDetallePractica');
+    function cargarDatosModal() {
+        if (datosModal) {
+            poblarModal();
+            return;
         }
+
+        console.log('Cargando datos del modal...');
+        fetch('/admin/practicas/getDatosModal')
+            .then(response => {
+                console.log('Respuesta recibida:', response);
+                return response.json();
+            })
+            .then(data => {
+                console.log('Datos recibidos:', data);
+                if (data.success) {
+                    datosModal = data.data;
+                    poblarModal();
+                } else {
+                    console.error('Error en respuesta:', data);
+                    showNotification('Error al cargar datos del modal: ' + (data.message || 'Error desconocido'), 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error de conexión:', error);
+                showNotification('Error de conexión: ' + error.message, 'error');
+            });
+    }
+
+    function poblarModal() {
+        console.log('Poblando modal con datos:', datosModal);
+        
+        // Poblar estudiantes
+        const selectEstudiantes = document.querySelector('select[name="estudiante"]');
+        selectEstudiantes.innerHTML = '<option value="">Seleccionar estudiante...</option>';
+        
+        if (datosModal.estudiantes && datosModal.estudiantes.length > 0) {
+            console.log('Estudiantes encontrados:', datosModal.estudiantes);
+            datosModal.estudiantes.forEach(estudiante => {
+                const option = document.createElement('option');
+                option.value = estudiante.ID_ESTUDIANTE;
+                option.textContent = `${estudiante.NOMBRE_COMPLETO} - ${estudiante.CARRERA}`;
+                selectEstudiantes.appendChild(option);
+            });
+        } else {
+            console.log('No se encontraron estudiantes');
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'No hay estudiantes disponibles';
+            selectEstudiantes.appendChild(option);
+        }
+
+        // Poblar instituciones
+        const selectInstituciones = document.querySelector('select[name="institucion"]');
+        selectInstituciones.innerHTML = '<option value="">Seleccionar institución...</option>';
+        
+        if (datosModal.instituciones && datosModal.instituciones.length > 0) {
+            console.log('Instituciones encontradas:', datosModal.instituciones);
+            datosModal.instituciones.forEach(institucion => {
+                const option = document.createElement('option');
+                option.value = institucion.ID_INSTITUCION_CONVENIO;
+                option.textContent = institucion.NOMBRE;
+                selectInstituciones.appendChild(option);
+            });
+        } else {
+            console.log('No se encontraron instituciones');
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'No hay instituciones disponibles';
+            selectInstituciones.appendChild(option);
+        }
+
+        // Poblar tipos de prácticas
+        const selectTipos = document.querySelector('select[name="tipo_practica"]');
+        selectTipos.innerHTML = '<option value="">Seleccionar...</option>';
+        
+        if (datosModal.tiposPracticas && datosModal.tiposPracticas.length > 0) {
+            console.log('Tipos de prácticas encontrados:', datosModal.tiposPracticas);
+            datosModal.tiposPracticas.forEach(tipo => {
+                const option = document.createElement('option');
+                option.value = tipo.ID_TIPO_PRACTICA;
+                option.textContent = tipo.PRACTICA;
+                selectTipos.appendChild(option);
+            });
+        } else {
+            console.log('No se encontraron tipos de prácticas');
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'No hay tipos disponibles';
+            selectTipos.appendChild(option);
+        }
+
+        // Poblar estados
+        const selectEstados = document.querySelector('select[name="estado"]');
+        selectEstados.innerHTML = '<option value="">Seleccionar estado...</option>';
+        
+        if (datosModal.estadosPracticas && datosModal.estadosPracticas.length > 0) {
+            console.log('Estados encontrados:', datosModal.estadosPracticas);
+            datosModal.estadosPracticas.forEach(estado => {
+                const option = document.createElement('option');
+                option.value = estado.ID_ESTADO_PRACTICAS;
+                option.textContent = estado.ESTADO;
+                selectEstados.appendChild(option);
+            });
+        } else {
+            console.log('No se encontraron estados');
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'No hay estados disponibles';
+            selectEstados.appendChild(option);
+        }
+
+        // Poblar también el modal de asignar estudiante
+        poblarModalAsignarEstudiante();
+    }
+
+    function poblarModalAsignarEstudiante() {
+        // Poblar estudiantes en modal de asignar
+        const selectEstudiantesAsignar = document.querySelector('select[name="estudiante_asignar"]');
+        if (selectEstudiantesAsignar) {
+            selectEstudiantesAsignar.innerHTML = '<option value="">Seleccionar estudiante...</option>';
+            
+            if (datosModal.estudiantes && datosModal.estudiantes.length > 0) {
+                datosModal.estudiantes.forEach(estudiante => {
+                    const option = document.createElement('option');
+                    option.value = estudiante.ID_ESTUDIANTE;
+                    option.textContent = `${estudiante.NOMBRE_COMPLETO} - ${estudiante.CARRERA}`;
+                    selectEstudiantesAsignar.appendChild(option);
+                });
+            } else {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'No hay estudiantes disponibles';
+                selectEstudiantesAsignar.appendChild(option);
+            }
+        }
+
+        // Poblar instituciones en modal de asignar
+        const selectInstitucionesAsignar = document.querySelector('select[name="institucion_asignar"]');
+        if (selectInstitucionesAsignar) {
+            selectInstitucionesAsignar.innerHTML = '<option value="">Seleccionar institución...</option>';
+            
+            if (datosModal.instituciones && datosModal.instituciones.length > 0) {
+                datosModal.instituciones.forEach(institucion => {
+                    const option = document.createElement('option');
+                    option.value = institucion.ID_INSTITUCION_CONVENIO;
+                    option.textContent = institucion.NOMBRE;
+                    selectInstitucionesAsignar.appendChild(option);
+                });
+            } else {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'No hay instituciones disponibles';
+                selectInstitucionesAsignar.appendChild(option);
+            }
+        }
+
+        // Poblar tipos de prácticas en modal de asignar
+        const selectTiposAsignar = document.querySelector('select[name="tipo_practica_asignar"]');
+        if (selectTiposAsignar) {
+            selectTiposAsignar.innerHTML = '<option value="">Seleccionar tipo...</option>';
+            
+            if (datosModal.tiposPracticas && datosModal.tiposPracticas.length > 0) {
+                datosModal.tiposPracticas.forEach(tipo => {
+                    const option = document.createElement('option');
+                    option.value = tipo.ID_TIPO_PRACTICA;
+                    option.textContent = tipo.PRACTICA;
+                    selectTiposAsignar.appendChild(option);
+                });
+            } else {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'No hay tipos disponibles';
+                selectTiposAsignar.appendChild(option);
+            }
+        }
+
+        // Poblar estados en modal de asignar
+        const selectEstadosAsignar = document.querySelector('select[name="estado_asignar"]');
+        if (selectEstadosAsignar) {
+            selectEstadosAsignar.innerHTML = '<option value="">Seleccionar estado...</option>';
+            
+            if (datosModal.estadosPracticas && datosModal.estadosPracticas.length > 0) {
+                datosModal.estadosPracticas.forEach(estado => {
+                    const option = document.createElement('option');
+                    option.value = estado.ID_ESTADO_PRACTICAS;
+                    option.textContent = estado.ESTADO;
+                    selectEstadosAsignar.appendChild(option);
+                });
+            } else {
+                const option = document.createElement('option');
+                option.value = '';
+                option.textContent = 'No hay estados disponibles';
+                selectEstadosAsignar.appendChild(option);
+            }
+        }
+    }
+
+    function verDetalle(id, tipo) {
+        fetch(`/admin/practicas/detalle/${id}/${tipo}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const practica = data.data.practica;
+                    document.getElementById('detalleEstudiante').textContent = practica.ESTUDIANTE_NOMBRE;
+                    document.getElementById('detalleCarrera').textContent = practica.CARRERA_NOMBRE;
+                    document.getElementById('detalleTipo').textContent = tipo === 'preprofesional' ? 'Preprofesional' : 'Servicio Comunitario';
+                    document.getElementById('detalleInstitucion').textContent = practica.INSTITUCION_NOMBRE;
+                    document.getElementById('detallePeriodo').textContent = `${practica.FECHA_INICIO} - ${practica.FECHA_FIN}`;
+                    document.getElementById('detalleEstado').textContent = practica.ESTADO_PRACTICA || practica.ESTADO_SERVICIO;
+                    document.getElementById('detalleDescripcion').textContent = practica.PROYECTO_ESPECIFICO || practica.PROYECTO_SOCIAL || 'Sin descripción';
+                    document.getElementById('progressPercent').textContent = `${data.data.progreso}%`;
+                    document.getElementById('progressHours').textContent = `${data.data.horasCumplidas} de ${practica.HORAS_PRACTICAS || practica.HORAS_SERVICIO} horas`;
+                    
+                    drawProgressChart(data.data.progreso);
+                    showModal('modalDetallePractica');
+                } else {
+                    showNotification('Error al cargar detalle de la práctica', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error de conexión', 'error');
+            });
     }
 
     function editarPractica(id) {
         showNotification('Función de edición en desarrollo', 'info');
     }
 
-    function registrarAsistencia(id) {
+    function registrarAsistencia(id, tipo) {
+        // Guardar el ID y tipo de práctica para usar en el formulario
+        document.getElementById('formAsistencia').setAttribute('data-practica-id', id);
+        document.getElementById('formAsistencia').setAttribute('data-tipo-practica', tipo);
         showModal('modalAsistencia');
     }
 
@@ -871,13 +1220,85 @@
     }
 
     function guardarPractica() {
-        showNotification('Práctica guardada exitosamente', 'success');
-        bootstrap.Modal.getInstance(document.getElementById('modalNuevaPractica')).hide();
+        const form = document.getElementById('formNuevaPractica');
+        
+        // Validar formulario antes de enviar
+        if (!validarFormularioPractica(form)) {
+            showNotification('Por favor completa todos los campos obligatorios correctamente', 'error');
+            return;
+        }
+
+        // Validar fechas
+        if (!validarFechasPractica(form)) {
+            showNotification('La fecha de fin debe ser posterior a la fecha de inicio', 'error');
+            return;
+        }
+
+        const formData = new FormData(form);
+
+        fetch('/admin/practicas/crear', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Práctica guardada exitosamente', 'success');
+                bootstrap.Modal.getInstance(document.getElementById('modalNuevaPractica')).hide();
+                form.reset();
+                // Recargar la página para mostrar los nuevos datos
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else {
+                showNotification(data.message || 'Error al guardar la práctica', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error de conexión', 'error');
+        });
     }
 
     function guardarAsistencia() {
-        showNotification('Asistencia registrada exitosamente', 'success');
-        bootstrap.Modal.getInstance(document.getElementById('modalAsistencia')).hide();
+        const form = document.getElementById('formAsistencia');
+        
+        // Validar formulario antes de enviar
+        if (!validarFormularioAsistencia(form)) {
+            showNotification('Por favor completa todos los campos obligatorios correctamente', 'error');
+            return;
+        }
+
+        // Validar horarios
+        if (!validarHorariosAsistencia(form)) {
+            showNotification('La hora de salida debe ser posterior a la hora de entrada', 'error');
+            return;
+        }
+
+        const formData = new FormData(form);
+        
+        // Agregar datos adicionales
+        formData.append('practica_id', form.getAttribute('data-practica-id'));
+        formData.append('tipo_practica', form.getAttribute('data-tipo-practica'));
+
+        fetch('/admin/practicas/registrar-asistencia', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Asistencia registrada exitosamente', 'success');
+                bootstrap.Modal.getInstance(document.getElementById('modalAsistencia')).hide();
+                form.reset();
+            } else {
+                showNotification(data.message || 'Error al registrar la asistencia', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error de conexión', 'error');
+        });
     }
 
     function aplicarFiltros() {
@@ -890,12 +1311,159 @@
         showNotification('Filtros limpiados', 'info');
     }
 
+    function asignarEstudiante() {
+        const form = document.getElementById('formAsignarEstudiante');
+        
+        // Validar formulario antes de enviar
+        if (!validarFormularioAsignarEstudiante(form)) {
+            showNotification('Por favor completa todos los campos obligatorios correctamente', 'error');
+            return;
+        }
+
+        // Validar fechas
+        if (!validarFechasAsignarEstudiante(form)) {
+            showNotification('La fecha de fin debe ser posterior a la fecha de inicio', 'error');
+            return;
+        }
+
+        const formData = new FormData(form);
+
+        fetch('/admin/practicas/crear', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification('Estudiante asignado exitosamente', 'success');
+                bootstrap.Modal.getInstance(document.getElementById('modalAsignarEstudiante')).hide();
+                form.reset();
+                // Recargar la página para mostrar los nuevos datos
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else {
+                showNotification(data.message || 'Error al asignar el estudiante', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error de conexión', 'error');
+        });
+    }
+
     function generateReport() {
-        showNotification('Generando reporte...', 'info');
+        // Redirigir a la vista de reportes
+        window.location.href = '/admin/practicas/reportes';
     }
 
     function exportData() {
-        showNotification('Exportando datos...', 'info');
+        showModalOpcionesExportacion();
+    }
+
+    function showModalOpcionesExportacion() {
+        const modal = document.createElement('div');
+        modal.className = 'modal fade';
+        modal.id = 'modalOpcionesExportacion';
+        modal.innerHTML = `
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-download me-2"></i>Opciones de Exportación
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mb-3">Selecciona el formato de exportación:</p>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-danger" onclick="exportarFormato('pdf')">
+                                <i class="fas fa-file-pdf me-2"></i>Exportar como PDF
+                            </button>
+                            <button class="btn btn-outline-success" onclick="exportarFormato('excel')">
+                                <i class="fas fa-file-excel me-2"></i>Exportar como Excel
+                            </button>                            
+                        </div>
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Los archivos se descargarán automáticamente en tu navegador
+                            </small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Agregar el modal al DOM
+        document.body.appendChild(modal);
+
+        // Mostrar el modal
+        const bootstrapModal = new bootstrap.Modal(modal);
+        bootstrapModal.show();
+
+        // Limpiar el modal del DOM cuando se cierre
+        modal.addEventListener('hidden.bs.modal', function() {
+            document.body.removeChild(modal);
+        });
+    }
+
+    function exportarFormato(formato) {
+        // Cerrar el modal primero
+        const modal = document.getElementById('modalOpcionesExportacion');
+        if (modal) {
+            const bootstrapModal = bootstrap.Modal.getInstance(modal);
+            bootstrapModal.hide();
+        }
+
+        // Mostrar notificación de procesamiento
+        showNotification(`Generando archivo ${formato.toUpperCase()}...`, 'info');
+
+        // Realizar la exportación
+        fetch(`/admin/practicas/exportar-datos/${formato}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error en la respuesta del servidor');
+                }
+                
+                // Obtener el nombre del archivo del header Content-Disposition
+                const contentDisposition = response.headers.get('Content-Disposition');
+                let filename = `practicas_${new Date().toISOString().split('T')[0]}.${formato}`;
+                
+                if (contentDisposition) {
+                    const filenameMatch = contentDisposition.match(/filename="(.+)"/);
+                    if (filenameMatch) {
+                        filename = filenameMatch[1];
+                    }
+                }
+
+                return response.blob().then(blob => ({ blob, filename }));
+            })
+            .then(({ blob, filename }) => {
+                // Crear URL temporal para descarga
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.style.display = 'none';
+                a.href = url;
+                a.download = filename;
+                
+                // Agregar al DOM, hacer clic y remover
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                
+                // Limpiar la URL temporal
+                window.URL.revokeObjectURL(url);
+                
+                showNotification(`Archivo ${formato.toUpperCase()} descargado exitosamente`, 'success');
+            })
+            .catch(error => {
+                console.error('Error al exportar:', error);
+                showNotification(`Error al exportar archivo ${formato.toUpperCase()}: ${error.message}`, 'error');
+            });
     }
 
     function showNotification(message, type = 'info') {
@@ -1033,6 +1601,218 @@
                     
                     console.log(`Horas trabajadas: ${horas}h ${minutos}m`);
                 }
+            }
+        }
+    });
+
+    // Funciones de validación
+    function validarFormularioPractica(form) {
+        let esValido = true;
+        
+        // Limpiar validaciones previas
+        form.classList.remove('was-validated');
+        const campos = form.querySelectorAll('input, select, textarea');
+        campos.forEach(campo => {
+            campo.classList.remove('is-invalid', 'is-valid');
+        });
+
+        // Validar cada campo requerido
+        const camposRequeridos = form.querySelectorAll('[required]');
+        camposRequeridos.forEach(campo => {
+            if (!campo.value.trim()) {
+                campo.classList.add('is-invalid');
+                esValido = false;
+            } else {
+                campo.classList.add('is-valid');
+            }
+        });
+
+        // Validar longitud mínima de descripción
+        const descripcion = form.querySelector('textarea[name="descripcion"]');
+        if (descripcion.value.length < 20) {
+            descripcion.classList.add('is-invalid');
+            esValido = false;
+        }
+
+        // Validar longitud mínima de cronograma
+        const cronograma = form.querySelector('input[name="cronograma"]');
+        if (cronograma.value.length < 10) {
+            cronograma.classList.add('is-invalid');
+            esValido = false;
+        }
+
+        // Validar rango de horas
+        const horas = form.querySelector('input[name="horas_total"]');
+        if (horas.value < 1 || horas.value > 1000) {
+            horas.classList.add('is-invalid');
+            esValido = false;
+        }
+
+        form.classList.add('was-validated');
+        return esValido;
+    }
+
+    function validarFechasPractica(form) {
+        const fechaInicio = new Date(form.querySelector('input[name="fecha_inicio"]').value);
+        const fechaFin = new Date(form.querySelector('input[name="fecha_fin"]').value);
+        
+        return fechaFin > fechaInicio;
+    }
+
+    function validarFormularioAsistencia(form) {
+        let esValido = true;
+        
+        // Limpiar validaciones previas
+        form.classList.remove('was-validated');
+        const campos = form.querySelectorAll('input, select, textarea');
+        campos.forEach(campo => {
+            campo.classList.remove('is-invalid', 'is-valid');
+        });
+
+        // Validar cada campo requerido
+        const camposRequeridos = form.querySelectorAll('[required]');
+        camposRequeridos.forEach(campo => {
+            if (!campo.value.trim()) {
+                campo.classList.add('is-invalid');
+                esValido = false;
+            } else {
+                campo.classList.add('is-valid');
+            }
+        });
+
+        // Validar longitud mínima de actividades
+        const actividades = form.querySelector('textarea[name="actividades_dia"]');
+        if (actividades.value.length < 10) {
+            actividades.classList.add('is-invalid');
+            esValido = false;
+        }
+
+        form.classList.add('was-validated');
+        return esValido;
+    }
+
+    function validarHorariosAsistencia(form) {
+        const horaEntrada = form.querySelector('input[name="hora_entrada"]').value;
+        const horaSalida = form.querySelector('input[name="hora_salida"]').value;
+        
+        if (!horaEntrada || !horaSalida) return false;
+        
+        const [horaE, minutoE] = horaEntrada.split(':').map(Number);
+        const [horaS, minutoS] = horaSalida.split(':').map(Number);
+        
+        const entradaMinutos = horaE * 60 + minutoE;
+        const salidaMinutos = horaS * 60 + minutoS;
+        
+        return salidaMinutos > entradaMinutos;
+    }
+
+    // Funciones de validación para asignar estudiante
+    function validarFormularioAsignarEstudiante(form) {
+        let esValido = true;
+        
+        // Limpiar validaciones previas
+        form.classList.remove('was-validated');
+        const campos = form.querySelectorAll('input, select, textarea');
+        campos.forEach(campo => {
+            campo.classList.remove('is-invalid', 'is-valid');
+        });
+
+        // Validar cada campo requerido
+        const camposRequeridos = form.querySelectorAll('[required]');
+        camposRequeridos.forEach(campo => {
+            if (!campo.value.trim()) {
+                campo.classList.add('is-invalid');
+                esValido = false;
+            } else {
+                campo.classList.add('is-valid');
+            }
+        });
+
+        // Validar longitud mínima de descripción
+        const descripcion = form.querySelector('textarea[name="descripcion_asignar"]');
+        if (descripcion.value.length < 20) {
+            descripcion.classList.add('is-invalid');
+            esValido = false;
+        }
+
+        // Validar longitud mínima de cronograma
+        const cronograma = form.querySelector('input[name="cronograma_asignar"]');
+        if (cronograma.value.length < 10) {
+            cronograma.classList.add('is-invalid');
+            esValido = false;
+        }
+
+        // Validar rango de horas
+        const horas = form.querySelector('input[name="horas_total_asignar"]');
+        if (horas.value < 1 || horas.value > 1000) {
+            horas.classList.add('is-invalid');
+            esValido = false;
+        }
+
+        form.classList.add('was-validated');
+        return esValido;
+    }
+
+    function validarFechasAsignarEstudiante(form) {
+        const fechaInicio = new Date(form.querySelector('input[name="fecha_inicio_asignar"]').value);
+        const fechaFin = new Date(form.querySelector('input[name="fecha_fin_asignar"]').value);
+        
+        return fechaFin > fechaInicio;
+    }
+
+    // Contadores de caracteres
+    document.addEventListener('input', function(e) {
+        if (e.target.name === 'descripcion') {
+            const count = e.target.value.length;
+            document.getElementById('descripcion-count').textContent = count;
+            
+            if (count > 500) {
+                e.target.classList.add('is-invalid');
+            } else if (count >= 20) {
+                e.target.classList.remove('is-invalid');
+                e.target.classList.add('is-valid');
+            }
+        }
+        
+        if (e.target.name === 'descripcion_asignar') {
+            const count = e.target.value.length;
+            document.getElementById('descripcion-asignar-count').textContent = count;
+            
+            if (count > 500) {
+                e.target.classList.add('is-invalid');
+            } else if (count >= 20) {
+                e.target.classList.remove('is-invalid');
+                e.target.classList.add('is-valid');
+            }
+        }
+        
+        if (e.target.name === 'actividades_dia') {
+            const count = e.target.value.length;
+            document.getElementById('actividades-count').textContent = count;
+            
+            if (count > 300) {
+                e.target.classList.add('is-invalid');
+            } else if (count >= 10) {
+                e.target.classList.remove('is-invalid');
+                e.target.classList.add('is-valid');
+            }
+        }
+        
+        if (e.target.name === 'observaciones') {
+            const count = e.target.value.length;
+            document.getElementById('observaciones-count').textContent = count;
+        }
+    });
+
+    // Validación en tiempo real para campos de texto
+    document.addEventListener('input', function(e) {
+        if (e.target.name === 'cronograma' || e.target.name === 'cronograma_asignar') {
+            if (e.target.value.length >= 10) {
+                e.target.classList.remove('is-invalid');
+                e.target.classList.add('is-valid');
+            } else if (e.target.value.length > 0) {
+                e.target.classList.remove('is-valid');
+                e.target.classList.add('is-invalid');
             }
         }
     });

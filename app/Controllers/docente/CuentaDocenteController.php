@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Controllers\admin;
+namespace App\Controllers\docente;
 
 use App\Controllers\BaseController;
 use App\Models\UsuariosModel;
 use CodeIgniter\HTTP\RedirectResponse;
 
-class CuentaAdminController extends BaseController
+class CuentaDocenteController extends BaseController
 {
     protected $usuariosModel;
 
@@ -32,7 +32,7 @@ class CuentaAdminController extends BaseController
             'usuario' => $usuario
         ];
 
-        return view('admin/cuenta/cuentaAdmin', $data);
+        return view('docente/cuenta/cuentaDocente', $data);
     }
 
     public function cambiarPassword(): RedirectResponse

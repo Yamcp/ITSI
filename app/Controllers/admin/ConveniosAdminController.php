@@ -322,12 +322,16 @@ class ConveniosAdminController extends BaseController
     
     private function generarContenidoPDF($pdf, $data)
     {
+        // Agregar logo usando el helper
+        helper('PdfHelper');
+        \App\Helpers\PdfHelper::addLogoToPdf($pdf, 'Logo PDF.jpg', 15, 10, 30);
+        
         // Encabezado
         $pdf->SetFont('helvetica', 'B', 16);
         $pdf->Cell(0, 10, 'REPORTE DE CONVENIOS', 0, 1, 'C');
         $pdf->SetFont('helvetica', '', 12);
         $pdf->Cell(0, 8, 'Instituto Tecnológico Superior Ibarra', 0, 1, 'C');
-        $pdf->Cell(0, 8, 'Generado el: ' . $data['fecha_generacion'], 0, 1, 'C');
+        $pdf->Cell(0, 8, 'Generado el: ' . \App\Helpers\PdfHelper::getCurrentDateTime(), 0, 1, 'C');
         $pdf->Ln(10);
         
         // Estadísticas
@@ -393,45 +397,85 @@ class ConveniosAdminController extends BaseController
 
     private function exportarExcel($data)
     {
-        // Implementar exportación a Excel
-        $filename = 'convenios_' . date('Y-m-d') . '.csv';
-        
-        $output = fopen('php://temp', 'w');
-        
-        // Headers con BOM para UTF-8
-        fwrite($output, "\xEF\xBB\xBF");
-        
-        // Headers
-        fputcsv($output, [
-            'ID', 'Institución', 'RUC', 'Tipo', 'Fecha Inicio', 'Fecha Fin', 
-            'Duración (meses)', 'Objetivo', 'Renovable', 'Estado', 'Observaciones'
-        ]);
-        
-        // Data
-        foreach ($data['convenios'] as $convenio) {
-            $estado = $this->calcularEstado($convenio['FECHA_FIN']);
-            fputcsv($output, [
-                $convenio['ID_DETALLE_CONVENIO'],
-                $convenio['NOMBRE'],
-                $convenio['RUC'],
-                $convenio['TIPO_CONVENIO'],
-                date('d/m/Y', strtotime($convenio['FECHA_INICIO'])),
-                date('d/m/Y', strtotime($convenio['FECHA_FIN'])),
-                $convenio['DURACION'],
-                $convenio['OBJETIVO'],
-                $convenio['RENOVABLE'] ? 'Sí' : 'No',
-                $estado,
-                $convenio['OBSERVACIONES'] ?? ''
+        try {
+            // Cargar helper de Excel
+            helper('ExcelHelper');
+            
+            // Crear archivo Excel usando PhpSpreadsheet
+            $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+            
+            // Configurar encabezados
+            $sheet->setTitle('Convenios');
+            
+            // Crear encabezado estándar con logo
+            \App\Helpers\ExcelHelper::createStandardHeader(
+                $sheet, 
+                'REPORTE DE CONVENIOS', 
+                'Sistema de Gestión Académica ITSI',
+                'Logo PDF.jpg',
+                'A1',
+                'D1'
+            );
+            
+            // Encabezados de columnas
+            $headers = [
+                'ID',
+                'Institución',
+                'RUC',
+                'Tipo',
+                'Fecha Inicio',
+                'Fecha Fin',
+                'Duración (meses)',
+                'Objetivo',
+                'Renovable',
+                'Estado',
+                'Observaciones'
+            ];
+            
+            // Crear encabezados de columnas con estilo
+            \App\Helpers\ExcelHelper::createColumnHeaders($sheet, $headers, 5, 'A');
+            
+            // Llenar datos
+            $row = 6;
+            foreach ($data['convenios'] as $convenio) {
+                $estado = $this->calcularEstado($convenio['FECHA_FIN']);
+                $sheet->setCellValue('A' . $row, $convenio['ID_DETALLE_CONVENIO']);
+                $sheet->setCellValue('B' . $row, $convenio['NOMBRE']);
+                $sheet->setCellValue('C' . $row, $convenio['RUC']);
+                $sheet->setCellValue('D' . $row, $convenio['TIPO_CONVENIO']);
+                $sheet->setCellValue('E' . $row, date('d/m/Y', strtotime($convenio['FECHA_INICIO'])));
+                $sheet->setCellValue('F' . $row, date('d/m/Y', strtotime($convenio['FECHA_FIN'])));
+                $sheet->setCellValue('G' . $row, $convenio['DURACION']);
+                $sheet->setCellValue('H' . $row, $convenio['OBJETIVO']);
+                $sheet->setCellValue('I' . $row, $convenio['RENOVABLE'] ? 'Sí' : 'No');
+                $sheet->setCellValue('J' . $row, $estado);
+                $sheet->setCellValue('K' . $row, $convenio['OBSERVACIONES'] ?? '');
+                $row++;
+            }
+            
+            // Aplicar estilo a los datos
+            if ($row > 6) {
+                \App\Helpers\ExcelHelper::applyDataStyle($sheet, 'A6:K' . ($row - 1));
+            }
+            
+            // Autoajustar columnas
+            \App\Helpers\ExcelHelper::autoSizeColumns($sheet, 'A', 'K');
+            
+            // Configurar headers para descarga
+            $filename = 'convenios_' . date('Y-m-d') . '.xlsx';
+            \App\Helpers\ExcelHelper::setDownloadHeaders($filename);
+            
+            // Escribir archivo
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+            $writer->save('php://output');
+            
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error al exportar Excel: ' . $e->getMessage()
             ]);
         }
-        
-        rewind($output);
-        $csv = stream_get_contents($output);
-        fclose($output);
-        
-        return $this->response->setHeader('Content-Type', 'text/csv; charset=UTF-8')
-                             ->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"')
-                             ->setBody($csv);
     }
 
     private function exportarCSV($data)

@@ -1,5 +1,5 @@
-<!-- app/Views/estudiante/perfil/perfilEstudiante.php -->
-<?= $this->extend('estudiante/layouts/mainEstudiante') ?>
+<!-- app/Views/admin/perfil/perfilAdmin.php -->
+<?= $this->extend('admin/layouts/mainAdmin') ?>
 
 <?= $this->section('styles') ?>
 <link href="<?= base_url('css/profile.css') ?>" rel="stylesheet" />
@@ -92,10 +92,32 @@
         border-left: 4px solid #667eea;
     }
     
+    .info-category-title {
+        font-size: 1.1rem;
+        font-weight: 800;
+        color: #667eea;
+        margin-bottom: 1.5rem;
+        padding: 0.75rem 1rem;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        border-radius: 8px;
+        border-left: 4px solid #667eea;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
     .info-label {
-        font-weight: 600;
-        color: #495057;
-        margin-bottom: 0.5rem;
+        font-weight: 800;
+        color: #2c3e50;
+        margin-bottom: 0.75rem;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
     
     .info-value {
@@ -143,49 +165,102 @@
                         </h5>
                     </div>
                     <div class="card-body">
-                        <div class="info-item">
-                            <div class="info-label">Nombre Completo</div>
-                            <div class="info-value"><?= $usuario['NOMBRE'] . ' ' . $usuario['APELLIDO'] ?></div>
+                        <!-- Información Básica -->
+                        <div class="info-category">
+                            <div class="info-category-title">
+                                <i class="fas fa-id-card"></i>
+                                <strong>Datos de Identificación:</strong>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label"><strong>Nombre Completo</strong></div>
+                                <div class="info-value"><?= $usuario['NOMBRE'] . ' ' . $usuario['APELLIDO'] ?></div>
+                            </div>
+                            
+                            <div class="info-item">
+                                <div class="info-label"><strong>Cédula</strong></div>
+                                <div class="info-value"><?= $usuario['CEDULA'] ?></div>
+                            </div>
                         </div>
-                        
-                        <div class="info-item">
-                            <div class="info-label">Cédula</div>
-                            <div class="info-value"><?= $usuario['CEDULA'] ?></div>
+
+                        <!-- Información de Contacto -->
+                        <div class="info-category">
+                            <div class="info-category-title">
+                                <i class="fas fa-address-book"></i>
+                                <strong>Información de Contacto:</strong>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label"><strong>Celular</strong></div>
+                                <div class="info-value <?= empty($usuario['CELULAR']) ? 'empty' : '' ?>">
+                                    <?= $usuario['CELULAR'] ?: 'No registrado' ?>
+                                </div>
+                            </div>
+                            
+                            <div class="info-item">
+                                <div class="info-label"><strong>Email</strong></div>
+                                <div class="info-value <?= empty($usuario['EMAIL']) ? 'empty' : '' ?>">
+                                    <?= $usuario['EMAIL'] ?: 'No registrado' ?>
+                                </div>
+                            </div>
+                            
+                            <div class="info-item">
+                                <div class="info-label"><strong>Dirección</strong></div>
+                                <div class="info-value <?= empty($usuario['DIRECCION']) ? 'empty' : '' ?>">
+                                    <?= $usuario['DIRECCION'] ?: 'No registrada' ?>
+                                </div>
+                            </div>
                         </div>
-                        
-                        <div class="info-item">
-                            <div class="info-label">Celular</div>
-                            <div class="info-value"><?= $usuario['CELULAR'] ?: 'No registrado' ?></div>
+
+                        <!-- Información Demográfica -->
+                        <div class="info-category">
+                            <div class="info-category-title">
+                                <i class="fas fa-user-friends"></i>
+                                <strong>Información Demográfica:</strong>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label"><strong>Género</strong></div>
+                                <div class="info-value <?= empty($usuario['GENERO']) ? 'empty' : '' ?>">
+                                    <?= $usuario['GENERO'] ?: 'No especificado' ?>
+                                </div>
+                            </div>
+                            
+                            <div class="info-item">
+                                <div class="info-label"><strong>Estado Civil</strong></div>
+                                <div class="info-value <?= empty($usuario['ESTADO_CIVIL']) ? 'empty' : '' ?>">
+                                    <?= $usuario['ESTADO_CIVIL'] ?: 'No especificado' ?>
+                                </div>
+                            </div>
+                            
+                            <div class="info-item">
+                                <div class="info-label"><strong>Nacionalidad</strong></div>
+                                <div class="info-value <?= empty($usuario['NACIONALIDAD']) ? 'empty' : '' ?>">
+                                    <?= $usuario['NACIONALIDAD'] ?: 'No especificada' ?>
+                                </div>
+                            </div>
                         </div>
-                        
-                        <div class="info-item">
-                            <div class="info-label">Dirección</div>
-                            <div class="info-value"><?= $usuario['DIRECCION'] ?: 'No registrada' ?></div>
-                        </div>
-                        
-                        <div class="info-item">
-                            <div class="info-label">Email</div>
-                            <div class="info-value"><?= $usuario['EMAIL'] ?: 'No registrado' ?></div>
-                        </div>
-                        
-                        <div class="info-item">
-                            <div class="info-label">Género</div>
-                            <div class="info-value"><?= $usuario['GENERO'] ?: 'No especificado' ?></div>
-                        </div>
-                        
-                        <div class="info-item">
-                            <div class="info-label">Estado Civil</div>
-                            <div class="info-value"><?= $usuario['ESTADO_CIVIL'] ?: 'No especificado' ?></div>
-                        </div>
-                        
-                        <div class="info-item">
-                            <div class="info-label">Nacionalidad</div>
-                            <div class="info-value"><?= $usuario['NACIONALIDAD'] ?: 'No especificada' ?></div>
-                        </div>
-                        
-                        <div class="info-item">
-                            <div class="info-label">Fecha de Ingreso</div>
-                            <div class="info-value"><?= $usuario['FECHA_INGRESO'] ? date('d/m/Y', strtotime($usuario['FECHA_INGRESO'])) : 'No especificada' ?></div>
+
+                        <!-- Información Institucional -->
+                        <div class="info-category">
+                            <div class="info-category-title">
+                                <i class="fas fa-university"></i>
+                                <strong>Información Institucional:</strong>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label"><strong>Fecha de Ingreso</strong></div>
+                                <div class="info-value <?= empty($usuario['FECHA_INGRESO']) ? 'empty' : '' ?>">
+                                    <?= $usuario['FECHA_INGRESO'] ? date('d/m/Y', strtotime($usuario['FECHA_INGRESO'])) : 'No especificada' ?>
+                                </div>
+                            </div>
+                            
+                            <div class="info-item">
+                                <div class="info-label"><strong>Estado de Cuenta</strong></div>
+                                <div class="info-value">
+                                    <?php if ($usuario['ESTADO'] == 'A'): ?>
+                                        <span class="badge badge-modern bg-success">Activo</span>
+                                    <?php else: ?>
+                                        <span class="badge badge-modern bg-danger">Inactivo</span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -339,66 +414,6 @@
                                         value="<?= $usuario['FECHA_INGRESO'] ?>">
                                 </div>
                             </div>
-
-                            <hr class="my-4">
-                            
-                            <!-- Cambio de Contraseña -->
-                            <div class="card border-0 bg-light">
-                                <div class="card-body">
-                                    <h6 class="card-title text-primary mb-3">
-                                        <i class="fas fa-lock me-2"></i>
-                                        Cambiar Contraseña
-                                    </h6>
-                                    <small class="text-muted mb-3 d-block">
-                                        Deja en blanco si no deseas cambiar la contraseña
-                                    </small>
-
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label for="password_actual" class="form-label fw-semibold">
-                                                <i class="fas fa-key me-1"></i>Contraseña Actual
-                                            </label>
-                                            <input type="password" class="form-control <?= (isset($validation) && $validation->hasError('password_actual')) ? 'is-invalid' : '' ?>"
-                                                id="password_actual" name="password_actual">
-                                            <div class="invalid-feedback">
-                                                <?= (isset($validation) && $validation->hasError('password_actual')) ? $validation->getError('password_actual') : '' ?>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <div class="col-md-6 mb-3">
-                                            <label for="password_nuevo" class="form-label fw-semibold">
-                                                <i class="fas fa-lock me-1"></i>Nueva Contraseña
-                                            </label>
-                                            <input type="password" class="form-control <?= (isset($validation) && $validation->hasError('password_nuevo')) ? 'is-invalid' : '' ?>"
-                                                id="password_nuevo" name="password_nuevo">
-                                            <div class="invalid-feedback">
-                                                <?= (isset($validation) && $validation->hasError('password_nuevo')) ? $validation->getError('password_nuevo') : '' ?>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6 mb-3">
-                                            <label for="password_confirm" class="form-label fw-semibold">
-                                                <i class="fas fa-lock me-1"></i>Confirmar Nueva Contraseña
-                                            </label>
-                                            <input type="password" class="form-control <?= (isset($validation) && $validation->hasError('password_confirm')) ? 'is-invalid' : '' ?>"
-                                                id="password_confirm" name="password_confirm">
-                                            <div class="invalid-feedback">
-                                                <?= (isset($validation) && $validation->hasError('password_confirm')) ? $validation->getError('password_confirm') : '' ?>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="text-end mt-4">
-                                <button type="button" class="btn btn-secondary btn-modern me-2" onclick="resetForm()">
-                                    <i class="fas fa-undo me-1"></i>Restaurar
-                                </button>
-                                <button type="submit" class="btn btn-primary btn-modern">
-                                    <i class="fas fa-save me-1"></i>Guardar Cambios
-                                </button>
-                            </div>
                         </form>
                     </div>
                 </div>
@@ -411,92 +426,14 @@
 <?= $this->section('scripts') ?>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Validación del formulario
-        const form = document.getElementById('formPerfil');
-        const passwordNuevo = document.getElementById('password_nuevo');
-        const passwordConfirm = document.getElementById('password_confirm');
-        const passwordActual = document.getElementById('password_actual');
-
-        // Validar que si se ingresa nueva contraseña, también se ingrese la actual
-        passwordNuevo.addEventListener('input', function() {
-            if (this.value && !passwordActual.value) {
-                passwordActual.setCustomValidity('Debe ingresar la contraseña actual para cambiar la contraseña');
-            } else {
-                passwordActual.setCustomValidity('');
-            }
-        });
-
-        // Validar que las contraseñas coincidan
-        passwordConfirm.addEventListener('input', function() {
-            if (this.value !== passwordNuevo.value) {
-                this.setCustomValidity('Las contraseñas no coinciden');
-            } else {
-                this.setCustomValidity('');
-            }
-        });
-
-        // Validar que si se ingresa confirmación, también se ingrese nueva contraseña
-        passwordConfirm.addEventListener('input', function() {
-            if (this.value && !passwordNuevo.value) {
-                passwordNuevo.setCustomValidity('Debe ingresar la nueva contraseña');
-            } else {
-                passwordNuevo.setCustomValidity('');
-            }
-        });
-
-        // Limpiar validaciones cuando se borren los campos
-        passwordNuevo.addEventListener('input', function() {
-            if (!this.value) {
-                passwordConfirm.setCustomValidity('');
-                passwordActual.setCustomValidity('');
-            }
-        });
-
-        passwordConfirm.addEventListener('input', function() {
-            if (!this.value) {
-                passwordNuevo.setCustomValidity('');
-            }
-        });
-
-        passwordActual.addEventListener('input', function() {
-            if (!this.value) {
-                passwordNuevo.setCustomValidity('');
-                passwordConfirm.setCustomValidity('');
-            }
-        });
-
-        // Manejo del envío del formulario
-        form.addEventListener('submit', function(e) {
-            // Validar que si se ingresa nueva contraseña, se complete todo el proceso
-            if (passwordNuevo.value || passwordConfirm.value) {
-                if (!passwordActual.value) {
-                    e.preventDefault();
-                    showNotification('Debe ingresar la contraseña actual para cambiar la contraseña', 'warning');
-                    return;
-                }
-                if (!passwordNuevo.value) {
-                    e.preventDefault();
-                    showNotification('Debe ingresar la nueva contraseña', 'warning');
-                    return;
-                }
-                if (!passwordConfirm.value) {
-                    e.preventDefault();
-                    showNotification('Debe confirmar la nueva contraseña', 'warning');
-                    return;
-                }
-                if (passwordNuevo.value !== passwordConfirm.value) {
-                    e.preventDefault();
-                    showNotification('Las contraseñas no coinciden', 'warning');
-                    return;
-                }
-            }
-        });
+        // El formulario ahora solo maneja información personal
+        // No se requiere validación especial de contraseñas
     });
 
     function resetForm() {
         if (confirm('¿Está seguro de que desea restaurar todos los campos a sus valores originales?')) {
             document.getElementById('formPerfil').reset();
-            // Restaurar valores originales
+            // Restaurar valores originales de información personal
             document.getElementById('nombre').value = '<?= $usuario['NOMBRE'] ?>';
             document.getElementById('apellido').value = '<?= $usuario['APELLIDO'] ?>';
             document.getElementById('celular').value = '<?= $usuario['CELULAR'] ?>';

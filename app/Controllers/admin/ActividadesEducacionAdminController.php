@@ -9,7 +9,7 @@ use App\Models\TiposModalidadesModel;
 use App\Models\TiposActividadesModel;
 use App\Controllers\BaseController;
 
-class ActividadesEducacionController extends BaseController
+class ActividadesEducacionAdminController extends BaseController
 {
     protected $actividadesModel;
     protected $instructoresModel;
@@ -482,25 +482,45 @@ class ActividadesEducacionController extends BaseController
 
         $actividades = $this->aplicarFiltrosReporte($filtros);
 
+        // Cargar helper de Excel
+        helper('ExcelHelper');
+        
         // Crear archivo Excel usando PhpSpreadsheet
         $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
         $sheet = $spreadsheet->getActiveSheet();
         
         // Configurar encabezados
         $sheet->setTitle('Actividades Educativas');
-        $sheet->setCellValue('A1', 'ID');
-        $sheet->setCellValue('B1', 'Actividad');
-        $sheet->setCellValue('C1', 'Tipo');
-        $sheet->setCellValue('D1', 'Instructor');
-        $sheet->setCellValue('E1', 'Modalidad');
-        $sheet->setCellValue('F1', 'Fecha Inicio');
-        $sheet->setCellValue('G1', 'Fecha Fin');
-        $sheet->setCellValue('H1', 'Duración (h)');
-        $sheet->setCellValue('I1', 'Lugar');
-        $sheet->setCellValue('J1', 'Horario');
+        
+        // Crear encabezado estándar con logo
+        \App\Helpers\ExcelHelper::createStandardHeader(
+            $sheet, 
+            'REPORTE DE ACTIVIDADES EDUCATIVAS', 
+            'Sistema de Gestión Académica ITSI',
+            'Logo PDF.jpg',
+            'A1',
+            'D1'
+        );
+        
+        // Encabezados de columnas
+        $headers = [
+            'ID',
+            'Actividad',
+            'Tipo',
+            'Instructor',
+            'Modalidad',
+            'Fecha Inicio',
+            'Fecha Fin',
+            'Duración (h)',
+            'Lugar',
+            'Horario'
+        ];
+        
+        // Crear encabezados de columnas con estilo
+        \App\Helpers\ExcelHelper::createColumnHeaders($sheet, $headers, 5, 'A');
 
         // Llenar datos
-        $row = 2;
+        $row = 6; // Empezar después del encabezado
         foreach ($actividades as $actividad) {
             $sheet->setCellValue('A' . $row, $actividad['ID_ACTIVIDAD_EDUCACION']);
             $sheet->setCellValue('B' . $row, $actividad['NOMBRE_ACTIVIDAD']);
@@ -514,18 +534,18 @@ class ActividadesEducacionController extends BaseController
             $sheet->setCellValue('J' . $row, $actividad['HORARIO']);
             $row++;
         }
+        
+        // Aplicar estilo a los datos
+        if ($row > 6) {
+            \App\Helpers\ExcelHelper::applyDataStyle($sheet, 'A6:J' . ($row - 1));
+        }
 
         // Autoajustar columnas
-        foreach (range('A', 'J') as $col) {
-            $sheet->getColumnDimension($col)->setAutoSize(true);
-        }
+        \App\Helpers\ExcelHelper::autoSizeColumns($sheet, 'A', 'J');
 
         // Configurar headers para descarga
         $filename = 'reporte_actividades_' . date('Y-m-d') . '.xlsx';
-        
-        $this->response->setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        $this->response->setHeader('Content-Disposition', 'attachment; filename="' . $filename . '"');
-        $this->response->setHeader('Cache-Control', 'max-age=0');
+        \App\Helpers\ExcelHelper::setDownloadHeaders($filename);
 
         // Escribir archivo
         $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);

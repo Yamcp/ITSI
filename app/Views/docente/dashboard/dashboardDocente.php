@@ -34,11 +34,12 @@
     }
     
     .welcome-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
+        background: #f8f9fa;
+        color: #333;
         border-radius: 15px;
         padding: 2rem;
         margin-bottom: 2rem;
+        border: 1px solid #e9ecef;
     }
     
     .quick-action-btn {
@@ -58,24 +59,27 @@
 <?= $this->section('content') ?>
 <div class="body-wrapper">
     <div class="container-fluid">
-        <!-- Header con saludo personalizado -->
-        <div class="welcome-card">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <h2 class="mb-2">
-                        <i class="fas fa-chalkboard-teacher me-2"></i>
-                        ¡Bienvenido, <?= session()->get('nombre') ?>!
-                    </h2>
-                    <p class="mb-0 opacity-75">
-                        <i class="fas fa-calendar-alt me-2"></i>
-                        <span id="fechaActual"></span> - 
-                        <span id="horaActual"></span>
-                    </p>
-                </div>
-                <div class="col-md-4 text-end">
-                    <div class="d-flex flex-column align-items-end">
-                        <span class="badge bg-light text-dark fs-6 mb-2">Docente</span>
-                        <small class="opacity-75">Panel de Control</small>
+        <!-- Header del Dashboard -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h2 class="mb-1">
+                            <i class="fas fa-tachometer-alt me-2 text-primary"></i>
+                            Panel de Control
+                        </h2>
+                        <p class="text-muted mb-0">Bienvenido al Sistema del Departamento de Vinculación</p>
+                    </div>                    
+                    <div class="text-end">
+                    <span class="badge bg-light text-dark fs-6 mb-2">Docente</span>
+                        <p class="mb-0 text-muted">
+                            <i class="fas fa-calendar-alt me-1"></i>
+                            <?= date('d/m/Y') ?>
+                        </p>
+                        <p class="mb-0 text-muted">
+                            <i class="fas fa-clock me-1"></i>
+                            <span id="currentTime"></span>
+                        </p>
                     </div>
                 </div>
             </div>
@@ -246,28 +250,37 @@
 <script>
     // Actualizar fecha y hora en tiempo real
     function actualizarFechaHora() {
-        const ahora = new Date();
-        const opcionesFecha = { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-        };
-        const opcionesHora = { 
-            hour: '2-digit', 
-            minute: '2-digit', 
-            second: '2-digit' 
-        };
-        
-        document.getElementById('fechaActual').textContent = 
-            ahora.toLocaleDateString('es-ES', opcionesFecha);
-        document.getElementById('horaActual').textContent = 
-            ahora.toLocaleTimeString('es-ES', opcionesHora);
+        try {
+            const ahora = new Date();
+            const opcionesFecha = { 
+                day: '2-digit',
+                month: '2-digit', 
+                year: 'numeric'
+            };
+            const opcionesHora = { 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit',
+                hour12: true
+            };
+            
+            const fechaElement = document.getElementById('fechaActual');
+            const horaElement = document.getElementById('horaActual');
+            
+            if (fechaElement && horaElement) {
+                fechaElement.textContent = ahora.toLocaleDateString('es-ES', opcionesFecha);
+                horaElement.textContent = ahora.toLocaleTimeString('es-ES', opcionesHora);
+            }
+        } catch (error) {
+            console.error('Error al actualizar fecha y hora:', error);
+        }
     }
     
-    // Actualizar cada segundo
-    setInterval(actualizarFechaHora, 1000);
-    actualizarFechaHora(); // Llamar inmediatamente
+    // Esperar a que el DOM esté completamente cargado
+    document.addEventListener('DOMContentLoaded', function() {
+        actualizarFechaHora(); // Llamar inmediatamente
+        setInterval(actualizarFechaHora, 1000); // Actualizar cada segundo
+    });
 
     // Gráfica de actividades por mes
     const ctxActividades = document.getElementById('actividadesChart').getContext('2d');

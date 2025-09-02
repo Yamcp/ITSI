@@ -162,15 +162,23 @@ class DashboardAdminController extends BaseController
             $fecha = date('Y-m', strtotime("-$i months"));
             $mes = (int)date('m', strtotime("-$i months"));
             
-            // Contar actividades en este mes
-            $actividades = $this->actividadesModel
-                ->where('DATE_FORMAT(FECHA_INICIO, "%Y-%m")', $fecha)
-                ->countAllResults(false);
+            try {
+                // Contar actividades en este mes
+                $actividades = $this->actividadesModel
+                    ->where('DATE_FORMAT(FECHA_INICIO, "%Y-%m")', $fecha)
+                    ->countAllResults(false);
+            } catch (\Exception $e) {
+                $actividades = 0;
+            }
             
-            // Contar prácticas en este mes
-            $practicas = $this->practicasModel
-                ->where('DATE_FORMAT(FECHA_INICIO, "%Y-%m")', $fecha)
-                ->countAllResults(false);
+            try {
+                // Contar prácticas en este mes
+                $practicas = $this->practicasModel
+                    ->where('DATE_FORMAT(FECHA_INICIO, "%Y-%m")', $fecha)
+                    ->countAllResults(false);
+            } catch (\Exception $e) {
+                $practicas = 0;
+            }
             
             $meses[] = [
                 'mes' => $mesesNombres[$mes - 1],
@@ -188,9 +196,9 @@ class DashboardAdminController extends BaseController
             // Últimas 5 actividades educativas
             $actividades = $this->actividadesModel
                 ->select('TAB_ACTIVIDADES_EDUCACION.*, ta.ACTIVIDAD, dp.NOMBRE, dp.APELLIDO')
-                ->join('TAB_TIPOS_ACTIVIDADES ta', 'ta.ID_TIPO_ACTIVIDAD = TAB_ACTIVIDADES_EDUCACION.ID_TIPO_ACTIVIDAD')
-                ->join('TAB_INSTRUCTORES i', 'i.ID_INSTRUCTOR = TAB_ACTIVIDADES_EDUCACION.ID_INSTRUCTOR')
-                ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = i.ID_DATO_PERSONA')
+                ->join('TAB_TIPOS_ACTIVIDADES ta', 'ta.ID_TIPO_ACTIVIDAD = TAB_ACTIVIDADES_EDUCACION.ID_TIPO_ACTIVIDAD', 'left')
+                ->join('TAB_INSTRUCTORES i', 'i.ID_INSTRUCTOR = TAB_ACTIVIDADES_EDUCACION.ID_INSTRUCTOR', 'left')
+                ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = i.ID_DATO_PERSONA', 'left')
                 ->orderBy('TAB_ACTIVIDADES_EDUCACION.FECHA_INICIO', 'DESC')
                 ->limit(5)
                 ->findAll();
@@ -202,10 +210,10 @@ class DashboardAdminController extends BaseController
             // Últimas 5 asignaciones de prácticas
             $practicas = $this->practicasModel
                 ->select('TAB_ASIGNACIONES_PRACTICAS.*, tp.PRACTICA, dp.NOMBRE, dp.APELLIDO, ic.NOMBRE as INSTITUCION')
-                ->join('TAB_TIPOS_PRACTICAS tp', 'tp.ID_TIPO_PRACTICA = TAB_ASIGNACIONES_PRACTICAS.ID_TIPO_PRACTICA')
-                ->join('TAB_USUARIOS u', 'u.ID_USUARIO = TAB_ASIGNACIONES_PRACTICAS.ID_USUARIO')
-                ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = u.ID_DATO_PERSONA')
-                ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = TAB_ASIGNACIONES_PRACTICAS.ID_INSTITUCION_CONVENIO')
+                ->join('TAB_TIPOS_PRACTICAS tp', 'tp.ID_TIPO_PRACTICA = TAB_ASIGNACIONES_PRACTICAS.ID_TIPO_PRACTICA', 'left')
+                ->join('TAB_USUARIOS u', 'u.ID_USUARIO = TAB_ASIGNACIONES_PRACTICAS.ID_USUARIO', 'left')
+                ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = u.ID_DATO_PERSONA', 'left')
+                ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = TAB_ASIGNACIONES_PRACTICAS.ID_INSTITUCION_CONVENIO', 'left')
                 ->orderBy('TAB_ASIGNACIONES_PRACTICAS.FECHA_INICIO', 'DESC')
                 ->limit(5)
                 ->findAll();
@@ -225,7 +233,7 @@ class DashboardAdminController extends BaseController
             // Convenios que vencen en los próximos 30 días
             $conveniosPorVencer = $this->conveniosModel
                 ->select('TAB_DETALLES_CONVENIOS.*, ic.NOMBRE as INSTITUCION')
-                ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = TAB_DETALLES_CONVENIOS.ID_INSTITUCION_CONVENIO')
+                ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = TAB_DETALLES_CONVENIOS.ID_INSTITUCION_CONVENIO', 'left')
                 ->where('TAB_DETALLES_CONVENIOS.FECHA_FIN >=', date('Y-m-d'))
                 ->where('TAB_DETALLES_CONVENIOS.FECHA_FIN <=', date('Y-m-d', strtotime('+30 days')))
                 ->orderBy('TAB_DETALLES_CONVENIOS.FECHA_FIN', 'ASC')
@@ -239,9 +247,9 @@ class DashboardAdminController extends BaseController
             // Prácticas que terminan pronto
             $practicasPorTerminar = $this->practicasModel
                 ->select('TAB_ASIGNACIONES_PRACTICAS.*, dp.NOMBRE, dp.APELLIDO, ic.NOMBRE as INSTITUCION')
-                ->join('TAB_USUARIOS u', 'u.ID_USUARIO = TAB_ASIGNACIONES_PRACTICAS.ID_USUARIO')
-                ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = u.ID_DATO_PERSONA')
-                ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = TAB_ASIGNACIONES_PRACTICAS.ID_INSTITUCION_CONVENIO')
+                ->join('TAB_USUARIOS u', 'u.ID_USUARIO = TAB_ASIGNACIONES_PRACTICAS.ID_USUARIO', 'left')
+                ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = u.ID_DATO_PERSONA', 'left')
+                ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = TAB_ASIGNACIONES_PRACTICAS.ID_INSTITUCION_CONVENIO', 'left')
                 ->where('TAB_ASIGNACIONES_PRACTICAS.FECHA_FIN >=', date('Y-m-d'))
                 ->where('TAB_ASIGNACIONES_PRACTICAS.FECHA_FIN <=', date('Y-m-d', strtotime('+30 days')))
                 ->orderBy('TAB_ASIGNACIONES_PRACTICAS.FECHA_FIN', 'ASC')
@@ -262,7 +270,7 @@ class DashboardAdminController extends BaseController
         try {
             return $this->estudiantesModel
                 ->select('c.NOMBRE as CARRERA, COUNT(*) as TOTAL')
-                ->join('TAB_CARRERAS c', 'c.ID_CARRERA = TAB_ESTUDIANTES.ID_CARRERA')
+                ->join('TAB_CARRERAS c', 'c.ID_CARRERA = TAB_ESTUDIANTES.ID_CARRERA', 'left')
                 ->groupBy('c.NOMBRE')
                 ->orderBy('TOTAL', 'DESC')
                 ->findAll();

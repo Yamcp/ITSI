@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Controllers\admin;
+namespace App\Controllers\estudiante;
 
 use App\Controllers\BaseController;
 use App\Models\UsuariosModel;
 use CodeIgniter\HTTP\RedirectResponse;
 
-class CuentaAdminController extends BaseController
+class CuentaEstudianteController extends BaseController
 {
     protected $usuariosModel;
 
@@ -24,7 +24,7 @@ class CuentaAdminController extends BaseController
             return redirect()->to('auth/login');
         }
 
-        // Obtener información básica del usuario
+        // Obtener información básica del usuarioad
         $usuario = $this->usuariosModel->find($userId);
         
         $data = [
@@ -32,7 +32,7 @@ class CuentaAdminController extends BaseController
             'usuario' => $usuario
         ];
 
-        return view('admin/cuenta/cuentaAdmin', $data);
+        return view('estudiante/cuenta/cuentaEstudiante', $data);
     }
 
     public function cambiarPassword(): RedirectResponse

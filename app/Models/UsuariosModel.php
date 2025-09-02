@@ -14,6 +14,7 @@ class UsuariosModel extends Model
     {
         try {
             // Query para obtener información completa del usuario
+            // Busca tanto por USUARIO como por CEDULA
             $query = $this->db->query("
                 SELECT 
                     u.ID_USUARIO as id,
@@ -23,15 +24,16 @@ class UsuariosModel extends Model
                     dp.NOMBRE as nombre,
                     dp.APELLIDO as apellido,
                     dp.EMAIL as email,
+                    dp.CEDULA as cedula,
                     tr.ID_TIPOS_ROLES as rol,
                     tr.ROL as nombre_rol
                 FROM TAB_USUARIOS u
                 INNER JOIN TAB_DATOS_PERSONAS dp ON u.ID_DATO_PERSONA = dp.ID_DATO_PERSONA
                 INNER JOIN TAB_ROLES r ON u.ID_USUARIO = r.ID_USUARIO
                 INNER JOIN TAB_TIPOS_ROLES tr ON r.ID_TIPOS_ROLES = tr.ID_TIPOS_ROLES
-                WHERE u.USUARIO = ? AND u.ESTADO = '1'
+                WHERE (u.USUARIO = ? OR dp.CEDULA = ?) AND u.ESTADO = '1'
                 LIMIT 1
-            ", [$usuario]);
+            ", [$usuario, $usuario]);
 
             $user = $query->getRow();
 

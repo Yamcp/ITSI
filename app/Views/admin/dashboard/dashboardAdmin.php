@@ -106,6 +106,7 @@
                         <p class="text-muted mb-0">Bienvenido al Sistema del Departamento de Vinculación</p>
                     </div>
                     <div class="text-end">
+                    <span class="badge bg-light text-dark fs-6 mb-2">Administrador</span>
                         <p class="mb-0 text-muted">
                             <i class="fas fa-calendar-alt me-1"></i>
                             <?= date('d/m/Y') ?>
@@ -130,7 +131,7 @@
                                     <i class="fas fa-users"></i>
                                 </div>
                                 <div>
-                                    <h3 class="mb-1" id="totalEstudiantes"><?= number_format($metricas['totalEstudiantes']) ?></h3>
+                                    <h3 class="mb-1" id="totalEstudiantes"><?= number_format($metricas['totalEstudiantes'] ?? 0) ?></h3>
                                     <p class="mb-0" style="color: #e0e0e0;">Total Estudiantes</p>
                                 </div>
                             </div>
@@ -148,7 +149,7 @@
                                     <i class="fas fa-chalkboard-teacher"></i>
                                 </div>
                                 <div>
-                                    <h3 class="mb-1" id="totalInstructores"><?= number_format($metricas['totalInstructores']) ?></h3>
+                                    <h3 class="mb-1" id="totalInstructores"><?= number_format($metricas['totalInstructores'] ?? 0) ?></h3>
                                     <p class="mb-0" style="color: #ffe6e6;">Instructores</p>
                                 </div>
                             </div>
@@ -166,7 +167,7 @@
                                     <i class="fas fa-graduation-cap"></i>
                                 </div>
                                 <div>
-                                    <h3 class="mb-1" id="actividadesActivas"><?= number_format($metricas['actividadesActivas']) ?></h3>
+                                    <h3 class="mb-1" id="actividadesActivas"><?= number_format($metricas['actividadesActivas'] ?? 0) ?></h3>
                                     <p class="mb-0" style="color: #e0e0e0;">Actividades Activas</p>
                                 </div>
                             </div>
@@ -184,7 +185,7 @@
                                     <i class="fas fa-handshake"></i>
                                 </div>
                                 <div>
-                                    <h3 class="mb-1" id="conveniosVigentes"><?= number_format($metricas['conveniosVigentes']) ?></h3>
+                                    <h3 class="mb-1" id="conveniosVigentes"><?= number_format($metricas['conveniosVigentes'] ?? 0) ?></h3>
                                     <p class="mb-0" style="color: #e0e0e0;">Convenios Vigentes</p>
                                 </div>
                             </div>
@@ -291,7 +292,7 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <?php if (!empty($vencimientos['convenios'])): ?>
+                                    <?php if (!empty($vencimientos['convenios'] ?? [])): ?>
                                         <?php foreach ($vencimientos['convenios'] as $convenio): ?>
                                             <?php 
                                             $fechaVencimiento = new DateTime($convenio['FECHA_FIN']);
@@ -348,20 +349,20 @@
                         <div class="row text-center">
                             <div class="col-6 mb-3">
                                 <div class="border-end">
-                                    <h4 class="text-primary mb-1"><?= number_format($metricas['totalEstudiantes']) ?></h4>
+                                    <h4 class="text-primary mb-1"><?= number_format($metricas['totalEstudiantes'] ?? 0) ?></h4>
                                     <p class="text-muted mb-0">Total Estudiantes</p>
                                 </div>
                             </div>
                             <div class="col-6 mb-3">
-                                <h4 class="text-success mb-1"><?= number_format($metricas['actividadesActivas']) ?></h4>
+                                <h4 class="text-success mb-1"><?= number_format($metricas['actividadesActivas'] ?? 0) ?></h4>
                                 <p class="text-muted mb-0">Actividades Activas</p>
                             </div>
                             <div class="col-6">
-                                <h4 class="text-info mb-1"><?= number_format($metricas['conveniosVigentes']) ?></h4>
+                                <h4 class="text-info mb-1"><?= number_format($metricas['conveniosVigentes'] ?? 0) ?></h4>
                                 <p class="text-muted mb-0">Convenios Vigentes</p>
                             </div>
                             <div class="col-6">
-                                <h4 class="text-warning mb-1"><?= number_format($metricas['totalInstructores']) ?></h4>
+                                <h4 class="text-warning mb-1"><?= number_format($metricas['totalInstructores'] ?? 0) ?></h4>
                                 <p class="text-muted mb-0">Instructores</p>
                             </div>
                         </div>
@@ -392,98 +393,131 @@
     
     // Preparar datos mensuales
     <?php 
-    $estadisticasMensuales = $datosGraficas['estadisticasMensuales'];
+    $estadisticasMensuales = $datosGraficas['estadisticasMensuales'] ?? [];
     $meses = array_column($estadisticasMensuales, 'mes');
     $datosActividades = array_column($estadisticasMensuales, 'actividades');
     $datosPracticas = array_column($estadisticasMensuales, 'practicas');
+    
+    // Debug: mostrar datos en consola
+    echo "console.log('Datos mensuales:', " . json_encode($estadisticasMensuales) . ");";
+    echo "console.log('Meses:', " . json_encode($meses) . ");";
+    echo "console.log('Actividades:', " . json_encode($datosActividades) . ");";
+    echo "console.log('Prácticas:', " . json_encode($datosPracticas) . ");";
     ?>
     
-    const actividadesChart = new Chart(actividadesCtx, {
-        type: 'line',
-        data: {
-            labels: <?= json_encode($meses) ?>,
-            datasets: [{
-                label: 'Actividades Educativas',
-                data: <?= json_encode($datosActividades) ?>,
-                borderColor: '#667eea',
-                backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                tension: 0.4,
-                fill: true
-            }, {
-                label: 'Prácticas Asignadas',
-                data: <?= json_encode($datosPracticas) ?>,
-                borderColor: '#f093fb',
-                backgroundColor: 'rgba(240, 147, 251, 0.1)',
-                tension: 0.4,
-                fill: true
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'top',
-                }
+    // Verificar que tenemos datos antes de crear el gráfico
+    if (<?= json_encode($meses) ?> && <?= json_encode($meses) ?>.length > 0) {
+        const actividadesChart = new Chart(actividadesCtx, {
+            type: 'line',
+            data: {
+                labels: <?= json_encode($meses) ?>,
+                datasets: [{
+                    label: 'Actividades Educativas',
+                    data: <?= json_encode($datosActividades) ?>,
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }, {
+                    label: 'Prácticas Asignadas',
+                    data: <?= json_encode($datosPracticas) ?>,
+                    borderColor: '#f093fb',
+                    backgroundColor: 'rgba(240, 147, 251, 0.1)',
+                    tension: 0.4,
+                    fill: true
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: 'rgba(0,0,0,0.1)'
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
                     }
                 },
-                x: {
-                    grid: {
-                        color: 'rgba(0,0,0,0.1)'
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)'
+                        }
                     }
                 }
             }
-        }
-    });
+        });
+    } else {
+        // Mostrar mensaje si no hay datos
+        actividadesCtx.font = '16px Arial';
+        actividadesCtx.fillStyle = '#666';
+        actividadesCtx.textAlign = 'center';
+        actividadesCtx.fillText('No hay datos disponibles', actividadesCtx.canvas.width / 2, actividadesCtx.canvas.height / 2);
+        console.log('No hay datos para mostrar en el gráfico de actividades');
+    }
 
     // Gráfica de Distribución por Carrera
     const carrerasCtx = document.getElementById('carrerasChart').getContext('2d');
-    const carrerasChart = new Chart(carrerasCtx, {
-        type: 'doughnut',
-        data: {
-            labels: <?= json_encode(array_column($distribucionCarreras, 'CARRERA')) ?>,
-            datasets: [{
-                data: <?= json_encode(array_column($distribucionCarreras, 'TOTAL')) ?>,
-                backgroundColor: [
-                    '#667eea',
-                    '#f093fb',
-                    '#4facfe',
-                    '#43e97b',
-                    '#ff6b6b',
-                    '#4ecdc4',
-                    '#45b7d1',
-                    '#96ceb4'
-                ],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        padding: 20,
-                        usePointStyle: true
+    
+    <?php 
+    $carrerasLabels = array_column($distribucionCarreras ?? [], 'CARRERA');
+    $carrerasData = array_column($distribucionCarreras ?? [], 'TOTAL');
+    echo "console.log('Carreras labels:', " . json_encode($carrerasLabels) . ");";
+    echo "console.log('Carreras data:', " . json_encode($carrerasData) . ");";
+    ?>
+    
+    if (<?= json_encode($carrerasLabels) ?> && <?= json_encode($carrerasLabels) ?>.length > 0) {
+        const carrerasChart = new Chart(carrerasCtx, {
+            type: 'doughnut',
+            data: {
+                labels: <?= json_encode($carrerasLabels) ?>,
+                datasets: [{
+                    data: <?= json_encode($carrerasData) ?>,
+                    backgroundColor: [
+                        '#667eea',
+                        '#f093fb',
+                        '#4facfe',
+                        '#43e97b',
+                        '#ff6b6b',
+                        '#4ecdc4',
+                        '#45b7d1',
+                        '#96ceb4'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 20,
+                            usePointStyle: true
+                        }
                     }
                 }
             }
-        }
-    });
+        });
+    } else {
+        // Mostrar mensaje si no hay datos
+        carrerasCtx.font = '16px Arial';
+        carrerasCtx.fillStyle = '#666';
+        carrerasCtx.textAlign = 'center';
+        carrerasCtx.fillText('No hay datos disponibles', carrerasCtx.canvas.width / 2, carrerasCtx.canvas.height / 2);
+        console.log('No hay datos para mostrar en el gráfico de carreras');
+    }
 
     // Gráfica de Rendimiento de Prácticas
     const practicasCtx = document.getElementById('practicasChart').getContext('2d');
     
     // Preparar datos de prácticas por estado
     <?php 
-    $practicasPorEstado = $datosGraficas['practicasPorEstado'];
+    $practicasPorEstado = $datosGraficas['practicasPorEstado'] ?? [];
     $estadosPracticas = [];
     $datosPracticas = [];
     $coloresPracticas = ['#28a745', '#ffc107', '#dc3545', '#17a2b8', '#6f42c1'];
@@ -492,42 +526,54 @@
         $estadosPracticas[] = $estado['ESTADO'];
         $datosPracticas[] = (int)$estado['total'];
     }
+    
+    echo "console.log('Estados prácticas:', " . json_encode($estadosPracticas) . ");";
+    echo "console.log('Datos prácticas:', " . json_encode($datosPracticas) . ");";
     ?>
     
-    const practicasChart = new Chart(practicasCtx, {
-        type: 'bar',
-        data: {
-            labels: <?= json_encode($estadosPracticas) ?>,
-            datasets: [{
-                label: 'Prácticas por Estado',
-                data: <?= json_encode($datosPracticas) ?>,
-                backgroundColor: <?= json_encode($coloresPracticas) ?>,
-                borderRadius: 5
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'top',
-                }
+    if (<?= json_encode($estadosPracticas) ?> && <?= json_encode($estadosPracticas) ?>.length > 0) {
+        const practicasChart = new Chart(practicasCtx, {
+            type: 'bar',
+            data: {
+                labels: <?= json_encode($estadosPracticas) ?>,
+                datasets: [{
+                    label: 'Prácticas por Estado',
+                    data: <?= json_encode($datosPracticas) ?>,
+                    backgroundColor: <?= json_encode($coloresPracticas) ?>,
+                    borderRadius: 5
+                }]
             },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: 'rgba(0,0,0,0.1)'
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
                     }
                 },
-                x: {
-                    grid: {
-                        color: 'rgba(0,0,0,0.1)'
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)'
+                        }
+                    },
+                    x: {
+                        grid: {
+                            color: 'rgba(0,0,0,0.1)'
+                        }
                     }
                 }
             }
-        }
-    });
+        });
+    } else {
+        // Mostrar mensaje si no hay datos
+        practicasCtx.font = '16px Arial';
+        practicasCtx.fillStyle = '#666';
+        practicasCtx.textAlign = 'center';
+        practicasCtx.fillText('No hay datos disponibles', practicasCtx.canvas.width / 2, practicasCtx.canvas.height / 2);
+        console.log('No hay datos para mostrar en el gráfico de prácticas');
+    }
 
     // Gráfica de Evaluación de Instructores
     const evaluacionCtx = document.getElementById('evaluacionChart').getContext('2d');
