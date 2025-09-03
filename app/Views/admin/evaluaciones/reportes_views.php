@@ -48,28 +48,47 @@
     
     .stats-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 20px;
-        margin-bottom: 30px;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 30px;
+        margin-bottom: 40px;
+        width: 100%;
+    }
+    
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
     }
     
     .stat-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        padding: 20px;
-        border-radius: 10px;
-        text-align: center;
+        background: transparent;
+        color: #333;
+        padding: 0;
+        border-radius: 0;
+        text-align: left;
+        border: none;
+        box-shadow: none;
     }
     
     .stat-card h3 {
-        font-size: 2rem;
+        font-size: 2.5rem;
         margin: 0;
-        font-weight: bold;
+        font-weight: 600;
+        color: #333;
+        line-height: 1;
     }
     
     .stat-card p {
-        margin: 5px 0 0 0;
-        opacity: 0.9;
+        margin: 8px 0 0 0;
+        color: #666;
+        font-size: 0.9rem;
+        font-weight: 400;
     }
 </style>
 <?= $this->endSection() ?>
@@ -78,12 +97,15 @@
 <div class="body-wrapper">
     <div class="container-fluid">
         <!-- Header -->
-        <div class="row">
-            <div class="col-12">
-                <h3 class="text-center my-3">
-                    <i class="fas fa-chart-bar me-2"></i>
+        <div class="row mb-4">
+            <div class="col-12 d-flex justify-content-between align-items-center">
+                <h3 class="mb-0" style="color: #333; font-weight: 600;">
+                    <i class="fas fa-list me-2" style="color: #007bff;"></i>
                     Reportes y Exportación de Evaluaciones
                 </h3>
+                <button class="btn btn-outline-primary" onclick="history.back()" style="border-radius: 20px; padding: 8px 20px;">
+                    <i class="fas fa-arrow-left me-1"></i>Volver
+                </button>
             </div>
         </div>
 
@@ -109,9 +131,9 @@
 
         <!-- Filtros -->
         <div class="filter-section">
-            <h5 class="mb-3">
-                <i class="fas fa-filter me-2"></i>
-                Filtros para Reportes
+            <h5 class="mb-3" style="color: #333; font-weight: 500;">
+                <i class="fas fa-chevron-down me-2" style="color: #666;"></i>
+                Filtros de Búsqueda
             </h5>
             <form id="formFiltrosReportes">
                 <div class="row">
@@ -195,10 +217,6 @@
                             <button class="btn btn-success export-btn" onclick="exportarExcel()">
                                 <i class="fas fa-file-excel"></i>
                                 Exportar Excel
-                            </button>
-                            <button class="btn btn-warning export-btn" onclick="exportarCSV()">
-                                <i class="fas fa-file-csv"></i>
-                                Exportar CSV
                             </button>
                             <button class="btn btn-info export-btn" onclick="mostrarGraficos()">
                                 <i class="fas fa-chart-pie"></i>

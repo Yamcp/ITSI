@@ -352,6 +352,11 @@ class InstructoresAdminController extends BaseController
     public function exportarExcel()
     {
         try {
+            // Limpiar cualquier output previo
+            if (ob_get_level()) {
+                ob_end_clean();
+            }
+            
             $instructores = $this->instructoresModel->getInstructoresConDatos();
             
             // Agregar estadísticas
@@ -373,15 +378,40 @@ class InstructoresAdminController extends BaseController
             // Configurar encabezados
             $sheet->setTitle('Instructores');
             
-            // Crear encabezado estándar con logo
-            \App\Helpers\ExcelHelper::createStandardHeader(
-                $sheet, 
-                'REPORTE DE INSTRUCTORES', 
-                'Sistema de Gestión Académica ITSI',
-                'Logo PDF.jpg',
-                'A1',
-                'D1'
-            );
+            // Verificar si el logo existe antes de agregarlo
+            if (\App\Helpers\ExcelHelper::logoExists('Logo PDF.jpg')) {
+                // Crear encabezado estándar con logo
+                \App\Helpers\ExcelHelper::createStandardHeader(
+                    $sheet, 
+                    'REPORTE DE INSTRUCTORES', 
+                    'Sistema de Gestión Académica ITSI',
+                    'Logo PDF.jpg',
+                    'A1',
+                    'D1'
+                );
+                $startRow = 5;
+            } else {
+                // Crear encabezado simple sin logo
+                $sheet->setCellValue('A1', 'REPORTE DE INSTRUCTORES');
+                $sheet->getStyle('A1')->getFont()
+                    ->setBold(true)
+                    ->setSize(16)
+                    ->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('1A3A8A'));
+                
+                $sheet->setCellValue('A2', 'Sistema de Gestión Académica ITSI');
+                $sheet->getStyle('A2')->getFont()
+                    ->setBold(false)
+                    ->setSize(12)
+                    ->setColor(new \PhpOffice\PhpSpreadsheet\Style\Color('009EE0'));
+                
+                $sheet->setCellValue('A3', 'Fecha de generación: ' . \App\Helpers\ExcelHelper::getCurrentDateTime());
+                $sheet->getStyle('A3')->getFont()
+                    ->setBold(false)
+                    ->setSize(10)
+                    ->setItalic(true);
+                
+                $startRow = 4;
+            }
             
             // Encabezados de columnas
             $headers = [
@@ -399,10 +429,10 @@ class InstructoresAdminController extends BaseController
             ];
             
             // Crear encabezados de columnas con estilo
-            \App\Helpers\ExcelHelper::createColumnHeaders($sheet, $headers, 5, 'A');
+            \App\Helpers\ExcelHelper::createColumnHeaders($sheet, $headers, $startRow, 'A');
             
             // Llenar datos
-            $row = 6;
+            $row = $startRow + 1;
             foreach ($instructores as $instructor) {
                 $sheet->setCellValue('A' . $row, $instructor['ID_INSTRUCTOR']);
                 $sheet->setCellValue('B' . $row, $instructor['NOMBRE']);
@@ -419,8 +449,8 @@ class InstructoresAdminController extends BaseController
             }
             
             // Aplicar estilo a los datos
-            if ($row > 6) {
-                \App\Helpers\ExcelHelper::applyDataStyle($sheet, 'A6:K' . ($row - 1));
+            if ($row > $startRow + 1) {
+                \App\Helpers\ExcelHelper::applyDataStyle($sheet, 'A' . ($startRow + 1) . ':K' . ($row - 1));
             }
             
             // Autoajustar columnas
@@ -428,13 +458,35 @@ class InstructoresAdminController extends BaseController
             
             // Configurar headers para descarga
             $filename = 'instructores_' . date('Y-m-d_H-i-s') . '.xlsx';
-            \App\Helpers\ExcelHelper::setDownloadHeaders($filename);
+            
+            // Configurar headers HTTP apropiados
+            header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            header('Content-Disposition: attachment; filename="' . $filename . '"');
+            header('Cache-Control: max-age=0');
+            header('Cache-Control: max-age=1');
+            header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+            header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+            header('Cache-Control: cache, must-revalidate');
+            header('Pragma: public');
             
             // Escribir archivo
             $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
             $writer->save('php://output');
+            
+            // Limpiar memoria
+            $spreadsheet->disconnectWorksheets();
+            unset($spreadsheet);
+            exit;
 
         } catch (\Exception $e) {
+            // Log del error para debugging
+            log_message('error', 'Error al exportar Excel de instructores: ' . $e->getMessage());
+            
+            // Limpiar output buffer si hay error
+            if (ob_get_level()) {
+                ob_end_clean();
+            }
+            
             return $this->response->setJSON([
                 'success' => false,
                 'message' => 'Error al exportar datos: ' . $e->getMessage()

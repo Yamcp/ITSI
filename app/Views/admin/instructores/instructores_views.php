@@ -1058,29 +1058,99 @@
     }
 
     function exportarDatos() {
-        // Mostrar modal de opciones de exportación
-        showModal('modalOpcionesExportacion');
+        // Mostrar modal dinámico de opciones de exportación
+        showModalOpcionesExportacion();
+    }
+
+    function showModalOpcionesExportacion() {
+        const modal = document.createElement('div');
+        modal.className = 'modal fade';
+        modal.id = 'modalOpcionesExportacion';
+        modal.innerHTML = `
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">
+                            <i class="fas fa-download me-2"></i>Opciones de Exportación
+                        </h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p class="mb-3">Selecciona el formato de exportación:</p>
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-outline-danger" onclick="exportarFormato('pdf')">
+                                <i class="fas fa-file-pdf me-2"></i>Exportar como PDF
+                            </button>
+                            <button class="btn btn-outline-success" onclick="exportarFormato('excel')">
+                                <i class="fas fa-file-excel me-2"></i>Exportar como Excel
+                            </button>                            
+                        </div>
+                        <div class="mt-3">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Los archivos se descargarán automáticamente en tu navegador
+                            </small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // Agregar el modal al body
+        document.body.appendChild(modal);
+
+        // Mostrar el modal
+        const bootstrapModal = new bootstrap.Modal(modal);
+        bootstrapModal.show();
+
+        // Limpiar el modal cuando se cierre
+        modal.addEventListener('hidden.bs.modal', function() {
+            document.body.removeChild(modal);
+        });
+    }
+
+    function exportarFormato(formato) {
+        // Cerrar el modal primero
+        const modal = document.getElementById('modalOpcionesExportacion');
+        if (modal) {
+            const bootstrapModal = bootstrap.Modal.getInstance(modal);
+            if (bootstrapModal) {
+                bootstrapModal.hide();
+            }
+        }
+
+        // Ejecutar la exportación según el formato seleccionado
+        switch (formato) {
+            case 'pdf':
+                generarReportePDF();
+                break;
+            case 'excel':
+                exportarExcel();
+                break;
+            default:
+                showNotification('Formato de exportación no válido', 'error');
+        }
     }
 
     function generarReportePDF() {
         // Abrir reporte PDF en nueva ventana
         window.open('<?= base_url('admin/instructores/generarReporte') ?>', '_blank');
         showNotification('Generando reporte PDF...', 'info');
-        bootstrap.Modal.getInstance(document.getElementById('modalOpcionesReporte')).hide();
     }
 
     function exportarExcel() {
         // Descargar archivo Excel
         window.location.href = '<?= base_url('admin/instructores/exportarExcel') ?>';
         showNotification('Exportando datos a Excel...', 'info');
-        bootstrap.Modal.getInstance(document.getElementById('modalOpcionesExportacion')).hide();
     }
 
     function exportarCSV() {
         // Descargar archivo CSV
         window.location.href = '<?= base_url('admin/instructores/exportarCSV') ?>';
         showNotification('Exportando datos a CSV...', 'info');
-        bootstrap.Modal.getInstance(document.getElementById('modalOpcionesExportacion')).hide();
     }
 
     function showNotification(message, type = 'info') {

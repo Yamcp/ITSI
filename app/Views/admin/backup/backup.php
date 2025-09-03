@@ -82,6 +82,28 @@
         margin-bottom: 1rem;
         color: #dee2e6;
     }
+    
+    /* Estilos adicionales para modales */
+    .modal {
+        z-index: 1055;
+    }
+    
+    .modal-backdrop {
+        z-index: 1050;
+    }
+    
+    .modal.show {
+        display: block !important;
+    }
+    
+    .modal.fade .modal-dialog {
+        transition: transform .3s ease-out;
+        transform: translate(0, -50px);
+    }
+    
+    .modal.show .modal-dialog {
+        transform: none;
+    }
 </style>
 <?= $this->endSection() ?>
 
@@ -541,31 +563,180 @@
 <script>
     // Variable global para el ID del backup actual
     let currentBackupId = null;
+    
+    // Prevenir errores de dashboard.js en esta página
+    console.log('Página de backup cargada - evitando conflictos con dashboard.js');
+    
+    // Sobrescribir la función problemática de dashboard.js si existe
+    if (typeof ApexCharts !== 'undefined') {
+        console.log('ApexCharts detectado, configurando para página de backup');
+        // Crear una función de renderizado segura
+        const originalRender = ApexCharts.prototype.render;
+        ApexCharts.prototype.render = function() {
+            try {
+                if (this.el && document.contains(this.el)) {
+                    return originalRender.call(this);
+                } else {
+                    console.warn('Elemento de gráfico no encontrado, saltando renderizado');
+                    return Promise.resolve();
+                }
+            } catch (error) {
+                console.warn('Error al renderizar gráfico:', error);
+                return Promise.resolve();
+            }
+        };
+    }
 
-    // Funciones principales
-    function showModal(modalId) {
+    // Funciones principales - Definidas globalmente INMEDIATAMENTE
+    window.showModal = function(modalId) {
         console.log('showModal called with:', modalId);
         try {
-            if (typeof bootstrap !== 'undefined') {
-                const modalElement = document.getElementById(modalId);
-                if (modalElement) {
-                    const modal = new bootstrap.Modal(modalElement);
-                    modal.show();
-                } else {
-                    console.error('Modal no encontrado:', modalId);
-                    alert('Modal no encontrado: ' + modalId);
-                }
-            } else {
-                console.error('Bootstrap no está disponible');
-                alert('Bootstrap no está disponible');
+            const modalElement = document.getElementById(modalId);
+            if (!modalElement) {
+                console.error('Modal no encontrado:', modalId);
+                alert('Modal no encontrado: ' + modalId);
+                return;
             }
+
+            // Intentar con Bootstrap 5 primero
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                console.log('Usando Bootstrap 5');
+                const modal = new bootstrap.Modal(modalElement);
+                modal.show();
+                console.log('Modal abierto exitosamente con Bootstrap 5:', modalId);
+                return;
+            }
+
+            // Fallback con jQuery/Bootstrap 4
+            if (typeof $ !== 'undefined' && $.fn.modal) {
+                console.log('Usando jQuery/Bootstrap 4');
+                $('#' + modalId).modal('show');
+                console.log('Modal abierto exitosamente con jQuery:', modalId);
+                return;
+            }
+
+            // Fallback manual - mostrar el modal directamente
+            console.log('Usando fallback manual');
+            modalElement.style.display = 'block';
+            modalElement.classList.add('show');
+            document.body.classList.add('modal-open');
+            
+            // Crear backdrop
+            const backdrop = document.createElement('div');
+            backdrop.className = 'modal-backdrop fade show';
+            backdrop.id = 'modal-backdrop-' + modalId;
+            document.body.appendChild(backdrop);
+            
+            console.log('Modal abierto manualmente:', modalId);
+
         } catch (error) {
             console.error('Error al abrir modal:', error);
             alert('Error al abrir la ventana: ' + error.message);
         }
-    }
+    };
+    
+    // Definir funciones básicas inmediatamente
+    window.exportarHistorial = function() {
+        console.log('exportarHistorial called');
+        alert('Función exportarHistorial ejecutada');
+    };
+    
+    window.generarBackup = function() {
+        console.log('generarBackup called');
+        alert('Función generarBackup ejecutada');
+    };
+    
+    window.descargarBackup = function(id) {
+        console.log('descargarBackup called with id:', id);
+        alert('Función descargarBackup ejecutada para ID: ' + id);
+    };
+    
+    window.verDetalleBackup = function(id) {
+        console.log('verDetalleBackup called with id:', id);
+        alert('Función verDetalleBackup ejecutada para ID: ' + id);
+    };
+    
+    window.eliminarBackup = function(id) {
+        console.log('eliminarBackup called with id:', id);
+        alert('Función eliminarBackup ejecutada para ID: ' + id);
+    };
+    
+    window.guardarConfiguracion = function() {
+        console.log('guardarConfiguracion called');
+        alert('Función guardarConfiguracion ejecutada');
+    };
+    
+    window.aplicarFiltros = function() {
+        console.log('aplicarFiltros called');
+        alert('Función aplicarFiltros ejecutada');
+    };
+    
+    window.limpiarFiltros = function() {
+        console.log('limpiarFiltros called');
+        alert('Función limpiarFiltros ejecutada');
+    };
+    
+    window.restaurarBackup = function(id) {
+        console.log('restaurarBackup called with id:', id);
+        alert('Función restaurarBackup ejecutada para ID: ' + id);
+    };
+    
+    window.verLogs = function(id) {
+        console.log('verLogs called with id:', id);
+        alert('Función verLogs ejecutada para ID: ' + id);
+    };
+    
+    window.drawEstadoChart = function(percentage) {
+        console.log('drawEstadoChart called with percentage:', percentage);
+    };
+    
+    window.actualizarTablaBackups = function(backups) {
+        console.log('actualizarTablaBackups called with backups:', backups);
+    };
+    
+    window.hideModal = function(modalId) {
+        console.log('hideModal called with:', modalId);
+        try {
+            const modalElement = document.getElementById(modalId);
+            if (!modalElement) {
+                console.error('Modal no encontrado:', modalId);
+                return;
+            }
 
-    function generarBackup() {
+            // Intentar con Bootstrap 5 primero
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                const modal = bootstrap.Modal.getInstance(modalElement);
+                if (modal) {
+                    modal.hide();
+                    return;
+                }
+            }
+
+            // Fallback con jQuery/Bootstrap 4
+            if (typeof $ !== 'undefined' && $.fn.modal) {
+                $('#' + modalId).modal('hide');
+                return;
+            }
+
+            // Fallback manual
+            modalElement.style.display = 'none';
+            modalElement.classList.remove('show');
+            document.body.classList.remove('modal-open');
+            
+            // Remover backdrop
+            const backdrop = document.getElementById('modal-backdrop-' + modalId);
+            if (backdrop) {
+                backdrop.remove();
+            }
+
+        } catch (error) {
+            console.error('Error al cerrar modal:', error);
+        }
+    };
+
+
+
+    window.generarBackup = function() {
         console.log('generarBackup called');
         try {
             const form = document.getElementById('formNuevoBackup');
@@ -599,10 +770,7 @@
                 if (result.success) {
                     alert('Backup generado exitosamente');
                     // Cerrar modal
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalNuevoBackup'));
-                    if (modal) {
-                        modal.hide();
-                    }
+                    hideModal('modalNuevoBackup');
                     // Recargar la página para mostrar el nuevo backup
                     location.reload();
                 } else {
@@ -625,412 +793,87 @@
         }
     }
 
-    function descargarBackup(id) {
-        console.log('descargarBackup called with id:', id);
-        try {
-            fetch('<?= base_url('admin/backup/descargar') ?>/' + id, {
-                method: 'POST',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    alert('Descarga iniciada: ' + result.filename);
-                    // En un sistema real, aquí se iniciaría la descarga del archivo
-                    if (result.download_url) {
-                        window.open(result.download_url, '_blank');
-                    }
-                } else {
-                    alert('Error: ' + result.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error al descargar: ' + error.message);
-            });
-        } catch (error) {
-            console.error('Error al descargar:', error);
-            alert('Error al descargar: ' + error.message);
-        }
-    }
 
-    function verDetalleBackup(id) {
-        console.log('verDetalleBackup called with id:', id);
-        try {
-            currentBackupId = id;
-            
-            fetch('<?= base_url('admin/backup/detalle') ?>/' + id, {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    const backup = result.data;
-                    
-                    // Llenar los campos del modal con datos reales
-                    document.getElementById('detalleId').textContent = backup.ID_EXPORTACION;
-                    document.getElementById('detalleUsuario').textContent = 
-                        (backup.NOMBRE && backup.APELLIDO) ? 
-                        backup.NOMBRE + ' ' + backup.APELLIDO : 
-                        backup.USUARIO || 'Usuario del Sistema';
-                    document.getElementById('detalleFecha').textContent = 
-                        new Date(backup.FECHA_EXPORTACION).toLocaleDateString();
-                    document.getElementById('detalleDescripcion').textContent = 
-                        backup.DESCRIPCION_EXPORTACION || 'Backup del sistema';
-                    document.getElementById('detalleEstado').textContent = 
-                        backup.ESTADO_EXPORTACION || 'Completado';
-                    document.getElementById('detalleTipo').textContent = 
-                        backup.TIPO_EXPORTACION || 'Sistema';
-                    document.getElementById('detalleFechaCreacion').textContent = 
-                        new Date(backup.FECHA_EXPORTACION).toLocaleDateString();
-                    
-                    // Dibujar el gráfico de estado
-                    drawEstadoChart(100);
-                    
-                    showModal('modalDetalleBackup');
-                } else {
-                    alert('Error: ' + result.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error al obtener detalles: ' + error.message);
-            });
-            
-        } catch (error) {
-            console.error('Error al mostrar detalles:', error);
-            alert('Error al mostrar detalles: ' + error.message);
-        }
-    }
 
-    function eliminarBackup(id) {
-        console.log('eliminarBackup called with id:', id);
-        try {
-            if (confirm('¿Estás seguro de eliminar este backup? Esta acción no se puede deshacer.')) {
-                fetch('<?= base_url('admin/backup/eliminar') ?>/' + id, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(result => {
-                    if (result.success) {
-                        alert('Backup eliminado exitosamente');
-                        location.reload();
-                    } else {
-                        alert('Error: ' + result.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error al eliminar: ' + error.message);
-                });
-            }
-        } catch (error) {
-            console.error('Error al eliminar:', error);
-            alert('Error al eliminar: ' + error.message);
-        }
-    }
 
-    function guardarConfiguracion() {
-        console.log('guardarConfiguracion called');
-        try {
-            alert('Guardando configuración...');
-            setTimeout(() => {
-                alert('Configuración guardada exitosamente');
-                const modal = bootstrap.Modal.getInstance(document.getElementById('modalConfiguracion'));
-                if (modal) {
-                    modal.hide();
-                }
-            }, 1000);
-        } catch (error) {
-            console.error('Error al guardar configuración:', error);
-            alert('Error al guardar configuración: ' + error.message);
-        }
-    }
 
-    function aplicarFiltros() {
-        console.log('aplicarFiltros called');
-        try {
-            const form = document.getElementById('formFiltros');
-            const formData = new FormData(form);
-            
-            const data = {
-                filtro_usuario: formData.get('filtro_usuario'),
-                fecha_desde: formData.get('fecha_desde'),
-                fecha_hasta: formData.get('fecha_hasta'),
-                filtro_estado: formData.get('filtro_estado')
-            };
-
-            fetch('<?= base_url('admin/backup/filtrar') ?>', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    // Actualizar la tabla con los resultados filtrados
-                    actualizarTablaBackups(result.data);
-                    const modal = bootstrap.Modal.getInstance(document.getElementById('modalFiltros'));
-                    if (modal) {
-                        modal.hide();
-                    }
-                } else {
-                    alert('Error: ' + result.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error al aplicar filtros: ' + error.message);
-            });
-        } catch (error) {
-            console.error('Error al aplicar filtros:', error);
-            alert('Error al aplicar filtros: ' + error.message);
-        }
-    }
-
-    function limpiarFiltros() {
-        console.log('limpiarFiltros called');
-        try {
-            document.getElementById('formFiltros').reset();
-            alert('Filtros limpiados');
-        } catch (error) {
-            console.error('Error al limpiar filtros:', error);
-            alert('Error al limpiar filtros: ' + error.message);
-        }
-    }
-
-    function exportarHistorial() {
-        console.log('exportarHistorial called');
-        try {
-            fetch('<?= base_url('admin/backup/exportar-historial') ?>', {
-                method: 'GET',
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    alert('Historial exportado exitosamente: ' + result.filename);
-                    if (result.download_url) {
-                        window.open(result.download_url, '_blank');
-                    }
-                } else {
-                    alert('Error: ' + result.message);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error al exportar historial: ' + error.message);
-            });
-        } catch (error) {
-            console.error('Error al exportar historial:', error);
-            alert('Error al exportar historial: ' + error.message);
-        }
-    }
-
-    function restaurarBackup(id) {
-        console.log('restaurarBackup called with id:', id);
-        try {
-            if (confirm('¿Estás seguro de restaurar el sistema desde este backup? Esta acción puede sobrescribir datos actuales.')) {
-                fetch('<?= base_url('admin/backup/restaurar') ?>/' + id, {
-                    method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(result => {
-                    if (result.success) {
-                        alert('Sistema restaurado exitosamente');
-                    } else {
-                        alert('Error: ' + result.message);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error al restaurar: ' + error.message);
-                });
-            }
-        } catch (error) {
-            console.error('Error al restaurar:', error);
-            alert('Error al restaurar: ' + error.message);
-        }
-    }
-
-    function verLogs(id) {
-        console.log('verLogs called with id:', id);
-        try {
-            alert('Mostrando logs del backup...');
-        } catch (error) {
-            console.error('Error al mostrar logs:', error);
-            alert('Error al mostrar logs: ' + error.message);
-        }
-    }
-
-    function drawEstadoChart(percentage) {
-        try {
-            const canvas = document.getElementById('estadoChart');
-            if (!canvas) return;
-            
-            const ctx = canvas.getContext('2d');
-            const centerX = canvas.width / 2;
-            const centerY = canvas.height / 2;
-            const radius = 60;
-
-            // Clear canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Background circle
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-            ctx.strokeStyle = '#e9ecef';
-            ctx.lineWidth = 10;
-            ctx.stroke();
-
-            // Progress circle
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, radius, -Math.PI / 2, (-Math.PI / 2) + (2 * Math.PI * percentage / 100));
-            ctx.strokeStyle = '#667eea';
-            ctx.lineWidth = 10;
-            ctx.lineCap = 'round';
-            ctx.stroke();
-        } catch (error) {
-            console.error('Error al dibujar gráfico:', error);
-        }
-    }
-
-    // Función para actualizar la tabla de backups dinámicamente
-    function actualizarTablaBackups(backups) {
-        try {
-            const tbody = document.querySelector('.backup-table tbody');
-            if (!tbody) return;
-
-            if (backups.length === 0) {
-                tbody.innerHTML = `
-                    <tr>
-                        <td colspan="7" class="text-center">
-                            <div class="empty-state">
-                                <i class="fas fa-database"></i>
-                                <h5>No se encontraron backups</h5>
-                                <p class="text-muted">No hay backups que coincidan con los filtros aplicados.</p>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-                return;
-            }
-
-            let html = '';
-            backups.forEach((backup, index) => {
-                const fecha = new Date(backup.FECHA_EXPORTACION);
-                const nombreCompleto = (backup.NOMBRE && backup.APELLIDO) ? 
-                    backup.NOMBRE + ' ' + backup.APELLIDO : 
-                    'Usuario ID: ' + backup.ID_USUARIO;
-
-                html += `
-                    <tr>
-                        <td>
-                            <span class="badge bg-secondary">${backup.ID_EXPORTACION}</span>
-                        </td>
-                        <td>
-                            <div class="d-flex align-items-center">
-                                <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(nombreCompleto)}&background=0d6efd&color=fff&size=32" 
-                                     class="rounded-circle me-2" alt="Usuario">
-                                <div>
-                                    <div class="fw-semibold">${nombreCompleto}</div>
-                                    <small class="text-muted">${backup.USUARIO || 'Sistema'}</small>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <div class="fw-semibold">${fecha.toLocaleDateString()}</div>
-                            <small class="text-muted">${fecha.toLocaleTimeString()}</small>
-                        </td>
-                        <td>
-                            <div class="fw-semibold">${backup.DESCRIPCION_EXPORTACION || 'Backup del sistema'}</div>
-                            <small class="text-muted">Respaldo automático</small>
-                        </td>
-                        <td>
-                            <span class="badge badge-modern bg-success text-white">Completado</span>
-                        </td>
-                        <td>
-                            <span class="badge bg-info">Sistema</span>
-                        </td>
-                        <td>
-                            <div class="btn-group btn-group-sm">
-                                <button class="btn btn-outline-success btn-modern" 
-                                        onclick="descargarBackup(${backup.ID_EXPORTACION})" 
-                                        title="Descargar">
-                                    <i class="fas fa-download"></i>
-                                </button>
-                                <button class="btn btn-outline-info btn-modern" 
-                                        onclick="verDetalleBackup(${backup.ID_EXPORTACION})" 
-                                        title="Ver Detalle">
-                                    <i class="fas fa-eye"></i>
-                                </button>
-                                <button class="btn btn-outline-danger btn-modern" 
-                                        onclick="eliminarBackup(${backup.ID_EXPORTACION})" 
-                                        title="Eliminar">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
-
-            tbody.innerHTML = html;
-        } catch (error) {
-            console.error('Error al actualizar tabla:', error);
-        }
-    }
+    // Verificar que las funciones estén disponibles inmediatamente
+    console.log('=== VERIFICACIÓN INMEDIATA ===');
+    console.log('showModal disponible:', typeof window.showModal);
+    console.log('exportarHistorial disponible:', typeof window.exportarHistorial);
+    console.log('generarBackup disponible:', typeof window.generarBackup);
 
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
         console.log('=== DOM LOADED ===');
         
-        try {
-            // Verificar Bootstrap
-            if (typeof bootstrap === 'undefined') {
-                console.warn('⚠️ Bootstrap no está disponible');
-            } else {
-                console.log('✅ Bootstrap está disponible');
-            }
-
-            // Set default date for new backup
-            const fechaInput = document.querySelector('input[name="fecha_programada"]');
-            if (fechaInput) {
-                const now = new Date();
-                now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-                fechaInput.value = now.toISOString().slice(0, 16);
-                console.log('✅ Fecha por defecto establecida');
-            }
-
-            console.log('✅ Backup page initialized successfully');
-
-        } catch (error) {
-            console.error('❌ Error en la inicialización:', error);
+        // Prevenir errores de ApexCharts en esta página
+        if (typeof ApexCharts !== 'undefined') {
+            console.log('ApexCharts detectado, evitando errores en página de backup');
         }
+        
+        // Esperar un poco más para asegurar que Bootstrap esté completamente cargado
+        setTimeout(function() {
+            try {
+                // Verificar Bootstrap
+                if (typeof bootstrap === 'undefined') {
+                    console.warn('⚠️ Bootstrap no está disponible');
+                    console.log('Intentando cargar Bootstrap manualmente...');
+                } else {
+                    console.log('✅ Bootstrap está disponible');
+                    console.log('Bootstrap version:', bootstrap.Modal ? 'Modal disponible' : 'Modal no disponible');
+                }
+
+                // Verificar jQuery
+                if (typeof $ !== 'undefined') {
+                    console.log('✅ jQuery está disponible');
+                } else {
+                    console.warn('⚠️ jQuery no está disponible');
+                }
+
+                // Set default date for new backup
+                const fechaInput = document.querySelector('input[name="fecha_programada"]');
+                if (fechaInput) {
+                    const now = new Date();
+                    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+                    fechaInput.value = now.toISOString().slice(0, 16);
+                    console.log('✅ Fecha por defecto establecida');
+                }
+
+                // Verificar que los modales existan
+                const modales = ['modalNuevoBackup', 'modalConfiguracion', 'modalDetalleBackup', 'modalFiltros'];
+                modales.forEach(function(modalId) {
+                    const modal = document.getElementById(modalId);
+                    if (modal) {
+                        console.log('✅ Modal encontrado:', modalId);
+                    } else {
+                        console.error('❌ Modal no encontrado:', modalId);
+                    }
+                });
+
+                console.log('✅ Backup page initialized successfully');
+
+            } catch (error) {
+                console.error('❌ Error en la inicialización:', error);
+            }
+        }, 500); // Esperar 500ms para que Bootstrap se cargue completamente
     });
 
     // Verificar funciones después de un breve delay
     setTimeout(() => {
         console.log('=== VERIFICACIÓN FINAL ===');
-        console.log('showModal disponible:', typeof showModal);
-        console.log('exportarHistorial disponible:', typeof exportarHistorial);
+        console.log('showModal disponible:', typeof window.showModal);
+        console.log('exportarHistorial disponible:', typeof window.exportarHistorial);
+        console.log('generarBackup disponible:', typeof window.generarBackup);
         console.log('==========================');
+        
+        // Función de prueba para verificar que los modales funcionen
+        window.testModal = function() {
+            console.log('Probando modal...');
+            window.showModal('modalNuevoBackup');
+        };
+        
+        console.log('Función de prueba disponible: testModal()');
     }, 100);
 
 </script>

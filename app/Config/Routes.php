@@ -86,27 +86,28 @@ $routes->group('admin', ['namespace' => 'App\Controllers\admin'], function ($rou
     $routes->get('documentos/obtener', 'DocumentosAdminController::obtenerDocumentos'); // Obtener documentos
     $routes->post('documentos/eliminar/(:num)', 'DocumentosAdminController::eliminarDocumento/$1'); // Eliminar documento
     $routes->get('documentos/descargar/(:num)', 'DocumentosAdminController::descargarDocumento/$1'); // Descargar documento
-    $routes->post('documentos/crear-carpeta', 'DocumentosAdminController::crearCarpeta'); // Crear carpeta
-    
-    // Rutas específicas para documentos de servicio comunitario
-    $routes->get('documentos/obtenerDocumentosServicio', 'DocumentosAdminController::obtenerDocumentosServicio'); // Obtener documentos de servicio
-    $routes->post('documentos/subirDocumentoServicio', 'DocumentosAdminController::subirDocumentoServicio'); // Subir documento de servicio
-    $routes->get('documentos/descargarDocumentoServicio/(:num)', 'DocumentosAdminController::descargarDocumentoServicio/$1'); // Descargar documento de servicio
-    $routes->delete('documentos/eliminarDocumentoServicio/(:num)', 'DocumentosAdminController::eliminarDocumentoServicio/$1'); // Eliminar documento de servicio
-    $routes->post('documentos/cambiarEstadoDocumentoServicio', 'DocumentosAdminController::cambiarEstadoDocumentoServicio'); // Cambiar estado de documento
-    $routes->get('documentos/obtenerEstadisticasServicio', 'DocumentosAdminController::obtenerEstadisticasServicio'); // Obtener estadísticas
-    $routes->get('documentos/generarReporteServicio', 'DocumentosAdminController::generarReporteServicio'); // Generar reporte
     
     // Rutas específicas para documentos de prácticas
-    $routes->get('documentos/practicas', 'DocumentosPracticasAdmin Controller::index'); // Ver documentos de prácticas
-    $routes->post('documentos/practicas/store', 'DocumentosPracticasAdmin Controller::store'); // Subir documento de práctica
-    $routes->get('documentos/practicas/download/(:num)', 'DocumentosPracticasAdmin Controller::download/$1'); // Descargar documento
-    $routes->get('documentos/practicas/ver/(:num)', 'DocumentosPracticasAdmin Controller::ver/$1'); // Ver documento
-    $routes->post('documentos/practicas/eliminar/(:num)', 'DocumentosPracticasAdmin Controller::eliminar/$1'); // Eliminar documento
-    $routes->post('documentos/practicas/cambiar-estado/(:num)', 'DocumentosPracticasAdmin Controller::cambiarEstado/$1'); // Cambiar estado
-    $routes->post('documentos/practicas/filtros', 'DocumentosPracticasAdmin Controller::aplicarFiltros'); // Aplicar filtros
-    $routes->get('documentos/practicas/reporte', 'DocumentosPracticasAdmin Controller::generarReporte'); // Generar reporte
-    $routes->get('documentos/practicas/api/estudiantes', 'DocumentosPracticasAdmin Controller::apiEstudiantes'); // API estudiantes
+    $routes->get('documentos/practicas', 'DocumentosPracticasAdminController::index'); // Ver documentos de prácticas
+    $routes->get('documentos/practicas/obtenerDocumentos', 'DocumentosPracticasAdminController::obtenerDocumentos'); // Obtener documentos de prácticas
+    $routes->post('documentos/practicas/subir', 'DocumentosPracticasAdminController::store'); // Subir documento de práctica
+    $routes->get('documentos/practicas/ver/(:num)', 'DocumentosPracticasAdminController::ver/$1'); // Ver documento
+    $routes->get('documentos/practicas/download/(:num)', 'DocumentosPracticasAdminController::descargar/$1'); // Descargar documento
+    $routes->post('documentos/practicas/eliminar/(:num)', 'DocumentosPracticasAdminController::eliminar/$1'); // Eliminar documento
+    $routes->post('documentos/practicas/cambiar-estado/(:num)', 'DocumentosPracticasAdminController::cambiarEstado/$1'); // Cambiar estado
+    $routes->get('documentos/practicas/reportes', 'DocumentosPracticasAdminController::reportes'); // Reportes de prácticas
+    
+    // Rutas específicas para documentos de servicio comunitario
+    $routes->get('documentos/servicio', 'DocumentosServicioComunitarioAdminController::index'); // Ver documentos de servicio
+    $routes->get('documentos/servicio/obtenerDocumentos', 'DocumentosServicioComunitarioAdminController::obtenerDocumentos'); // Obtener documentos de servicio
+    $routes->post('documentos/servicio/subir', 'DocumentosServicioComunitarioAdminController::store'); // Subir documento de servicio
+    $routes->get('documentos/servicio/ver/(:num)', 'DocumentosServicioComunitarioAdminController::ver/$1'); // Ver documento
+    $routes->get('documentos/servicio/download/(:num)', 'DocumentosServicioComunitarioAdminController::descargar/$1'); // Descargar documento
+    $routes->post('documentos/servicio/eliminar/(:num)', 'DocumentosServicioComunitarioAdminController::eliminar/$1'); // Eliminar documento
+    $routes->post('documentos/servicio/cambiar-estado/(:num)', 'DocumentosServicioComunitarioAdminController::cambiarEstado/$1'); // Cambiar estado
+    $routes->get('documentos/servicio/reportes', 'DocumentosServicioComunitarioAdminController::reportes'); // Reportes de servicio
+    $routes->post('documentos/crear-carpeta', 'DocumentosAdminController::crearCarpeta'); // Crear carpeta
+
     
     //Rutas para la gestión de evaluaciones
     $routes->get('evaluaciones', 'EvaluacionesAdminController::index'); // Ver evaluaciones
@@ -157,4 +158,12 @@ $routes->group('estudiante', ['namespace' => 'App\Controllers\estudiante'], func
     $routes->post('perfil/update', 'PerfilEstudianteController::update'); // Actualizar el perfil del estudiante
     $routes->get('educacion', 'ActividadesEducacionEstudianteController::index');    // Ver la sección de educación
     $routes->get('convenios', 'InstitucionesConveniosController::index');        // Ver la sección de convenios
+    
+    // Rutas para documentos de prácticas
+    $routes->get('documentos-practicas', 'DocumentosPracticasEstudianteController::index'); // Ver documentos de prácticas
+    $routes->post('documentos-practicas/subir', 'DocumentosPracticasEstudianteController::subirDocumento'); // Subir documento
+    $routes->get('documentos-practicas/mis-documentos', 'DocumentosPracticasEstudianteController::misDocumentos'); // Mis documentos
+    $routes->get('documentos-practicas/progreso', 'DocumentosPracticasEstudianteController::verProgreso'); // Ver progreso
+    $routes->get('documentos-practicas/descargar/(:num)', 'DocumentosPracticasEstudianteController::descargarDocumento/$1'); // Descargar documento
+    $routes->post('documentos-practicas/eliminar/(:num)', 'DocumentosPracticasEstudianteController::eliminarDocumento/$1'); // Eliminar documento
 });

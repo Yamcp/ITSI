@@ -3,6 +3,40 @@
 <?= $this->section('styles') ?>
 <!-- CSS personalizado para documentos de prácticas -->
 <link rel="stylesheet" href="<?= base_url('sistema/assets/css/documentos.css') ?>" />
+<style>
+    .documento-card {
+        transition: all 0.3s ease;
+        border-left: 4px solid #28a745;
+    }
+    .documento-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .estado-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
+    .tipo-documento-header {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        color: white;
+        border-radius: 8px 8px 0 0;
+    }
+    .filtros-rapidos {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    .estadistica-card {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        color: white;
+        border-radius: 10px;
+        transition: transform 0.3s ease;
+    }
+    .estadistica-card:hover {
+        transform: scale(1.05);
+    }
+</style>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
@@ -12,40 +46,41 @@
         <div class="row">
             <div class="col-12">
                 <h3 class="text-center my-3">
-                    <i class="fas fa-file-alt me-2"></i>
-                    Documentos de Prácticas Preprofesionales
+                    <i class="fas fa-briefcase me-2"></i>
+                    Gestión de Documentos de Prácticas Preprofesionales
                 </h3>
+                <p class="text-center text-muted">Administra todos los documentos de prácticas de los estudiantes clasificados por tipo</p>
             </div>
         </div>
 
-        <!-- Estadísticas Rápidas en Cuadros -->
+        <!-- Estadísticas Generales -->
         <div class="row mb-4">
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #007bff 80%, #0056b3 100%); color: #fff; border: none;">
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card estadistica-card text-center shadow-sm">
                     <div class="card-body">
                         <h2 class="card-title mb-2" id="totalDocumentosPracticas" style="font-size:2.5rem;"><?= $estadisticas['total'] ?? 0 ?></h2>
                         <p class="card-text fw-bold" style="color: #e0e0e0;">Total Documentos</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #28a745 80%, #155724 100%); color: #fff; border: none;">
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: #fff;">
                     <div class="card-body">
                         <h2 class="card-title mb-2" id="documentosAprobadosPracticas" style="font-size:2.5rem;"><?= $estadisticas['aprobados'] ?? 0 ?></h2>
                         <p class="card-text fw-bold" style="color: #e0e0e0;">Aprobados</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #ffc107 80%, #b38600 100%); color: #fff; border: none;">
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%); color: #fff;">
                     <div class="card-body">
                         <h2 class="card-title mb-2" id="documentosPendientesPracticas" style="font-size:2.5rem;"><?= $estadisticas['pendientes'] ?? 0 ?></h2>
                         <p class="card-text fw-bold" style="color: #fffbe6;">Pendientes</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #dc3545 80%, #a71e2a 100%); color: #fff; border: none;">
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%); color: #fff;">
                     <div class="card-body">
                         <h2 class="card-title mb-2" id="documentosRechazadosPracticas" style="font-size:2.5rem;"><?= $estadisticas['rechazados'] ?? 0 ?></h2>
                         <p class="card-text fw-bold" style="color: #ffe0e0;">Rechazados</p>
@@ -54,541 +89,163 @@
             </div>
         </div>
 
+        <!-- Filtros Rápidos -->
+        <div class="filtros-rapidos">
+            <div class="row align-items-center">
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Filtrar por Estado:</label>
+                    <select class="form-select" id="filtroEstado" onchange="aplicarFiltros()">
+                        <option value="">Todos los estados</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="En Revisión">En Revisión</option>
+                        <option value="Aprobado">Aprobado</option>
+                        <option value="Rechazado">Rechazado</option>
+                        <option value="Requiere Corrección">Requiere Corrección</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Filtrar por Tipo:</label>
+                    <select class="form-select" id="filtroTipo" onchange="aplicarFiltros()">
+                        <option value="">Todos los tipos</option>
+                        <?php if (isset($tiposDocumentos)): ?>
+                            <?php foreach ($tiposDocumentos as $tipo): ?>
+                                <option value="<?= $tipo['ID_TIPO_DOCUMENTO'] ?>"><?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?></option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">Buscar Estudiante:</label>
+                    <input type="text" class="form-control" id="buscarEstudiante" placeholder="Nombre o cédula..." onkeyup="aplicarFiltros()">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">&nbsp;</label>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-secondary" onclick="limpiarFiltros()">
+                            <i class="fas fa-times me-1"></i>Limpiar
+                        </button>
+                        <button class="btn btn-primary" onclick="generarReportePracticas()">
+                            <i class="fas fa-download me-1"></i>Exportar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Acciones Rápidas -->
         <div class="row mb-4 justify-content-center">
-            <div class="col-md-3 col-sm-6 mb-3">
+            <div class="col-md-2 col-sm-6 mb-3">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="#" onclick="showModal('modalNuevoDocumentoPractica')" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-cloud-upload-alt fa-2x mb-2" style="color: #28a745; text-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);"
-                            ></i>
+                        <a href="#" onclick="showModal('modalSubirDocumentoPractica')" style="text-decoration: none; color: inherit;">
+                            <i class="fas fa-cloud-upload-alt fa-2x mb-2" style="color: #28a745;"></i>
                             <div class="fw-bold">Nuevo Documento</div>
                         </a>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
+            <div class="col-md-2 col-sm-6 mb-3">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="#" onclick="showModal('modalFiltrosPracticas')" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-filter fa-2x mb-2" style="color: #007bff; text-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);"></i>
-                            <div class="fw-bold">Filtros</div>
+                        <a href="#" onclick="revisionMasiva()" style="text-decoration: none; color: inherit;">
+                            <i class="fas fa-tasks fa-2x mb-2" style="color: #007bff;"></i>
+                            <div class="fw-bold">Revisión Masiva</div>
                         </a>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
+            <div class="col-md-2 col-sm-6 mb-3">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="#" onclick="generarReportePracticas()" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-chart-bar fa-2x mb-2" style="color: #ffc107; text-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);"></i>
-                            <div class="fw-bold">Generar Reporte</div>
+                        <a href="#" onclick="cambiarVista('grid')" style="text-decoration: none; color: inherit;">
+                            <i class="fas fa-th-large fa-2x mb-2" style="color: #6f42c1;"></i>
+                            <div class="fw-bold">Vista Grid</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2 col-sm-6 mb-3">
+                <div class="card text-center shadow-sm h-100" style="border: none;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                        <a href="#" onclick="cambiarVista('list')" style="text-decoration: none; color: inherit;">
+                            <i class="fas fa-list fa-2x mb-2" style="color: #fd7e14;"></i>
+                            <div class="fw-bold">Vista Lista</div>
                         </a>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Tabla de Documentos de Prácticas -->
-        <div class="row">
-            <div class="col-12">
-                <div class="card shadow-sm border-0">
-                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                        <span>
-                            <i class="fas fa-briefcase me-2"></i>
-                            Documentos de Prácticas
-                        </span>
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-light btn-sm" onclick="cambiarVista('grid')">
-                                <i class="fas fa-th-large me-1"></i>Grid
-                            </button>
-                            <button class="btn btn-light btn-sm" onclick="cambiarVista('list')">
-                                <i class="fas fa-list me-1"></i>Lista
-                            </button>
+        <!-- Vista Grid de Documentos por Tipo -->
+        <div id="vistaGrid">
+            <?php if (!empty($tiposDocumentos)): ?>
+                <?php foreach ($tiposDocumentos as $tipo): ?>
+                    <div class="row mb-4">
+                        <div class="col-12">
+                            <div class="card shadow-sm">
+                                <div class="tipo-documento-header p-3">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <h5 class="mb-1">
+                                                <i class="fas fa-file-alt me-2"></i>
+                                                <?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?>
+                                            </h5>
+                                            <small class="opacity-75"><?= $tipo['DESCRIPCION'] ?></small>
+                                        </div>
+                                        <div class="text-end">
+                                            <span class="badge bg-light text-dark">
+                                                <?= $tipo['REQUERIDO'] ? 'Obligatorio' : 'Opcional' ?>
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row" id="documentos-<?= $tipo['ID_TIPO_DOCUMENTO'] ?>">
+                                        <!-- Los documentos de este tipo se cargarán aquí -->
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="card-body">
-                        <!-- Vista Grid -->
-                        <div id="vistaGrid" class="row g-3">
-                            <!-- 1.1. Oficio de Asignación de Tutor Docente -->
-                            <div class="col-md-4 col-lg-3">
-                                <div class="file-item p-3 h-100" id="doc-1">
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="file-icon bg-primary me-3">
-                                            <i class="fas fa-file-alt"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1">1.1. Oficio de Asignación de Tutor Docente</h6>
-                                            <small class="text-muted" id="estado-1">Estado: Pendiente</small>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <span class="category-badge bg-primary text-white">Oficio</span>
-                                        <span class="category-badge bg-success text-white ms-2" id="status-1">Pendiente</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-muted" id="fecha-1">No subido</small>
-                                        <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-outline-primary" onclick="verDocumento(1)" title="Ver" id="btn-ver-1" style="display: none;">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="btn btn-outline-success" onclick="descargarDocumento(1)" title="Descargar" id="btn-descargar-1" style="display: none;">
-                                                <i class="fas fa-download"></i>
-                                            </button>
-                                            <button class="btn btn-outline-warning" onclick="cambiarEstadoDocumento(1)" title="Cambiar Estado" id="btn-estado-1" style="display: none;">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-outline-danger" onclick="eliminarDocumento(1)" title="Eliminar" id="btn-eliminar-1" style="display: none;">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                            <button class="btn btn-outline-info" onclick="subirDocumento(1)" title="Subir Documento" id="btn-subir-1">
-                                                <i class="fas fa-upload"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="row">
+                    <div class="col-12 text-center">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            No hay tipos de documentos configurados
+                        </div>
+                    </div>
+                </div>
+            <?php endif; ?>
+        </div>
 
-                            <!-- 1.2. Oficio Personal a Entidad Receptora -->
-                            <div class="col-md-4 col-lg-3">
-                                <div class="file-item p-3 h-100" id="doc-2">
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="file-icon bg-success me-3">
-                                            <i class="fas fa-file-alt"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1">1.2. Oficio Personal a Entidad Receptora</h6>
-                                            <small class="text-muted" id="estado-2">Estado: Pendiente</small>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <span class="category-badge bg-success text-white">Oficio</span>
-                                        <span class="category-badge bg-success text-white ms-2" id="status-2">Pendiente</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-muted" id="fecha-2">No subido</small>
-                                        <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-outline-primary" onclick="verDocumento(2)" title="Ver" id="btn-ver-2" style="display: none;">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="btn btn-outline-success" onclick="descargarDocumento(2)" title="Descargar" id="btn-descargar-2" style="display: none;">
-                                                <i class="fas fa-download"></i>
-                                            </button>
-                                            <button class="btn btn-outline-warning" onclick="cambiarEstadoDocumento(2)" title="Cambiar Estado" id="btn-estado-2" style="display: none;">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-outline-danger" onclick="eliminarDocumento(2)" title="Eliminar" id="btn-eliminar-2" style="display: none;">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                            <button class="btn btn-outline-info" onclick="subirDocumento(2)" title="Subir Documento" id="btn-subir-2">
-                                                <i class="fas fa-upload"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 1.3. Carta de Aceptación de Entidad Receptora -->
-                            <div class="col-md-4 col-lg-3">
-                                <div class="file-item p-3 h-100" id="doc-3">
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="file-icon bg-warning me-3">
-                                            <i class="fas fa-file-alt"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1">1.3. Carta de Aceptación de Entidad Receptora</h6>
-                                            <small class="text-muted" id="estado-3">Estado: Pendiente</small>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <span class="category-badge bg-warning text-white">Carta</span>
-                                        <span class="category-badge bg-success text-white ms-2" id="status-3">Pendiente</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-muted" id="fecha-3">No subido</small>
-                                        <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-outline-primary" onclick="verDocumento(3)" title="Ver" id="btn-ver-3" style="display: none;">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="btn btn-outline-success" onclick="descargarDocumento(3)" title="Descargar" id="btn-descargar-3" style="display: none;">
-                                                <i class="fas fa-download"></i>
-                                            </button>
-                                            <button class="btn btn-outline-warning" onclick="cambiarEstadoDocumento(3)" title="Cambiar Estado" id="btn-estado-3" style="display: none;">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-outline-danger" onclick="eliminarDocumento(3)" title="Eliminar" id="btn-eliminar-3" style="display: none;">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                            <button class="btn btn-outline-info" onclick="subirDocumento(3)" title="Subir Documento" id="btn-subir-3">
-                                                <i class="fas fa-upload"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 1.4. Solicitud Institucional Valorada -->
-                            <div class="col-md-4 col-lg-3">
-                                <div class="file-item p-3 h-100" id="doc-4">
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="file-icon bg-info me-3">
-                                            <i class="fas fa-file-alt"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1">1.4. Solicitud Institucional Valorada</h6>
-                                            <small class="text-muted" id="estado-4">Estado: Pendiente</small>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <span class="category-badge bg-info text-white">Solicitud</span>
-                                        <span class="category-badge bg-success text-white ms-2" id="status-4">Pendiente</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-muted" id="fecha-4">No subido</small>
-                                        <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-outline-primary" onclick="verDocumento(4)" title="Ver" id="btn-ver-4" style="display: none;">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="btn btn-outline-success" onclick="descargarDocumento(4)" title="Descargar" id="btn-descargar-4" style="display: none;">
-                                                <i class="fas fa-download"></i>
-                                            </button>
-                                            <button class="btn btn-outline-warning" onclick="cambiarEstadoDocumento(4)" title="Cambiar Estado" id="btn-estado-4" style="display: none;">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-outline-danger" onclick="eliminarDocumento(4)" title="Eliminar" id="btn-eliminar-4" style="display: none;">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                            <button class="btn btn-outline-info" onclick="subirDocumento(4)" title="Subir Documento" id="btn-subir-4">
-                                                <i class="fas fa-upload"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 1.5. Certificado de Culminación (60 horas) -->
-                            <div class="col-md-4 col-lg-3">
-                                <div class="file-item p-3 h-100" id="doc-5">
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="file-icon bg-primary me-3">
-                                            <i class="fas fa-certificate"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1">1.5. Certificado de Culminación (60 horas)</h6>
-                                            <small class="text-muted" id="estado-5">Estado: Pendiente</small>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <span class="category-badge bg-primary text-white">Certificado</span>
-                                        <span class="category-badge bg-success text-white ms-2" id="status-5">Pendiente</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-muted" id="fecha-5">No subido</small>
-                                        <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-outline-primary" onclick="verDocumento(5)" title="Ver" id="btn-ver-5" style="display: none;">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="btn btn-outline-success" onclick="descargarDocumento(5)" title="Descargar" id="btn-descargar-5" style="display: none;">
-                                                <i class="fas fa-download"></i>
-                                            </button>
-                                            <button class="btn btn-outline-warning" onclick="cambiarEstadoDocumento(5)" title="Cambiar Estado" id="btn-estado-5" style="display: none;">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-outline-danger" onclick="eliminarDocumento(5)" title="Eliminar" id="btn-eliminar-5" style="display: none;">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                            <button class="btn btn-outline-info" onclick="subirDocumento(5)" title="Subir Documento" id="btn-subir-5">
-                                                <i class="fas fa-upload"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 1.6. Rúbrica de Evaluación Entidad Receptora -->
-                            <div class="col-md-4 col-lg-3">
-                                <div class="file-item p-3 h-100" id="doc-6">
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="file-icon bg-success me-3">
-                                            <i class="fas fa-clipboard-check"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1">1.6. Rúbrica de Evaluación Entidad Receptora</h6>
-                                            <small class="text-muted" id="estado-6">Estado: Pendiente</small>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <span class="category-badge bg-success text-white">Rúbrica</span>
-                                        <span class="category-badge bg-success text-white ms-2" id="status-6">Pendiente</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-muted" id="fecha-6">No subido</small>
-                                        <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-outline-primary" onclick="verDocumento(6)" title="Ver" id="btn-ver-6" style="display: none;">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="btn btn-outline-success" onclick="descargarDocumento(6)" title="Descargar" id="btn-descargar-6" style="display: none;">
-                                                <i class="fas fa-download"></i>
-                                            </button>
-                                            <button class="btn btn-outline-warning" onclick="cambiarEstadoDocumento(6)" title="Cambiar Estado" id="btn-estado-6" style="display: none;">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-outline-danger" onclick="eliminarDocumento(6)" title="Eliminar" id="btn-eliminar-6" style="display: none;">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                            <button class="btn btn-outline-info" onclick="subirDocumento(6)" title="Subir Documento" id="btn-subir-6">
-                                                <i class="fas fa-upload"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 1.7. Hojas de Asistencia de Estudiantes -->
-                            <div class="col-md-4 col-lg-3">
-                                <div class="file-item p-3 h-100" id="doc-7">
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="file-icon bg-warning me-3">
-                                            <i class="fas fa-calendar-check"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1">1.7. Hojas de Asistencia de Estudiantes</h6>
-                                            <small class="text-muted" id="estado-7">Estado: Pendiente</small>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <span class="category-badge bg-warning text-white">Asistencia</span>
-                                        <span class="category-badge bg-success text-white ms-2" id="status-7">Pendiente</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-muted" id="fecha-7">No subido</small>
-                                        <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-outline-primary" onclick="verDocumento(7)" title="Ver" id="btn-ver-7" style="display: none;">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="btn btn-outline-success" onclick="descargarDocumento(7)" title="Descargar" id="btn-descargar-7" style="display: none;">
-                                                <i class="fas fa-download"></i>
-                                            </button>
-                                            <button class="btn btn-outline-warning" onclick="cambiarEstadoDocumento(7)" title="Cambiar Estado" id="btn-estado-7" style="display: none;">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-outline-danger" onclick="eliminarDocumento(7)" title="Eliminar" id="btn-eliminar-7" style="display: none;">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                            <button class="btn btn-outline-info" onclick="subirDocumento(7)" title="Subir Documento" id="btn-subir-7">
-                                                <i class="fas fa-upload"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 1.8. Ficha de Registro de Actividades Realizadas -->
-                            <div class="col-md-4 col-lg-3">
-                                <div class="file-item p-3 h-100" id="doc-8">
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="file-icon bg-info me-3">
-                                            <i class="fas fa-clipboard-list"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1">1.8. Ficha de Registro de Actividades Realizadas</h6>
-                                            <small class="text-muted" id="estado-8">Estado: Pendiente</small>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <span class="category-badge bg-info text-white">Ficha</span>
-                                        <span class="category-badge bg-success text-white ms-2" id="status-8">Pendiente</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-muted" id="fecha-8">No subido</small>
-                                        <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-outline-primary" onclick="verDocumento(8)" title="Ver" id="btn-ver-8" style="display: none;">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="btn btn-outline-success" onclick="descargarDocumento(8)" title="Descargar" id="btn-descargar-8" style="display: none;">
-                                                <i class="fas fa-download"></i>
-                                            </button>
-                                            <button class="btn btn-outline-warning" onclick="cambiarEstadoDocumento(8)" title="Cambiar Estado" id="btn-estado-8" style="display: none;">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-outline-danger" onclick="eliminarDocumento(8)" title="Eliminar" id="btn-eliminar-8" style="display: none;">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                            <button class="btn btn-outline-info" onclick="subirDocumento(8)" title="Subir Documento" id="btn-subir-8">
-                                                <i class="fas fa-upload"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 1.9. Ficha de Control y Seguimiento Docente -->
-                            <div class="col-md-4 col-lg-3">
-                                <div class="file-item p-3 h-100" id="doc-9">
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="file-icon bg-primary me-3">
-                                            <i class="fas fa-user-tie"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1">1.9. Ficha de Control y Seguimiento Docente</h6>
-                                            <small class="text-muted" id="estado-9">Estado: Pendiente</small>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <span class="category-badge bg-primary text-white">Ficha</span>
-                                        <span class="category-badge bg-success text-white ms-2" id="status-9">Pendiente</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-muted" id="fecha-9">No subido</small>
-                                        <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-outline-primary" onclick="verDocumento(9)" title="Ver" id="btn-ver-9" style="display: none;">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="btn btn-outline-success" onclick="descargarDocumento(9)" title="Descargar" id="btn-descargar-9" style="display: none;">
-                                                <i class="fas fa-download"></i>
-                                            </button>
-                                            <button class="btn btn-outline-warning" onclick="cambiarEstadoDocumento(9)" title="Cambiar Estado" id="btn-estado-9" style="display: none;">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-outline-danger" onclick="eliminarDocumento(9)" title="Eliminar" id="btn-eliminar-9" style="display: none;">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                            <button class="btn btn-outline-info" onclick="subirDocumento(9)" title="Subir Documento" id="btn-subir-9">
-                                                <i class="fas fa-upload"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 1.10. Rúbrica de Evaluación de Control y Seguimiento Docente -->
-                            <div class="col-md-4 col-lg-3">
-                                <div class="file-item p-3 h-100" id="doc-10">
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="file-icon bg-success me-3">
-                                            <i class="fas fa-clipboard-check"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1">1.10. Rúbrica de Evaluación de Control y Seguimiento Docente</h6>
-                                            <small class="text-muted" id="estado-10">Estado: Pendiente</small>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <span class="category-badge bg-success text-white">Rúbrica</span>
-                                        <span class="category-badge bg-success text-white ms-2" id="status-10">Pendiente</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-muted" id="fecha-10">No subido</small>
-                                        <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-outline-primary" onclick="verDocumento(10)" title="Ver" id="btn-ver-10" style="display: none;">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="btn btn-outline-success" onclick="descargarDocumento(10)" title="Descargar" id="btn-descargar-10" style="display: none;">
-                                                <i class="fas fa-download"></i>
-                                            </button>
-                                            <button class="btn btn-outline-warning" onclick="cambiarEstadoDocumento(10)" title="Cambiar Estado" id="btn-estado-10" style="display: none;">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-outline-danger" onclick="eliminarDocumento(10)" title="Eliminar" id="btn-eliminar-10" style="display: none;">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                            <button class="btn btn-outline-info" onclick="subirDocumento(10)" title="Subir Documento" id="btn-subir-10">
-                                                <i class="fas fa-upload"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 1.11. Rúbrica de Evaluación de Resultados -->
-                            <div class="col-md-4 col-lg-3">
-                                <div class="file-item p-3 h-100" id="doc-11">
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="file-icon bg-warning me-3">
-                                            <i class="fas fa-chart-line"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1">1.11. Rúbrica de Evaluación de Resultados</h6>
-                                            <small class="text-muted" id="estado-11">Estado: Pendiente</small>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <span class="category-badge bg-warning text-white">Rúbrica</span>
-                                        <span class="category-badge bg-success text-white ms-2" id="status-11">Pendiente</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-muted" id="fecha-11">No subido</small>
-                                        <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-outline-primary" onclick="verDocumento(11)" title="Ver" id="btn-ver-11" style="display: none;">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="btn btn-outline-success" onclick="descargarDocumento(11)" title="Descargar" id="btn-descargar-11" style="display: none;">
-                                                <i class="fas fa-download"></i>
-                                            </button>
-                                            <button class="btn btn-outline-warning" onclick="cambiarEstadoDocumento(11)" title="Cambiar Estado" id="btn-estado-11" style="display: none;">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-outline-danger" onclick="eliminarDocumento(11)" title="Eliminar" id="btn-eliminar-11" style="display: none;">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                            <button class="btn btn-outline-info" onclick="subirDocumento(11)" title="Subir Documento" id="btn-subir-11">
-                                                <i class="fas fa-upload"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 1.12. Respaldo en Fotos, Videos y Evidencias -->
-                            <div class="col-md-4 col-lg-3">
-                                <div class="file-item p-3 h-100" id="doc-12">
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="file-icon bg-info me-3">
-                                            <i class="fas fa-images"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1">1.12. Respaldo en Fotos, Videos y Evidencias</h6>
-                                            <small class="text-muted" id="estado-12">Estado: Pendiente</small>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <span class="category-badge bg-info text-white">Evidencias</span>
-                                        <span class="category-badge bg-success text-white ms-2" id="status-12">Pendiente</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-muted" id="fecha-12">No subido</small>
-                                        <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-outline-primary" onclick="verDocumento(12)" title="Ver" id="btn-ver-12" style="display: none;">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="btn btn-outline-success" onclick="descargarDocumento(12)" title="Descargar" id="btn-descargar-12" style="display: none;">
-                                                <i class="fas fa-download"></i>
-                                            </button>
-                                            <button class="btn btn-outline-warning" onclick="cambiarEstadoDocumento(12)" title="Cambiar Estado" id="btn-estado-12" style="display: none;">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-outline-danger" onclick="eliminarDocumento(12)" title="Eliminar" id="btn-eliminar-12" style="display: none;">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                            <button class="btn btn-outline-info" onclick="subirDocumento(12)" title="Subir Documento" id="btn-subir-12">
-                                                <i class="fas fa-upload"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
+        <!-- Vista Lista -->
+        <div id="vistaLista" class="d-none">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow-sm border-0">
+                        <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="fas fa-list me-2"></i>
+                                Lista de Documentos de Prácticas
+                            </span>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-light btn-sm" onclick="cambiarVista('grid')">
+                                    <i class="fas fa-th-large me-1"></i>Grid
+                                </button>
                             </div>
                         </div>
-
-                        <!-- Vista Lista (oculta por defecto) -->
-                        <div id="vistaLista" class="d-none">
+                        <div class="card-body">
                             <div class="table-responsive">
                                 <table class="table table-striped align-middle">
                                     <thead class="table-light">
                                         <tr>
-                                            <th>Documento</th>
-                                            <th>Tipo</th>
+                                            <th>Estudiante</th>
+                                            <th>Tipo de Documento</th>
                                             <th>Estado</th>
                                             <th>Fecha Subida</th>
+                                            <th>Entidad Receptora</th>
                                             <th>Acciones</th>
                                         </tr>
                                     </thead>
@@ -843,6 +500,10 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script>
+    // Variables globales
+    let documentosPracticas = [];
+    let vistaActual = 'grid';
+
     // Funciones principales
     function showModal(modalId) {
         const modal = new bootstrap.Modal(document.getElementById(modalId));
@@ -850,112 +511,239 @@
     }
 
     function cambiarVista(tipo) {
+        vistaActual = tipo;
         if (tipo === 'grid') {
             document.getElementById('vistaGrid').classList.remove('d-none');
             document.getElementById('vistaLista').classList.add('d-none');
+            cargarDocumentosGrid();
         } else {
             document.getElementById('vistaGrid').classList.add('d-none');
             document.getElementById('vistaLista').classList.remove('d-none');
-            // Generar la vista de lista cuando se active
             generarVistaLista();
         }
+    }
+
+    function cargarDocumentosGrid() {
+        // Cargar documentos para cada tipo
+        fetch('<?= base_url('admin/documentos/practicas/obtenerDocumentos') ?>')
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    documentosPracticas = data.documentos;
+                    mostrarDocumentosPorTipo();
+                } else {
+                    showNotification('Error al cargar documentos: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error al cargar documentos', 'error');
+            });
+    }
+
+    function mostrarDocumentosPorTipo() {
+        const tiposDocumentos = <?= json_encode($tiposDocumentos ?? []) ?>;
+        
+        tiposDocumentos.forEach(tipo => {
+            const contenedor = document.getElementById(`documentos-${tipo.ID_TIPO_DOCUMENTO}`);
+            if (contenedor) {
+                contenedor.innerHTML = '';
+                
+                // Filtrar documentos de este tipo
+                const documentosTipo = documentosPracticas.filter(doc => 
+                    doc.ID_TIPO_DOCUMENTO == tipo.ID_TIPO_DOCUMENTO
+                );
+                
+                if (documentosTipo.length === 0) {
+                    contenedor.innerHTML = `
+                        <div class="col-12 text-center py-4">
+                            <div class="alert alert-light">
+                                <i class="fas fa-inbox me-2"></i>
+                                No hay documentos subidos para este tipo
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    documentosTipo.forEach(doc => {
+                        const documentoCard = crearCardDocumento(doc);
+                        contenedor.appendChild(documentoCard);
+                    });
+                }
+            }
+        });
+    }
+
+    function crearCardDocumento(doc) {
+        const col = document.createElement('div');
+        col.className = 'col-md-6 col-lg-4 mb-3';
+        
+        const estadoClass = obtenerClaseEstado(doc.ESTADO_REVISION);
+        const fecha = new Date(doc.FECHA_SUBIDA).toLocaleDateString('es-ES');
+        
+        col.innerHTML = `
+            <div class="card documento-card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <h6 class="card-title mb-0">${doc.NOMBRE_ESTUDIANTE} ${doc.APELLIDO_ESTUDIANTE}</h6>
+                        <span class="badge ${estadoClass} estado-badge">${doc.ESTADO_REVISION}</span>
+                    </div>
+                    <p class="card-text text-muted small mb-2">
+                        <i class="fas fa-file me-1"></i>${doc.NOMBRE_ARCHIVO}
+                    </p>
+                    <p class="card-text text-muted small mb-2">
+                        <i class="fas fa-building me-1"></i>${doc.ENTIDAD_RECEPTORA || 'No especificada'}
+                    </p>
+                    <p class="card-text text-muted small mb-3">
+                        <i class="fas fa-calendar me-1"></i>${fecha}
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">${doc.CEDULA_ESTUDIANTE}</small>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-outline-primary" onclick="verDocumento(${doc.ID_DOCUMENTO_PRACTICA})" title="Ver">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-outline-success" onclick="descargarDocumento(${doc.ID_DOCUMENTO_PRACTICA})" title="Descargar">
+                                <i class="fas fa-download"></i>
+                            </button>
+                            <button class="btn btn-outline-warning" onclick="cambiarEstadoDocumento(${doc.ID_DOCUMENTO_PRACTICA})" title="Cambiar Estado">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-outline-danger" onclick="eliminarDocumento(${doc.ID_DOCUMENTO_PRACTICA})" title="Eliminar">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        return col;
     }
 
     function generarVistaLista() {
         const tbody = document.getElementById('tablaDocumentosLista');
         tbody.innerHTML = '';
 
-        // Array con la información de los 12 documentos
-        const documentos = [
-            { id: 1, nombre: '1.1. Oficio de Asignación de Tutor Docente', tipo: 'Oficio', icono: 'fas fa-file-alt', color: 'bg-primary' },
-            { id: 2, nombre: '1.2. Oficio Personal a Entidad Receptora', tipo: 'Oficio', icono: 'fas fa-file-alt', color: 'bg-success' },
-            { id: 3, nombre: '1.3. Carta de Aceptación de Entidad Receptora', tipo: 'Carta', icono: 'fas fa-file-alt', color: 'bg-warning' },
-            { id: 4, nombre: '1.4. Solicitud Institucional Valorada', tipo: 'Solicitud', icono: 'fas fa-file-alt', color: 'bg-info' },
-            { id: 5, nombre: '1.5. Certificado de Culminación (60 horas)', tipo: 'Certificado', icono: 'fas fa-certificate', color: 'bg-primary' },
-            { id: 6, nombre: '1.6. Rúbrica de Evaluación Entidad Receptora', tipo: 'Rúbrica', icono: 'fas fa-clipboard-check', color: 'bg-success' },
-            { id: 7, nombre: '1.7. Hojas de Asistencia de Estudiantes', tipo: 'Asistencia', icono: 'fas fa-calendar-check', color: 'bg-warning' },
-            { id: 8, nombre: '1.8. Ficha de Registro de Actividades Realizadas', tipo: 'Ficha', icono: 'fas fa-clipboard-list', color: 'bg-info' },
-            { id: 9, nombre: '1.9. Ficha de Control y Seguimiento Docente', tipo: 'Ficha', icono: 'fas fa-user-tie', color: 'bg-primary' },
-            { id: 10, nombre: '1.10. Rúbrica de Evaluación de Control y Seguimiento Docente', tipo: 'Rúbrica', icono: 'fas fa-clipboard-check', color: 'bg-success' },
-            { id: 11, nombre: '1.11. Rúbrica de Evaluación de Resultados', tipo: 'Rúbrica', icono: 'fas fa-chart-line', color: 'bg-warning' },
-            { id: 12, nombre: '1.12. Respaldo en Fotos, Videos y Evidencias', tipo: 'Evidencias', icono: 'fas fa-images', color: 'bg-info' }
-        ];
+        if (documentosPracticas.length === 0) {
+            tbody.innerHTML = `
+                <tr>
+                    <td colspan="6" class="text-center py-4">
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            No hay documentos para mostrar
+                        </div>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
 
-        documentos.forEach(doc => {
-            const estadoElement = document.getElementById(`estado-${doc.id}`);
-            const statusElement = document.getElementById(`status-${doc.id}`);
-            const fechaElement = document.getElementById(`fecha-${doc.id}`);
+        documentosPracticas.forEach(doc => {
+            const estadoClass = obtenerClaseEstado(doc.ESTADO_REVISION);
+            const fecha = new Date(doc.FECHA_SUBIDA).toLocaleDateString('es-ES');
             
-            // Obtener el estado actual del documento
-            let estado = 'Pendiente';
-            let estadoClass = 'bg-success text-white';
-            let fecha = 'No subido';
-            let botonesVisibles = false;
-            
-            if (estadoElement && statusElement && fechaElement) {
-                estado = statusElement.textContent;
-                fecha = fechaElement.textContent;
-                
-                // Determinar si los botones de acción están visibles
-                const btnVer = document.getElementById(`btn-ver-${doc.id}`);
-                botonesVisibles = btnVer && btnVer.style.display !== 'none';
-                
-                // Ajustar clase del estado para la vista de lista
-                if (estado === 'Aprobado') {
-                    estadoClass = 'bg-success text-white';
-                } else if (estado === 'En Revisión') {
-                    estadoClass = 'bg-warning text-dark';
-                } else if (estado === 'Rechazado') {
-                    estadoClass = 'bg-danger text-white';
-                } else if (estado === 'Requiere Corrección') {
-                    estadoClass = 'bg-info text-white';
-                } else {
-                    estadoClass = 'bg-secondary text-white';
-                }
-            }
-
             const row = document.createElement('tr');
             row.innerHTML = `
                 <td>
                     <div class="d-flex align-items-center">
-                        <div class="file-icon ${doc.color} me-3" style="width: 40px; height: 40px; font-size: 1.2rem;">
-                            <i class="${doc.icono}"></i>
+                        <div class="file-icon bg-primary me-3" style="width: 40px; height: 40px; font-size: 1.2rem;">
+                            <i class="fas fa-file-alt"></i>
                         </div>
                         <div>
-                            <div class="fw-semibold">${doc.nombre}</div>
-                            <small class="text-muted">Tipo: ${doc.tipo}</small>
+                            <div class="fw-semibold">${doc.NOMBRE_ESTUDIANTE} ${doc.APELLIDO_ESTUDIANTE}</div>
+                            <small class="text-muted">${doc.CEDULA_ESTUDIANTE}</small>
                         </div>
                     </div>
                 </td>
-                <td><span class="category-badge ${doc.color} text-white">${doc.tipo}</span></td>
-                <td><span class="category-badge ${estadoClass}">${estado}</span></td>
+                <td>
+                    <div>
+                        <div class="fw-semibold">${doc.TIPO_DOCUMENTO_NOMBRE}</div>
+                        <small class="text-muted">${doc.NOMBRE_ARCHIVO}</small>
+                    </div>
+                </td>
+                <td><span class="badge ${estadoClass} estado-badge">${doc.ESTADO_REVISION}</span></td>
                 <td>${fecha}</td>
+                <td>${doc.ENTIDAD_RECEPTORA || 'No especificada'}</td>
                 <td>
                     <div class="btn-group btn-group-sm">
-                        ${botonesVisibles ? `
-                            <button class="btn btn-outline-primary" onclick="verDocumento(${doc.id})" title="Ver">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-outline-success" onclick="descargarDocumento(${doc.id})" title="Descargar">
-                                <i class="fas fa-download"></i>
-                            </button>
-                            <button class="btn btn-outline-warning" onclick="cambiarEstadoDocumento(${doc.id})" title="Cambiar Estado">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-outline-danger" onclick="eliminarDocumento(${doc.id})" title="Eliminar">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        ` : `
-                            <button class="btn btn-outline-info" onclick="subirDocumento(${doc.id})" title="Subir Documento">
-                                <i class="fas fa-upload"></i>
-                            </button>
-                        `}
+                        <button class="btn btn-outline-primary" onclick="verDocumento(${doc.ID_DOCUMENTO_PRACTICA})" title="Ver">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="btn btn-outline-success" onclick="descargarDocumento(${doc.ID_DOCUMENTO_PRACTICA})" title="Descargar">
+                            <i class="fas fa-download"></i>
+                        </button>
+                        <button class="btn btn-outline-warning" onclick="cambiarEstadoDocumento(${doc.ID_DOCUMENTO_PRACTICA})" title="Cambiar Estado">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn btn-outline-danger" onclick="eliminarDocumento(${doc.ID_DOCUMENTO_PRACTICA})" title="Eliminar">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </div>
                 </td>
             `;
             
             tbody.appendChild(row);
         });
+    }
+
+    function obtenerClaseEstado(estado) {
+        switch (estado) {
+            case 'Aprobado': return 'bg-success text-white';
+            case 'Rechazado': return 'bg-danger text-white';
+            case 'En Revisión': return 'bg-info text-white';
+            case 'Requiere Corrección': return 'bg-warning text-dark';
+            case 'Pendiente': return 'bg-secondary text-white';
+            default: return 'bg-secondary text-white';
+        }
+    }
+
+    function aplicarFiltros() {
+        const filtroEstado = document.getElementById('filtroEstado').value;
+        const filtroTipo = document.getElementById('filtroTipo').value;
+        const buscarEstudiante = document.getElementById('buscarEstudiante').value.toLowerCase();
+        
+        let documentosFiltrados = [...documentosPracticas];
+        
+        if (filtroEstado) {
+            documentosFiltrados = documentosFiltrados.filter(doc => doc.ESTADO_REVISION === filtroEstado);
+        }
+        
+        if (filtroTipo) {
+            documentosFiltrados = documentosFiltrados.filter(doc => doc.ID_TIPO_DOCUMENTO == filtroTipo);
+        }
+        
+        if (buscarEstudiante) {
+            documentosFiltrados = documentosFiltrados.filter(doc => 
+                doc.NOMBRE_ESTUDIANTE.toLowerCase().includes(buscarEstudiante) ||
+                doc.APELLIDO_ESTUDIANTE.toLowerCase().includes(buscarEstudiante) ||
+                doc.CEDULA_ESTUDIANTE.includes(buscarEstudiante)
+            );
+        }
+        
+        // Actualizar la vista con los documentos filtrados
+        const documentosOriginales = documentosPracticas;
+        documentosPracticas = documentosFiltrados;
+        
+        if (vistaActual === 'grid') {
+            mostrarDocumentosPorTipo();
+        } else {
+            generarVistaLista();
+        }
+        
+        // Restaurar documentos originales para futuros filtros
+        documentosPracticas = documentosOriginales;
+    }
+
+    function limpiarFiltros() {
+        document.getElementById('filtroEstado').value = '';
+        document.getElementById('filtroTipo').value = '';
+        document.getElementById('buscarEstudiante').value = '';
+        
+        if (vistaActual === 'grid') {
+            cargarDocumentosGrid();
+        } else {
+            generarVistaLista();
+        }
     }
 
     function verDocumento(id) {
@@ -1061,22 +849,8 @@
     }
 
     function generarReportePracticas() {
-        fetch('<?= base_url('admin/documentos/practicas/reporte') ?>')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showNotification('Reporte generado exitosamente', 'success');
-                // Aquí podrías mostrar el reporte o descargarlo
-                console.log('Datos del reporte:', data.data);
-                console.log('Estadísticas:', data.estadisticas);
-            } else {
-                showNotification('Error al generar el reporte', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('Error al generar el reporte', 'error');
-        });
+        // Redirigir a la vista de reportes en la misma ventana
+        window.location.href = '<?= base_url('admin/documentos/practicas/reportes') ?>';
     }
 
     function cambiarEstadoDocumento(id) {
@@ -1132,65 +906,9 @@
 
     function subirDocumento(id) {
         // Simular subida de documento
-        const docElement = document.getElementById(`doc-${id}`);
-        const estadoElement = document.getElementById(`estado-${id}`);
-        const statusElement = document.getElementById(`status-${id}`);
-        const fechaElement = document.getElementById(`fecha-${id}`);
-        
-        // Cambiar estado a "En Revisión"
-        estadoElement.textContent = 'Estado: En Revisión';
-        statusElement.textContent = 'En Revisión';
-        statusElement.className = 'category-badge bg-warning text-dark ms-2';
-        
-        // Mostrar fecha de subida
-        const fecha = new Date().toLocaleDateString('es-ES');
-        fechaElement.textContent = `Subido: ${fecha}`;
-        
-        // Mostrar botones de acción
-        document.getElementById(`btn-ver-${id}`).style.display = 'inline-block';
-        document.getElementById(`btn-descargar-${id}`).style.display = 'inline-block';
-        document.getElementById(`btn-estado-${id}`).style.display = 'inline-block';
-        document.getElementById(`btn-eliminar-${id}`).style.display = 'inline-block';
-        
-        // Ocultar botón de subir
-        document.getElementById(`btn-subir-${id}`).style.display = 'none';
-        
-        // Si la vista de lista está activa, actualizarla
-        if (!document.getElementById('vistaLista').classList.contains('d-none')) {
-            generarVistaLista();
-        }
-        
         showNotification(`Documento ${id} subido exitosamente`, 'success');
-    }
-
-    // Función para simular documentos ya subidos (ejemplo)
-    function simularDocumentosExistentes() {
-        // Simular que algunos documentos ya están subidos
-        const documentosExistentes = [1, 3, 6]; // IDs de documentos que ya están subidos
-        
-        documentosExistentes.forEach(id => {
-            const estadoElement = document.getElementById(`estado-${id}`);
-            const statusElement = document.getElementById(`status-${id}`);
-            const fechaElement = document.getElementById(`fecha-${id}`);
-            
-            // Cambiar estado a "Aprobado"
-            estadoElement.textContent = 'Estado: Aprobado';
-            statusElement.textContent = 'Aprobado';
-            statusElement.className = 'category-badge bg-success text-white ms-2';
-            
-            // Mostrar fecha de subida
-            const fecha = new Date(Date.now() - Math.random() * 30 * 24 * 60 * 60 * 1000).toLocaleDateString('es-ES');
-            fechaElement.textContent = `Subido: ${fecha}`;
-            
-            // Mostrar botones de acción
-            document.getElementById(`btn-ver-${id}`).style.display = 'inline-block';
-            document.getElementById(`btn-descargar-${id}`).style.display = 'inline-block';
-            document.getElementById(`btn-estado-${id}`).style.display = 'inline-block';
-            document.getElementById(`btn-eliminar-${id}`).style.display = 'inline-block';
-            
-            // Ocultar botón de subir
-            document.getElementById(`btn-subir-${id}`).style.display = 'none';
-        });
+        // Recargar la vista de lista
+        generarVistaLista();
     }
 
     function showNotification(message, type = 'info') {
@@ -1221,58 +939,56 @@
         }, 5000);
     }
 
-    // Drag and Drop functionality
+    // Inicialización al cargar la página
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('Vista de documentos de prácticas cargada');
+        
+        // Cargar documentos inicialmente
+        cargarDocumentosGrid();
+        
+        // Configurar drag and drop para el modal de subida
         const uploadArea = document.getElementById('uploadAreaPractica');
         const archivoInput = document.getElementById('archivoInputPractica');
 
-        // Simular algunos documentos ya subidos
-        simularDocumentosExistentes();
-        
-        // Si la vista de lista está activa por defecto, generarla
-        if (!document.getElementById('vistaLista').classList.contains('d-none')) {
-            generarVistaLista();
+        if (uploadArea) {
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                uploadArea.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                uploadArea.classList.remove('dragover');
+                
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    archivoInput.files = files;
+                    const event = new Event('change', { bubbles: true });
+                    archivoInput.dispatchEvent(event);
+                }
+            });
         }
 
-        // Drag and drop events
-        uploadArea.addEventListener('dragover', function(e) {
-            e.preventDefault();
-            uploadArea.classList.add('dragover');
-        });
-
-        uploadArea.addEventListener('dragleave', function(e) {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
-        });
-
-        uploadArea.addEventListener('drop', function(e) {
-            e.preventDefault();
-            uploadArea.classList.remove('dragover');
-            
-            const files = e.dataTransfer.files;
-            if (files.length > 0) {
-                archivoInput.files = files;
-                // Trigger change event
-                const event = new Event('change', { bubbles: true });
-                archivoInput.dispatchEvent(event);
-            }
-        });
-
-        // File input change event
-        archivoInput.addEventListener('change', function(e) {
-            if (this.files.length > 0) {
-                const file = this.files[0];
-                const fileSize = (file.size / (1024 * 1024)).toFixed(2);
-                
-                // Update upload area with file info
-                uploadArea.innerHTML = `
-                    <i class="fas fa-file fa-3x text-primary mb-3"></i>
-                    <h5 class="text-primary">${file.name}</h5>
-                    <p class="text-muted mb-2">Tamaño: ${fileSize} MB</p>
-                    <small class="text-muted">Archivo seleccionado correctamente</small>
-                `;
-            }
-        });
+        if (archivoInput) {
+            archivoInput.addEventListener('change', function(e) {
+                if (this.files.length > 0) {
+                    const file = this.files[0];
+                    const fileSize = (file.size / (1024 * 1024)).toFixed(2);
+                    
+                    uploadArea.innerHTML = `
+                        <i class="fas fa-file fa-3x text-primary mb-3"></i>
+                        <h5 class="text-primary">${file.name}</h5>
+                        <p class="text-muted mb-2">Tamaño: ${fileSize} MB</p>
+                        <small class="text-muted">Archivo seleccionado correctamente</small>
+                    `;
+                }
+            });
+        }
     });
 </script>
 <?= $this->endSection() ?>

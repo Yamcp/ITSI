@@ -51,7 +51,9 @@
     <script src="<?= base_url('sistema/assets/libs/simplebar/dist/simplebar.js') ?>"></script>
     <script src="<?= base_url('sistema/assets/js/sidebarmenu.js') ?>"></script>
     <script src="<?= base_url('sistema/assets/js/app.min.js') ?>"></script>
+    <?php if (!str_contains(current_url(), 'backup')): ?>
     <script src="<?= base_url('sistema/assets/js/dashboard.js') ?>"></script>
+    <?php endif; ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
 </body>

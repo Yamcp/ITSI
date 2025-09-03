@@ -23,27 +23,43 @@ class ExcelHelper
     {
         $logoPath = FCPATH . 'sistema/assets/images/logos/' . $logoName;
         
-        if (file_exists($logoPath)) {
-            // Crear objeto Drawing para la imagen
-            $drawing = new Drawing();
-            $drawing->setName('Logo ITSI');
-            $drawing->setDescription('Logo del Instituto Superior Tecnológico Ibarra');
-            $drawing->setPath($logoPath);
-            $drawing->setWidth($width);
-            $drawing->setHeight($height);
-            $drawing->setCoordinates($cell);
-            $drawing->setOffsetX(5);
-            $drawing->setOffsetY(5);
-            
-            // Agregar la imagen a la hoja
-            $sheet->getDrawingCollection()->append($drawing);
-            
-            // Ajustar la altura de la fila para acomodar el logo
-            $row = (int) filter_var($cell, FILTER_SANITIZE_NUMBER_INT);
-            if ($row > 0) {
-                $sheet->getRowDimension($row)->setRowHeight($height + 10);
+        if (file_exists($logoPath) && is_readable($logoPath)) {
+            try {
+                // Verificar que sea una imagen válida
+                $imageInfo = getimagesize($logoPath);
+                if ($imageInfo === false) {
+                    return false; // No es una imagen válida
+                }
+                
+                // Crear objeto Drawing para la imagen
+                $drawing = new Drawing();
+                $drawing->setName('Logo ITSI');
+                $drawing->setDescription('Logo del Instituto Superior Tecnológico Ibarra');
+                $drawing->setPath($logoPath);
+                $drawing->setWidth($width);
+                $drawing->setHeight($height);
+                $drawing->setCoordinates($cell);
+                $drawing->setOffsetX(5);
+                $drawing->setOffsetY(5);
+                
+                // Agregar la imagen a la hoja
+                $sheet->getDrawingCollection()->append($drawing);
+                
+                // Ajustar la altura de la fila para acomodar el logo
+                $row = (int) filter_var($cell, FILTER_SANITIZE_NUMBER_INT);
+                if ($row > 0) {
+                    $sheet->getRowDimension($row)->setRowHeight($height + 10);
+                }
+                
+                return true;
+            } catch (\Exception $e) {
+                // Log del error pero no fallar la exportación
+                log_message('error', 'Error al agregar logo a Excel: ' . $e->getMessage());
+                return false;
             }
         }
+        
+        return false;
     }
     
     /**
@@ -59,8 +75,8 @@ class ExcelHelper
      */
     public static function createStandardHeader($sheet, $title, $subtitle = null, $logoName = 'Logo PDF.jpg', $logoCell = 'A1', $titleCell = 'D1')
     {
-        // Agregar logo
-        self::addLogoToExcel($sheet, $logoName, $logoCell);
+        // Intentar agregar logo
+        $logoAdded = self::addLogoToExcel($sheet, $logoName, $logoCell);
         
         // Configurar título
         $sheet->setCellValue($titleCell, strtoupper($title));
@@ -88,7 +104,12 @@ class ExcelHelper
             ->setItalic(true);
         
         // Ajustar altura de las filas del encabezado
-        $sheet->getRowDimension(1)->setRowHeight(90);
+        if ($logoAdded) {
+            $sheet->getRowDimension(1)->setRowHeight(90);
+        } else {
+            $sheet->getRowDimension(1)->setRowHeight(25);
+        }
+        
         if ($subtitle) {
             $sheet->getRowDimension(2)->setRowHeight(25);
         }
@@ -252,8 +273,19 @@ class ExcelHelper
      */
     public static function setDownloadHeaders($filename)
     {
+        // Limpiar cualquier output previo
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        
+        // Configurar headers HTTP apropiados para Excel
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="' . $filename . '"');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
         header('Cache-Control: max-age=0');
+        header('Cache-Control: max-age=1');
+        header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+        header('Cache-Control: cache, must-revalidate');
+        header('Pragma: public');
     }
 }

@@ -3,6 +3,72 @@
 <?= $this->section('styles') ?>
 <!-- CSS personalizado para documentos de prácticas -->
 <link rel="stylesheet" href="<?= base_url('sistema/assets/css/documentos.css') ?>" />
+<style>
+    .progress-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .document-card {
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+        border-radius: 15px;
+        overflow: hidden;
+    }
+    
+    .document-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        border-color: #007bff;
+    }
+    
+    .document-card.subido {
+        border-color: #28a745;
+    }
+    
+    .document-card.pendiente {
+        border-color: #ffc107;
+    }
+    
+    .document-card.aprobado {
+        border-color: #28a745;
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    }
+    
+    .document-card.rechazado {
+        border-color: #dc3545;
+        background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+    }
+    
+    .status-badge {
+        font-size: 0.8rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+    }
+    
+    .upload-area {
+        border: 2px dashed #dee2e6;
+        border-radius: 10px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .upload-area:hover {
+        border-color: #007bff;
+        background-color: #f8f9fa;
+    }
+    
+    .upload-area.dragover {
+        border-color: #007bff;
+        background-color: #e3f2fd;
+    }
+</style>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
@@ -13,201 +79,184 @@
             <div class="col-12">
                 <h3 class="text-center my-3">
                     <i class="fas fa-file-alt me-2"></i>
-                    Documentos de Prácticas
+                    Documentos de Prácticas Preprofesionales
                 </h3>
+                <p class="text-center text-muted">Sube los documentos requeridos conforme avances en tus prácticas</p>
             </div>
         </div>
 
-        <!-- Acciones Rápidas -->
+        <!-- Progreso General -->
         <div class="row mb-4">
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm h-100" style="border: none;">
-                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="#" onclick="showModal('modalSubirDocumentoPractica')" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-cloud-upload-alt fa-2x mb-2 text-primary"></i>
-                            <div class="fw-bold">Subir Documento</div>
-                        </a>
+            <div class="col-12">
+                <div class="progress-card">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h4 class="mb-2">
+                                <i class="fas fa-chart-line me-2"></i>
+                                Progreso de Documentos
+                            </h4>
+                            <div class="progress mb-2" style="height: 20px;">
+                                <div class="progress-bar bg-light" role="progressbar" 
+                                     style="width: <?= $estadisticas['porcentaje_completado'] ?>%" 
+                                     aria-valuenow="<?= $estadisticas['porcentaje_completado'] ?>" 
+                                     aria-valuemin="0" aria-valuemax="100">
+                                    <?= $estadisticas['porcentaje_completado'] ?>%
+                                </div>
+                            </div>
+                            <p class="mb-0"><?= $estadisticas['aprobados'] ?> de 12 documentos aprobados</p>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <div class="row text-center">
+                                <div class="col-3">
+                                    <h5 class="mb-0"><?= $estadisticas['total'] ?></h5>
+                                    <small>Total</small>
+                                </div>
+                                <div class="col-3">
+                                    <h5 class="mb-0 text-success"><?= $estadisticas['aprobados'] ?></h5>
+                                    <small>Aprobados</small>
+                                </div>
+                                <div class="col-3">
+                                    <h5 class="mb-0 text-warning"><?= $estadisticas['pendientes'] ?></h5>
+                                    <small>Pendientes</small>
+                                </div>
+                                <div class="col-3">
+                                    <h5 class="mb-0 text-danger"><?= $estadisticas['rechazados'] ?></h5>
+                                    <small>Rechazados</small>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Tabla de Documentos de Prácticas -->
+        <!-- Documentos Requeridos -->
         <div class="row">
             <div class="col-12">
                 <div class="card shadow-sm border-0">
-                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                        <span>
-                            <i class="fas fa-briefcase me-2"></i>
-                            Documentos de Prácticas
-                        </span>
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-light btn-sm" onclick="cambiarVista('grid')">
-                                <i class="fas fa-th-large me-1"></i>Grid
-                            </button>
-                            <button class="btn btn-light btn-sm" onclick="cambiarVista('list')">
-                                <i class="fas fa-list me-1"></i>Lista
-                            </button>
-                        </div>
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0">
+                            <i class="fas fa-list-check me-2"></i>
+                            Documentos Requeridos
+                        </h5>
                     </div>
                     <div class="card-body">
-                        <!-- Vista Grid -->
-                        <div id="vistaGrid" class="row g-3">
-                            <!-- Documento 1 -->
-                            <div class="col-md-4 col-lg-3">
-                                <div class="file-item p-3 h-100">
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="file-icon bg-primary me-3">
-                                            <i class="fas fa-file-pdf"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1">Informe_Final_Practica.pdf</h6>
-                                            <small class="text-muted">2.5 MB</small>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <span class="category-badge bg-primary text-white">Práctica</span>
-                                        <span class="category-badge bg-success text-white ms-2">Aprobado</span>
-                                        <span class="category-badge bg-info text-white ms-2">Prioridad: Media</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-muted">Subido: 30/08/2025</small>
-                                        <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-outline-primary" onclick="verDocumento(1)" title="Ver">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="btn btn-outline-success" onclick="descargarDocumento(1)" title="Descargar">
-                                                <i class="fas fa-download"></i>
-                                            </button>
-                                            <button class="btn btn-outline-warning" onclick="cambiarEstadoDocumento(1)" title="Cambiar Estado">
-                                                <i class="fas fa-edit"></i>
-                                            </button>
-                                            <button class="btn btn-outline-danger" onclick="eliminarDocumento(1)" title="Eliminar">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Documento 2 -->
-                            <div class="col-md-4 col-lg-3">
-                                <div class="file-item p-3 h-100">
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="file-icon bg-success me-3">
-                                            <i class="fas fa-file-word"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1">Plan_Trabajo_Practica.docx</h6>
-                                            <small class="text-muted">1.8 MB</small>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <span class="category-badge bg-primary text-white">Práctica</span>
-                                        <span class="category-badge bg-warning text-dark ms-2">Pendiente</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-muted">Subido: 29/08/2025</small>
-                                        <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-outline-primary" onclick="verDocumento(2)" title="Ver">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="btn btn-outline-success" onclick="descargarDocumento(2)" title="Descargar">
-                                                <i class="fas fa-download"></i>
-                                            </button>
-                                            <button class="btn btn-outline-danger" onclick="eliminarDocumento(2)" title="Eliminar">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Documento 3 -->
-                            <div class="col-md-4 col-lg-3">
-                                <div class="file-item p-3 h-100">
-                                    <div class="d-flex align-items-center mb-3">
-                                        <div class="file-icon bg-warning me-3">
-                                            <i class="fas fa-file-excel"></i>
-                                        </div>
-                                        <div class="flex-grow-1">
-                                            <h6 class="mb-1">Registro_Actividades.xlsx</h6>
-                                            <small class="text-muted">3.2 MB</small>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <span class="category-badge bg-primary text-white">Práctica</span>
-                                        <span class="category-badge bg-danger text-white ms-2">Rechazado</span>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <small class="text-muted">Subido: 28/08/2025</small>
-                                        <div class="btn-group btn-group-sm">
-                                            <button class="btn btn-outline-primary" onclick="verDocumento(3)" title="Ver">
-                                                <i class="fas fa-eye"></i>
-                                            </button>
-                                            <button class="btn btn-outline-success" onclick="descargarDocumento(3)" title="Descargar">
-                                                <i class="fas fa-download"></i>
-                                            </button>
-                                            <button class="btn btn-outline-danger" onclick="eliminarDocumento(3)" title="Eliminar">
-                                                <i class="fas fa-trash"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Vista Lista (oculta por defecto) -->
-                        <div id="vistaLista" class="d-none">
-                            <div class="table-responsive">
-                                <table class="table table-striped align-middle">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>Documento</th>
-                                            <th>Tipo</th>
-                                            <th>Tamaño</th>
-                                            <th>Estado</th>
-                                            <th>Fecha Subida</th>
-                                            <th>Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>
-                                                <div class="d-flex align-items-center">
-                                                    <div class="file-icon bg-primary me-3" style="width: 40px; height: 40px; font-size: 1.2rem;">
-                                                        <i class="fas fa-file-pdf"></i>
-                                                    </div>
-                                                    <div>
-                                                        <div class="fw-semibold">Informe_Final_Practica.pdf</div>
-                                                        <small class="text-muted">Subido por: Yamilex Campues</small>
-                                                    </div>
+                        <div class="row g-3">
+                            <?php foreach ($tipos_documentos as $index => $tipo): ?>
+                                <?php 
+                                $documentoEstudiante = null;
+                                foreach ($progreso as $doc) {
+                                    if ($doc['ID_TIPO_DOCUMENTO'] == $tipo['ID_TIPO_DOCUMENTO'] && $doc['ID_DOCUMENTO_PRACTICA']) {
+                                        $documentoEstudiante = $doc;
+                                        break;
+                                    }
+                                }
+                                
+                                $estado = $documentoEstudiante ? $documentoEstudiante['ESTADO_REVISION'] : 'No subido';
+                                $claseCard = '';
+                                $iconoEstado = '';
+                                $colorEstado = '';
+                                
+                                switch ($estado) {
+                                    case 'Aprobado':
+                                        $claseCard = 'aprobado';
+                                        $iconoEstado = 'fas fa-check-circle';
+                                        $colorEstado = 'success';
+                                        break;
+                                    case 'Rechazado':
+                                        $claseCard = 'rechazado';
+                                        $iconoEstado = 'fas fa-times-circle';
+                                        $colorEstado = 'danger';
+                                        break;
+                                    case 'En Revisión':
+                                        $claseCard = 'pendiente';
+                                        $iconoEstado = 'fas fa-eye';
+                                        $colorEstado = 'info';
+                                        break;
+                                    case 'Pendiente':
+                                        $claseCard = 'pendiente';
+                                        $iconoEstado = 'fas fa-clock';
+                                        $colorEstado = 'warning';
+                                        break;
+                                    default:
+                                        $claseCard = '';
+                                        $iconoEstado = 'fas fa-upload';
+                                        $colorEstado = 'secondary';
+                                }
+                                ?>
+                                
+                                <div class="col-md-6 col-lg-4">
+                                    <div class="card document-card <?= $claseCard ?> h-100">
+                                        <div class="card-body">
+                                            <div class="d-flex align-items-start mb-3">
+                                                <div class="file-icon bg-primary me-3" style="width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                                    <i class="fas fa-file-alt text-white"></i>
                                                 </div>
-                                            </td>
-                                            <td><span class="category-badge bg-primary text-white">Informe Final</span></td>
-                                            <td>2.5 MB</td>
-                                            <td><span class="category-badge bg-success text-white">Aprobado</span></td>
-                                            <td>30/08/2025</td>
-                                            <td>
-                                                <div class="btn-group btn-group-sm">
-                                                    <button class="btn btn-outline-primary" onclick="verDocumento(1)" title="Ver">
+                                                <div class="flex-grow-1">
+                                                    <h6 class="mb-1"><?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?></h6>
+                                                    <small class="text-muted"><?= $tipo['DESCRIPCION'] ?></small>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <span class="status-badge bg-<?= $colorEstado ?> text-white">
+                                                    <i class="<?= $iconoEstado ?> me-1"></i>
+                                                    <?= $estado ?>
+                                                </span>
+                                                <?php if ($tipo['REQUERIDO']): ?>
+                                                    <span class="badge bg-danger ms-2">Requerido</span>
+                                                <?php endif; ?>
+                                            </div>
+                                            
+                                            <?php if ($documentoEstudiante): ?>
+                                                <div class="mb-3">
+                                                    <small class="text-muted">
+                                                        <i class="fas fa-calendar me-1"></i>
+                                                        Subido: <?= date('d/m/Y', strtotime($documentoEstudiante['FECHA_SUBIDA'])) ?>
+                                                    </small>
+                                                    <?php if ($documentoEstudiante['OBSERVACIONES_REVISOR']): ?>
+                                                        <div class="mt-2">
+                                                            <small class="text-muted">
+                                                                <strong>Observaciones:</strong><br>
+                                                                <?= $documentoEstudiante['OBSERVACIONES_REVISOR'] ?>
+                                                            </small>
+                                                        </div>
+                                                    <?php endif; ?>
+                                                </div>
+                                            <?php endif; ?>
+                                            
+                                            <div class="d-flex gap-2">
+                                                <?php if ($documentoEstudiante): ?>
+                                                    <button class="btn btn-outline-primary btn-sm" 
+                                                            onclick="verDocumento(<?= $documentoEstudiante['ID_DOCUMENTO_PRACTICA'] ?>)"
+                                                            title="Ver Documento">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
-                                                    <button class="btn btn-outline-success" onclick="descargarDocumento(1)" title="Descargar">
+                                                    <button class="btn btn-outline-success btn-sm" 
+                                                            onclick="descargarDocumento(<?= $documentoEstudiante['ID_DOCUMENTO_PRACTICA'] ?>)"
+                                                            title="Descargar">
                                                         <i class="fas fa-download"></i>
                                                     </button>
-                                                    <button class="btn btn-outline-warning" onclick="cambiarEstadoDocumento(1)" title="Cambiar Estado">
-                                                        <i class="fas fa-edit"></i>
+                                                    <?php if ($estado != 'Aprobado'): ?>
+                                                        <button class="btn btn-outline-danger btn-sm" 
+                                                                onclick="eliminarDocumento(<?= $documentoEstudiante['ID_DOCUMENTO_PRACTICA'] ?>)"
+                                                                title="Eliminar">
+                                                            <i class="fas fa-trash"></i>
+                                                        </button>
+                                                    <?php endif; ?>
+                                                <?php else: ?>
+                                                    <button class="btn btn-primary btn-sm" 
+                                                            onclick="mostrarModalSubir(<?= $tipo['ID_TIPO_DOCUMENTO'] ?>, '<?= $tipo['NOMBRE'] ?>')"
+                                                            title="Subir Documento">
+                                                        <i class="fas fa-upload me-1"></i>
+                                                        Subir
                                                     </button>
-                                                    <button class="btn btn-outline-danger" onclick="eliminarDocumento(1)" title="Eliminar">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                                                <?php endif; ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
                     </div>
                 </div>
@@ -216,121 +265,65 @@
     </div>
 </div>
 
-<!-- Modal Subir Documento de Práctica -->
-<div class="modal fade" id="modalSubirDocumentoPractica" tabindex="-1">
+<!-- Modal Subir Documento -->
+<div class="modal fade" id="modalSubirDocumento" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
                     <i class="fas fa-cloud-upload-alt me-2"></i>
-                    Subir Documento de Práctica
+                    Subir Documento
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form id="formSubirDocumentoPractica">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Tipo de Documento</label>
-                                <select class="form-select" name="tipo_documento" required>
-                                    <option value="">Seleccionar tipo...</option>
-                                    <option value="oficio_asignacion_tutor">1.1. Oficio de Asignación de Tutor Docente</option>
-                                    <option value="oficio_personal_entidad">1.2. Oficio Personal a Entidad Receptora</option>
-                                    <option value="carta_aceptacion">1.3. Carta de Aceptación de Entidad Receptora</option>
-                                    <option value="solicitud_institucional">1.4. Solicitud Institucional Valorada</option>
-                                    <option value="certificado_culminacion">1.5. Certificado de Culminación (60 horas)</option>
-                                    <option value="rubrica_evaluacion_entidad">1.6. Rúbrica de Evaluación Entidad Receptora</option>
-                                    <option value="hojas_asistencia">1.7. Hojas de Asistencia de Estudiantes</option>
-                                    <option value="ficha_registro_actividades">1.8. Ficha de Registro de Actividades Realizadas</option>
-                                    <option value="ficha_control_seguimiento">1.9. Ficha de Control y Seguimiento Docente</option>
-                                    <option value="rubrica_evaluacion_docente">1.10. Rúbrica de Evaluación de Control y Seguimiento Docente</option>
-                                    <option value="rubrica_evaluacion_resultados">1.11. Rúbrica de Evaluación de Resultados</option>
-                                    <option value="respaldo_fotos">1.12. Respaldo en Fotos, Videos y Evidencias</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Estudiante</label>
-                                <select class="form-select" name="estudiante" required>
-                                    <option value="">Seleccionar estudiante...</option>
-                                    <option value="1">Yamilex Campues - Sistemas</option>
-                                    <option value="2">Ana Yandun - Desarrollo</option>
-                                    <option value="3">Pedro Aguirre - Desarrollo</option>
-                                </select>
-                            </div>
-                        </div>
+                <form id="formSubirDocumento" enctype="multipart/form-data">
+                    <input type="hidden" name="tipo_documento" id="tipo_documento_id">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Documento</label>
+                        <input type="text" class="form-control" id="tipo_documento_nombre" readonly>
                     </div>
                     
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Entidad Receptora</label>
-                                <input type="text" class="form-control" name="entidad_receptora" placeholder="Ej: Instituto Tecnológico Superior Ibarra" required>
+                                <input type="text" class="form-control" name="entidad_receptora" 
+                                       placeholder="Ej: Instituto Tecnológico Superior Ibarra">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Docente Tutor</label>
-                                <select class="form-select" name="docente_tutor" required>
-                                    <option value="">Seleccionar docente tutor...</option>
-                                    <option value="1">Dr. Mario Montenegro - Rector</option>
-                                    <option value="2">Ing. Juan Pérez - Coordinador</option>
-                                    <option value="3">Mg. María González - Tutora</option>
-                                </select>
+                                <input type="text" class="form-control" name="docente_tutor" 
+                                       placeholder="Nombre del docente tutor">
                             </div>
                         </div>
                     </div>
                     
                     <div class="mb-3">
                         <label class="form-label">Archivo</label>
-                        <div class="upload-card p-4 text-center" id="uploadAreaPractica">
+                        <div class="upload-area" id="uploadArea">
                             <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
-                            <h5 class="text-muted">Arrastra y suelta archivos aquí</h5>
+                            <h5 class="text-muted">Arrastra y suelta tu archivo aquí</h5>
                             <p class="text-muted mb-3">o</p>
-                            <input type="file" class="form-control" name="archivo" id="archivoInputPractica" accept=".pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.zip,.rar" required>
-                            <small class="text-muted">Máximo 50 MB. Formatos: PDF, DOC, XLS, JPG, ZIP</small>
-                        </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Estado de Revisión</label>
-                                <select class="form-select" name="estado_revision" required>
-                                    <option value="">Seleccionar estado...</option>
-                                    <option value="pendiente">Pendiente de Revisión</option>
-                                    <option value="en_revision">En Revisión</option>
-                                    <option value="aprobado">Aprobado</option>
-                                    <option value="rechazado">Rechazado</option>
-                                    <option value="requiere_correccion">Requiere Corrección</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Prioridad</label>
-                                <select class="form-select" name="prioridad" required>
-                                    <option value="">Seleccionar prioridad...</option>
-                                    <option value="baja">Baja</option>
-                                    <option value="media" selected>Media</option>
-                                    <option value="alta">Alta</option>
-                                    <option value="urgente">Urgente</option>
-                                </select>
-                            </div>
+                            <input type="file" class="form-control" name="archivo" id="archivoInput" 
+                                   accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.mp4,.avi,.zip,.rar" required>
+                            <small class="text-muted">Máximo 50 MB. Formatos: PDF, DOC, XLS, JPG, MP4, ZIP</small>
                         </div>
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label">Observaciones del Administrador</label>
-                        <textarea class="form-control" name="observaciones" rows="3" placeholder="Observaciones adicionales sobre el documento, estado de revisión, correcciones necesarias..."></textarea>
+                        <label class="form-label">Observaciones (Opcional)</label>
+                        <textarea class="form-control" name="observaciones" rows="3" 
+                                  placeholder="Observaciones adicionales sobre el documento..."></textarea>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="subirDocumentoPractica()">
+                <button type="button" class="btn btn-primary" onclick="subirDocumento()">
                     <i class="fas fa-upload me-1"></i>Subir Documento
                 </button>
             </div>
@@ -338,217 +331,88 @@
     </div>
 </div>
 
-<!-- Modal Filtros -->
-<div class="modal fade" id="modalFiltrosPracticas" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="fas fa-filter me-2"></i>
-                    Filtros de Búsqueda
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="formFiltrosPracticas">
-                    <div class="mb-3">
-                        <label class="form-label">Tipo de Documento</label>
-                        <select class="form-select" name="filtro_tipo_documento">
-                            <option value="">Todos los tipos</option>
-                            <option value="oficio_asignacion_tutor">1.1. Oficio de Asignación de Tutor Docente</option>
-                            <option value="oficio_personal_entidad">1.2. Oficio Personal a Entidad Receptora</option>
-                            <option value="carta_aceptacion">1.3. Carta de Aceptación de Entidad Receptora</option>
-                            <option value="solicitud_institucional">1.4. Solicitud Institucional Valorada</option>
-                            <option value="certificado_culminacion">1.5. Certificado de Culminación (60 horas)</option>
-                            <option value="rubrica_evaluacion_entidad">1.6. Rúbrica de Evaluación Entidad Receptora</option>
-                            <option value="hojas_asistencia">1.7. Hojas de Asistencia de Estudiantes</option>
-                            <option value="ficha_registro_actividades">1.8. Ficha de Registro de Actividades Realizadas</option>
-                            <option value="ficha_control_seguimiento">1.9. Ficha de Control y Seguimiento Docente</option>
-                            <option value="rubrica_evaluacion_docente">1.10. Rúbrica de Evaluación de Control y Seguimiento Docente</option>
-                            <option value="rubrica_evaluacion_resultados">1.11. Rúbrica de Evaluación de Resultados</option>
-                            <option value="respaldo_fotos">1.12. Respaldo en Fotos, Videos y Evidencias</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Estado de Revisión</label>
-                        <select class="form-select" name="filtro_estado">
-                            <option value="">Todos los estados</option>
-                            <option value="pendiente">Pendiente de Revisión</option>
-                            <option value="en_revision">En Revisión</option>
-                            <option value="aprobado">Aprobado</option>
-                            <option value="rechazado">Rechazado</option>
-                            <option value="requiere_correccion">Requiere Corrección</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Docente Tutor</label>
-                        <select class="form-select" name="filtro_docente">
-                            <option value="">Todos los docentes</option>
-                            <option value="1">Dr. Mario Montenegro - Rector</option>
-                            <option value="2">Ing. Juan Pérez - Coordinador</option>
-                            <option value="3">Mg. María González - Tutora</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Entidad Receptora</label>
-                        <input type="text" class="form-control" name="filtro_entidad" placeholder="Buscar por entidad...">
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Fecha Desde</label>
-                                <input type="date" class="form-control" name="fecha_desde">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Fecha Hasta</label>
-                                <input type="date" class="form-control" name="fecha_hasta">
-                            </div>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="limpiarFiltrosPracticas()">Limpiar</button>
-                <button type="button" class="btn btn-primary" onclick="aplicarFiltrosPracticas()">
-                    <i class="fas fa-search me-1"></i>Aplicar Filtros
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Cambiar Estado del Documento -->
-<div class="modal fade" id="modalCambiarEstado" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="fas fa-edit me-2"></i>
-                    Cambiar Estado del Documento
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="formCambiarEstado">
-                    <input type="hidden" name="documento_id" id="documento_id_estado">
-                    <div class="mb-3">
-                        <label class="form-label">Documento</label>
-                        <input type="text" class="form-control" id="nombre_documento_estado" readonly>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Nuevo Estado</label>
-                        <select class="form-select" name="nuevo_estado" required>
-                            <option value="">Seleccionar nuevo estado...</option>
-                            <option value="pendiente">Pendiente de Revisión</option>
-                            <option value="en_revision">En Revisión</option>
-                            <option value="aprobado">Aprobado</option>
-                            <option value="rechazado">Rechazado</option>
-                            <option value="requiere_correccion">Requiere Corrección</option>
-                        </select>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Comentarios del Administrador</label>
-                        <textarea class="form-control" name="comentarios_estado" rows="3" placeholder="Comentarios sobre el cambio de estado, correcciones necesarias, etc..."></textarea>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="guardarCambioEstado()">
-                    <i class="fas fa-save me-1"></i>Guardar Cambio
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Funciones principales
-    function showModal(modalId) {
-        const modal = new bootstrap.Modal(document.getElementById(modalId));
+    function mostrarModalSubir(tipoId, tipoNombre) {
+        document.getElementById('tipo_documento_id').value = tipoId;
+        document.getElementById('tipo_documento_nombre').value = tipoNombre;
+        
+        const modal = new bootstrap.Modal(document.getElementById('modalSubirDocumento'));
         modal.show();
     }
 
-    function cambiarVista(tipo) {
-        if (tipo === 'grid') {
-            document.getElementById('vistaGrid').classList.remove('d-none');
-            document.getElementById('vistaLista').classList.add('d-none');
-        } else {
-            document.getElementById('vistaGrid').classList.add('d-none');
-            document.getElementById('vistaLista').classList.remove('d-none');
+    function subirDocumento() {
+        const form = document.getElementById('formSubirDocumento');
+        const formData = new FormData(form);
+        
+        const archivo = document.getElementById('archivoInput').files[0];
+        if (!archivo) {
+            showNotification('Debes seleccionar un archivo', 'error');
+            return;
         }
+        
+        // Mostrar loading
+        const btnSubir = document.querySelector('#modalSubirDocumento .btn-primary');
+        const textoOriginal = btnSubir.innerHTML;
+        btnSubir.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Subiendo...';
+        btnSubir.disabled = true;
+        
+        fetch('<?= base_url('estudiante/documentos-practicas/subir') ?>', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message, 'success');
+                bootstrap.Modal.getInstance(document.getElementById('modalSubirDocumento')).hide();
+                form.reset();
+                // Recargar la página para mostrar los cambios
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else {
+                showNotification(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error al subir el documento', 'error');
+        })
+        .finally(() => {
+            btnSubir.innerHTML = textoOriginal;
+            btnSubir.disabled = false;
+        });
     }
 
     function verDocumento(id) {
-        showNotification('Visualizando documento...', 'info');
+        window.open('<?= base_url('estudiante/documentos-practicas/descargar') ?>/' + id, '_blank');
     }
 
     function descargarDocumento(id) {
-        showNotification('Descargando documento...', 'success');
+        window.location.href = '<?= base_url('estudiante/documentos-practicas/descargar') ?>/' + id;
     }
 
     function eliminarDocumento(id) {
         if (confirm('¿Estás seguro de que quieres eliminar este documento?')) {
-            showNotification('Documento eliminado exitosamente', 'success');
+            fetch('<?= base_url('estudiante/documentos-practicas/eliminar') ?>/' + id, {
+                method: 'POST'
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error al eliminar el documento', 'error');
+            });
         }
-    }
-
-    function subirDocumentoPractica() {
-        showNotification('Documento subido exitosamente', 'success');
-        bootstrap.Modal.getInstance(document.getElementById('modalSubirDocumentoPractica')).hide();
-    }
-
-    function aplicarFiltrosPracticas() {
-        showNotification('Filtros aplicados', 'info');
-        bootstrap.Modal.getInstance(document.getElementById('modalFiltrosPracticas')).hide();
-    }
-
-    function limpiarFiltrosPracticas() {
-        document.getElementById('formFiltrosPracticas').reset();
-        showNotification('Filtros limpiados', 'info');
-    }
-
-    function exportarDocumentosPracticas() {
-        showNotification('Exportando documentos...', 'info');
-    }
-
-    function generarReportePracticas() {
-        showNotification('Generando reporte...', 'info');
-    }
-
-    function cambiarEstadoDocumento(id) {
-        // Simular obtención de datos del documento
-        document.getElementById('documento_id_estado').value = id;
-        document.getElementById('nombre_documento_estado').value = 'Informe_Final_Practica.pdf';
-        
-        // Mostrar modal
-        showModal('modalCambiarEstado');
-    }
-
-    function guardarCambioEstado() {
-        const nuevoEstado = document.querySelector('select[name="nuevo_estado"]').value;
-        const comentarios = document.querySelector('textarea[name="comentarios_estado"]').value;
-        
-        if (!nuevoEstado) {
-            showNotification('Debe seleccionar un nuevo estado', 'error');
-            return;
-        }
-        
-        // Aquí se enviaría la petición al servidor
-        showNotification(`Estado cambiado a: ${nuevoEstado}`, 'success');
-        
-        // Cerrar modal
-        bootstrap.Modal.getInstance(document.getElementById('modalCambiarEstado')).hide();
-        
-        // Limpiar formulario
-        document.getElementById('formCambiarEstado').reset();
-    }
-
-    function revisionMasiva() {
-        showNotification('Función de revisión masiva en desarrollo. Permite cambiar el estado de múltiples documentos a la vez.', 'info');
     }
 
     function showNotification(message, type = 'info') {
@@ -563,7 +427,8 @@
         notification.className = 'position-fixed top-0 end-0 m-3';
         notification.style.zIndex = '9999';
         notification.innerHTML = `
-            <div class="alert alert-${type} alert-dismissible fade show" role="alert" style="background: ${colors[type]}; color: white; border: none; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert" 
+                 style="background: ${colors[type]}; color: white; border: none; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
                 <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
                 ${message}
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
@@ -581,8 +446,8 @@
 
     // Drag and Drop functionality
     document.addEventListener('DOMContentLoaded', function() {
-        const uploadArea = document.getElementById('uploadAreaPractica');
-        const archivoInput = document.getElementById('archivoInputPractica');
+        const uploadArea = document.getElementById('uploadArea');
+        const archivoInput = document.getElementById('archivoInput');
 
         // Drag and drop events
         uploadArea.addEventListener('dragover', function(e) {

@@ -227,4 +227,123 @@ class EvaluacionesEnlacesModel extends Model
         
         return $builder->get()->getResultArray();
     }
+
+    /**
+     * Obtener evaluaciones disponibles para docentes
+     * Solo muestra evaluaciones activas y no vencidas
+     */
+    public function obtenerEvaluacionesParaDocentes()
+    {
+        $builder = $this->db->table($this->table . ' e');
+        $builder->select('
+            e.ID_EVALUACION_ENLACE,
+            e.NOMBRE_EVALUACION,
+            e.TIPO_EVALUACION,
+            e.ENLACE_FORMULARIO,
+            e.DESCRIPCION,
+            e.FECHA_CREACION,
+            e.FECHA_VENCIMIENTO,
+            e.ESTADO,
+            e.NUMERO_RESPUESTAS,
+            a.NOMBRE_ACTIVIDAD
+        ');
+        $builder->join('TAB_ACTIVIDADES_EDUCACION a', 'a.ID_ACTIVIDAD_EDUCACION = e.ID_ACTIVIDAD_EDUCACION', 'left');
+        $builder->where('e.ESTADO', 'activo');
+        $builder->where('e.ACTIVO', true);
+        $builder->where('e.FECHA_VENCIMIENTO >=', date('Y-m-d'));
+        $builder->orderBy('e.FECHA_VENCIMIENTO', 'ASC');
+        
+        return $builder->get()->getResultArray();
+    }
+
+    /**
+     * Obtener evaluaciones disponibles para estudiantes
+     * Solo muestra evaluaciones activas y no vencidas
+     */
+    public function obtenerEvaluacionesParaEstudiantes()
+    {
+        $builder = $this->db->table($this->table . ' e');
+        $builder->select('
+            e.ID_EVALUACION_ENLACE,
+            e.NOMBRE_EVALUACION,
+            e.TIPO_EVALUACION,
+            e.ENLACE_FORMULARIO,
+            e.DESCRIPCION,
+            e.FECHA_CREACION,
+            e.FECHA_VENCIMIENTO,
+            e.ESTADO,
+            e.NUMERO_RESPUESTAS,
+            a.NOMBRE_ACTIVIDAD
+        ');
+        $builder->join('TAB_ACTIVIDADES_EDUCACION a', 'a.ID_ACTIVIDAD_EDUCACION = e.ID_ACTIVIDAD_EDUCACION', 'left');
+        $builder->where('e.ESTADO', 'activo');
+        $builder->where('e.ACTIVO', true);
+        $builder->where('e.FECHA_VENCIMIENTO >=', date('Y-m-d'));
+        $builder->orderBy('e.FECHA_VENCIMIENTO', 'ASC');
+        
+        return $builder->get()->getResultArray();
+    }
+
+    /**
+     * Obtener estadísticas para docentes
+     */
+    public function obtenerEstadisticasParaDocentes()
+    {
+        $total = $this->where('ESTADO', 'activo')
+                      ->where('ACTIVO', true)
+                      ->where('FECHA_VENCIMIENTO >=', date('Y-m-d'))
+                      ->countAllResults();
+        
+        $activas = $this->where('ESTADO', 'activo')
+                        ->where('ACTIVO', true)
+                        ->where('FECHA_VENCIMIENTO >=', date('Y-m-d'))
+                        ->countAllResults();
+        
+        $pendientes = $total; // Para docentes, todas las activas son pendientes de completar
+
+        return [
+            'total' => $total,
+            'activas' => $activas,
+            'pendientes' => $pendientes
+        ];
+    }
+
+    /**
+     * Obtener estadísticas para estudiantes
+     */
+    public function obtenerEstadisticasParaEstudiantes()
+    {
+        $total = $this->where('ESTADO', 'activo')
+                      ->where('ACTIVO', true)
+                      ->where('FECHA_VENCIMIENTO >=', date('Y-m-d'))
+                      ->countAllResults();
+        
+        $activas = $this->where('ESTADO', 'activo')
+                        ->where('ACTIVO', true)
+                        ->where('FECHA_VENCIMIENTO >=', date('Y-m-d'))
+                        ->countAllResults();
+        
+        $pendientes = $total; // Para estudiantes, todas las activas son pendientes de completar
+
+        return [
+            'total' => $total,
+            'activas' => $activas,
+            'pendientes' => $pendientes
+        ];
+    }
+
+    /**
+     * Obtener evaluaciones próximas a vencer (7 días o menos)
+     */
+    public function obtenerProximasAVencer($dias = 7)
+    {
+        $fechaLimite = date('Y-m-d', strtotime("+{$dias} days"));
+        
+        return $this->where('ESTADO', 'activo')
+                   ->where('ACTIVO', true)
+                   ->where('FECHA_VENCIMIENTO >=', date('Y-m-d'))
+                   ->where('FECHA_VENCIMIENTO <=', $fechaLimite)
+                   ->orderBy('FECHA_VENCIMIENTO', 'ASC')
+                   ->findAll();
+    }
 }

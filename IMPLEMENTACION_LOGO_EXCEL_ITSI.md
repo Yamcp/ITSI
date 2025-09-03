@@ -163,9 +163,23 @@ Todos los documentos Excel generados ahora incluirán el logo de ITSI en el enca
 
 ## Dependencias
 
-- **PhpSpreadsheet**: Librería para generar archivos Excel
+- **PhpSpreadsheet**: Librería para generar archivos Excel (instalada via Composer)
 - **Logo PDF.jpg**: Archivo de logo en la ubicación correcta
 - **ExcelHelper**: Helper personalizado para manejo de logos
+
+### Instalación de PhpSpreadsheet
+
+Si no tienes PhpSpreadsheet instalado, ejecuta:
+
+```bash
+composer require phpoffice/phpspreadsheet
+```
+
+O si tienes problemas con la extensión GD:
+
+```bash
+composer require phpoffice/phpspreadsheet --ignore-platform-reqs
+```
 
 ## Migración de CSV a Excel
 
