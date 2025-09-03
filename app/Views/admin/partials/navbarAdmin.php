@@ -37,7 +37,7 @@
                                 <p class="mb-0 fs-3">Mi Cuenta</p>
                             </a>
                             <hr class="dropdown-divider">
-                            <a href="<?= base_url('auth/cerrar-sesion') ?>" class="btn btn-outline-danger mx-3 mt-2 d-block">
+                            <a href="<?= base_url('auth/cerrar-sesion') ?>" class="btn btn-outline-danger mx-3 mt-2 d-block" id="btnCerrarSesion">
                                 <i class="ti ti-logout me-1"></i>Cerrar sesión
                             </a>
                         </div>

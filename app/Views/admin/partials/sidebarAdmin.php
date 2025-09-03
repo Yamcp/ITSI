@@ -100,6 +100,18 @@
                         <span class="hide-menu">Backup</span>
                     </a>
                 </li>
+                <li class="nav-small-cap">
+                    <i class="fa-solid fa-sign-out-alt nav-small-cap-icon fs-6"></i>
+                    <span class="hide-menu">SESIÓN</span>
+                </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link" href="<?= base_url('auth/cerrar-sesion') ?>" aria-expanded="false" id="btnCerrarSesionSidebar">
+                        <span>
+                            <i class="fa-solid fa-sign-out-alt fs-6"></i>
+                        </span>
+                        <span class="hide-menu">Cerrar Sesión</span>
+                    </a>
+                </li>
             </ul>
         </nav>
     </div>

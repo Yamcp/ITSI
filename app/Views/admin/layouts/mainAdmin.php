@@ -56,6 +56,55 @@
     <?php endif; ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+    
+    <script>
+        // Función para manejar el cierre de sesión
+        function cerrarSesion() {
+            // Mostrar indicador de carga
+            const btnCerrar = document.getElementById('btnCerrarSesion') || document.querySelector('a[href*="cerrar-sesion"]');
+            if (btnCerrar) {
+                btnCerrar.innerHTML = '<i class="ti ti-loader me-1"></i>Cerrando...';
+                btnCerrar.style.pointerEvents = 'none';
+                btnCerrar.style.opacity = '0.7';
+            }
+            
+            // Redirigir al cierre de sesión
+            window.location.href = '<?= base_url('auth/cerrar-sesion') ?>';
+        }
+        
+        // Agregar event listener cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', function() {
+            // Buscar el botón del navbar
+            const btnCerrarSesion = document.getElementById('btnCerrarSesion');
+            if (btnCerrarSesion) {
+                btnCerrarSesion.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    cerrarSesion();
+                });
+            }
+            
+            // Buscar el botón del sidebar
+            const btnCerrarSesionSidebar = document.getElementById('btnCerrarSesionSidebar');
+            if (btnCerrarSesionSidebar) {
+                btnCerrarSesionSidebar.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    cerrarSesion();
+                });
+            }
+            
+            // También buscar otros enlaces de cierre de sesión como respaldo
+            const enlacesCerrarSesion = document.querySelectorAll('a[href*="cerrar-sesion"]:not(#btnCerrarSesion):not(#btnCerrarSesionSidebar)');
+            enlacesCerrarSesion.forEach(function(enlace) {
+                enlace.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    cerrarSesion();
+                });
+            });
+        });
+        
+        // Función global para cierre de sesión (por si se llama desde otros lugares)
+        window.cerrarSesion = cerrarSesion;
+    </script>
 </body>
 
 </html>

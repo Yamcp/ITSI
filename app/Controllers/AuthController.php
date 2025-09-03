@@ -124,6 +124,9 @@ class AuthController extends BaseController
     {
         $session = session();
         
+        // Log para debugging
+        log_message('info', 'Iniciando proceso de cierre de sesión para usuario: ' . ($session->get('usuario') ?? 'desconocido'));
+        
         // Limpiar datos específicos de sesión
         $session->remove([
             'id_usuario',
@@ -132,14 +135,23 @@ class AuthController extends BaseController
             'apellido',
             'rol',
             'estado',
-            'logged_in'
+            'logged_in',
+            'foto_perfil'
         ]);
         
         // Destruir la sesión completa
         $session->destroy();
         
-        // Limpiar cookie de recordarme
-        $this->response->deleteCookie('remember_token');
+        // Limpiar cookie de recordarme si existe
+        if ($this->request->getCookie('remember_token')) {
+            $this->response->deleteCookie('remember_token');
+            log_message('info', 'Cookie de recordarme eliminada');
+        }
+        
+        // Limpiar todas las cookies relacionadas con la sesión
+        $this->response->deleteCookie('ci_session');
+        
+        log_message('info', 'Sesión cerrada exitosamente');
         
         // Redirigir al login con mensaje
         return redirect()->to('/')

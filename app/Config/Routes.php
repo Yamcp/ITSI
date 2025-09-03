@@ -9,6 +9,12 @@ use CodeIgniter\Router\RouteCollection;
 $routes->get('/', 'AuthController::index');                           // Página principal de login
 $routes->post('/auth/autenticar', 'AuthController::autenticar');     // Acción de autenticar al usuario
 $routes->get('/auth/cerrar-sesion', 'AuthController::cerrarSesion'); // Acción para cerrar sesión
+$routes->post('/auth/cerrar-sesion', 'AuthController::cerrarSesion'); // Acción para cerrar sesión (POST)
+
+// Redirección para URL antigua de convenios
+$routes->get('vinculacion/convenios', function() {
+    return redirect()->to('estudiante/convenios');
+});
 
 //----------------------------------------------------------------------------------------------------------------------
 //RUTAS ADMINISTRADOR
