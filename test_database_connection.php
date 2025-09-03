@@ -29,7 +29,7 @@ try {
     echo "Estados de revisión encontrados: " . $result['count'] . "\n";
     
     // Probar consulta de tipos de documentos
-    $stmt = $pdo->query("SELECT COUNT(*) as count FROM TAB_TIPOS_DOCUMENTOS_PRACTICAS");
+    $stmt = $pdo->query("SELECT COUNT(*) as count FROM TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES");
     $result = $stmt->fetch(PDO::FETCH_ASSOC);
     echo "Tipos de documentos encontrados: " . $result['count'] . "\n";
     

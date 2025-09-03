@@ -57,104 +57,69 @@ class DocumentosPracticasAdminController extends BaseController
     /**
      * Procesar subida de documento
      */
-    public function store()
+    public function procesarSubida()
     {
-        $rules = [
-            'tipo_documento' => 'required|integer|is_natural_no_zero',
-            'estudiante' => 'required|integer|is_natural_no_zero',
-            'archivo' => 'uploaded[archivo]|max_size[archivo,10240]|ext_in[archivo,pdf,doc,docx,jpg,jpeg,png,mp4,avi]',
-            'observaciones' => 'permit_empty|max_length[500]'
-        ];
+        $validation = \Config\Services::validation();
+        
+        $validation->setRules([
+            'id_practica' => 'required|integer',
+            'id_tipo_documento' => 'required|integer',
+            'archivo' => 'uploaded[archivo]|max_size[archivo,10240]|ext_in[archivo,pdf,doc,docx]'
+        ]);
 
-        if (!$this->validate($rules)) {
+        if (!$validation->withRequest($this->request)->run()) {
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Datos de entrada inválidos',
-                'errors' => $this->validator->getErrors()
+                'message' => 'Datos inválidos',
+                'errors' => $validation->getErrors()
             ]);
         }
 
-        try {
-            // Manejar subida de archivo
             $archivo = $this->request->getFile('archivo');
-            $uploadPath = WRITEPATH . 'uploads/documentos-practicas/';
-
-            // Asegurar que el directorio exista
-            if (!is_dir($uploadPath)) {
-                mkdir($uploadPath, 0777, true);
-            }
 
             if ($archivo->isValid() && !$archivo->hasMoved()) {
-                $nombreArchivo = $this->generarNombreArchivo($archivo);
-                $archivo->move($uploadPath, $nombreArchivo);
+            $nombreArchivo = $archivo->getRandomName();
+            $archivo->move(WRITEPATH . 'uploads/documentos-practicas/', $nombreArchivo);
 
-                $datos = [
-                    'ID_ESTADO_REVISION' => 1, // Estado inicial: Pendiente
-                    'ID_TIPO_DOCUMENTO' => $this->request->getPost('tipo_documento'),
-                    'ID_USUARIO' => $this->request->getPost('estudiante'),
+            $data = [
+                'ID_PRACTICA_PREPROFESIONAL' => $this->request->getPost('id_practica'),
+                'ID_TIPO_DOCUMENTO' => $this->request->getPost('id_tipo_documento'),
                     'NOMBRE_ARCHIVO' => $nombreArchivo,
-                    'TIPO' => $archivo->getClientName(),
+                'TIPO_ARCHIVO' => $archivo->getClientMimeType(),
                     'FECHA_SUBIDA' => date('Y-m-d H:i:s'),
-                    'OBSERVACIONES' => $this->request->getPost('observaciones') ?? ''
+                'ESTADO_REVISION' => 'Pendiente',
+                'OBSERVACIONES' => $this->request->getPost('observaciones')
                 ];
 
-                if ($this->documentosModel->insert($datos)) {
+            if ($this->documentosModel->insert($data)) {
                     return $this->response->setJSON([
                         'success' => true,
-                        'message' => 'Documento subido exitosamente',
-                        'data' => [
-                            'id' => $this->documentosModel->getInsertID(),
-                            'nombre' => $archivo->getClientName(),
-                            'fecha' => date('d/m/Y H:i')
-                        ]
-                    ]);
-                } else {
-                    // Si falla la inserción, eliminar el archivo subido
-                    unlink($uploadPath . $nombreArchivo);
-                    throw new \Exception('Error al guardar en la base de datos');
-                }
+                    'message' => 'Documento subido exitosamente'
+                ]);
             } else {
-                throw new \Exception('Archivo no válido o error al subir el archivo');
-            }
-        } catch (\Exception $e) {
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Error al subir el documento: ' . $e->getMessage()
+                    'message' => 'Error al guardar el documento'
             ]);
         }
     }
 
-    /**
-     * Descargar documento
-     */
-    public function download($id)
-    {
-        $documento = $this->documentosModel->find($id);
-
-        if (!$documento) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException('Documento no encontrado');
-        }
-
-        $rutaArchivo = WRITEPATH . 'uploads/documentos-practicas/' . $documento['NOMBRE_ARCHIVO'];
-
-        if (!file_exists($rutaArchivo)) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException('Archivo no encontrado');
-        }
-
-        return $this->response->download($rutaArchivo, null);
+        return $this->response->setJSON([
+            'success' => false,
+            'message' => 'Error al subir el archivo'
+        ]);
     }
 
     /**
      * Listar documentos por estudiante
      */
-    public function listarPorEstudiante($idUsuario)
+    public function listarPorEstudiante($idPractica)
     {
         $documentos = $this->documentosModel
-            ->select('TAB_DOCUMENTOS_PRACTICAS.*, TAB_ESTADOS_REVISIONES.ESTADO as ESTADO_REVISION, TAB_TIPOS_DOCUMENTOS_PRACTICAS.NOMBRE as TIPO_DOCUMENTO_NOMBRE')
-            ->join('TAB_ESTADOS_REVISIONES', 'TAB_DOCUMENTOS_PRACTICAS.ID_ESTADO_REVISION = TAB_ESTADOS_REVISIONES.ID_ESTADO_REVISION')
-            ->join('TAB_TIPOS_DOCUMENTOS_PRACTICAS', 'TAB_DOCUMENTOS_PRACTICAS.ID_TIPO_DOCUMENTO = TAB_TIPOS_DOCUMENTOS_PRACTICAS.ID_TIPO_DOCUMENTO')
-            ->where('TAB_DOCUMENTOS_PRACTICAS.ID_USUARIO', $idUsuario)
-            ->orderBy('TAB_DOCUMENTOS_PRACTICAS.FECHA_SUBIDA', 'DESC')
+            ->select('TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES.*, TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES.NOMBRE as TIPO_DOCUMENTO_NOMBRE')
+            ->join('TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES', 'TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES.ID_TIPO_DOCUMENTO = TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES.ID_TIPO_DOCUMENTO_PREPROFESIONAL')
+            ->where('TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES.ID_PRACTICA_PREPROFESIONAL', $idPractica)
+            ->orderBy('TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES.FECHA_SUBIDA', 'DESC')
             ->findAll();
 
         return $this->response->setJSON([
@@ -168,36 +133,18 @@ class DocumentosPracticasAdminController extends BaseController
      */
     public function cambiarEstado($id)
     {
-        $rules = [
-            'estado' => 'required|in_list[1,2,3]', // 1: Pendiente, 2: Aprobado, 3: Rechazado
-            'observaciones_revisor' => 'permit_empty|max_length[500]'
+        $nuevoEstado = $this->request->getPost('estado');
+        $observaciones = $this->request->getPost('observaciones');
+
+        $data = [
+            'ESTADO_REVISION' => $nuevoEstado,
+            'OBSERVACIONES' => $observaciones
         ];
 
-        if (!$this->validate($rules)) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Datos inválidos',
-                'errors' => $this->validator->getErrors()
-            ]);
-        }
-
-        $documento = $this->documentosModel->find($id);
-        if (!$documento) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Documento no encontrado'
-            ]);
-        }
-
-        $datos = [
-            'ID_ESTADO_REVISION' => $this->request->getPost('estado'),
-            'OBSERVACIONES_REVISOR' => $this->request->getPost('observaciones_revisor') ?? ''
-        ];
-
-        if ($this->documentosModel->update($id, $datos)) {
+        if ($this->documentosModel->update($id, $data)) {
             return $this->response->setJSON([
                 'success' => true,
-                'message' => 'Estado actualizado correctamente'
+                'message' => 'Estado actualizado exitosamente'
             ]);
         } else {
             return $this->response->setJSON([
@@ -208,183 +155,23 @@ class DocumentosPracticasAdminController extends BaseController
     }
 
     /**
-     * Obtener documentos completos con toda la información
+     * Descargar documento
      */
-    public function getDocumentosCompletos()
+    public function descargar($id)
     {
-        return $this->documentosModel->getDocumentosCompletos();
-    }
-
-    /**
-     * Obtener documentos recientes
-     */
-    public function getDocumentosRecientes()
-    {
-        return $this->documentosModel
-            ->select('TAB_DOCUMENTOS_PRACTICAS.*, TAB_ESTADOS_REVISIONES.ESTADO as ESTADO_REVISION, TAB_DATOS_PERSONAS.NOMBRE, TAB_DATOS_PERSONAS.APELLIDO')
-            ->join('TAB_ESTADOS_REVISIONES', 'TAB_DOCUMENTOS_PRACTICAS.ID_ESTADO_REVISION = TAB_ESTADOS_REVISIONES.ID_ESTADO_REVISION')
-            ->join('TAB_USUARIOS', 'TAB_DOCUMENTOS_PRACTICAS.ID_USUARIO = TAB_USUARIOS.ID_USUARIO')
-            ->join('TAB_DATOS_PERSONAS', 'TAB_USUARIOS.ID_DATO_PERSONA = TAB_DATOS_PERSONAS.ID_DATO_PERSONA')
-            ->orderBy('TAB_DOCUMENTOS_PRACTICAS.FECHA_SUBIDA', 'DESC')
-            ->limit(10)
-            ->findAll();
-    }
-
-    /**
-     * Obtener estadísticas de documentos
-     */
-    public function getEstadisticas()
-    {
-        $total = $this->documentosModel->countAllResults();
-        $aprobados = $this->documentosModel->where('ID_ESTADO_REVISION', 2)->countAllResults();
-        $pendientes = $this->documentosModel->where('ID_ESTADO_REVISION', 1)->countAllResults();
-        $rechazados = $this->documentosModel->where('ID_ESTADO_REVISION', 3)->countAllResults();
-
-        // Si no hay datos reales, usar estadísticas de ejemplo
-        if ($total == 0) {
-            return [
-                'total' => 5,
-                'aprobados' => 2,
-                'pendientes' => 1,
-                'rechazados' => 1
-            ];
-        }
-
-        return [
-            'total' => $total,
-            'aprobados' => $aprobados,
-            'pendientes' => $pendientes,
-            'rechazados' => $rechazados
-        ];
-    }
-
-    /**
-     * Obtener lista de estudiantes
-     */
-    public function getEstudiantes()
-    {
-        return $this->usuariosModel
-            ->select('TAB_USUARIOS.ID_USUARIO, TAB_DATOS_PERSONAS.NOMBRE, TAB_DATOS_PERSONAS.APELLIDO, TAB_DATOS_PERSONAS.CEDULA')
-            ->join('TAB_DATOS_PERSONAS', 'TAB_USUARIOS.ID_DATO_PERSONA = TAB_DATOS_PERSONAS.ID_DATO_PERSONA')
-            ->join('TAB_ROLES', 'TAB_USUARIOS.ID_USUARIO = TAB_ROLES.ID_USUARIO')
-            ->join('TAB_TIPOS_ROLES', 'TAB_ROLES.ID_TIPOS_ROLES = TAB_TIPOS_ROLES.ID_TIPOS_ROLES')
-            ->where('TAB_TIPOS_ROLES.ROL', 'Estudiante')
-            ->where('TAB_USUARIOS.ESTADO', '1')
-            ->orderBy('TAB_DATOS_PERSONAS.NOMBRE', 'ASC')
-            ->findAll();
-    }
-
-    /**
-     * Generar nombre único para el archivo
-     */
-    private function generarNombreArchivo($archivo)
-    {
-        $extension = $archivo->getClientExtension();
-        $timestamp = date('YmdHis');
-        $random = bin2hex(random_bytes(4));
-        return $timestamp . '_' . $random . '.' . $extension;
-    }
-
-    /**
-     * Obtener ID del tipo de documento basado en el tipo
-     */
-    private function getTipoDocumentoId($tipo)
-    {
-        $tiposMap = [
-            'oficio-asignacion-tutor' => 1,
-            'oficio-personal-entidad' => 2,
-            'carta-aceptacion' => 3,
-            'solicitud-institucional' => 4,
-            'certificado-culminacion' => 5,
-            'rubrica-evaluacion-entidad' => 6,
-            'hojas-asistencia' => 7,
-            'ficha-registro-actividades' => 8,
-            'ficha-control-seguimiento' => 9,
-            'rubrica-evaluacion-docente' => 10,
-            'rubrica-evaluacion-resultados' => 11,
-            'respaldo-fotos' => 12
-        ];
-
-        return $tiposMap[$tipo] ?? 1;
-    }
-
-    /**
-     * Aplicar filtros a los documentos
-     */
-    public function aplicarFiltros()
-    {
-        $filtros = $this->request->getPost();
+        $documento = $this->documentosModel->find($id);
         
-        $query = $this->documentosModel
-            ->select('TAB_DOCUMENTOS_PRACTICAS.*, TAB_ESTADOS_REVISIONES.ESTADO as ESTADO_REVISION, TAB_TIPOS_DOCUMENTOS_PRACTICAS.NOMBRE as TIPO_DOCUMENTO_NOMBRE, TAB_DATOS_PERSONAS.NOMBRE as NOMBRE_USUARIO, TAB_DATOS_PERSONAS.APELLIDO as APELLIDO_USUARIO')
-            ->join('TAB_ESTADOS_REVISIONES', 'TAB_DOCUMENTOS_PRACTICAS.ID_ESTADO_REVISION = TAB_ESTADOS_REVISIONES.ID_ESTADO_REVISION')
-            ->join('TAB_TIPOS_DOCUMENTOS_PRACTICAS', 'TAB_DOCUMENTOS_PRACTICAS.ID_TIPO_DOCUMENTO = TAB_TIPOS_DOCUMENTOS_PRACTICAS.ID_TIPO_DOCUMENTO')
-            ->join('TAB_USUARIOS', 'TAB_DOCUMENTOS_PRACTICAS.ID_USUARIO = TAB_USUARIOS.ID_USUARIO')
-            ->join('TAB_DATOS_PERSONAS', 'TAB_USUARIOS.ID_DATO_PERSONA = TAB_DATOS_PERSONAS.ID_DATO_PERSONA');
-
-        // Aplicar filtros
-        if (!empty($filtros['filtro_tipo_documento'])) {
-            $query->where('TAB_DOCUMENTOS_PRACTICAS.ID_TIPO_DOCUMENTO', $filtros['filtro_tipo_documento']);
-        }
-        
-        if (!empty($filtros['filtro_estado'])) {
-            $query->where('TAB_DOCUMENTOS_PRACTICAS.ID_ESTADO_REVISION', $filtros['filtro_estado']);
-        }
-        
-        if (!empty($filtros['fecha_desde'])) {
-            $query->where('DATE(TAB_DOCUMENTOS_PRACTICAS.FECHA_SUBIDA) >=', $filtros['fecha_desde']);
-        }
-        
-        if (!empty($filtros['fecha_hasta'])) {
-            $query->where('DATE(TAB_DOCUMENTOS_PRACTICAS.FECHA_SUBIDA) <=', $filtros['fecha_hasta']);
+        if (!$documento) {
+            return $this->response->setStatusCode(404, 'Documento no encontrado');
         }
 
-        $documentos = $query->orderBy('TAB_DOCUMENTOS_PRACTICAS.FECHA_SUBIDA', 'DESC')->findAll();
-
-        return $this->response->setJSON([
-            'success' => true,
-            'data' => $documentos
-        ]);
-    }
-
-    /**
-     * Generar reporte de documentos
-     */
-    public function generarReporte()
-    {
-        $filtros = $this->request->getGet();
+        $rutaArchivo = WRITEPATH . 'uploads/documentos-practicas/' . $documento['NOMBRE_ARCHIVO'];
         
-        $query = $this->documentosModel
-            ->select('TAB_DOCUMENTOS_PRACTICAS.*, TAB_ESTADOS_REVISIONES.ESTADO as ESTADO_REVISION, TAB_TIPOS_DOCUMENTOS_PRACTICAS.NOMBRE as TIPO_DOCUMENTO_NOMBRE, TAB_DATOS_PERSONAS.NOMBRE as NOMBRE_USUARIO, TAB_DATOS_PERSONAS.APELLIDO as APELLIDO_USUARIO, TAB_DATOS_PERSONAS.CEDULA')
-            ->join('TAB_ESTADOS_REVISIONES', 'TAB_DOCUMENTOS_PRACTICAS.ID_ESTADO_REVISION = TAB_ESTADOS_REVISIONES.ID_ESTADO_REVISION')
-            ->join('TAB_TIPOS_DOCUMENTOS_PRACTICAS', 'TAB_DOCUMENTOS_PRACTICAS.ID_TIPO_DOCUMENTO = TAB_TIPOS_DOCUMENTOS_PRACTICAS.ID_TIPO_DOCUMENTO')
-            ->join('TAB_USUARIOS', 'TAB_DOCUMENTOS_PRACTICAS.ID_USUARIO = TAB_USUARIOS.ID_USUARIO')
-            ->join('TAB_DATOS_PERSONAS', 'TAB_USUARIOS.ID_DATO_PERSONA = TAB_DATOS_PERSONAS.ID_DATO_PERSONA');
-
-        // Aplicar filtros si existen
-        if (!empty($filtros['tipo_documento'])) {
-            $query->where('TAB_DOCUMENTOS_PRACTICAS.ID_TIPO_DOCUMENTO', $filtros['tipo_documento']);
-        }
-        
-        if (!empty($filtros['estado'])) {
-            $query->where('TAB_DOCUMENTOS_PRACTICAS.ID_ESTADO_REVISION', $filtros['estado']);
-        }
-        
-        if (!empty($filtros['fecha_desde'])) {
-            $query->where('DATE(TAB_DOCUMENTOS_PRACTICAS.FECHA_SUBIDA) >=', $filtros['fecha_desde']);
-        }
-        
-        if (!empty($filtros['fecha_hasta'])) {
-            $query->where('DATE(TAB_DOCUMENTOS_PRACTICAS.FECHA_SUBIDA) <=', $filtros['fecha_hasta']);
+        if (!file_exists($rutaArchivo)) {
+            return $this->response->setStatusCode(404, 'Archivo no encontrado');
         }
 
-        $documentos = $query->orderBy('TAB_DOCUMENTOS_PRACTICAS.FECHA_SUBIDA', 'DESC')->findAll();
-
-        return $this->response->setJSON([
-            'success' => true,
-            'data' => $documentos,
-            'estadisticas' => $this->getEstadisticas()
-        ]);
+        return $this->response->download($rutaArchivo, null);
     }
 
     /**
@@ -422,50 +209,106 @@ class DocumentosPracticasAdminController extends BaseController
     }
 
     /**
-     * Ver documento
+     * Obtener documentos completos con información relacionada
      */
-    public function ver($id)
+    private function getDocumentosCompletos()
     {
-        $documento = $this->documentosModel->find($id);
+        $db = \Config\Database::connect();
         
-        if (!$documento) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException('Documento no encontrado');
-        }
+        $builder = $db->table('TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES dp')
+            ->select('
+                dp.*,
+                tdp.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
+                pp.ID_ESTUDIANTE,
+                CONCAT(persona.NOMBRE, " ", persona.APELLIDO) as ESTUDIANTE_NOMBRE
+            ')
+            ->join('TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES tdp', 'dp.ID_TIPO_DOCUMENTO = tdp.ID_TIPO_DOCUMENTO_PREPROFESIONAL', 'left')
+            ->join('TAB_PRACTICAS_PREPROFESIONALES pp', 'dp.ID_PRACTICA_PREPROFESIONAL = pp.ID_PRACTICA_PREPROFESIONAL', 'left')
+            ->join('TAB_ESTUDIANTES e', 'pp.ID_ESTUDIANTE = e.ID_ESTUDIANTE', 'left')
+            ->join('TAB_DATOS_PERSONAS persona', 'e.ID_DATO_PERSONA = persona.ID_DATO_PERSONA', 'left')
+            ->orderBy('dp.FECHA_SUBIDA', 'DESC');
 
-        $rutaArchivo = WRITEPATH . 'uploads/documentos-practicas/' . $documento['NOMBRE_ARCHIVO'];
-
-        if (!file_exists($rutaArchivo)) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException('Archivo no encontrado');
-        }
-
-        // Determinar el tipo de contenido
-        $extension = pathinfo($documento['NOMBRE_ARCHIVO'], PATHINFO_EXTENSION);
-        $mimeType = mime_content_type($rutaArchivo);
-
-        return $this->response
-            ->setHeader('Content-Type', $mimeType)
-            ->setHeader('Content-Disposition', 'inline; filename="' . $documento['NOMBRE_ARCHIVO'] . '"')
-            ->setBody(file_get_contents($rutaArchivo));
+        return $builder->get()->getResultArray();
     }
 
     /**
-     * API endpoint para obtener estudiantes (AJAX)
+     * Obtener documentos recientes
      */
-    public function apiEstudiantes()
+    public function getDocumentosRecientes()
     {
-        $estudiantes = $this->getEstudiantes();
-        return $this->response->setJSON([
-            'success' => true,
-            'data' => $estudiantes
-        ]);
+        return $this->documentosModel
+            ->orderBy('FECHA_SUBIDA', 'DESC')
+            ->limit(10)
+            ->findAll();
     }
 
     /**
-     * API endpoint para obtener documentos recientes (AJAX)
+     * Obtener estadísticas de documentos
      */
-    public function apiDocumentosRecientes()
+    public function getEstadisticas()
     {
-        $documentos = $this->getDocumentosRecientes();
+        $total = $this->documentosModel->countAllResults();
+        $aprobados = $this->documentosModel->where('ESTADO_REVISION', 'Aprobado')->countAllResults();
+        $pendientes = $this->documentosModel->where('ESTADO_REVISION', 'Pendiente')->countAllResults();
+        $rechazados = $this->documentosModel->where('ESTADO_REVISION', 'Rechazado')->countAllResults();
+
+        return [
+            'total' => $total,
+            'aprobados' => $aprobados,
+            'pendientes' => $pendientes,
+            'rechazados' => $rechazados
+        ];
+    }
+
+    /**
+     * Obtener estudiantes
+     */
+    private function getEstudiantes()
+    {
+        $db = \Config\Database::connect();
+        
+        $builder = $db->table('TAB_ESTUDIANTES e')
+            ->select('
+                e.ID_ESTUDIANTE,
+                CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as NOMBRE_COMPLETO,
+                dp.CEDULA,
+                c.NOMBRE as CARRERA
+            ')
+            ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+            ->join('TAB_CARRERAS c', 'c.ID_CARRERA = e.ID_CARRERA')
+            ->where('e.ID_TIPO_ESTADO', 1) // Solo estudiantes activos
+            ->orderBy('dp.NOMBRE', 'ASC');
+
+        return $builder->get()->getResultArray();
+    }
+
+    /**
+     * Buscar documentos con filtros
+     */
+    public function buscarDocumentos()
+    {
+        $filtros = $this->request->getGet();
+        
+        $builder = $this->documentosModel;
+        
+        if (!empty($filtros['tipo_documento'])) {
+            $builder->where('ID_TIPO_DOCUMENTO', $filtros['tipo_documento']);
+        }
+        
+        if (!empty($filtros['estado'])) {
+            $builder->where('ESTADO_REVISION', $filtros['estado']);
+        }
+        
+        if (!empty($filtros['fecha_desde'])) {
+            $builder->where('DATE(FECHA_SUBIDA) >=', $filtros['fecha_desde']);
+        }
+        
+        if (!empty($filtros['fecha_hasta'])) {
+            $builder->where('DATE(FECHA_SUBIDA) <=', $filtros['fecha_hasta']);
+        }
+
+        $documentos = $builder->orderBy('FECHA_SUBIDA', 'DESC')->findAll();
+
         return $this->response->setJSON([
             'success' => true,
             'data' => $documentos
@@ -473,7 +316,105 @@ class DocumentosPracticasAdminController extends BaseController
     }
 
     /**
-     * Obtener documentos para AJAX
+     * Exportar documentos
+     */
+    public function exportar($formato = 'excel')
+    {
+            $documentos = $this->getDocumentosCompletos();
+            
+        switch (strtolower($formato)) {
+            case 'excel':
+                return $this->exportarExcel($documentos);
+            case 'pdf':
+                return $this->exportarPDF($documentos);
+            default:
+            return $this->response->setJSON([
+                'success' => true,
+                    'data' => $documentos
+            ]);
+        }
+    }
+
+    /**
+     * Exportar a Excel
+     */
+    private function exportarExcel($documentos)
+    {
+        try {
+            helper('ExcelHelper');
+            
+            $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+            
+            $sheet->setTitle('Documentos de Prácticas');
+            
+            // Crear encabezado estándar
+            \App\Helpers\ExcelHelper::createStandardHeader(
+                $sheet, 
+                'REPORTE DE DOCUMENTOS DE PRÁCTICAS', 
+                'Sistema de Gestión Académica ITSI',
+                'Logo PDF.jpg',
+                'A1',
+                'F1'
+            );
+            
+            // Encabezados de columnas
+            $headers = [
+                'ID',
+                'Estudiante',
+                'Tipo Documento',
+                'Archivo',
+                'Fecha Subida',
+                'Estado'
+            ];
+            
+            \App\Helpers\ExcelHelper::createColumnHeaders($sheet, $headers, 5, 'A');
+            
+            // Llenar datos
+            $row = 6;
+            foreach ($documentos as $doc) {
+                $sheet->setCellValue('A' . $row, $doc['ID_DOCUMENTO_PREPROFESIONAL']);
+                $sheet->setCellValue('B' . $row, $doc['ESTUDIANTE_NOMBRE'] ?? 'N/A');
+                $sheet->setCellValue('C' . $row, $doc['TIPO_DOCUMENTO_NOMBRE'] ?? 'N/A');
+                $sheet->setCellValue('D' . $row, $doc['NOMBRE_ARCHIVO']);
+                $sheet->setCellValue('E' . $row, date('d/m/Y H:i', strtotime($doc['FECHA_SUBIDA'])));
+                $sheet->setCellValue('F' . $row, $doc['ESTADO_REVISION']);
+                $row++;
+            }
+            
+            // Aplicar estilos
+            \App\Helpers\ExcelHelper::applyDataStyle($sheet, 'A6:F' . ($row - 1));
+            \App\Helpers\ExcelHelper::autoSizeColumns($sheet, 'A', 'F');
+            
+            // Configurar descarga
+            $filename = 'documentos_practicas_' . date('Y-m-d') . '.xlsx';
+            \App\Helpers\ExcelHelper::setDownloadHeaders($filename);
+            
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+            $writer->save('php://output');
+            
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error al exportar Excel: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Exportar a PDF
+     */
+    private function exportarPDF($documentos)
+    {
+        // Implementar exportación a PDF si es necesario
+        return $this->response->setJSON([
+            'success' => false,
+            'message' => 'Exportación a PDF no implementada aún'
+        ]);
+    }
+
+    /**
+     * API: Obtener documentos para el grid
      */
     public function obtenerDocumentos()
     {
@@ -482,349 +423,13 @@ class DocumentosPracticasAdminController extends BaseController
             
             return $this->response->setJSON([
                 'success' => true,
-                'documentos' => $documentos
+                'data' => $documentos
             ]);
         } catch (\Exception $e) {
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Error al obtener documentos: ' . $e->getMessage()
+                'message' => 'Error al cargar documentos: ' . $e->getMessage()
             ]);
         }
-    }
-
-    /**
-     * Mostrar vista de reportes
-     */
-    public function reportes()
-    {
-        $filtros = $this->request->getGet();
-        
-        // Obtener documentos con filtros aplicados
-        $documentos = $this->getDocumentosConFiltros($filtros);
-        
-        $data = [
-            'title' => 'Reportes de Documentos de Prácticas',
-            'documentos' => $documentos,
-            'estadisticas' => $this->getEstadisticas(),
-            'tipos_documentos' => $this->tiposDocumentosModel->getAllTipos(),
-            'estados_revision' => $this->estadosRevisionesModel->getAllEstados(),
-            'filtros' => $filtros
-        ];
-
-        return view('admin/documentos/reportes_practicas', $data);
-    }
-
-    /**
-     * Exportar reporte a PDF
-     */
-    public function exportarPDF()
-    {
-        try {
-            $filtros = $this->request->getGet();
-            $documentos = $this->getDocumentosConFiltros($filtros);
-            $estadisticas = $this->getEstadisticas();
-            
-            // Configurar PDF
-            $pdf = new \TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
-            $pdf->SetCreator('Sistema ITSI');
-            $pdf->SetAuthor('Administrador');
-            $pdf->SetTitle('Reporte de Documentos de Prácticas');
-            $pdf->SetSubject('Reporte de Documentos de Prácticas del Sistema');
-            
-            // Configurar márgenes
-            $pdf->SetMargins(15, 20, 15);
-            $pdf->SetHeaderMargin(10);
-            $pdf->SetFooterMargin(10);
-            
-            // Configurar fuente
-            $pdf->SetFont('helvetica', '', 10);
-            
-            // Agregar página
-            $pdf->AddPage();
-            
-            // Encabezado
-            $this->generarEncabezadoPDF($pdf);
-            
-            // Estadísticas
-            $this->generarEstadisticasPDF($pdf, $estadisticas);
-            
-            // Tabla de documentos
-            $this->generarTablaDocumentosPDF($pdf, $documentos);
-            
-            // Pie de página
-            $this->generarPiePaginaPDF($pdf);
-            
-            // Generar nombre del archivo
-            $nombreArchivo = 'reporte_documentos_practicas_' . date('Y-m-d_H-i-s') . '.pdf';
-            
-            // Descargar PDF
-            $pdf->Output($nombreArchivo, 'D');
-            
-        } catch (\Exception $e) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Error al generar PDF: ' . $e->getMessage()
-            ]);
-        }
-    }
-
-    /**
-     * Exportar reporte a Excel
-     */
-    public function exportarExcel()
-    {
-        $filtros = $this->request->getGet();
-        $documentos = $this->getDocumentosConFiltros($filtros);
-        $estadisticas = $this->getEstadisticas();
-        
-        // Aquí implementarías la generación del Excel
-        // Por ahora retornamos un JSON con los datos
-        return $this->response->setJSON([
-            'success' => true,
-            'message' => 'Excel generado exitosamente',
-            'data' => [
-                'documentos' => $documentos,
-                'estadisticas' => $estadisticas,
-                'filtros' => $filtros
-            ]
-        ]);
-    }
-
-    /**
-     * Obtener documentos con filtros aplicados
-     */
-    private function getDocumentosConFiltros($filtros = [])
-    {
-        $query = $this->documentosModel
-            ->select('TAB_DOCUMENTOS_PRACTICAS.*, TAB_ESTADOS_REVISIONES.ESTADO as ESTADO_REVISION, TAB_TIPOS_DOCUMENTOS_PRACTICAS.NOMBRE as TIPO_DOCUMENTO, TAB_DATOS_PERSONAS.NOMBRE as NOMBRE_ESTUDIANTE, TAB_DATOS_PERSONAS.APELLIDO as APELLIDO_ESTUDIANTE, TAB_DATOS_PERSONAS.CEDULA as CEDULA_ESTUDIANTE')
-            ->join('TAB_ESTADOS_REVISIONES', 'TAB_DOCUMENTOS_PRACTICAS.ID_ESTADO_REVISION = TAB_ESTADOS_REVISIONES.ID_ESTADO_REVISION')
-            ->join('TAB_TIPOS_DOCUMENTOS_PRACTICAS', 'TAB_DOCUMENTOS_PRACTICAS.ID_TIPO_DOCUMENTO = TAB_TIPOS_DOCUMENTOS_PRACTICAS.ID_TIPO_DOCUMENTO')
-            ->join('TAB_USUARIOS', 'TAB_DOCUMENTOS_PRACTICAS.ID_USUARIO = TAB_USUARIOS.ID_USUARIO')
-            ->join('TAB_DATOS_PERSONAS', 'TAB_USUARIOS.ID_DATO_PERSONA = TAB_DATOS_PERSONAS.ID_DATO_PERSONA');
-
-        // Aplicar filtros si existen
-        if (!empty($filtros['tipo_documento'])) {
-            $query->where('TAB_DOCUMENTOS_PRACTICAS.ID_TIPO_DOCUMENTO', $filtros['tipo_documento']);
-        }
-        
-        if (!empty($filtros['estado_revision'])) {
-            $query->where('TAB_DOCUMENTOS_PRACTICAS.ID_ESTADO_REVISION', $filtros['estado_revision']);
-        }
-        
-        if (!empty($filtros['docente_tutor'])) {
-            // Aquí podrías agregar un filtro por docente tutor si tienes esa relación
-            // $query->where('TAB_DOCUMENTOS_PRACTICAS.ID_DOCENTE_TUTOR', $filtros['docente_tutor']);
-        }
-        
-        if (!empty($filtros['fecha_inicio'])) {
-            $query->where('DATE(TAB_DOCUMENTOS_PRACTICAS.FECHA_SUBIDA) >=', $filtros['fecha_inicio']);
-        }
-        
-        if (!empty($filtros['fecha_fin'])) {
-            $query->where('DATE(TAB_DOCUMENTOS_PRACTICAS.FECHA_SUBIDA) <=', $filtros['fecha_fin']);
-        }
-        
-        if (!empty($filtros['entidad_receptora'])) {
-            // Aquí podrías agregar un filtro por entidad receptora si tienes esa relación
-            // $query->like('TAB_DOCUMENTOS_PRACTICAS.ENTIDAD_RECEPTORA', $filtros['entidad_receptora']);
-        }
-
-        $resultados = $query->orderBy('TAB_DOCUMENTOS_PRACTICAS.FECHA_SUBIDA', 'DESC')->findAll();
-        
-        // Si no hay datos reales, generar datos de ejemplo para demostración
-        if (empty($resultados)) {
-            $resultados = $this->generarDatosEjemplo();
-        }
-        
-        return $resultados;
-    }
-
-    /**
-     * Generar datos de ejemplo para demostración
-     */
-    private function generarDatosEjemplo()
-    {
-        return [
-            [
-                'ID_DOCUMENTO_PRACTICA' => 1,
-                'NOMBRE_ARCHIVO' => 'oficio_asignacion_tutor_001.pdf',
-                'TIPO_DOCUMENTO' => 'Oficio de Asignación',
-                'NOMBRE_ESTUDIANTE' => 'Juan Carlos',
-                'APELLIDO_ESTUDIANTE' => 'Pérez González',
-                'CEDULA_ESTUDIANTE' => '1234567890',
-                'ESTADO_REVISION' => 'Aprobado',
-                'FECHA_SUBIDA' => '2024-01-15 10:30:00',
-                'ENTIDAD_RECEPTORA' => 'Instituto Tecnológico Superior Ibarra',
-                'DOCENTE_TUTOR' => 'Dr. Mario Montenegro'
-            ],
-            [
-                'ID_DOCUMENTO_PRACTICA' => 2,
-                'NOMBRE_ARCHIVO' => 'carta_aceptacion_002.pdf',
-                'TIPO_DOCUMENTO' => 'Carta de Aceptación',
-                'NOMBRE_ESTUDIANTE' => 'María Elena',
-                'APELLIDO_ESTUDIANTE' => 'Rodríguez Silva',
-                'CEDULA_ESTUDIANTE' => '0987654321',
-                'ESTADO_REVISION' => 'En Revisión',
-                'FECHA_SUBIDA' => '2024-01-20 14:15:00',
-                'ENTIDAD_RECEPTORA' => 'Hospital General Ibarra',
-                'DOCENTE_TUTOR' => 'Ing. Juan Pérez'
-            ],
-            [
-                'ID_DOCUMENTO_PRACTICA' => 3,
-                'NOMBRE_ARCHIVO' => 'certificado_culminacion_003.pdf',
-                'TIPO_DOCUMENTO' => 'Certificado de Culminación',
-                'NOMBRE_ESTUDIANTE' => 'Carlos Alberto',
-                'APELLIDO_ESTUDIANTE' => 'Mendoza Torres',
-                'CEDULA_ESTUDIANTE' => '1122334455',
-                'ESTADO_REVISION' => 'Pendiente',
-                'FECHA_SUBIDA' => '2024-01-25 09:45:00',
-                'ENTIDAD_RECEPTORA' => 'Municipio de Ibarra',
-                'DOCENTE_TUTOR' => 'Mg. María González'
-            ],
-            [
-                'ID_DOCUMENTO_PRACTICA' => 4,
-                'NOMBRE_ARCHIVO' => 'rubrica_evaluacion_004.pdf',
-                'TIPO_DOCUMENTO' => 'Rúbrica de Evaluación',
-                'NOMBRE_ESTUDIANTE' => 'Ana Lucía',
-                'APELLIDO_ESTUDIANTE' => 'Vega Morales',
-                'CEDULA_ESTUDIANTE' => '5566778899',
-                'ESTADO_REVISION' => 'Rechazado',
-                'FECHA_SUBIDA' => '2024-01-28 16:20:00',
-                'ENTIDAD_RECEPTORA' => 'Banco Pichincha',
-                'DOCENTE_TUTOR' => 'Dr. Mario Montenegro'
-            ],
-            [
-                'ID_DOCUMENTO_PRACTICA' => 5,
-                'NOMBRE_ARCHIVO' => 'hojas_asistencia_005.pdf',
-                'TIPO_DOCUMENTO' => 'Hojas de Asistencia',
-                'NOMBRE_ESTUDIANTE' => 'Pedro José',
-                'APELLIDO_ESTUDIANTE' => 'Herrera Castro',
-                'CEDULA_ESTUDIANTE' => '9988776655',
-                'ESTADO_REVISION' => 'Aprobado',
-                'FECHA_SUBIDA' => '2024-02-01 11:10:00',
-                'ENTIDAD_RECEPTORA' => 'Empresa Eléctrica Regional',
-                'DOCENTE_TUTOR' => 'Ing. Juan Pérez'
-            ]
-        ];
-    }
-
-    /**
-     * Generar encabezado del PDF
-     */
-    private function generarEncabezadoPDF($pdf)
-    {
-        // Título principal
-        $pdf->SetFont('helvetica', 'B', 16);
-        $pdf->Cell(0, 10, 'REPORTE DE DOCUMENTOS DE PRÁCTICAS', 0, 1, 'C');
-        $pdf->Ln(5);
-        
-        // Información de la institución
-        $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(0, 8, 'INSTITUTO TECNOLÓGICO SUPERIOR IBARRA', 0, 1, 'C');
-        $pdf->SetFont('helvetica', '', 10);
-        $pdf->Cell(0, 6, 'Sistema de Gestión de Prácticas Preprofesionales', 0, 1, 'C');
-        $pdf->Ln(10);
-        
-        // Fecha de generación
-        $pdf->SetFont('helvetica', '', 9);
-        $pdf->Cell(0, 6, 'Fecha de generación: ' . date('d/m/Y H:i:s'), 0, 1, 'R');
-        $pdf->Ln(5);
-    }
-
-    /**
-     * Generar estadísticas en el PDF
-     */
-    private function generarEstadisticasPDF($pdf, $estadisticas)
-    {
-        $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(0, 8, 'ESTADÍSTICAS GENERALES', 0, 1, 'L');
-        $pdf->Ln(3);
-        
-        // Crear tabla de estadísticas
-        $pdf->SetFont('helvetica', '', 10);
-        $pdf->SetFillColor(240, 240, 240);
-        
-        // Encabezados
-        $pdf->Cell(45, 8, 'Total Documentos', 1, 0, 'C', true);
-        $pdf->Cell(45, 8, 'Aprobados', 1, 0, 'C', true);
-        $pdf->Cell(45, 8, 'Pendientes', 1, 0, 'C', true);
-        $pdf->Cell(45, 8, 'Rechazados', 1, 1, 'C', true);
-        
-        // Datos
-        $pdf->Cell(45, 8, $estadisticas['total'] ?? 0, 1, 0, 'C');
-        $pdf->Cell(45, 8, $estadisticas['aprobados'] ?? 0, 1, 0, 'C');
-        $pdf->Cell(45, 8, $estadisticas['pendientes'] ?? 0, 1, 0, 'C');
-        $pdf->Cell(45, 8, $estadisticas['rechazados'] ?? 0, 1, 1, 'C');
-        
-        $pdf->Ln(10);
-    }
-
-    /**
-     * Generar tabla de documentos en el PDF
-     */
-    private function generarTablaDocumentosPDF($pdf, $documentos)
-    {
-        $pdf->SetFont('helvetica', 'B', 12);
-        $pdf->Cell(0, 8, 'DOCUMENTOS DE PRÁCTICAS', 0, 1, 'L');
-        $pdf->Ln(3);
-        
-        if (empty($documentos)) {
-            $pdf->SetFont('helvetica', '', 10);
-            $pdf->Cell(0, 8, 'No se encontraron documentos con los filtros aplicados.', 0, 1, 'C');
-            return;
-        }
-        
-        // Configurar tabla
-        $pdf->SetFont('helvetica', '', 8);
-        $pdf->SetFillColor(240, 240, 240);
-        
-        // Encabezados de la tabla
-        $pdf->Cell(15, 8, 'ID', 1, 0, 'C', true);
-        $pdf->Cell(50, 8, 'Documento', 1, 0, 'C', true);
-        $pdf->Cell(30, 8, 'Tipo', 1, 0, 'C', true);
-        $pdf->Cell(40, 8, 'Estudiante', 1, 0, 'C', true);
-        $pdf->Cell(25, 8, 'Estado', 1, 0, 'C', true);
-        $pdf->Cell(30, 8, 'Fecha Subida', 1, 1, 'C', true);
-        
-        // Datos de los documentos
-        foreach ($documentos as $doc) {
-            // Verificar si necesitamos una nueva página
-            if ($pdf->GetY() > 250) {
-                $pdf->AddPage();
-                // Repetir encabezados
-                $pdf->SetFont('helvetica', '', 8);
-                $pdf->SetFillColor(240, 240, 240);
-                $pdf->Cell(15, 8, 'ID', 1, 0, 'C', true);
-                $pdf->Cell(50, 8, 'Documento', 1, 0, 'C', true);
-                $pdf->Cell(30, 8, 'Tipo', 1, 0, 'C', true);
-                $pdf->Cell(40, 8, 'Estudiante', 1, 0, 'C', true);
-                $pdf->Cell(25, 8, 'Estado', 1, 0, 'C', true);
-                $pdf->Cell(30, 8, 'Fecha Subida', 1, 1, 'C', true);
-            }
-            
-            $pdf->SetFont('helvetica', '', 8);
-            $pdf->Cell(15, 8, $doc['ID_DOCUMENTO_PRACTICA'] ?? 'N/A', 1, 0, 'C');
-            $pdf->Cell(50, 8, substr($doc['NOMBRE_ARCHIVO'] ?? 'Sin nombre', 0, 20), 1, 0, 'L');
-            $pdf->Cell(30, 8, substr($doc['TIPO_DOCUMENTO'] ?? 'General', 0, 15), 1, 0, 'L');
-            $pdf->Cell(40, 8, substr(($doc['NOMBRE_ESTUDIANTE'] ?? '') . ' ' . ($doc['APELLIDO_ESTUDIANTE'] ?? ''), 0, 20), 1, 0, 'L');
-            $pdf->Cell(25, 8, substr($doc['ESTADO_REVISION'] ?? 'Pendiente', 0, 12), 1, 0, 'C');
-            
-            $fecha = $doc['FECHA_SUBIDA'] ?? null;
-            $fechaFormateada = $fecha ? date('d/m/Y', strtotime($fecha)) : 'No subido';
-            $pdf->Cell(30, 8, $fechaFormateada, 1, 1, 'C');
-        }
-        
-        $pdf->Ln(10);
-    }
-
-    /**
-     * Generar pie de página del PDF
-     */
-    private function generarPiePaginaPDF($pdf)
-    {
-        $pdf->SetY(-30);
-        $pdf->SetFont('helvetica', '', 8);
-        $pdf->Cell(0, 6, 'Generado por: Sistema ITSI - ' . date('d/m/Y H:i:s'), 0, 1, 'C');
-        $pdf->Cell(0, 6, 'Instituto Tecnológico Superior Ibarra', 0, 1, 'C');
     }
 }

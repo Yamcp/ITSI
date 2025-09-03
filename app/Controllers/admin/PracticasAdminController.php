@@ -31,6 +31,9 @@ class PracticasAdminController extends BaseController
 
     public function index()
     {
+        // Cargar helper de tiempo
+        helper('tiempo');
+        
         // Obtener estadísticas
         $estadisticas = $this->obtenerEstadisticas();
         

@@ -6,8 +6,8 @@ use CodeIgniter\Model;
 
 class TiposDocumentosPracticasModel extends Model
 {
-    protected $table = 'TAB_TIPOS_DOCUMENTOS_PRACTICAS';
-    protected $primaryKey = 'ID_TIPO_DOCUMENTO';
+    protected $table = 'TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES';
+    protected $primaryKey = 'ID_TIPO_DOCUMENTO_PREPROFESIONAL';
     protected $useAutoIncrement = true;
     protected $returnType = 'array';
     protected $useSoftDeletes = false;
@@ -16,47 +16,45 @@ class TiposDocumentosPracticasModel extends Model
         'CODIGO',
         'NOMBRE',
         'DESCRIPCION',
-        'REQUERIDO',
         'ORDEN',
-        'ACTIVO'
+        'OBLIGATORIO'
     ];
 
     // Dates
-    protected $useTimestamps = true;
+    protected $useTimestamps = false;
     protected $dateFormat = 'datetime';
-    protected $createdField = 'FECHA_CREACION';
-    protected $updatedField = 'FECHA_ACTUALIZACION';
+    protected $createdField = '';
+    protected $updatedField = '';
     protected $deletedField = '';
 
     // Validation
     protected $validationRules = [
-        'CODIGO' => 'required|max_length[10]|is_unique[TAB_TIPOS_DOCUMENTOS_PRACTICAS.CODIGO,ID_TIPO_DOCUMENTO,{ID_TIPO_DOCUMENTO}]',
-        'NOMBRE' => 'required|max_length[255]',
-        'DESCRIPCION' => 'permit_empty|max_length[1000]',
-        'REQUERIDO' => 'permit_empty|in_list[0,1]',
+        'CODIGO' => 'required|max_length[50]|is_unique[TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES.CODIGO,ID_TIPO_DOCUMENTO_PREPROFESIONAL,{ID_TIPO_DOCUMENTO_PREPROFESIONAL}]',
+        'NOMBRE' => 'required|max_length[150]',
+        'DESCRIPCION' => 'permit_empty',
         'ORDEN' => 'permit_empty|integer|is_natural',
-        'ACTIVO' => 'permit_empty|in_list[0,1]'
+        'OBLIGATORIO' => 'permit_empty|in_list[0,1]'
     ];
 
     protected $validationMessages = [
         'CODIGO' => [
             'required' => 'El código es requerido',
-            'max_length' => 'El código no puede exceder 10 caracteres',
+            'max_length' => 'El código no puede exceder 50 caracteres',
             'is_unique' => 'El código ya existe'
         ],
         'NOMBRE' => [
             'required' => 'El nombre es requerido',
-            'max_length' => 'El nombre no puede exceder 255 caracteres'
+            'max_length' => 'El nombre no puede exceder 150 caracteres'
         ],
-        'REQUERIDO' => [
-            'in_list' => 'El campo requerido debe ser 0 o 1'
+        'DESCRIPCION' => [
+            'max_length' => 'La descripción no puede exceder el límite permitido'
         ],
         'ORDEN' => [
             'integer' => 'El orden debe ser un número entero',
             'is_natural' => 'El orden debe ser un número natural'
         ],
-        'ACTIVO' => [
-            'in_list' => 'El campo activo debe ser 0 o 1'
+        'OBLIGATORIO' => [
+            'in_list' => 'El campo obligatorio debe ser 0 o 1'
         ]
     ];
 
@@ -174,12 +172,12 @@ class TiposDocumentosPracticasModel extends Model
             tdp.REQUERIDO,
             tdp.ORDEN,
             tdp.ACTIVO,
-            COUNT(dp.ID_DOCUMENTO_PRACTICA) as total_documentos,
-            SUM(CASE WHEN dp.ID_ESTADO_REVISION = 1 THEN 1 ELSE 0 END) as pendientes,
-            SUM(CASE WHEN dp.ID_ESTADO_REVISION = 2 THEN 1 ELSE 0 END) as aprobados,
-            SUM(CASE WHEN dp.ID_ESTADO_REVISION = 3 THEN 1 ELSE 0 END) as rechazados
+            COUNT(dp.ID_DOCUMENTO_PREPROFESIONAL) as total_documentos,
+            SUM(CASE WHEN dp.ESTADO_REVISION = \"Pendiente\" THEN 1 ELSE 0 END) as pendientes,
+            SUM(CASE WHEN dp.ESTADO_REVISION = \"Aprobado\" THEN 1 ELSE 0 END) as aprobados,
+            SUM(CASE WHEN dp.ESTADO_REVISION = \"Rechazado\" THEN 1 ELSE 0 END) as rechazados
         ');
-        $builder->join('TAB_DOCUMENTOS_PRACTICAS dp', 'tdp.ID_TIPO_DOCUMENTO = dp.ID_TIPO_DOCUMENTO', 'left');
+        $builder->join('TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES dp', 'tdp.ID_TIPO_DOCUMENTO = dp.ID_TIPO_DOCUMENTO', 'left');
         $builder->groupBy('tdp.ID_TIPO_DOCUMENTO, tdp.CODIGO, tdp.NOMBRE, tdp.DESCRIPCION, tdp.REQUERIDO, tdp.ORDEN, tdp.ACTIVO');
         $builder->orderBy('tdp.ORDEN', 'ASC');
         $builder->orderBy('tdp.CODIGO', 'ASC');

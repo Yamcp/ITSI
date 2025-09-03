@@ -5,12 +5,12 @@ use CodeIgniter\Model;
 
 class EstadosPracticasModel extends Model
 {
-    protected $table = 'TAB_ESTADO_PRACTICAS';
-    protected $primaryKey = 'ID_ESTADO_PRACTICAS';
-    protected $allowedFields = ['ESTADO'];
+    protected $table = 'TAB_ESTADOS_PRACTICAS_PREPROFESIONALES';
+    protected $primaryKey = 'ID_ESTADO_PREPROFESIONAL';
+    protected $allowedFields = ['ESTADO', 'DESCRIPCION', 'COLOR'];
     protected $returnType = 'array';
     
     protected $validationRules = [
-        'ESTADO' => 'required|min_length[3]|max_length[50]|is_unique[TAB_ESTADO_PRACTICAS.ESTADO,ID_ESTADO_PRACTICAS,{ID_ESTADO_PRACTICAS}]'
+        'ESTADO' => 'required|min_length[3]|max_length[50]|is_unique[TAB_ESTADOS_PRACTICAS_PREPROFESIONALES.ESTADO,ID_ESTADO_PREPROFESIONAL,{ID_ESTADO_PREPROFESIONAL}]'
     ];
 }

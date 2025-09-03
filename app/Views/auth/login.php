@@ -98,6 +98,30 @@
             margin-bottom: 1.5rem;
         }
 
+        /* Estilos para el botón de mostrar/ocultar contraseña */
+        #togglePassword {
+            color: #6c757d;
+            transition: color 0.3s ease;
+        }
+
+        #togglePassword:hover {
+            color: #0d6efd;
+        }
+
+        #togglePassword:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+        #togglePasswordIcon {
+            font-size: 1.1rem;
+        }
+
+        /* Ajustar el padding del input cuando tiene el botón */
+        .form-floating.position-relative .form-control {
+            padding-right: 3rem;
+        }
+
         @media (max-width: 576px) {
             .login-card {
                 max-width: 95vw;
@@ -156,22 +180,25 @@
                             Este campo es obligatorio.
                         </div>
                     </div>
-                    <div class="form-floating mb-4">
+                    <div class="form-floating mb-4 position-relative">
                         <input type="password" class="form-control" id="password" name="password" placeholder="Contraseña" required
                             data-bs-toggle="tooltip" data-bs-placement="right" title="Ingrese su contraseña">
                         <label for="password"><i class="bi bi-lock-fill me-2"></i>Contraseña</label>
+                        <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y me-3" 
+                                id="togglePassword" style="z-index: 10; border: none; background: none; padding: 0;">
+                            <i class="bi bi-eye" id="togglePasswordIcon"></i>
+                        </button>
                         <div class="invalid-feedback">
                             La contraseña es obligatoria.
                         </div>
                     </div>
                     <div class="d-flex justify-content-between align-items-center mb-4">
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="" id="rememberMe">
+                            <input class="form-check-input" type="checkbox" value="1" id="rememberMe" name="rememberMe">
                             <label class="form-check-label" for="rememberMe">
                                 Recordarme
                             </label>
                         </div>
-                        <a href="<?= site_url('forgot-password') ?>" class="text-decoration-none">¿Olvidó su contraseña?</a>
                     </div>
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary btn-login text-uppercase fw-bold" id="btnLogin">
@@ -188,18 +215,110 @@
     </div>
     <script src="<?= base_url('login/assets/js/bootstrap.bundle.min.js') ?>"></script>
     <script>
+        // Función para guardar datos en localStorage
+        function saveToLocalStorage(key, value) {
+            try {
+                localStorage.setItem(key, value);
+            } catch (e) {
+                console.log('No se pudo guardar en localStorage:', e);
+            }
+        }
+
+        // Función para obtener datos de localStorage
+        function getFromLocalStorage(key) {
+            try {
+                return localStorage.getItem(key);
+            } catch (e) {
+                console.log('No se pudo obtener de localStorage:', e);
+                return null;
+            }
+        }
+
+        // Función para eliminar datos de localStorage
+        function removeFromLocalStorage(key) {
+            try {
+                localStorage.removeItem(key);
+            } catch (e) {
+                console.log('No se pudo eliminar de localStorage:', e);
+            }
+        }
+
+        // Cargar datos guardados al cargar la página
+        document.addEventListener('DOMContentLoaded', function() {
+            const usuarioInput = document.getElementById('usuario');
+            const rememberCheckbox = document.getElementById('rememberMe');
+            
+            // Cargar usuario guardado
+            const savedUsuario = getFromLocalStorage('remembered_usuario');
+            if (savedUsuario) {
+                usuarioInput.value = savedUsuario;
+            }
+            
+            // Cargar estado del checkbox
+            const savedRemember = getFromLocalStorage('remember_me');
+            if (savedRemember === 'true') {
+                rememberCheckbox.checked = true;
+            }
+        });
+
+        // Funcionalidad para mostrar/ocultar contraseña
+        document.getElementById('togglePassword').addEventListener('click', function() {
+            const passwordInput = document.getElementById('password');
+            const toggleIcon = document.getElementById('togglePasswordIcon');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                toggleIcon.classList.remove('bi-eye');
+                toggleIcon.classList.add('bi-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                toggleIcon.classList.remove('bi-eye-slash');
+                toggleIcon.classList.add('bi-eye');
+            }
+        });
+
         // Mostrar spinner al enviar
         document.getElementById('loginForm').addEventListener('submit', function(e) {
+            const usuarioInput = document.getElementById('usuario');
+            const rememberCheckbox = document.getElementById('rememberMe');
+            
             // Validación visual Bootstrap 5
             if (!this.checkValidity()) {
                 e.preventDefault();
                 e.stopPropagation();
             } else {
+                // Guardar datos si el checkbox está marcado
+                if (rememberCheckbox.checked) {
+                    saveToLocalStorage('remembered_usuario', usuarioInput.value);
+                    saveToLocalStorage('remember_me', 'true');
+                } else {
+                    // Limpiar datos si no está marcado
+                    removeFromLocalStorage('remembered_usuario');
+                    removeFromLocalStorage('remember_me');
+                }
+                
                 document.getElementById('btnLogin').disabled = true;
                 document.getElementById('btnText').classList.add('d-none');
                 document.getElementById('btnSpinner').classList.remove('d-none');
             }
             this.classList.add('was-validated');
+        });
+
+        // Manejar cambios en el checkbox
+        document.getElementById('rememberMe').addEventListener('change', function() {
+            const usuarioInput = document.getElementById('usuario');
+            
+            if (this.checked) {
+                // Si se marca, guardar el usuario actual
+                if (usuarioInput.value.trim()) {
+                    saveToLocalStorage('remembered_usuario', usuarioInput.value);
+                }
+                saveToLocalStorage('remember_me', 'true');
+            } else {
+                // Si se desmarca, limpiar los datos
+                removeFromLocalStorage('remembered_usuario');
+                removeFromLocalStorage('remember_me');
+            }
         });
 
         // Inicializar tooltips

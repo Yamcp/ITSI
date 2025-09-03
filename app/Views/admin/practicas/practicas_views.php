@@ -375,7 +375,7 @@
                                                                         </td>
                                                                         <td><span class="badge bg-primary"><?= $actividad['TIPO_PRACTICA'] ?></span></td>
                                                                         <td><?= $actividad['HORAS_CUMPLIDAS'] ?>/<?= $actividad['HORAS_TOTALES'] ?>h</td>
-                                                                        <td><?= $this->tiempoTranscurrido($actividad['FECHA_REPORTE']) ?></td>
+                                                                        <td><?= tiempo_transcurrido($actividad['FECHA_REPORTE']) ?></td>
                                                                         <td>
                                                                             <?php
                                                                             $estadoClass = '';

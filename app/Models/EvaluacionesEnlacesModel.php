@@ -22,18 +22,20 @@ class EvaluacionesEnlacesModel extends Model
         'FECHA_VENCIMIENTO',
         'ESTADO',
         'NUMERO_RESPUESTAS',
-        'ACTIVO'
+        'ACTIVO',
+        'FECHA_ACTUALIZACION'
     ];
 
     // Dates
     protected $useTimestamps = true;
     protected $dateFormat = 'datetime';
     protected $createdField = 'FECHA_CREACION';
-    protected $updatedField = '';
+    protected $updatedField = 'FECHA_ACTUALIZACION';
     protected $deletedField = '';
 
     // Validation
     protected $validationRules = [
+        'ID_ACTIVIDAD_EDUCACION' => 'required|integer',
         'NOMBRE_EVALUACION' => 'required|max_length[200]',
         'TIPO_EVALUACION' => 'required|max_length[50]',
         'ENLACE_FORMULARIO' => 'required|max_length[500]|valid_url',
@@ -42,6 +44,10 @@ class EvaluacionesEnlacesModel extends Model
     ];
 
     protected $validationMessages = [
+        'ID_ACTIVIDAD_EDUCACION' => [
+            'required' => 'El curso es requerido',
+            'integer' => 'El ID del curso debe ser un número entero'
+        ],
         'NOMBRE_EVALUACION' => [
             'required' => 'El nombre de la evaluación es requerido',
             'max_length' => 'El nombre no puede exceder 200 caracteres'
@@ -87,6 +93,7 @@ class EvaluacionesEnlacesModel extends Model
         $builder = $this->db->table($this->table . ' e');
         $builder->select('
             e.ID_EVALUACION_ENLACE,
+            e.ID_ACTIVIDAD_EDUCACION,
             e.NOMBRE_EVALUACION,
             e.TIPO_EVALUACION,
             e.ENLACE_FORMULARIO,
@@ -101,9 +108,39 @@ class EvaluacionesEnlacesModel extends Model
         ');
         $builder->join('TAB_ACTIVIDADES_EDUCACION a', 'a.ID_ACTIVIDAD_EDUCACION = e.ID_ACTIVIDAD_EDUCACION', 'left');
         $builder->join('TAB_USUARIOS u', 'u.ID_USUARIO = e.ID_USUARIO_CREADOR', 'left');
+        $builder->where('e.ACTIVO', true);
         $builder->orderBy('e.FECHA_CREACION', 'DESC');
         
         return $builder->get()->getResultArray();
+    }
+
+    /**
+     * Obtener una evaluación específica con información relacionada
+     */
+    public function obtenerEvaluacionCompleta($id)
+    {
+        $builder = $this->db->table($this->table . ' e');
+        $builder->select('
+            e.ID_EVALUACION_ENLACE,
+            e.ID_ACTIVIDAD_EDUCACION,
+            e.NOMBRE_EVALUACION,
+            e.TIPO_EVALUACION,
+            e.ENLACE_FORMULARIO,
+            e.DESCRIPCION,
+            e.FECHA_CREACION,
+            e.FECHA_VENCIMIENTO,
+            e.ESTADO,
+            e.NUMERO_RESPUESTAS,
+            e.ACTIVO,
+            a.NOMBRE_ACTIVIDAD,
+            u.USUARIO as USUARIO_CREADOR
+        ');
+        $builder->join('TAB_ACTIVIDADES_EDUCACION a', 'a.ID_ACTIVIDAD_EDUCACION = e.ID_ACTIVIDAD_EDUCACION', 'left');
+        $builder->join('TAB_USUARIOS u', 'u.ID_USUARIO = e.ID_USUARIO_CREADOR', 'left');
+        $builder->where('e.ID_EVALUACION_ENLACE', $id);
+        $builder->where('e.ACTIVO', true);
+        
+        return $builder->get()->getRowArray();
     }
 
     /**

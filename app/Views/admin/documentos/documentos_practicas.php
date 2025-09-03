@@ -109,7 +109,7 @@
                         <option value="">Todos los tipos</option>
                         <?php if (isset($tiposDocumentos)): ?>
                             <?php foreach ($tiposDocumentos as $tipo): ?>
-                                <option value="<?= $tipo['ID_TIPO_DOCUMENTO'] ?>"><?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?></option>
+                                <option value="<?= $tipo['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?>"><?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?></option>
                             <?php endforeach; ?>
                         <?php endif; ?>
                     </select>
@@ -200,7 +200,7 @@
                                     </div>
                                 </div>
                                 <div class="card-body">
-                                    <div class="row" id="documentos-<?= $tipo['ID_TIPO_DOCUMENTO'] ?>">
+                                    <div class="row" id="documentos-<?= $tipo['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?>">
                                         <!-- Los documentos de este tipo se cargarán aquí -->
                                     </div>
                                 </div>
@@ -283,7 +283,7 @@
                                     <option value="">Seleccionar tipo...</option>
                                     <?php if (isset($tipos_documentos)): ?>
                                         <?php foreach ($tipos_documentos as $tipo): ?>
-                                            <option value="<?= $tipo['ID_TIPO_DOCUMENTO'] ?>"><?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?></option>
+                                            <option value="<?= $tipo['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?>"><?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?></option>
                                         <?php endforeach; ?>
                                     <?php endif; ?>
                                 </select>
@@ -296,7 +296,7 @@
                                     <option value="">Seleccionar estudiante...</option>
                                     <?php if (isset($estudiantes)): ?>
                                         <?php foreach ($estudiantes as $estudiante): ?>
-                                            <option value="<?= $estudiante['ID_USUARIO'] ?>"><?= $estudiante['NOMBRE'] ?> <?= $estudiante['APELLIDO'] ?> - <?= $estudiante['CEDULA'] ?></option>
+                                            <option value="<?= $estudiante['ID_ESTUDIANTE'] ?>"><?= $estudiante['NOMBRE_COMPLETO'] ?> - <?= $estudiante['CEDULA'] ?></option>
                                         <?php endforeach; ?>
                                     <?php endif; ?>
                                 </select>
@@ -398,7 +398,7 @@
                             <option value="">Todos los tipos</option>
                             <?php if (isset($tipos_documentos)): ?>
                                 <?php foreach ($tipos_documentos as $tipo): ?>
-                                    <option value="<?= $tipo['ID_TIPO_DOCUMENTO'] ?>"><?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?></option>
+                                    <option value="<?= $tipo['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?>"><?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?></option>
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </select>
@@ -545,13 +545,13 @@
         const tiposDocumentos = <?= json_encode($tiposDocumentos ?? []) ?>;
         
         tiposDocumentos.forEach(tipo => {
-            const contenedor = document.getElementById(`documentos-${tipo.ID_TIPO_DOCUMENTO}`);
+            const contenedor = document.getElementById(`documentos-${tipo.ID_TIPO_DOCUMENTO_PREPROFESIONAL}`);
             if (contenedor) {
                 contenedor.innerHTML = '';
                 
                 // Filtrar documentos de este tipo
                 const documentosTipo = documentosPracticas.filter(doc => 
-                    doc.ID_TIPO_DOCUMENTO == tipo.ID_TIPO_DOCUMENTO
+                    doc.ID_TIPO_DOCUMENTO_PREPROFESIONAL == tipo.ID_TIPO_DOCUMENTO_PREPROFESIONAL
                 );
                 
                 if (documentosTipo.length === 0) {
@@ -709,7 +709,7 @@
         }
         
         if (filtroTipo) {
-            documentosFiltrados = documentosFiltrados.filter(doc => doc.ID_TIPO_DOCUMENTO == filtroTipo);
+            documentosFiltrados = documentosFiltrados.filter(doc => doc.ID_TIPO_DOCUMENTO_PREPROFESIONAL == filtroTipo);
         }
         
         if (buscarEstudiante) {

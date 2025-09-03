@@ -54,14 +54,14 @@ class AsignacionesPracticasModel extends Model
             ->select("
                 {$this->table}.*,
                 TP.PRACTICA            AS TIPO_PRACTICA_NOMBRE,
-                EP.ESTADO              AS ESTADO_PRACTICA_NOMBRE,
+                {$this->table}.ID_ESTADO_PRACTICAS AS ESTADO_PRACTICA_ID,
                 IC.NOMBRE              AS INSTITUCION_NOMBRE,
                 U.USUARIO              AS USUARIO_LOGIN,
                 DP.NOMBRE              AS USUARIO_NOMBRE,
                 DP.APELLIDO            AS USUARIO_APELLIDO
             ")
             ->join('TAB_TIPOS_PRACTICAS TP', 'TP.ID_TIPO_PRACTICA = ' . $this->table . '.ID_TIPO_PRACTICA', 'left')
-            ->join('TAB_ESTADO_PRACTICAS EP', 'EP.ID_ESTADO_PRACTICAS = ' . $this->table . '.ID_ESTADO_PRACTICAS', 'left')
+            // ->join('TAB_ESTADO_PRACTICAS EP', 'EP.ID_ESTADO_PRACTICAS = ' . $this->table . '.ID_ESTADO_PRACTICAS', 'left') // Tabla no existe
             ->join('TAB_INSTITUCIONES_CONVENIOS IC', 'IC.ID_INSTITUCION_CONVENIO = ' . $this->table . '.ID_INSTITUCION_CONVENIO', 'left')
             ->join('TAB_USUARIOS U', 'U.ID_USUARIO = ' . $this->table . '.ID_USUARIO', 'left')
             ->join('TAB_DATOS_PERSONAS DP', 'DP.ID_DATO_PERSONA = U.ID_DATO_PERSONA', 'left')
@@ -85,12 +85,12 @@ class AsignacionesPracticasModel extends Model
             ->select("
                 {$this->table}.*,
                 TP.PRACTICA AS TIPO_PRACTICA_NOMBRE,
-                EP.ESTADO   AS ESTADO_PRACTICA_NOMBRE,
+                {$this->table}.ID_ESTADO_PRACTICAS AS ESTADO_PRACTICA_ID,
                 IC.NOMBRE   AS INSTITUCION_NOMBRE,
                 CONCAT(DP.NOMBRE, ' ', DP.APELLIDO) AS USUARIO_COMPLETO
             ")
             ->join('TAB_TIPOS_PRACTICAS TP', 'TP.ID_TIPO_PRACTICA = ' . $this->table . '.ID_TIPO_PRACTICA', 'left')
-            ->join('TAB_ESTADO_PRACTICAS EP', 'EP.ID_ESTADO_PRACTICAS = ' . $this->table . '.ID_ESTADO_PRACTICAS', 'left')
+            // ->join('TAB_ESTADO_PRACTICAS EP', 'EP.ID_ESTADO_PRACTICAS = ' . $this->table . '.ID_ESTADO_PRACTICAS', 'left') // Tabla no existe
             ->join('TAB_INSTITUCIONES_CONVENIOS IC', 'IC.ID_INSTITUCION_CONVENIO = ' . $this->table . '.ID_INSTITUCION_CONVENIO', 'left')
             ->join('TAB_USUARIOS U', 'U.ID_USUARIO = ' . $this->table . '.ID_USUARIO', 'left')
             ->join('TAB_DATOS_PERSONAS DP', 'DP.ID_DATO_PERSONA = U.ID_DATO_PERSONA', 'left');
@@ -99,7 +99,6 @@ class AsignacionesPracticasModel extends Model
             $builder->groupStart()
                 ->like('IC.NOMBRE', $term)
                 ->orLike('TP.PRACTICA', $term)
-                ->orLike('EP.ESTADO', $term)
                 ->orLike('DP.NOMBRE', $term)
                 ->orLike('DP.APELLIDO', $term)
                 ->groupEnd();
@@ -119,11 +118,11 @@ class AsignacionesPracticasModel extends Model
             ->select("
                 {$this->table}.*,
                 TP.PRACTICA AS TIPO_PRACTICA_NOMBRE,
-                EP.ESTADO   AS ESTADO_PRACTICA_NOMBRE,
+                {$this->table}.ID_ESTADO_PRACTICAS AS ESTADO_PRACTICA_ID,
                 IC.NOMBRE   AS INSTITUCION_NOMBRE
             ")
             ->join('TAB_TIPOS_PRACTICAS TP', 'TP.ID_TIPO_PRACTICA = ' . $this->table . '.ID_TIPO_PRACTICA', 'left')
-            ->join('TAB_ESTADO_PRACTICAS EP', 'EP.ID_ESTADO_PRACTICAS = ' . $this->table . '.ID_ESTADO_PRACTICAS', 'left')
+            // ->join('TAB_ESTADO_PRACTICAS EP', 'EP.ID_ESTADO_PRACTICAS = ' . $this->table . '.ID_ESTADO_PRACTICAS', 'left') // Tabla no existe
             ->join('TAB_INSTITUCIONES_CONVENIOS IC', 'IC.ID_INSTITUCION_CONVENIO = ' . $this->table . '.ID_INSTITUCION_CONVENIO', 'left');
 
         if ($idEstado) {

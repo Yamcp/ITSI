@@ -12,6 +12,19 @@ class AuthController extends BaseController
         if (session()->get('logged_in')) {
             return $this->redirigirSegunRol(session()->get('rol'));
         }
+        
+        // Verificar si existe cookie de recordarme
+        $rememberToken = $this->request->getCookie('remember_token');
+        if ($rememberToken) {
+            // Aquí podrías verificar el token en la base de datos
+            // Por ahora, simplemente redirigimos al dashboard principal
+            // En una implementación más segura, deberías:
+            // 1. Verificar el token en la base de datos
+            // 2. Obtener los datos del usuario asociado al token
+            // 3. Crear la sesión con esos datos
+            log_message('info', 'Token de recordarme encontrado: ' . $rememberToken);
+        }
+        
         return view('auth/login');
     }
 
@@ -22,10 +35,11 @@ class AuthController extends BaseController
 
         $usuario = $this->request->getPost('usuario');
         $contrasena = $this->request->getPost('password');
+        $recordarme = $this->request->getPost('rememberMe');
 
         // Validación básica
         if (empty($usuario) || empty($contrasena)) {
-            $session->setFlashdata('msg', 'Por favor complete todos los campos');
+            $session->setFlashdata('error', 'Por favor complete todos los campos');
             return redirect()->to('/')->withInput();
         }
 
@@ -36,7 +50,7 @@ class AuthController extends BaseController
             
             // Verificar que el usuario esté activo
             if ($userData['estado'] != '1') {
-                $session->setFlashdata('msg', 'Usuario inactivo. Contacte al administrador');
+                $session->setFlashdata('error', 'Usuario inactivo. Contacte al administrador');
                 return redirect()->to('/')->withInput();
             }
             
@@ -52,6 +66,29 @@ class AuthController extends BaseController
 
             $session->set($ses_data);
 
+            // Manejar la opción "Recordarme"
+            if ($recordarme) {
+                // Crear token de autenticación persistente
+                $token = bin2hex(random_bytes(32));
+                $expires = time() + (30 * 24 * 60 * 60); // 30 días
+                
+                // Guardar token en cookie
+                $cookie = [
+                    'name' => 'remember_token',
+                    'value' => $token,
+                    'expire' => $expires,
+                    'httponly' => true,
+                    'secure' => false, // Cambiar a true en HTTPS
+                    'samesite' => 'Lax'
+                ];
+                
+                $this->response->setCookie($cookie);
+                
+                // Guardar token en base de datos (opcional, para mayor seguridad)
+                // Aquí podrías guardar el token en una tabla de tokens de sesión
+                log_message('info', 'Token de recordarme creado para usuario: ' . $usuario);
+            }
+
             // Log para debugging (remover en producción)
             log_message('info', 'Usuario autenticado: ' . $usuario . ' con rol: ' . $userData['rol']);
 
@@ -59,7 +96,7 @@ class AuthController extends BaseController
             return $this->redirigirSegunRol((int)$userData['rol']);
             
         } else {
-            $session->setFlashdata('msg', 'Usuario o contraseña incorrectos');
+            $session->setFlashdata('error', 'Usuario o contraseña incorrectos');
             return redirect()->to('/')->withInput();
         }
     }
@@ -101,9 +138,12 @@ class AuthController extends BaseController
         // Destruir la sesión completa
         $session->destroy();
         
+        // Limpiar cookie de recordarme
+        $this->response->deleteCookie('remember_token');
+        
         // Redirigir al login con mensaje
         return redirect()->to('/')
-            ->with('msg', 'Sesión cerrada correctamente');
+            ->with('success', 'Sesión cerrada correctamente');
     }
 
     // Método para verificar si el usuario está logueado

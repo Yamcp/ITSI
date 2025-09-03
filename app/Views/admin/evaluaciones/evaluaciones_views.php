@@ -231,6 +231,7 @@
             </div>
             <div class="modal-body">
                 <form id="formNuevaEvaluacion">
+                    <?= csrf_field() ?>
                     <input type="hidden" name="curso_id" id="cursoIdHidden">
                     <div class="row">
                         <div class="col-md-6">
@@ -360,6 +361,150 @@
     </div>
 </div>
 
+<!-- Modal Editar Evaluación -->
+<div class="modal fade" id="modalEditarEvaluacion" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit me-2"></i>
+                    Editar Evaluación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formEditarEvaluacion">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="evaluacion_id" id="evaluacionIdEditar">
+                    <input type="hidden" name="curso_id" id="cursoIdEditar">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Seleccionar Curso <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <select class="form-select" name="curso_select" id="selectCursoEditar" onchange="cargarDatosCursoEditar()" required>
+                                        <option value="">Seleccionar curso...</option>
+                                        <!-- Los cursos se cargarán dinámicamente desde la BD -->
+                                    </select>
+                                    <button class="btn btn-outline-secondary" type="button" onclick="limpiarDatosCursoEditar()" title="Limpiar selección">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                                <small class="text-muted">Selecciona el curso para el cual editarás la evaluación</small>
+                                <div class="invalid-feedback" id="error-curso-editar">
+                                    Debes seleccionar un curso
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Tipo de Evaluación <span class="text-danger">*</span></label>
+                                <select class="form-select" name="tipo_evaluacion" id="tipoEvaluacionEditar" required>
+                                    <option value="">Seleccionar tipo...</option>
+                                    <option value="satisfaccion">Satisfacción del Participante</option>
+                                    <option value="instructores">Evaluación del Instructor</option>
+                                    <option value="contenido">Evaluación del Contenido</option>
+                                    <option value="metodologia">Evaluación de la Metodología</option>
+                                    <option value="recursos">Evaluación de Recursos</option>
+                                    <option value="general">Evaluación General</option>
+                                </select>
+                                <div class="invalid-feedback" id="error-tipo-editar">
+                                    Debes seleccionar un tipo de evaluación
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="mb-3">
+                                <label class="form-label">Nombre de la Evaluación <span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="nombre_evaluacion" id="nombreEvaluacionEditar" placeholder="Se generará automáticamente al seleccionar el curso" required>
+                                <small class="text-muted">Se genera automáticamente basado en el curso seleccionado</small>
+                                <div class="invalid-feedback" id="error-nombre-editar">
+                                    El nombre de la evaluación es requerido
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Estado del Curso</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="estadoCursoEditar" readonly>
+                                    <span class="input-group-text" id="estadoCursoIconEditar">
+                                        <i class="fas fa-info-circle text-muted"></i>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Fecha de Inicio del Curso</label>
+                                <input type="text" class="form-control" id="fechaInicioCursoEditar" readonly>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Fecha de Fin del Curso</label>
+                                <input type="text" class="form-control" id="fechaFinCursoEditar" readonly>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Enlace del Formulario <span class="text-danger">*</span></label>
+                        <input type="url" class="form-control" name="enlace_formulario" id="enlaceFormularioEditar" placeholder="https://forms.google.com/..." required>
+                        <small class="text-muted">Pega aquí el enlace del formulario que creaste en Google Forms, Microsoft Forms, etc.</small>
+                        <div class="invalid-feedback" id="error-enlace-editar">
+                            Debes proporcionar un enlace válido del formulario
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea class="form-control" name="descripcion" id="descripcionEditar" rows="3" placeholder="Describe el propósito de esta evaluación, qué se evalúa, etc."></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Fecha de Vencimiento <span class="text-danger">*</span></label>
+                                <input type="date" class="form-control" name="fecha_vencimiento" id="fechaVencimientoEditar" required>
+                                <div class="invalid-feedback" id="error-fecha-editar">
+                                    Debes seleccionar una fecha de vencimiento
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Estado <span class="text-danger">*</span></label>
+                                <select class="form-select" name="estado" id="estadoEvaluacionEditar" required>
+                                    <option value="">Seleccionar estado...</option>
+                                    <option value="activo">Activo</option>
+                                    <option value="inactivo">Inactivo</option>
+                                    <option value="borrador">Borrador</option>
+                                </select>
+                                <div class="invalid-feedback" id="error-estado-editar">
+                                    Debes seleccionar un estado
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnActualizarEvaluacion" onclick="actualizarEvaluacion()">
+                    <i class="fas fa-save me-1"></i>Actualizar Evaluación
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Filtros -->
 <div class="modal fade" id="modalFiltrosEvaluaciones" tabindex="-1">
     <div class="modal-dialog">
@@ -453,8 +598,15 @@
     }
 
     function generarVistaGrid() {
+        console.log('Generando vista grid con', evaluaciones.length, 'evaluaciones');
         const container = document.getElementById('vistaGrid');
         container.innerHTML = '';
+
+        if (evaluaciones.length === 0) {
+            console.log('No hay evaluaciones para mostrar');
+            container.innerHTML = '<div class="col-12"><div class="alert alert-info text-center">No hay evaluaciones disponibles</div></div>';
+            return;
+        }
 
         evaluaciones.forEach(eval => {
             const card = document.createElement('div');
@@ -702,7 +854,44 @@
     }
 
     function editarEvaluacion(id) {
-        showNotification('Función de edición en desarrollo', 'info');
+        // Cargar datos de la evaluación
+        fetch(`<?= base_url('admin/evaluaciones/obtener') ?>/${id}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    const evaluacion = data.data;
+                    
+                    // Llenar el formulario de edición
+                    document.getElementById('evaluacionIdEditar').value = evaluacion.id;
+                    document.getElementById('cursoIdEditar').value = evaluacion.curso_id;
+                    document.getElementById('selectCursoEditar').value = evaluacion.curso_id;
+                    document.getElementById('tipoEvaluacionEditar').value = evaluacion.tipo;
+                    document.getElementById('nombreEvaluacionEditar').value = evaluacion.nombre;
+                    document.getElementById('enlaceFormularioEditar').value = evaluacion.enlace;
+                    document.getElementById('descripcionEditar').value = evaluacion.descripcion || '';
+                    document.getElementById('fechaVencimientoEditar').value = evaluacion.fecha_vencimiento;
+                    document.getElementById('estadoEvaluacionEditar').value = evaluacion.estado;
+                    
+                    // Cargar datos del curso si está disponible
+                    if (evaluacion.curso_id) {
+                        cargarDatosCursoEditar();
+                    }
+                    
+                    // Limpiar validaciones
+                    limpiarValidacionesEditar();
+                    
+                    // Mostrar modal
+                    const modal = new bootstrap.Modal(document.getElementById('modalEditarEvaluacion'));
+                    modal.show();
+                    
+                } else {
+                    showNotification('Error al cargar los datos de la evaluación: ' + data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error al cargar los datos de la evaluación', 'error');
+            });
     }
 
     function eliminarEvaluacion(id) {
@@ -858,6 +1047,209 @@
         showNotification('Exportando a CSV...', 'info');
     }
 
+    function actualizarEvaluacion() {
+        // Limpiar validaciones anteriores
+        limpiarValidacionesEditar();
+        
+        // Validar formulario
+        const esValido = validarFormularioEditar();
+        
+        if (!esValido) {
+            showNotification('Por favor completa todos los campos obligatorios correctamente', 'error');
+            return;
+        }
+
+        const form = document.getElementById('formEditarEvaluacion');
+        const formData = new FormData(form);
+        const evaluacionId = document.getElementById('evaluacionIdEditar').value;
+
+        // Enviar datos al servidor
+        fetch(`<?= base_url('admin/evaluaciones/actualizar') ?>/${evaluacionId}`, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message, 'success');
+                bootstrap.Modal.getInstance(document.getElementById('modalEditarEvaluacion')).hide();
+                form.reset();
+                limpiarDatosCursoEditar();
+                limpiarValidacionesEditar();
+                cargarEvaluaciones();
+            } else {
+                showNotification(data.message, 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Error al actualizar la evaluación', 'error');
+        });
+    }
+
+    function validarFormularioEditar() {
+        let esValido = true;
+        
+        // Validar curso seleccionado
+        const cursoId = document.getElementById('cursoIdEditar').value;
+        const selectCurso = document.getElementById('selectCursoEditar');
+        if (!cursoId || selectCurso.value === '') {
+            marcarCampoInvalidoEditar(selectCurso, 'error-curso-editar');
+            esValido = false;
+        } else {
+            marcarCampoValidoEditar(selectCurso);
+        }
+        
+        // Validar tipo de evaluación
+        const tipoEvaluacion = document.getElementById('tipoEvaluacionEditar');
+        if (!tipoEvaluacion.value) {
+            marcarCampoInvalidoEditar(tipoEvaluacion, 'error-tipo-editar');
+            esValido = false;
+        } else {
+            marcarCampoValidoEditar(tipoEvaluacion);
+        }
+        
+        // Validar nombre de evaluación
+        const nombreEvaluacion = document.getElementById('nombreEvaluacionEditar');
+        if (!nombreEvaluacion.value.trim()) {
+            marcarCampoInvalidoEditar(nombreEvaluacion, 'error-nombre-editar');
+            esValido = false;
+        } else {
+            marcarCampoValidoEditar(nombreEvaluacion);
+        }
+        
+        // Validar enlace del formulario
+        const enlaceFormulario = document.getElementById('enlaceFormularioEditar');
+        if (!enlaceFormulario.value.trim()) {
+            marcarCampoInvalidoEditar(enlaceFormulario, 'error-enlace-editar');
+            esValido = false;
+        } else if (!esUrlValida(enlaceFormulario.value)) {
+            marcarCampoInvalidoEditar(enlaceFormulario, 'error-enlace-editar');
+            esValido = false;
+        } else {
+            marcarCampoValidoEditar(enlaceFormulario);
+        }
+        
+        // Validar fecha de vencimiento
+        const fechaVencimiento = document.getElementById('fechaVencimientoEditar');
+        if (!fechaVencimiento.value) {
+            marcarCampoInvalidoEditar(fechaVencimiento, 'error-fecha-editar');
+            esValido = false;
+        } else {
+            // Validar que la fecha no sea anterior a hoy
+            const hoy = new Date().toISOString().split('T')[0];
+            if (fechaVencimiento.value < hoy) {
+                marcarCampoInvalidoEditar(fechaVencimiento, 'error-fecha-editar');
+                document.getElementById('error-fecha-editar').textContent = 'La fecha de vencimiento no puede ser anterior a hoy';
+                esValido = false;
+            } else {
+                marcarCampoValidoEditar(fechaVencimiento);
+            }
+        }
+        
+        // Validar estado
+        const estadoEvaluacion = document.getElementById('estadoEvaluacionEditar');
+        if (!estadoEvaluacion.value) {
+            marcarCampoInvalidoEditar(estadoEvaluacion, 'error-estado-editar');
+            esValido = false;
+        } else {
+            marcarCampoValidoEditar(estadoEvaluacion);
+        }
+        
+        return esValido;
+    }
+
+    function marcarCampoInvalidoEditar(campo, errorId) {
+        campo.classList.remove('is-valid');
+        campo.classList.add('is-invalid');
+        document.getElementById(errorId).style.display = 'block';
+    }
+
+    function marcarCampoValidoEditar(campo) {
+        campo.classList.remove('is-invalid');
+        campo.classList.add('is-valid');
+    }
+
+    function limpiarValidacionesEditar() {
+        const campos = ['selectCursoEditar', 'tipoEvaluacionEditar', 'nombreEvaluacionEditar', 'enlaceFormularioEditar', 'fechaVencimientoEditar', 'estadoEvaluacionEditar'];
+        const errores = ['error-curso-editar', 'error-tipo-editar', 'error-nombre-editar', 'error-enlace-editar', 'error-fecha-editar', 'error-estado-editar'];
+        
+        campos.forEach(id => {
+            const campo = document.getElementById(id);
+            if (campo) {
+                campo.classList.remove('is-valid', 'is-invalid');
+            }
+        });
+        
+        errores.forEach(id => {
+            const error = document.getElementById(id);
+            if (error) {
+                error.style.display = 'none';
+            }
+        });
+    }
+
+    function cargarDatosCursoEditar() {
+        const selectCurso = document.getElementById('selectCursoEditar');
+        const cursoId = selectCurso.value;
+        
+        if (!cursoId) {
+            limpiarDatosCursoEditar();
+            return;
+        }
+        
+        const curso = cursos.find(c => c.ID_ACTIVIDAD_EDUCACION == cursoId);
+        if (curso) {
+            // Llenar campos con datos del curso
+            document.getElementById('cursoIdEditar').value = curso.ID_ACTIVIDAD_EDUCACION;
+            document.getElementById('estadoCursoEditar').value = curso.ESTADO;
+            document.getElementById('fechaInicioCursoEditar').value = formatearFecha(curso.FECHA_INICIO);
+            document.getElementById('fechaFinCursoEditar').value = formatearFecha(curso.FECHA_FIN);
+            
+            // Actualizar icono del estado
+            const estadoIcon = document.getElementById('estadoCursoIconEditar');
+            if (curso.ESTADO === 'activo') {
+                estadoIcon.innerHTML = '<i class="fas fa-check-circle text-success"></i>';
+            } else if (curso.ESTADO === 'finalizado') {
+                estadoIcon.innerHTML = '<i class="fas fa-flag-checkered text-info"></i>';
+            } else {
+                estadoIcon.innerHTML = '<i class="fas fa-clock text-warning"></i>';
+            }
+            
+            // Validar el campo curso como válido
+            marcarCampoValidoEditar(selectCurso);
+        }
+    }
+
+    function limpiarDatosCursoEditar() {
+        document.getElementById('cursoIdEditar').value = '';
+        document.getElementById('estadoCursoEditar').value = '';
+        document.getElementById('fechaInicioCursoEditar').value = '';
+        document.getElementById('fechaFinCursoEditar').value = '';
+        
+        // Resetear icono del estado
+        const estadoIcon = document.getElementById('estadoCursoIconEditar');
+        estadoIcon.innerHTML = '<i class="fas fa-info-circle text-muted"></i>';
+        
+        // Resetear select de curso
+        document.getElementById('selectCursoEditar').value = '';
+        
+        // Limpiar validaciones
+        limpiarValidacionesEditar();
+    }
+
+    function llenarSelectCursosEditar() {
+        const select = document.getElementById('selectCursoEditar');
+        select.innerHTML = '<option value="">Seleccionar curso...</option>';
+        
+        cursos.forEach(curso => {
+            const option = document.createElement('option');
+            option.value = curso.ID_ACTIVIDAD_EDUCACION;
+            option.textContent = `${curso.NOMBRE_ACTIVIDAD} (${curso.TIPO_ACTIVIDAD})`;
+            select.appendChild(option);
+        });
+    }
+
     function cargarCursos() {
         // Cargar cursos desde la base de datos
         fetch('<?= base_url('admin/evaluaciones/cursos') ?>')
@@ -866,6 +1258,7 @@
                 if (data.success) {
                     cursos = data.data;
                     llenarSelectCursos();
+                    llenarSelectCursosEditar(); // También llenar el select de edición
                 } else {
                     console.error('Error cargando cursos:', data.message);
                     showNotification('Error al cargar cursos: ' + data.message, 'error');
@@ -946,17 +1339,26 @@
     }
 
     function cargarEvaluaciones() {
-        // Simular carga de datos
+        console.log('Cargando evaluaciones...');
         fetch('<?= base_url('admin/evaluaciones/obtener') ?>')
-            .then(response => response.json())
+            .then(response => {
+                console.log('Respuesta recibida:', response);
+                return response.json();
+            })
             .then(data => {
+                console.log('Datos recibidos:', data);
                 if (data.success) {
                     evaluaciones = data.data;
+                    console.log('Evaluaciones cargadas:', evaluaciones.length, 'elementos');
+                    console.log('Debug count:', data.debug_count);
+                    
                     if (vistaActual === 'grid') {
                         generarVistaGrid();
                     } else {
                         generarVistaLista();
                     }
+                } else {
+                    console.error('Error en respuesta:', data.message);
                 }
             })
             .catch(error => {

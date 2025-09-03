@@ -31,56 +31,58 @@ class EvaluacionesAdminController extends BaseController
 
     public function agregarEvaluacion()
     {
-        if ($this->request->getMethod() === 'post') {
-            try {
-                $data = [
-                    'ID_ACTIVIDAD_EDUCACION' => $this->request->getPost('curso_id'),
-                    'ID_USUARIO_CREADOR' => session()->get('user_id'),
-                    'NOMBRE_EVALUACION' => $this->request->getPost('nombre_evaluacion'),
-                    'TIPO_EVALUACION' => $this->request->getPost('tipo_evaluacion'),
-                    'ENLACE_FORMULARIO' => $this->request->getPost('enlace_formulario'),
-                    'DESCRIPCION' => $this->request->getPost('descripcion'),
-                    'FECHA_VENCIMIENTO' => $this->request->getPost('fecha_vencimiento'),
-                    'ESTADO' => $this->request->getPost('estado'),
-                    'NUMERO_RESPUESTAS' => 0,
-                    'ACTIVO' => true
-                ];
-
-                // Validar datos
-                if (!$this->evaluacionesModel->insert($data)) {
-                    return $this->response->setJSON([
-                        'success' => false,
-                        'message' => 'Error al guardar la evaluación: ' . implode(', ', $this->evaluacionesModel->errors())
-                    ]);
-                }
-
-                return $this->response->setJSON([
-                    'success' => true,
-                    'message' => 'Evaluación agregada exitosamente',
-                    'data' => $data
-                ]);
-
-            } catch (\Exception $e) {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Error del servidor: ' . $e->getMessage()
-                ]);
-            }
+        if ($this->request->getMethod() !== 'post') {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Método no permitido'
+            ]);
         }
         
-        return $this->response->setJSON([
-            'success' => false,
-            'message' => 'Método no permitido'
-        ]);
+        try {
+            $data = [
+                'ID_ACTIVIDAD_EDUCACION' => $this->request->getPost('curso_id'),
+                'ID_USUARIO_CREADOR' => session()->get('user_id'),
+                'NOMBRE_EVALUACION' => $this->request->getPost('nombre_evaluacion'),
+                'TIPO_EVALUACION' => $this->request->getPost('tipo_evaluacion'),
+                'ENLACE_FORMULARIO' => $this->request->getPost('enlace_formulario'),
+                'DESCRIPCION' => $this->request->getPost('descripcion'),
+                'FECHA_VENCIMIENTO' => $this->request->getPost('fecha_vencimiento'),
+                'ESTADO' => $this->request->getPost('estado'),
+                'NUMERO_RESPUESTAS' => 0,
+                'ACTIVO' => true
+            ];
+
+            // Validar datos
+            if (!$this->evaluacionesModel->insert($data)) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Error al guardar la evaluación: ' . implode(', ', $this->evaluacionesModel->errors())
+                ]);
+            }
+
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Evaluación agregada exitosamente'
+            ]);
+
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error del servidor: ' . $e->getMessage()
+            ]);
+        }
     }
 
     public function obtenerEvaluaciones()
     {
-        // Lógica para obtener lista de evaluaciones
-        // Aquí puedes implementar la consulta a la base de datos
-        
         try {
+            // Primero, obtener todas las evaluaciones sin filtros para depuración
+            $todasEvaluaciones = $this->evaluacionesModel->findAll();
+            log_message('debug', 'Total evaluaciones en BD: ' . count($todasEvaluaciones));
+            
+            // Luego obtener las evaluaciones completas con filtros
             $evaluaciones = $this->evaluacionesModel->obtenerEvaluacionesCompletas();
+            log_message('debug', 'Evaluaciones activas encontradas: ' . count($evaluaciones));
             
             // Formatear datos para la vista
             $evaluacionesFormateadas = [];
@@ -102,7 +104,9 @@ class EvaluacionesAdminController extends BaseController
             
             return $this->response->setJSON([
                 'success' => true,
-                'data' => $evaluacionesFormateadas
+                'data' => $evaluacionesFormateadas,
+                'debug_count' => count($evaluacionesFormateadas),
+                'debug_total_bd' => count($todasEvaluaciones)
             ]);
             
         } catch (\Exception $e) {
@@ -274,6 +278,111 @@ class EvaluacionesAdminController extends BaseController
                 'data' => []
             ]);
         }
+    }
+
+    /**
+     * Obtener una evaluación específica para edición
+     */
+    public function obtenerEvaluacion($id = null)
+    {
+        if ($id) {
+            try {
+                $evaluacion = $this->evaluacionesModel->obtenerEvaluacionCompleta($id);
+                
+                if (!$evaluacion) {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'Evaluación no encontrada'
+                    ]);
+                }
+
+                // Formatear datos para la vista
+                $evaluacionFormateada = [
+                    'id' => $evaluacion['ID_EVALUACION_ENLACE'],
+                    'curso_id' => $evaluacion['ID_ACTIVIDAD_EDUCACION'],
+                    'nombre' => $evaluacion['NOMBRE_EVALUACION'],
+                    'tipo' => $evaluacion['TIPO_EVALUACION'],
+                    'enlace' => $evaluacion['ENLACE_FORMULARIO'],
+                    'descripcion' => $evaluacion['DESCRIPCION'] ?? '',
+                    'fecha_vencimiento' => $evaluacion['FECHA_VENCIMIENTO'],
+                    'estado' => $evaluacion['ESTADO'],
+                    'respuestas' => $evaluacion['NUMERO_RESPUESTAS'],
+                    'fecha_creacion' => $evaluacion['FECHA_CREACION'],
+                    'curso' => $evaluacion['NOMBRE_ACTIVIDAD'] ?? 'Sin curso asignado',
+                    'usuario_creador' => $evaluacion['USUARIO_CREADOR'] ?? 'Desconocido'
+                ];
+                
+                return $this->response->setJSON([
+                    'success' => true,
+                    'data' => $evaluacionFormateada
+                ]);
+                
+            } catch (\Exception $e) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Error al obtener la evaluación: ' . $e->getMessage()
+                ]);
+            }
+        }
+        
+        return $this->response->setJSON([
+            'success' => false,
+            'message' => 'ID de evaluación requerido'
+        ]);
+    }
+
+    /**
+     * Actualizar una evaluación existente
+     */
+    public function actualizarEvaluacion($id = null)
+    {
+        if ($id && $this->request->getMethod() === 'post') {
+            try {
+                // Verificar que la evaluación existe
+                $evaluacion = $this->evaluacionesModel->find($id);
+                if (!$evaluacion) {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'Evaluación no encontrada'
+                    ]);
+                }
+
+                $data = [
+                    'ID_ACTIVIDAD_EDUCACION' => $this->request->getPost('curso_id'),
+                    'NOMBRE_EVALUACION' => $this->request->getPost('nombre_evaluacion'),
+                    'TIPO_EVALUACION' => $this->request->getPost('tipo_evaluacion'),
+                    'ENLACE_FORMULARIO' => $this->request->getPost('enlace_formulario'),
+                    'DESCRIPCION' => $this->request->getPost('descripcion'),
+                    'FECHA_VENCIMIENTO' => $this->request->getPost('fecha_vencimiento'),
+                    'ESTADO' => $this->request->getPost('estado')
+                ];
+
+                // Validar datos
+                if (!$this->evaluacionesModel->update($id, $data)) {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'Error al actualizar la evaluación: ' . implode(', ', $this->evaluacionesModel->errors())
+                    ]);
+                }
+
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Evaluación actualizada exitosamente',
+                    'data' => $data
+                ]);
+
+            } catch (\Exception $e) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Error del servidor: ' . $e->getMessage()
+                ]);
+            }
+        }
+        
+        return $this->response->setJSON([
+            'success' => false,
+            'message' => 'Método no permitido o ID requerido'
+        ]);
     }
 
     /**

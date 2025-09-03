@@ -108,36 +108,51 @@ class DashboardAdminController extends BaseController
     private function obtenerDatosGraficas()
     {
         try {
-            // Actividades por mes (últimos 12 meses)
-            $actividadesPorMes = $this->actividadesModel
-                ->select('MONTH(FECHA_INICIO) as mes, COUNT(*) as total')
-                ->where('FECHA_INICIO >=', date('Y-m-d', strtotime('-12 months')))
-                ->groupBy('MONTH(FECHA_INICIO)')
-                ->orderBy('mes')
-                ->findAll();
+            // Actividades por mes (últimos 12 meses) - consulta mejorada
+            $sql = "
+                SELECT 
+                    MONTH(FECHA_INICIO) as mes,
+                    YEAR(FECHA_INICIO) as año,
+                    COUNT(*) as total
+                FROM TAB_ACTIVIDADES_EDUCACION 
+                WHERE FECHA_INICIO >= DATE_SUB(CURDATE(), INTERVAL 12 MONTH)
+                GROUP BY YEAR(FECHA_INICIO), MONTH(FECHA_INICIO)
+                ORDER BY año, mes
+            ";
+            $query = $this->actividadesModel->db->query($sql);
+            $actividadesPorMes = $query->getResultArray();
         } catch (\Exception $e) {
+            log_message('error', 'Error al obtener actividades por mes: ' . $e->getMessage());
             $actividadesPorMes = [];
         }
         
         try {
-            // Prácticas por estado
-            $practicasPorEstado = $this->practicasModel
-                ->select('EP.ESTADO, COUNT(*) as total')
-                ->join('TAB_ESTADO_PRACTICAS EP', 'EP.ID_ESTADO_PRACTICAS = TAB_ASIGNACIONES_PRACTICAS.ID_ESTADO_PRACTICAS')
-                ->groupBy('EP.ESTADO')
-                ->findAll();
+            // Prácticas por estado (usando estados predefinidos ya que no hay tabla de estados)
+            $practicasPorEstado = [
+                ['ESTADO' => 'Asignada', 'total' => $this->practicasModel->where('ID_ESTADO_PRACTICAS', 1)->countAllResults(false)],
+                ['ESTADO' => 'En Progreso', 'total' => $this->practicasModel->where('ID_ESTADO_PRACTICAS', 2)->countAllResults(false)],
+                ['ESTADO' => 'Completada', 'total' => $this->practicasModel->where('ID_ESTADO_PRACTICAS', 3)->countAllResults(false)],
+                ['ESTADO' => 'Cancelada', 'total' => $this->practicasModel->where('ID_ESTADO_PRACTICAS', 4)->countAllResults(false)]
+            ];
         } catch (\Exception $e) {
             $practicasPorEstado = [];
         }
         
         try {
-            // Actividades por tipo
-            $actividadesPorTipo = $this->actividadesModel
-                ->select('TA.ACTIVIDAD, COUNT(*) as total')
-                ->join('TAB_TIPOS_ACTIVIDADES TA', 'TA.ID_TIPO_ACTIVIDAD = TAB_ACTIVIDADES_EDUCACION.ID_TIPO_ACTIVIDAD')
-                ->groupBy('TA.ACTIVIDAD')
-                ->findAll();
+            // Actividades por tipo - consulta mejorada
+            $sql = "
+                SELECT 
+                    ta.ACTIVIDAD,
+                    COUNT(ae.ID_ACTIVIDAD_EDUCACION) as total
+                FROM TAB_ACTIVIDADES_EDUCACION ae
+                INNER JOIN TAB_TIPOS_ACTIVIDADES ta ON ta.ID_TIPO_ACTIVIDAD = ae.ID_TIPO_ACTIVIDAD
+                GROUP BY ta.ID_TIPO_ACTIVIDAD, ta.ACTIVIDAD
+                ORDER BY total DESC
+            ";
+            $query = $this->actividadesModel->db->query($sql);
+            $actividadesPorTipo = $query->getResultArray();
         } catch (\Exception $e) {
+            log_message('error', 'Error al obtener actividades por tipo: ' . $e->getMessage());
             $actividadesPorTipo = [];
         }
         
@@ -161,31 +176,47 @@ class DashboardAdminController extends BaseController
         for ($i = 11; $i >= 0; $i--) {
             $fecha = date('Y-m', strtotime("-$i months"));
             $mes = (int)date('m', strtotime("-$i months"));
+            $año = (int)date('Y', strtotime("-$i months"));
             
             try {
-                // Contar actividades en este mes
-                $actividades = $this->actividadesModel
-                    ->where('DATE_FORMAT(FECHA_INICIO, "%Y-%m")', $fecha)
-                    ->countAllResults(false);
+                // Contar actividades educativas en este mes (usando consulta SQL directa para mejor rendimiento)
+                $sql = "
+                    SELECT COUNT(*) as total
+                    FROM TAB_ACTIVIDADES_EDUCACION 
+                    WHERE DATE_FORMAT(FECHA_INICIO, '%Y-%m') = ?
+                ";
+                $query = $this->actividadesModel->db->query($sql, [$fecha]);
+                $resultado = $query->getRow();
+                $actividades = $resultado ? $resultado->total : 0;
             } catch (\Exception $e) {
+                log_message('error', 'Error al obtener actividades mensuales: ' . $e->getMessage());
                 $actividades = 0;
             }
             
             try {
                 // Contar prácticas en este mes
-                $practicas = $this->practicasModel
-                    ->where('DATE_FORMAT(FECHA_INICIO, "%Y-%m")', $fecha)
-                    ->countAllResults(false);
+                $sql = "
+                    SELECT COUNT(*) as total
+                    FROM TAB_ASIGNACIONES_PRACTICAS 
+                    WHERE DATE_FORMAT(FECHA_INICIO, '%Y-%m') = ?
+                ";
+                $query = $this->practicasModel->db->query($sql, [$fecha]);
+                $resultado = $query->getRow();
+                $practicas = $resultado ? $resultado->total : 0;
             } catch (\Exception $e) {
+                log_message('error', 'Error al obtener prácticas mensuales: ' . $e->getMessage());
                 $practicas = 0;
             }
             
             $meses[] = [
-                'mes' => $mesesNombres[$mes - 1],
-                'actividades' => $actividades,
-                'practicas' => $practicas
+                'mes' => $mesesNombres[$mes - 1] . ' ' . $año,
+                'actividades' => (int)$actividades,
+                'practicas' => (int)$practicas
             ];
         }
+        
+        // Debug: Log para verificar los datos
+        log_message('debug', 'Estadísticas mensuales: ' . json_encode($meses));
         
         return $meses;
     }
@@ -268,13 +299,27 @@ class DashboardAdminController extends BaseController
     private function obtenerDistribucionCarreras()
     {
         try {
-            return $this->estudiantesModel
-                ->select('c.NOMBRE as CARRERA, COUNT(*) as TOTAL')
-                ->join('TAB_CARRERAS c', 'c.ID_CARRERA = TAB_ESTUDIANTES.ID_CARRERA', 'left')
-                ->groupBy('c.NOMBRE')
-                ->orderBy('TOTAL', 'DESC')
-                ->findAll();
+            // Usar consulta SQL directa para asegurar que funcione
+            $sql = "
+                SELECT 
+                    c.NOMBRE as CARRERA, 
+                    COUNT(e.ID_ESTUDIANTE) as TOTAL
+                FROM TAB_CARRERAS c
+                LEFT JOIN TAB_ESTUDIANTES e ON c.ID_CARRERA = e.ID_CARRERA
+                GROUP BY c.ID_CARRERA, c.NOMBRE
+                HAVING COUNT(e.ID_ESTUDIANTE) > 0
+                ORDER BY TOTAL DESC
+            ";
+            
+            $query = $this->estudiantesModel->db->query($sql);
+            $resultado = $query->getResultArray();
+            
+            // Debug: Log para ver qué datos se obtienen
+            log_message('debug', 'Distribución carreras: ' . json_encode($resultado));
+            
+            return $resultado;
         } catch (\Exception $e) {
+            log_message('error', 'Error en obtenerDistribucionCarreras: ' . $e->getMessage());
             return [];
         }
     }
@@ -296,5 +341,85 @@ class DashboardAdminController extends BaseController
         ];
         
         return $this->response->setJSON($data);
+    }
+    
+    // Método temporal para debug de carreras
+    public function debugCarreras()
+    {
+        if (!session()->get('logged_in') || session()->get('rol') != 1) {
+            return redirect()->to('/');
+        }
+        
+        try {
+            // Verificar datos en TAB_ESTUDIANTES
+            $totalEstudiantes = $this->estudiantesModel->countAllResults();
+            $estudiantes = $this->estudiantesModel->findAll();
+            
+            // Verificar datos en TAB_CARRERAS
+            $totalCarreras = $this->carrerasModel->countAllResults();
+            $carreras = $this->carrerasModel->findAll();
+            
+            // Probar la consulta de distribución
+            $distribucion = $this->obtenerDistribucionCarreras();
+            
+            $debug = [
+                'total_estudiantes' => $totalEstudiantes,
+                'total_carreras' => $totalCarreras,
+                'estudiantes_sample' => array_slice($estudiantes, 0, 3),
+                'carreras_sample' => array_slice($carreras, 0, 3),
+                'distribucion' => $distribucion
+            ];
+            
+            return $this->response->setJSON($debug);
+            
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+        }
+    }
+    
+    // Método para obtener estadísticas de actividades educativas (similar al controlador de actividades)
+    public function getEstadisticasActividades()
+    {
+        if (!session()->get('logged_in') || session()->get('rol') != 1) {
+            return $this->response->setJSON(['error' => 'No autorizado']);
+        }
+        
+        try {
+            $totalActividades = $this->actividadesModel->countAllResults();
+            
+            $cursosActivos = $this->actividadesModel
+                ->join('TAB_TIPOS_ACTIVIDADES ta', 'ta.ID_TIPO_ACTIVIDAD = TAB_ACTIVIDADES_EDUCACION.ID_TIPO_ACTIVIDAD')
+                ->where('ta.ACTIVIDAD', 'Curso')
+                ->where('FECHA_FIN >=', date('Y-m-d'))
+                ->countAllResults();
+
+            $talleresActivos = $this->actividadesModel
+                ->join('TAB_TIPOS_ACTIVIDADES ta', 'ta.ID_TIPO_ACTIVIDAD = TAB_ACTIVIDADES_EDUCACION.ID_TIPO_ACTIVIDAD')
+                ->where('ta.ACTIVIDAD', 'Taller')
+                ->where('FECHA_FIN >=', date('Y-m-d'))
+                ->countAllResults();
+
+            $seminariosActivos = $this->actividadesModel
+                ->join('TAB_TIPOS_ACTIVIDADES ta', 'ta.ID_TIPO_ACTIVIDAD = TAB_ACTIVIDADES_EDUCACION.ID_TIPO_ACTIVIDAD')
+                ->where('ta.ACTIVIDAD', 'Seminario')
+                ->where('FECHA_FIN >=', date('Y-m-d'))
+                ->countAllResults();
+            
+            $estadisticas = [
+                'totalActividades' => $totalActividades,
+                'cursosActivos' => $cursosActivos,
+                'talleresActivos' => $talleresActivos,
+                'seminariosActivos' => $seminariosActivos
+            ];
+            
+            return $this->response->setJSON($estadisticas);
+            
+        } catch (\Exception $e) {
+            log_message('error', 'Error al obtener estadísticas de actividades: ' . $e->getMessage());
+            return $this->response->setJSON(['error' => 'Error interno del servidor']);
+        }
     }
 }

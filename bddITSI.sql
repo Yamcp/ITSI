@@ -68,6 +68,22 @@ create table TAB_ACTIVIDADES_EDUCACION
 );
 
 /*==============================================================*/
+/* Table: TAB_ASISTENCIAS_PRACTICAS                             */
+/*==============================================================*/
+create table TAB_ASISTENCIAS_PRACTICAS
+(
+   ID_ASISTENCIA        int not null auto_increment,
+   ID_ASIGNACION_PRACTICA int,
+   FECHA_ASISTENCIA     date,
+   HORA_ENTRADA         time not null,
+   HORA_SALIDA          time not null,
+   ACTIVIDADES_DIA      text not null,
+   FECHA_REGISTRO       timestamp not null default current_timestamp on update current_timestamp,
+   OBSERVACIONES        text not null,
+   primary key (ID_ASISTENCIA)
+);
+
+/*==============================================================*/
 /* Table: TAB_ASIGNACIONES_PRACTICAS                            */
 /*==============================================================*/
 create table TAB_ASIGNACIONES_PRACTICAS
@@ -75,6 +91,7 @@ create table TAB_ASIGNACIONES_PRACTICAS
    ID_ASIGNACION_PRACTICA int not null auto_increment,
    ID_TIPO_PRACTICA     int,
    ID_USUARIO           int,
+   ID_ESTADO_PRACTICAS  int,
    ID_INSTITUCION_CONVENIO int,
    FECHA_INICIO         date not null,
    FECHA_FIN            date not null,
@@ -861,22 +878,22 @@ INSERT INTO `TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO` (`CODIGO`, `NOMBRE`, `DE
 ('PSC-012', 'Evidencia Fotográfica y Digital', 'Material de apoyo visual y digital, como fotos, capturas, videos o impresiones, que documenta y comprueba la realización de las actividades y trabajos del proyecto.', 12, 1, 1);
 
 -- Insertar estados para Prácticas Preprofesionales
-INSERT INTO `TAB_ESTADOS_PRACTICAS_PREPROFESIONALES` (`ESTADO`, `DESCRIPCION`, `COLOR`) VALUES
-('Pendiente', 'Práctica pendiente de inicio', '#ffc107'),
-('En Progreso', 'Práctica en desarrollo', '#17a2b8'),
-('Pausada', 'Práctica temporalmente pausada', '#6c757d'),
-('Completada', 'Práctica finalizada exitosamente', '#28a745'),
-('Cancelada', 'Práctica cancelada', '#dc3545'),
-('Evaluada', 'Práctica evaluada y aprobada', '#20c997');
+INSERT INTO `TAB_ESTADOS_PRACTICAS_PREPROFESIONALES` (`ID_ESTADO_PREPROFESIONAL`, `ESTADO`, `DESCRIPCION`, `COLOR`) VALUES
+(1, 'Pendiente', 'Práctica pendiente de inicio', '#ffc107'),
+(2, 'En Progreso', 'Práctica en desarrollo', '#17a2b8'),
+(3, 'Pausada', 'Práctica temporalmente pausada', '#6c757d'),
+(4, 'Completada', 'Práctica finalizada exitosamente', '#28a745'),
+(5, 'Cancelada', 'Práctica cancelada', '#dc3545'),
+(6, 'Evaluada', 'Práctica evaluada y aprobada', '#20c997');
 
 -- Insertar estados para Servicio Comunitario
-INSERT INTO `TAB_ESTADOS_SERVICIO_COMUNITARIO` (`ESTADO`, `DESCRIPCION`, `COLOR`) VALUES
-('Pendiente', 'Servicio pendiente de inicio', '#ffc107'),
-('En Progreso', 'Servicio en desarrollo', '#17a2b8'),
-('Pausado', 'Servicio temporalmente pausado', '#6c757d'),
-('Completado', 'Servicio finalizado exitosamente', '#28a745'),
-('Cancelado', 'Servicio cancelado', '#dc3545'),
-('Evaluado', 'Servicio evaluado y aprobado', '#20c997');
+INSERT INTO `TAB_ESTADOS_SERVICIO_COMUNITARIO` (`ID_ESTADO_SERVICIO`, `ESTADO`, `DESCRIPCION`, `COLOR`) VALUES
+(1, 'Pendiente', 'Servicio pendiente de inicio', '#ffc107'),
+(2, 'En Progreso', 'Servicio en desarrollo', '#17a2b8'),
+(3, 'Pausado', 'Servicio temporalmente pausado', '#6c757d'),
+(4, 'Completado', 'Servicio finalizado exitosamente', '#28a745'),
+(5, 'Cancelado', 'Servicio cancelado', '#dc3545'),
+(6, 'Evaluado', 'Servicio evaluado y aprobado', '#20c997');
 
 -- Insertar tipos de modalidades
 INSERT INTO `TAB_TIPOS_MODALIDADES` (`ID_TIPO_MODALIDAD`, `MODALIDAD`) VALUES
@@ -904,7 +921,7 @@ INSERT INTO `TAB_INSTRUCTORES` (`ID_INSTRUCTOR`, `ID_TIPO_INSTRUCTOR`, `ID_DATO_
 
 -- Insertar actividades educativas de ejemplo
 INSERT INTO `TAB_ACTIVIDADES_EDUCACION` (`ID_ACTIVIDAD_EDUCACION`, `ID_INSTRUCTOR`, `ID_TIPO_MODALIDAD`, `ID_TIPO_ACTIVIDAD`, `ID_USUARIO`, `NOMBRE_ACTIVIDAD`, `DESCRIPCION`, `OBJETIVOS`, `DURACION_HORAS`, `FECHA_INICIO`, `FECHA_FIN`, `LUGAR`, `HORARIO`, `INCLUYE_CERTIFICADO`, `PROGRAMA_DETALLADO`) VALUES
-(1, 1, 1, 1, 1, 'Desarrollo Web Full Stack', 'Curso completo de desarrollo web con tecnologías modernas como React, Node.js, MongoDB y más.', 'Formar desarrolladores full stack competentes en tecnologías web modernas', 120, '2025-09-01', '2025-11-30', 'Laboratorio de Programación', 'Lunes a Viernes 14:00-18:00', 1, 'Módulo 1: HTML/CSS/JavaScript\nMódulo 2: React.js\nMódulo 3: Node.js\nMódulo 4: Base de datos\nMódulo 5: Proyecto final'),
+(1, 1, 1, 1, 1, 'Desarrollo Web Full Stack', 'Curso completo de desarrollo web con tecnologías modernas como React, Node.js, MongoDB y más.', 'Formar desarrolladores full stack competentes en tecnologías web modernas', 4, '2025-08-18', '2025-08-19', 'Laboratorio de Programación', 'Lunes a Martess 16:00-18:00', 1, 'Módulo 1: HTML/CSS/JavaScript\r\nMódulo 2: React.js\r\nMódulo 3: Node.js\r\nMódulo 4: Base de datos\r\nMódulo 5: Proyecto final'),
 (2, 2, 2, 2, 1, 'Reparación de Equipos de Cómputo', 'Taller práctico de mantenimiento y reparación de hardware de computadoras.', 'Capacitar en técnicas de diagnóstico y reparación de equipos', 40, '2025-10-01', '2025-10-31', 'Plataforma Virtual', 'Sábados 9:00-13:00', 1, 'Diagnóstico de problemas\nReparación de hardware\nMantenimiento preventivo\nInstalación de software'),
 (3, 3, 1, 3, 1, 'Inteligencia Artificial y Machine Learning', 'Seminario sobre tendencias actuales en IA y aplicaciones prácticas.', 'Actualizar conocimientos en inteligencia artificial y sus aplicaciones', 16, '2025-12-15', '2025-12-16', 'Auditorio Principal', '8:00-17:00', 1, 'Introducción a la IA\nMachine Learning básico\nDeep Learning\nAplicaciones prácticas\nCasos de estudio'),
 (4, 1, 1, 1, 1, 'Programación en Python', 'Curso introductorio de programación usando Python como lenguaje principal.', 'Enseñar los fundamentos de programación usando Python', 80, '2025-08-01', '2025-09-30', 'Laboratorio de Programación', 'Martes y Jueves 18:00-20:00', 1, 'Variables y tipos de datos\nEstructuras de control\nFunciones\nPOO\nLibrerías básicas'),
@@ -1023,8 +1040,108 @@ INSERT INTO `TAB_EXPORTACIONES` (`ID_USUARIO`, `FECHA_EXPORTACION`, `DESCRIPCION
 (2, NOW() - INTERVAL 4 DAY, 'Backup semanal completo', 'backup', 'completado', 'backup_semanal_20250104_120000.sql', 15728640),
 (1, NOW() - INTERVAL 5 DAY, 'Backup antes de mantenimiento', 'backup', 'completado', 'backup_mantenimiento_20250105_120000.sql', 6291456);
 
+-- Insertar empleados de ejemplo
+INSERT INTO `TAB_EMPLEADOS` (`ID_EMPLEADO`, `ID_DEPARTAMENTO`, `ID_DATO_PERSONA`, `ID_TIPO_CONTRATO`, `CARGO`, `FECHA_INGRESO`) VALUES
+(1, 1, 4, 1, 'Coordinador de Vinculación con la Sociedad', '2024-01-15'),
+(2, 2, 5, 1, 'Director Académico', '2023-08-01'),
+(3, 3, 6, 2, 'Investigador Senior', '2024-03-10');
+
+-- Insertar relación empleados-instructores
+INSERT INTO `TAB_EMPLEADOS_INSTRUCTORES` (`ID_EMPLEADO_INSTRUCTOR`, `ID_EMPLEADO`, `ID_INSTRUCTOR`) VALUES
+(1, 1, 1),
+(2, 2, 2),
+(3, 3, 3);
+
+-- Insertar detalles de convenios
+INSERT INTO `TAB_DETALLES_CONVENIOS` (`ID_DETALLE_CONVENIO`, `ID_TIPO_CONVENIO`, `ID_INSTITUCION_CONVENIO`, `FECHA_INICIO`, `FECHA_FIN`, `DURACION`, `OBJETIVO`, `OBSERVACIONES`, `ARCHIVO_CONVENIO`, `RENOVABLE`) VALUES
+(1, 1, 1, '2025-01-01', '2025-12-31', '12 meses', 'Establecer convenio para prácticas preprofesionales en el área de salud', 'Convenio renovable anualmente', 'convenio_hospital_2025.pdf', 1),
+(2, 2, 2, '2025-02-01', '2026-01-31', '12 meses', 'Convenio para servicio comunitario en el sector financiero', 'Convenio para proyectos de impacto social', 'convenio_banco_2025.pdf', 1),
+(3, 3, 3, '2025-03-01', '2025-12-31', '10 meses', 'Convenio mixto para prácticas y servicio comunitario', 'Convenio integral para múltiples actividades', 'convenio_fundacion_2025.pdf', 1);
+
+-- Insertar relación institución-carrera
+INSERT INTO `TAB_INSTITUCION_CARRERA` (`ID_INSTITUCION_CARRERA`, `ID_CARRERA`, `ID_INSTITUCION_CONVENIO`) VALUES
+(1, 1, 1), -- Desarrollo de Software - Hospital
+(2, 2, 2), -- Diseño Gráfico - Banco
+(3, 3, 3), -- Redes y Telecomunicaciones - Fundación
+(4, 4, 1), -- Administración - Hospital
+(5, 5, 3), -- Atención Integral a Adultos Mayores - Fundación
+(6, 6, 2); -- Marketing Digital - Banco
+
+-- Insertar documentos de prácticas preprofesionales
+INSERT INTO `TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES` (`ID_DOCUMENTO_PREPROFESIONAL`, `ID_PRACTICA_PREPROFESIONAL`, `ID_TIPO_DOCUMENTO`, `NOMBRE_ARCHIVO`, `TIPO_ARCHIVO`, `FECHA_SUBIDA`, `ESTADO_REVISION`, `OBSERVACIONES`) VALUES
+(1, 1, 1, 'oficio_asignacion_tutor_001.pdf', 'application/pdf', '2025-06-01 10:00:00', 'Aprobado', 'Documento oficial de asignación de tutor'),
+(2, 1, 2, 'oficio_entidad_receptora_001.pdf', 'application/pdf', '2025-06-02 14:30:00', 'Aprobado', 'Oficio enviado a la entidad receptora'),
+(3, 1, 3, 'carta_aceptacion_001.pdf', 'application/pdf', '2025-06-03 09:15:00', 'Aprobado', 'Carta de aceptación de la entidad'),
+(4, 2, 1, 'oficio_asignacion_tutor_002.pdf', 'application/pdf', '2025-07-01 11:00:00', 'Aprobado', 'Documento oficial de asignación de tutor'),
+(5, 2, 2, 'oficio_entidad_receptora_002.pdf', 'application/pdf', '2025-07-02 15:45:00', 'Aprobado', 'Oficio enviado a la entidad receptora');
+
+-- Insertar documentos de servicio comunitario
+INSERT INTO `TAB_DOCUMENTOS_SERVICIO_COMUNITARIO` (`ID_DOCUMENTO_SERVICIO`, `ID_SERVICIO_COMUNITARIO`, `ID_TIPO_DOCUMENTO`, `NOMBRE_ARCHIVO`, `TIPO_ARCHIVO`, `FECHA_SUBIDA`, `ESTADO_REVISION`, `OBSERVACIONES`) VALUES
+(1, 1, 1, 'oficio_asignacion_tutor_sc_001.pdf', 'application/pdf', '2025-08-01 10:00:00', 'Aprobado', 'Documento oficial de asignación de tutor para servicio comunitario'),
+(2, 1, 2, 'oficio_entidad_receptora_sc_001.pdf', 'application/pdf', '2025-08-02 14:30:00', 'Aprobado', 'Oficio enviado a la entidad receptora para servicio comunitario'),
+(3, 1, 3, 'carta_aceptacion_sc_001.pdf', 'application/pdf', '2025-08-03 09:15:00', 'Aprobado', 'Carta de aceptación de la entidad para servicio comunitario');
+
+-- Insertar evaluaciones de prácticas preprofesionales
+INSERT INTO `TAB_EVALUACIONES_PRACTICAS_PREPROFESIONALES` (`ID_EVALUACION_PREPROFESIONAL`, `ID_PRACTICA_PREPROFESIONAL`, `ID_EVALUADOR`, `TIPO_EVALUACION`, `CRITERIO_1`, `CRITERIO_2`, `CRITERIO_3`, `CRITERIO_4`, `CRITERIO_5`, `NOTA_FINAL`, `COMENTARIOS`, `FECHA_EVALUACION`) VALUES
+(1, 1, 1, 'Evaluación Parcial', 8.5, 9.0, 8.0, 8.5, 9.0, 8.6, 'Excelente desempeño en el desarrollo del sistema. Muestra competencias técnicas sólidas.', '2025-08-15 16:00:00'),
+(2, 2, 2, 'Evaluación Parcial', 7.5, 8.0, 7.0, 8.5, 8.0, 7.8, 'Buen progreso en la aplicación móvil. Necesita mejorar en la documentación del código.', '2025-08-20 17:30:00');
+
+-- Insertar evaluaciones de servicio comunitario
+INSERT INTO `TAB_EVALUACIONES_SERVICIO_COMUNITARIO` (`ID_EVALUACION_SERVICIO`, `ID_SERVICIO_COMUNITARIO`, `ID_EVALUADOR`, `TIPO_EVALUACION`, `CRITERIO_1`, `CRITERIO_2`, `CRITERIO_3`, `CRITERIO_4`, `CRITERIO_5`, `NOTA_FINAL`, `COMENTARIOS`, `FECHA_EVALUACION`) VALUES
+(1, 1, 3, 'Evaluación Parcial', 9.0, 9.5, 8.5, 9.0, 9.5, 9.1, 'Excelente impacto social. Los beneficiarios muestran gran satisfacción con el proyecto educativo.', '2025-08-25 15:00:00');
+
+-- Insertar evaluaciones enlaces
+INSERT INTO `TAB_EVALUACIONES_ENLACES` (`ID_EVALUACION_ENLACE`, `ID_ACTIVIDAD_EDUCACION`, `ID_USUARIO_CREADOR`, `NOMBRE_EVALUACION`, `TIPO_EVALUACION`, `ENLACE_FORMULARIO`, `DESCRIPCION`, `FECHA_CREACION`, `FECHA_VENCIMIENTO`, `ESTADO`, `NUMERO_RESPUESTAS`, `ACTIVO`) VALUES
+(1, 1, 1, 'Evaluación del Curso Desarrollo Web Full Stack', 'Satisfacción del Estudiante', 'https://forms.google.com/evaluacion-web-fullstack', 'Evaluación de satisfacción del curso de desarrollo web', '2025-08-18 10:00:00', '2025-08-25', 'activo', 15, 1),
+(2, 2, 1, 'Evaluación del Taller de Reparación de Equipos', 'Competencias Técnicas', 'https://forms.google.com/evaluacion-reparacion-equipos', 'Evaluación de competencias técnicas adquiridas en el taller', '2025-10-01 09:00:00', '2025-11-01', 'activo', 8, 1),
+(3, 3, 1, 'Evaluación del Seminario de IA', 'Conocimientos Adquiridos', 'https://forms.google.com/evaluacion-seminario-ia', 'Evaluación de conocimientos adquiridos en el seminario de inteligencia artificial', '2025-12-15 08:00:00', '2025-12-20', 'activo', 0, 1);
+
 -- Comentarios sobre las tablas
 ALTER TABLE `TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO` COMMENT = 'Tipos de documentos requeridos para servicio comunitario';
+
+-- Insertar más asistencias de prácticas preprofesionales
+INSERT INTO `TAB_ASISTENCIAS_PRACTICAS_PREPROFESIONALES` (`ID_ASISTENCIA_PREPROFESIONAL`, `ID_PRACTICA_PREPROFESIONAL`, `FECHA_ASISTENCIA`, `HORA_ENTRADA`, `HORA_SALIDA`, `ACTIVIDADES_DIA`, `COMPETENCIAS_DESARROLLADAS`, `FECHA_REGISTRO`, `OBSERVACIONES`) VALUES
+(4, 1, '2025-08-28', '08:00:00', '17:00:00', 'Reunión con el equipo de desarrollo, revisión de código, documentación técnica', 'Trabajo en equipo, documentación técnica, revisión de código', '2025-08-28 17:20:00', 'Participación activa en las reuniones de equipo'),
+(5, 1, '2025-08-27', '08:00:00', '17:00:00', 'Testing del sistema, corrección de bugs, optimización de consultas', 'Testing de software, resolución de problemas, optimización', '2025-08-27 17:10:00', 'Excelente capacidad para identificar y corregir errores'),
+(6, 2, '2025-08-29', '09:00:00', '18:00:00', 'Integración con servicios de pago, implementación de seguridad, pruebas de usuario', 'Integración de APIs, seguridad en aplicaciones móviles, UX testing', '2025-08-29 18:15:00', 'Buen manejo de aspectos de seguridad en la aplicación');
+
+-- Insertar más asistencias de servicio comunitario
+INSERT INTO `TAB_ASISTENCIAS_SERVICIO_COMUNITARIO` (`ID_ASISTENCIA_SERVICIO`, `ID_SERVICIO_COMUNITARIO`, `FECHA_ASISTENCIA`, `HORA_ENTRADA`, `HORA_SALIDA`, `ACTIVIDADES_DIA`, `BENEFICIARIOS_ATENDIDOS`, `FECHA_REGISTRO`, `OBSERVACIONES`) VALUES
+(3, 1, '2025-08-17', '08:00:00', '16:00:00', 'Taller de programación básica para niños, creación de juegos educativos', '20 niños de 10-14 años', '2025-08-17 16:20:00', 'Los niños mostraron gran entusiasmo por aprender programación'),
+(4, 1, '2025-08-10', '08:00:00', '16:00:00', 'Capacitación en uso de herramientas digitales, soporte técnico a educadores', '15 educadores y 40 niños', '2025-08-10 16:35:00', 'Capacitación exitosa a los educadores de la fundación');
+
+-- Insertar más seguimientos de prácticas preprofesionales
+INSERT INTO `TAB_SEGUIMIENTO_PRACTICAS_PREPROFESIONALES` (`ID_SEGUIMIENTO_PREPROFESIONAL`, `ID_PRACTICA_PREPROFESIONAL`, `HORAS_CUMPLIDAS`, `ACTIVIDADES_REALIZADAS`, `COMPETENCIAS_DESARROLLADAS`, `OBSERVACIONES`, `ARCHIVO_REPORTE`, `FECHA_REPORTE`) VALUES
+(3, 1, 120, 'Desarrollo de módulo de citas médicas, implementación de notificaciones, testing integral', 'Desarrollo web avanzado, notificaciones push, testing automatizado', 'El estudiante ha completado exitosamente el módulo de citas médicas', 'reporte_semanal_3.pdf', '2025-08-15 16:30:00'),
+(4, 2, 100, 'Desarrollo de funcionalidades de transferencias, implementación de biometría, pruebas de seguridad', 'Desarrollo móvil avanzado, biometría, seguridad financiera', 'Excelente progreso en las funcionalidades de seguridad de la aplicación', 'reporte_semanal_4.pdf', '2025-08-22 17:45:00');
+
+-- Insertar más seguimientos de servicio comunitario
+INSERT INTO `TAB_SEGUIMIENTO_SERVICIO_COMUNITARIO` (`ID_SEGUIMIENTO_SERVICIO`, `ID_SERVICIO_COMUNITARIO`, `HORAS_CUMPLIDAS`, `ACTIVIDADES_REALIZADAS`, `BENEFICIARIOS_ATENDIDOS`, `OBSERVACIONES`, `ARCHIVO_REPORTE`, `FECHA_REPORTE`) VALUES
+(2, 1, 32, 'Desarrollo de plataforma educativa, capacitación a educadores, soporte técnico continuo', '75 beneficiarios (15 educadores + 60 niños)', 'La plataforma educativa está funcionando correctamente y beneficiando a más personas', 'reporte_servicio_2.pdf', '2025-08-15 15:30:00'),
+(3, 1, 48, 'Implementación de nuevas funcionalidades educativas, talleres de robótica básica', '90 beneficiarios (20 educadores + 70 niños)', 'Los talleres de robótica han sido un éxito total entre los beneficiarios', 'reporte_servicio_3.pdf', '2025-08-22 16:15:00');
+
+-- Insertar más evaluaciones de prácticas preprofesionales
+INSERT INTO `TAB_EVALUACIONES_PRACTICAS_PREPROFESIONALES` (`ID_EVALUACION_PREPROFESIONAL`, `ID_PRACTICA_PREPROFESIONAL`, `ID_EVALUADOR`, `TIPO_EVALUACION`, `CRITERIO_1`, `CRITERIO_2`, `CRITERIO_3`, `CRITERIO_4`, `CRITERIO_5`, `NOTA_FINAL`, `COMENTARIOS`, `FECHA_EVALUACION`) VALUES
+(3, 1, 1, 'Evaluación Final', 9.0, 9.5, 8.5, 9.0, 9.5, 9.1, 'Excelente trabajo final. El sistema desarrollado cumple con todos los requerimientos y está listo para producción.', '2025-08-30 18:00:00'),
+(4, 2, 2, 'Evaluación Final', 8.0, 8.5, 7.5, 8.0, 8.5, 8.1, 'Buen trabajo en la aplicación móvil. Se recomienda mejorar la documentación y optimizar algunas funcionalidades.', '2025-09-30 17:00:00');
+
+-- Insertar más evaluaciones de servicio comunitario
+INSERT INTO `TAB_EVALUACIONES_SERVICIO_COMUNITARIO` (`ID_EVALUACION_SERVICIO`, `ID_SERVICIO_COMUNITARIO`, `ID_EVALUADOR`, `TIPO_EVALUACION`, `CRITERIO_1`, `CRITERIO_2`, `CRITERIO_3`, `CRITERIO_4`, `CRITERIO_5`, `NOTA_FINAL`, `COMENTARIOS`, `FECHA_EVALUACION`) VALUES
+(2, 1, 3, 'Evaluación Final', 9.5, 9.5, 9.0, 9.5, 9.5, 9.4, 'Proyecto excepcional con impacto social muy positivo. La plataforma educativa ha beneficiado significativamente a la comunidad.', '2025-10-30 16:00:00');
+
+-- Insertar más documentos de prácticas preprofesionales
+INSERT INTO `TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES` (`ID_DOCUMENTO_PREPROFESIONAL`, `ID_PRACTICA_PREPROFESIONAL`, `ID_TIPO_DOCUMENTO`, `NOMBRE_ARCHIVO`, `TIPO_ARCHIVO`, `FECHA_SUBIDA`, `ESTADO_REVISION`, `OBSERVACIONES`) VALUES
+(6, 1, 4, 'solicitud_institucional_001.pdf', 'application/pdf', '2025-06-04 11:30:00', 'Aprobado', 'Solicitud institucional valorada y aprobada'),
+(7, 1, 5, 'certificado_culminacion_001.pdf', 'application/pdf', '2025-08-30 16:00:00', 'Aprobado', 'Certificado de culminación de 240 horas'),
+(8, 1, 6, 'hojas_asistencia_001.pdf', 'application/pdf', '2025-08-30 16:15:00', 'Aprobado', 'Hojas de asistencia completas y validadas'),
+(9, 2, 3, 'carta_aceptacion_002.pdf', 'application/pdf', '2025-07-03 10:20:00', 'Aprobado', 'Carta de aceptación de la entidad bancaria'),
+(10, 2, 4, 'solicitud_institucional_002.pdf', 'application/pdf', '2025-07-04 12:45:00', 'Aprobado', 'Solicitud institucional valorada y aprobada');
+
+-- Insertar más documentos de servicio comunitario
+INSERT INTO `TAB_DOCUMENTOS_SERVICIO_COMUNITARIO` (`ID_DOCUMENTO_SERVICIO`, `ID_SERVICIO_COMUNITARIO`, `ID_TIPO_DOCUMENTO`, `NOMBRE_ARCHIVO`, `TIPO_ARCHIVO`, `FECHA_SUBIDA`, `ESTADO_REVISION`, `OBSERVACIONES`) VALUES
+(4, 1, 4, 'solicitud_institucional_sc_001.pdf', 'application/pdf', '2025-08-04 13:00:00', 'Aprobado', 'Solicitud institucional valorada para servicio comunitario'),
+(5, 1, 5, 'certificado_culminacion_sc_001.pdf', 'application/pdf', '2025-10-30 15:00:00', 'Aprobado', 'Certificado de culminación de 96 horas de servicio comunitario'),
+(6, 1, 6, 'hojas_asistencia_sc_001.pdf', 'application/pdf', '2025-10-30 15:15:00', 'Aprobado', 'Hojas de asistencia completas y validadas para servicio comunitario');
 
 -- Verificar que las tablas se crearon correctamente
 SELECT 'Sistema de documentos de prácticas instalado exitosamente' as RESULTADO;

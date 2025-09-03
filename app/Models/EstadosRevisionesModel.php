@@ -6,121 +6,80 @@ use CodeIgniter\Model;
 
 class EstadosRevisionesModel extends Model
 {
-    protected $table = 'TAB_ESTADOS_REVISIONES';
-    protected $primaryKey = 'ID_ESTADO_REVISION';
+    // Como no hay tabla de estados, usamos valores predefinidos
+    protected $table = 'TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES'; // Tabla temporal para queries
+    protected $primaryKey = 'ID_DOCUMENTO_PREPROFESIONAL';
     protected $useAutoIncrement = true;
     protected $returnType = 'array';
     protected $useSoftDeletes = false;
-    protected $protectFields = true;
-    protected $allowedFields = [
-        'ESTADO',
-        'DESCRIPCION',
-        'COLOR',
-        'ICONO',
-        'ORDEN',
-        'ACTIVO'
-    ];
+    protected $protectFields = false; // No usamos campos de esta tabla
 
-    // Dates
-    protected $useTimestamps = true;
-    protected $dateFormat = 'datetime';
-    protected $createdField = 'FECHA_CREACION';
-    protected $updatedField = 'FECHA_ACTUALIZACION';
-    protected $deletedField = '';
-
-    // Validation
-    protected $validationRules = [
-        'ESTADO' => 'required|max_length[50]|is_unique[TAB_ESTADOS_REVISIONES.ESTADO,ID_ESTADO_REVISION,{ID_ESTADO_REVISION}]',
-        'DESCRIPCION' => 'permit_empty|max_length[255]',
-        'COLOR' => 'permit_empty|max_length[20]',
-        'ICONO' => 'permit_empty|max_length[50]',
-        'ORDEN' => 'permit_empty|integer|is_natural',
-        'ACTIVO' => 'permit_empty|in_list[0,1]'
-    ];
-
-    protected $validationMessages = [
-        'ESTADO' => [
-            'required' => 'El estado es requerido',
-            'max_length' => 'El estado no puede exceder 50 caracteres',
-            'is_unique' => 'El estado ya existe'
+    // Estados predefinidos
+    private $estadosPredefinidos = [
+        [
+            'ID_ESTADO_REVISION' => 1,
+            'ESTADO' => 'Pendiente',
+            'DESCRIPCION' => 'Documento pendiente de revisión',
+            'COLOR' => '#ffc107',
+            'ICONO' => 'clock',
+            'ORDEN' => 1,
+            'ACTIVO' => 1
         ],
-        'DESCRIPCION' => [
-            'max_length' => 'La descripción no puede exceder 255 caracteres'
+        [
+            'ID_ESTADO_REVISION' => 2,
+            'ESTADO' => 'Aprobado',
+            'DESCRIPCION' => 'Documento aprobado',
+            'COLOR' => '#28a745',
+            'ICONO' => 'check-circle',
+            'ORDEN' => 2,
+            'ACTIVO' => 1
         ],
-        'COLOR' => [
-            'max_length' => 'El color no puede exceder 20 caracteres'
+        [
+            'ID_ESTADO_REVISION' => 3,
+            'ESTADO' => 'Rechazado',
+            'DESCRIPCION' => 'Documento rechazado',
+            'COLOR' => '#dc3545',
+            'ICONO' => 'times-circle',
+            'ORDEN' => 3,
+            'ACTIVO' => 1
         ],
-        'ICONO' => [
-            'max_length' => 'El icono no puede exceder 50 caracteres'
-        ],
-        'ORDEN' => [
-            'integer' => 'El orden debe ser un número entero',
-            'is_natural' => 'El orden debe ser un número natural'
-        ],
-        'ACTIVO' => [
-            'in_list' => 'El campo activo debe ser 0 o 1'
+        [
+            'ID_ESTADO_REVISION' => 4,
+            'ESTADO' => 'En Revisión',
+            'DESCRIPCION' => 'Documento en proceso de revisión',
+            'COLOR' => '#17a2b8',
+            'ICONO' => 'eye',
+            'ORDEN' => 4,
+            'ACTIVO' => 1
         ]
     ];
-
-    protected $skipValidation = false;
-    protected $cleanValidationRules = true;
-
-    // Callbacks
-    protected $allowCallbacks = true;
-    protected $beforeInsert = [];
-    protected $afterInsert = [];
-    protected $beforeUpdate = [];
-    protected $afterUpdate = [];
-    protected $beforeFind = [];
-    protected $afterFind = [];
-    protected $beforeDelete = [];
-    protected $afterDelete = [];
-
-    /**
-     * Verificar si una columna existe en la tabla
-     */
-    private function columnExists($columnName)
-    {
-        $query = $this->db->query("
-            SELECT COUNT(*) as count 
-            FROM INFORMATION_SCHEMA.COLUMNS 
-            WHERE TABLE_SCHEMA = DATABASE() 
-              AND TABLE_NAME = '{$this->table}' 
-              AND COLUMN_NAME = '{$columnName}'
-        ");
-        $result = $query->getRow();
-        return $result->count > 0;
-    }
 
     /**
      * Obtener todos los estados activos
      */
     public function getAllEstados()
     {
-        $builder = $this->builder();
-        
-        // Si la columna ACTIVO existe, filtrar por ella
-        if ($this->columnExists('ACTIVO')) {
-            $builder->where('ACTIVO', 1);
-        }
-        
-        // Si la columna ORDEN existe, ordenar por ella
-        if ($this->columnExists('ORDEN')) {
-            $builder->orderBy('ORDEN', 'ASC');
-        }
-        
-        $builder->orderBy('ID_ESTADO_REVISION', 'ASC');
-        
-        return $builder->get()->getResultArray();
+        return array_filter($this->estadosPredefinidos, function($estado) {
+            return $estado['ACTIVO'] == 1;
+        });
     }
 
     /**
-     * Obtener estados ordenados
+     * Obtener estado por ID
      */
-    public function getEstadosOrdenados()
+    public function find($id = null)
     {
-        return $this->orderBy('ORDEN', 'ASC')
-                    ->findAll();
+        if ($id === null) {
+            return $this->getAllEstados();
+        }
+
+        foreach ($this->estadosPredefinidos as $estado) {
+            if ($estado['ID_ESTADO_REVISION'] == $id) {
+                return $estado;
+            }
+        }
+
+        return null;
     }
 
     /**
@@ -128,67 +87,13 @@ class EstadosRevisionesModel extends Model
      */
     public function getEstadoPorNombre($estado)
     {
-        return $this->where('ESTADO', $estado)->first();
-    }
-
-    /**
-     * Crear estados predefinidos para revisiones
-     */
-    public function crearEstadosPredefinidos()
-    {
-        $estados = [
-            [
-                'ESTADO' => 'Pendiente',
-                'DESCRIPCION' => 'Documento subido y esperando revisión',
-                'COLOR' => 'warning',
-                'ICONO' => 'fas fa-clock',
-                'ORDEN' => 1,
-                'ACTIVO' => 1
-            ],
-            [
-                'ESTADO' => 'En Revisión',
-                'DESCRIPCION' => 'Documento siendo revisado por el administrador',
-                'COLOR' => 'info',
-                'ICONO' => 'fas fa-eye',
-                'ORDEN' => 2,
-                'ACTIVO' => 1
-            ],
-            [
-                'ESTADO' => 'Aprobado',
-                'DESCRIPCION' => 'Documento aprobado y validado',
-                'COLOR' => 'success',
-                'ICONO' => 'fas fa-check-circle',
-                'ORDEN' => 3,
-                'ACTIVO' => 1
-            ],
-            [
-                'ESTADO' => 'Rechazado',
-                'DESCRIPCION' => 'Documento rechazado, requiere correcciones',
-                'COLOR' => 'danger',
-                'ICONO' => 'fas fa-times-circle',
-                'ORDEN' => 4,
-                'ACTIVO' => 1
-            ],
-            [
-                'ESTADO' => 'Requiere Corrección',
-                'DESCRIPCION' => 'Documento requiere correcciones antes de aprobación',
-                'COLOR' => 'warning',
-                'ICONO' => 'fas fa-exclamation-triangle',
-                'ORDEN' => 5,
-                'ACTIVO' => 1
-            ]
-        ];
-
-        $insertados = 0;
-        foreach ($estados as $estado) {
-            if (!$this->getEstadoPorNombre($estado['ESTADO'])) {
-                if ($this->insert($estado)) {
-                    $insertados++;
-                }
+        foreach ($this->estadosPredefinidos as $estadoData) {
+            if ($estadoData['ESTADO'] == $estado) {
+                return $estadoData;
             }
         }
 
-        return $insertados;
+        return null;
     }
 
     /**
@@ -207,36 +112,11 @@ class EstadosRevisionesModel extends Model
     }
 
     /**
-     * Obtener siguiente orden disponible
+     * Obtener estados con colores para frontend
      */
-    public function getSiguienteOrden()
+    public function getEstadosConColores()
     {
-        $ultimo = $this->selectMax('ORDEN')->first();
-        return ($ultimo['ORDEN'] ?? 0) + 1;
-    }
-
-    /**
-     * Reordenar estados
-     */
-    public function reordenarEstados($ordenes)
-    {
-        $this->db->transStart();
-        
-        foreach ($ordenes as $id => $orden) {
-            $this->update($id, ['ORDEN' => $orden]);
-        }
-        
-        $this->db->transComplete();
-        
-        return $this->db->transStatus();
-    }
-
-    /**
-     * Activar/desactivar estado
-     */
-    public function cambiarEstado($id, $activo)
-    {
-        return $this->update($id, ['ACTIVO' => $activo]);
+        return $this->getAllEstados();
     }
 
     /**
@@ -244,20 +124,25 @@ class EstadosRevisionesModel extends Model
      */
     public function getEstadisticasPorEstado()
     {
-        $builder = $this->db->table($this->table . ' er');
-        $builder->select('
-            er.ID_ESTADO_REVISION,
-            er.ESTADO,
-            er.COLOR,
-            er.ICONO,
-            COUNT(dp.ID_DOCUMENTO_PRACTICA) as total_documentos
-        ');
-        $builder->join('TAB_DOCUMENTOS_PRACTICAS dp', 'er.ID_ESTADO_REVISION = dp.ID_ESTADO_REVISION', 'left');
-        $builder->where('er.ACTIVO', 1);
-        $builder->groupBy('er.ID_ESTADO_REVISION, er.ESTADO, er.COLOR, er.ICONO');
-        $builder->orderBy('er.ORDEN', 'ASC');
-        
-        return $builder->get()->getResultArray();
+        $db = \Config\Database::connect();
+        $estados = $this->getAllEstados();
+        $estadisticas = [];
+
+        foreach ($estados as $estado) {
+            $count = $db->table('TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES')
+                ->where('ESTADO_REVISION', $estado['ESTADO'])
+                ->countAllResults();
+
+            $estadisticas[] = [
+                'ID_ESTADO_REVISION' => $estado['ID_ESTADO_REVISION'],
+                'ESTADO' => $estado['ESTADO'],
+                'COLOR' => $estado['COLOR'],
+                'ICONO' => $estado['ICONO'],
+                'total_documentos' => $count
+            ];
+        }
+
+        return $estadisticas;
     }
 
     /**
@@ -265,36 +150,80 @@ class EstadosRevisionesModel extends Model
      */
     public function estadoExiste($estado)
     {
-        return $this->where('ESTADO', $estado)->first() !== null;
+        return $this->getEstadoPorNombre($estado) !== null;
     }
 
     /**
-     * Obtener estado por ID con información completa
+     * Obtener estado completo por ID
      */
     public function getEstadoCompleto($id)
     {
-        return $this->where('ID_ESTADO_REVISION', $id)->first();
+        return $this->find($id);
     }
 
     /**
-     * Obtener estados con colores para frontend
+     * Obtener estados ordenados
      */
-    public function getEstadosConColores()
+    public function getEstadosOrdenados()
     {
         $estados = $this->getAllEstados();
-        $estadosConColores = [];
+        usort($estados, function($a, $b) {
+            return $a['ORDEN'] - $b['ORDEN'];
+        });
+        
+        return $estados;
+    }
+
+    /**
+     * Obtener siguiente orden disponible
+     */
+    public function getSiguienteOrden()
+    {
+        $estados = $this->getAllEstados();
+        $maxOrden = 0;
         
         foreach ($estados as $estado) {
-            $estadosConColores[] = [
-                'id' => $estado['ID_ESTADO_REVISION'],
-                'estado' => $estado['ESTADO'],
-                'descripcion' => $estado['DESCRIPCION'],
-                'color' => $estado['COLOR'],
-                'icono' => $estado['ICONO'],
-                'orden' => $estado['ORDEN']
-            ];
+            if ($estado['ORDEN'] > $maxOrden) {
+                $maxOrden = $estado['ORDEN'];
+            }
         }
         
-        return $estadosConColores;
+        return $maxOrden + 1;
+    }
+
+    /**
+     * Crear estados predefinidos (método de compatibilidad)
+     */
+    public function crearEstadosPredefinidos()
+    {
+        // Los estados ya están predefinidos, no hay nada que crear
+        return count($this->estadosPredefinidos);
+    }
+
+    /**
+     * Métodos de compatibilidad que no hacen nada ya que no hay tabla
+     */
+    public function insert($data = null, $returnID = true)
+    {
+        // No se pueden insertar estados ya que están predefinidos
+        return false;
+    }
+
+    public function update($id = null, $data = null): bool
+    {
+        // No se pueden actualizar estados ya que están predefinidos
+        return false;
+    }
+
+    public function delete($id = null, $purge = false)
+    {
+        // No se pueden eliminar estados ya que están predefinidos
+        return false;
+    }
+
+    public function save($row): bool
+    {
+        // No se pueden guardar estados ya que están predefinidos
+        return false;
     }
 }

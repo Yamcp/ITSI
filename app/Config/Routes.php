@@ -125,6 +125,8 @@ $routes->group('admin', ['namespace' => 'App\Controllers\admin'], function ($rou
     $routes->get('evaluaciones', 'EvaluacionesAdminController::index'); // Ver evaluaciones
     $routes->post('evaluaciones/agregar', 'EvaluacionesAdminController::agregarEvaluacion'); // Agregar evaluación
     $routes->get('evaluaciones/obtener', 'EvaluacionesAdminController::obtenerEvaluaciones'); // Obtener evaluaciones
+    $routes->get('evaluaciones/obtener/(:num)', 'EvaluacionesAdminController::obtenerEvaluacion/$1'); // Obtener evaluación específica
+    $routes->post('evaluaciones/actualizar/(:num)', 'EvaluacionesAdminController::actualizarEvaluacion/$1'); // Actualizar evaluación
     $routes->get('evaluaciones/cursos', 'EvaluacionesAdminController::obtenerCursos'); // Obtener cursos para evaluaciones
     $routes->post('evaluaciones/eliminar/(:num)', 'EvaluacionesAdminController::eliminarEvaluacion/$1'); // Eliminar evaluación
     $routes->post('evaluaciones/cambiar-estado/(:num)', 'EvaluacionesAdminController::cambiarEstadoEvaluacion/$1'); // Cambiar estado evaluación

@@ -43,9 +43,10 @@ class DetallesConveniosModel extends Model
     public function getConveniosCompletos()
     {
         $builder = $this->db->table('TAB_DETALLES_CONVENIOS dc')
-            ->select('dc.*, ic.NOMBRE, ic.RUC, ic.REPRESENTANTE_LEGAL, tc.CONVENIO as TIPO_CONVENIO')
+            ->select('dc.*, ic.NOMBRE, ic.RUC, ic.REPRESENTANTE_LEGAL, tc.CONVENIO as TIPO_CONVENIO, ti.INSTITUCION as TIPO_INSTITUCION')
             ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = dc.ID_INSTITUCION_CONVENIO')
-            ->join('TAB_TIPOS_CONVENIOS tc', 'tc.ID_TIPO_CONVENIO = dc.ID_TIPO_CONVENIO');
+            ->join('TAB_TIPOS_CONVENIOS tc', 'tc.ID_TIPO_CONVENIO = dc.ID_TIPO_CONVENIO')
+            ->join('TAB_TIPOS_INSTITUCION ti', 'ti.ID_TIPO_INSTITUCION = ic.ID_TIPO_INSTITUCION');
             
         return $builder->get()->getResultArray();
     }
