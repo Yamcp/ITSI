@@ -45,9 +45,14 @@ class InstructoresModel extends Model
     // Verificar si un empleado es instructor
     public function esEmpleadoInstructor($idEmpleado)
     {
-        $builder = $this->db->table('TAB_EMPLEADOS_INTRUCTORES')
-            ->where('ID_EMPLEADO', $idEmpleado);
-            
-        return ($builder->countAllResults() > 0);
+        $empleadosInstructoresModel = new \App\Models\EmpleadosInstructoresModel();
+        return $empleadosInstructoresModel->where('ID_EMPLEADO', $idEmpleado)->countAllResults() > 0;
+    }
+    
+    // Obtener instructores que también son empleados
+    public function getInstructoresEmpleados()
+    {
+        $empleadosInstructoresModel = new \App\Models\EmpleadosInstructoresModel();
+        return $empleadosInstructoresModel->getRelacionesCompletas();
     }
 }

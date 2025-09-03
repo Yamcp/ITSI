@@ -49,4 +49,25 @@ class EmpleadosModel extends Model
             
         return $builder->get()->getRowArray();
     }
+    
+    // Verificar si un empleado es instructor
+    public function esInstructor($idEmpleado)
+    {
+        $empleadosInstructoresModel = new \App\Models\EmpleadosInstructoresModel();
+        return $empleadosInstructoresModel->where('ID_EMPLEADO', $idEmpleado)->countAllResults() > 0;
+    }
+    
+    // Obtener instructores de un empleado
+    public function getInstructoresDelEmpleado($idEmpleado)
+    {
+        $empleadosInstructoresModel = new \App\Models\EmpleadosInstructoresModel();
+        return $empleadosInstructoresModel->getInstructoresPorEmpleado($idEmpleado);
+    }
+    
+    // Obtener empleados que también son instructores
+    public function getEmpleadosInstructores()
+    {
+        $empleadosInstructoresModel = new \App\Models\EmpleadosInstructoresModel();
+        return $empleadosInstructoresModel->getRelacionesCompletas();
+    }
 }

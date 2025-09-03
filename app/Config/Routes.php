@@ -76,6 +76,18 @@ $routes->group('admin', ['namespace' => 'App\Controllers\admin'], function ($rou
     $routes->get('instructores/getEstadisticas', 'InstructoresAdminController::getEstadisticas');
     $routes->get('instructores/getTiposInstructores', 'InstructoresAdminController::getTiposInstructores');
 
+    // Rutas para la gestión de empleados-instructores
+    $routes->get('empleados-instructores', 'EmpleadosInstructoresAdminController::index');
+    $routes->get('empleados-instructores/crear', 'EmpleadosInstructoresAdminController::create');
+    $routes->post('empleados-instructores/guardar', 'EmpleadosInstructoresAdminController::store');
+    $routes->get('empleados-instructores/ver/(:num)', 'EmpleadosInstructoresAdminController::show/$1');
+    $routes->get('empleados-instructores/editar/(:num)', 'EmpleadosInstructoresAdminController::edit/$1');
+    $routes->post('empleados-instructores/actualizar/(:num)', 'EmpleadosInstructoresAdminController::update/$1');
+    $routes->get('empleados-instructores/eliminar/(:num)', 'EmpleadosInstructoresAdminController::delete/$1');
+    $routes->post('empleados-instructores/verificar-empleado', 'EmpleadosInstructoresAdminController::verificarEmpleadoInstructor');
+    $routes->post('empleados-instructores/instructores-empleado', 'EmpleadosInstructoresAdminController::getInstructoresEmpleado');
+    $routes->post('empleados-instructores/empleados-instructor', 'EmpleadosInstructoresAdminController::getEmpleadosInstructor');
+
     // Rutas para la gestión de estudiantes
     $routes->get('estudiantes', 'EstudiantesAdminController::index');                     // Ver la lista de estudiantes
     

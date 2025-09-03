@@ -15,12 +15,9 @@ drop table if exists TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES;
 drop table if exists TAB_EVALUACIONES_ENLACES;
 drop table if exists TAB_SERVICIO_COMUNITARIO;
 drop table if exists TAB_PRACTICAS_PREPROFESIONALES;
-drop table if exists TAB_ASISTENCIAS_PRACTICAS;
-drop table if exists TAB_SEGUIMIENTO_PRACTICAS;
-drop table if exists TAB_DOCUMENTOS_PRACTICAS;
 drop table if exists TAB_ACTIVIDADES_EDUCACION;
 drop table if exists TAB_ASIGNACIONES_PRACTICAS;
-drop table if exists TAB_EMPLEADOS_INTRUCTORES;
+drop table if exists TAB_EMPLEADOS_INSTRUCTORES;
 drop table if exists TAB_EMPLEADOS;
 drop table if exists TAB_INSTRUCTORES;
 drop table if exists TAB_ESTUDIANTES;
@@ -33,11 +30,8 @@ drop table if exists TAB_DEPARTAMENTOS;
 drop table if exists TAB_EXPORTACIONES;
 drop table if exists TAB_USUARIOS;
 drop table if exists TAB_DATOS_PERSONAS;
-drop table if exists TAB_ESTADOS_REVISIONES;
-drop table if exists TAB_ESTADO_PRACTICAS;
 drop table if exists TAB_TIPOS_ACTIVIDADES;
 drop table if exists TAB_TIPOS_CONVENIOS;
-drop table if exists TAB_TIPOS_DOCUMENTOS_PRACTICAS;
 drop table if exists TAB_TIPOS_ESTADOS;
 drop table if exists TAB_TIPOS_INSTITUCION;
 drop table if exists TAB_TIPOS_MODALIDADES;
@@ -81,7 +75,6 @@ create table TAB_ASIGNACIONES_PRACTICAS
    ID_ASIGNACION_PRACTICA int not null auto_increment,
    ID_TIPO_PRACTICA     int,
    ID_USUARIO           int,
-   ID_ESTADO_PRACTICAS  int,
    ID_INSTITUCION_CONVENIO int,
    FECHA_INICIO         date not null,
    FECHA_FIN            date not null,
@@ -89,22 +82,6 @@ create table TAB_ASIGNACIONES_PRACTICAS
    DESCRIPCION          text not null,
    CRONOGRAMA           varchar(255) not null,
    primary key (ID_ASIGNACION_PRACTICA)
-);
-
-/*==============================================================*/
-/* Table: TAB_ASISTENCIAS_PRACTICAS                             */
-/*==============================================================*/
-create table TAB_ASISTENCIAS_PRACTICAS
-(
-   ID_ASISTENCIA        int not null auto_increment,
-   ID_ASIGNACION_PRACTICA int,
-   FECHA_ASISTENCIA     date,
-   HORA_ENTRADA         time not null,
-   HORA_SALIDA          time not null,
-   ACTIVIDADES_DIA      text not null,
-   FECHA_REGISTRO       timestamp not null,
-   OBSERVACIONES        text not null,
-   primary key (ID_ASISTENCIA)
 );
 
 /*==============================================================*/
@@ -168,36 +145,6 @@ create table TAB_DETALLES_CONVENIOS
 );
 
 /*==============================================================*/
-/* Table: TAB_DOCUMENTOS_PRACTICAS                              */
-/*==============================================================*/
-create table TAB_DOCUMENTOS_PRACTICAS
-(
-   ID_DOCUMENTO_PRACTICA int not null auto_increment,
-   ID_ESTADO_REVISION   int not null,
-   ID_TIPO_DOCUMENTO    int not null,
-   ID_USUARIO           int not null,
-   NOMBRE_ARCHIVO       varchar(255) not null,
-   TIPO                 varchar(100) not null,
-   FECHA_SUBIDA         datetime not null,
-   OBSERVACIONES        text,
-   ENTIDAD_RECEPTORA    varchar(255),
-   DOCENTE_TUTOR        varchar(255),
-   PRIORIDAD            enum("baja","media","alta","urgente") DEFAULT "media",
-   FECHA_CREACION       datetime DEFAULT CURRENT_TIMESTAMP,
-   FECHA_ACTUALIZACION  datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-   OBSERVACIONES_REVISOR text,
-   primary key (ID_DOCUMENTO_PRACTICA),
-   KEY `FK_DOCUMENTOS_ESTADO` (`ID_ESTADO_REVISION`),
-   KEY `FK_DOCUMENTOS_TIPO` (`ID_TIPO_DOCUMENTO`),
-   KEY `FK_DOCUMENTOS_USUARIO` (`ID_USUARIO`),
-   KEY `IDX_FECHA_SUBIDA` (`FECHA_SUBIDA`),
-   KEY `IDX_ESTADO_REVISION` (`ID_ESTADO_REVISION`),
-   KEY `IDX_DOCUMENTOS_TIPO_ESTADO` (`ID_TIPO_DOCUMENTO`, `ID_ESTADO_REVISION`),
-   KEY `IDX_DOCUMENTOS_USUARIO_TIPO` (`ID_USUARIO`, `ID_TIPO_DOCUMENTO`),
-   KEY `IDX_DOCUMENTOS_PRIORIDAD` (`PRIORIDAD`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-/*==============================================================*/
 /* Table: TAB_EMPLEADOS                                         */
 /*==============================================================*/
 create table TAB_EMPLEADOS
@@ -212,40 +159,14 @@ create table TAB_EMPLEADOS
 );
 
 /*==============================================================*/
-/* Table: TAB_EMPLEADOS_INTRUCTORES                             */
+/* Table: TAB_EMPLEADOS_INSTRUCTORES                            */
 /*==============================================================*/
-create table TAB_EMPLEADOS_INTRUCTORES
+create table TAB_EMPLEADOS_INSTRUCTORES
 (
+   ID_EMPLEADO_INSTRUCTOR int not null auto_increment,
    ID_EMPLEADO          int,
-   ID_INSTRUCTOR        int
-);
-
-/*==============================================================*/
-/* Table: TAB_ESTADOS_REVISIONES                                */
-/*==============================================================*/
-create table TAB_ESTADOS_REVISIONES
-(
-   ID_ESTADO_REVISION   int not null auto_increment,
-   ESTADO               varchar(50) not null,
-   DESCRIPCION          varchar(255),
-   COLOR                varchar(20) DEFAULT "secondary",
-   ICONO                varchar(50) DEFAULT "fas fa-circle",
-   ORDEN                int(11) DEFAULT 1,
-   ACTIVO               tinyint(1) DEFAULT 1,
-   FECHA_CREACION       datetime DEFAULT CURRENT_TIMESTAMP,
-   FECHA_ACTUALIZACION  datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-   primary key (ID_ESTADO_REVISION),
-   UNIQUE KEY `ESTADO` (`ESTADO`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
-/*==============================================================*/
-/* Table: TAB_ESTADO_PRACTICAS                                  */
-/*==============================================================*/
-create table TAB_ESTADO_PRACTICAS
-(
-   ID_ESTADO_PRACTICAS  int not null auto_increment,
-   ESTADO               varchar(20) not null,
-   primary key (ID_ESTADO_PRACTICAS)
+   ID_INSTRUCTOR        int,
+   primary key (ID_EMPLEADO_INSTRUCTOR)
 );
 
 /*==============================================================*/
@@ -304,8 +225,10 @@ create table TAB_INSTITUCIONES_CONVENIOS
 /*==============================================================*/
 create table TAB_INSTITUCION_CARRERA
 (
+   ID_INSTITUCION_CARRERA int not null auto_increment,
    ID_CARRERA           int,
-   ID_INSTITUCION_CONVENIO int
+   ID_INSTITUCION_CONVENIO int,
+   primary key (ID_INSTITUCION_CARRERA)
 );
 
 /*==============================================================*/
@@ -343,20 +266,6 @@ create table TAB_ROLES
 );
 
 /*==============================================================*/
-/* Table: TAB_SEGUIMIENTO_PRACTICAS                             */
-/*==============================================================*/
-create table TAB_SEGUIMIENTO_PRACTICAS
-(
-   ID_SEGUIMIENTO       int not null auto_increment,
-   ID_ASIGNACION_PRACTICA int,
-   HORAS_CUMPLIDAS      int not null,
-   ACTIVIDADES_REALIZADAS text not null,
-   OBSERVACIONES        text not null,
-   ARCHIVO_REPORTE      varchar(255) not null,
-   primary key (ID_SEGUIMIENTO)
-);
-
-/*==============================================================*/
 /* Table: TAB_TIPOS_ACTIVIDADES                                 */
 /*==============================================================*/
 create table TAB_TIPOS_ACTIVIDADES
@@ -375,24 +284,6 @@ create table TAB_TIPOS_CONVENIOS
    CONVENIO             varchar(20) not null,
    primary key (ID_TIPO_CONVENIO)
 );
-
-/*==============================================================*/
-/* Table: TAB_TIPOS_DOCUMENTOS_PRACTICAS                        */
-/*==============================================================*/
-create table TAB_TIPOS_DOCUMENTOS_PRACTICAS
-(
-   ID_TIPO_DOCUMENTO    int not null auto_increment,
-   CODIGO               varchar(10) not null,
-   NOMBRE               varchar(255) not null,
-   DESCRIPCION          text,
-   REQUERIDO            tinyint(1) DEFAULT 1,
-   ORDEN                int(11) DEFAULT 1,
-   ACTIVO               tinyint(1) DEFAULT 1,
-   FECHA_CREACION       datetime DEFAULT CURRENT_TIMESTAMP,
-   FECHA_ACTUALIZACION  datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-   primary key (ID_TIPO_DOCUMENTO),
-   UNIQUE KEY `CODIGO` (`CODIGO`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*==============================================================*/
 /* Table: TAB_TIPOS_ESTADOS                                     */
@@ -748,31 +639,14 @@ alter table TAB_ASIGNACIONES_PRACTICAS add constraint FK_REFERENCE_11 foreign ke
 alter table TAB_ASIGNACIONES_PRACTICAS add constraint FK_REFERENCE_22 foreign key (ID_USUARIO)
       references TAB_USUARIOS (ID_USUARIO) on delete restrict on update restrict;
 
-alter table TAB_ASIGNACIONES_PRACTICAS add constraint FK_REFERENCE_36 foreign key (ID_ESTADO_PRACTICAS)
-      references TAB_ESTADO_PRACTICAS (ID_ESTADO_PRACTICAS) on delete restrict on update restrict;
-
 alter table TAB_ASIGNACIONES_PRACTICAS add constraint FK_REFERENCE_48 foreign key (ID_INSTITUCION_CONVENIO)
       references TAB_INSTITUCIONES_CONVENIOS (ID_INSTITUCION_CONVENIO) on delete restrict on update restrict;
-
-alter table TAB_ASISTENCIAS_PRACTICAS add constraint FK_REFERENCE_9 foreign key (ID_ASIGNACION_PRACTICA)
-      references TAB_ASIGNACIONES_PRACTICAS (ID_ASIGNACION_PRACTICA) on delete restrict on update restrict;
 
 alter table TAB_DETALLES_CONVENIOS add constraint FK_REFERENCE_34 foreign key (ID_TIPO_CONVENIO)
       references TAB_TIPOS_CONVENIOS (ID_TIPO_CONVENIO) on delete restrict on update restrict;
 
 alter table TAB_DETALLES_CONVENIOS add constraint FK_REFERENCE_35 foreign key (ID_INSTITUCION_CONVENIO)
       references TAB_INSTITUCIONES_CONVENIOS (ID_INSTITUCION_CONVENIO) on delete restrict on update restrict;
-
-
-
-alter table TAB_DOCUMENTOS_PRACTICAS add constraint FK_DOCUMENTOS_ESTADO foreign key (ID_ESTADO_REVISION)
-      references TAB_ESTADOS_REVISIONES (ID_ESTADO_REVISION) on delete restrict on update cascade;
-
-alter table TAB_DOCUMENTOS_PRACTICAS add constraint FK_DOCUMENTOS_TIPO foreign key (ID_TIPO_DOCUMENTO)
-      references TAB_TIPOS_DOCUMENTOS_PRACTICAS (ID_TIPO_DOCUMENTO) on delete restrict on update cascade;
-
-alter table TAB_DOCUMENTOS_PRACTICAS add constraint FK_DOCUMENTOS_USUARIO foreign key (ID_USUARIO)
-      references TAB_USUARIOS (ID_USUARIO) on delete cascade on update cascade;
 
 alter table TAB_EMPLEADOS add constraint FK_REFERENCE_19 foreign key (ID_DATO_PERSONA)
       references TAB_DATOS_PERSONAS (ID_DATO_PERSONA) on delete restrict on update restrict;
@@ -783,10 +657,10 @@ alter table TAB_EMPLEADOS add constraint FK_REFERENCE_24 foreign key (ID_TIPO_CO
 alter table TAB_EMPLEADOS add constraint FK_REFERENCE_4 foreign key (ID_DEPARTAMENTO)
       references TAB_DEPARTAMENTOS (ID_DEPARTAMENTO) on delete restrict on update restrict;
 
-alter table TAB_EMPLEADOS_INTRUCTORES add constraint FK_REFERENCE_42 foreign key (ID_EMPLEADO)
+alter table TAB_EMPLEADOS_INSTRUCTORES add constraint FK_REFERENCE_42 foreign key (ID_EMPLEADO)
       references TAB_EMPLEADOS (ID_EMPLEADO) on delete restrict on update restrict;
 
-alter table TAB_EMPLEADOS_INTRUCTORES add constraint FK_REFERENCE_43 foreign key (ID_INSTRUCTOR)
+alter table TAB_EMPLEADOS_INSTRUCTORES add constraint FK_REFERENCE_43 foreign key (ID_INSTRUCTOR)
       references TAB_INSTRUCTORES (ID_INSTRUCTOR) on delete restrict on update restrict;
 
 alter table TAB_ESTUDIANTES add constraint FK_REFERENCE_20 foreign key (ID_TIPO_ESTADO)
@@ -821,9 +695,6 @@ alter table TAB_ROLES add constraint FK_REFERENCE_7 foreign key (ID_USUARIO)
 
 alter table TAB_ROLES add constraint FK_REFERENCE_8 foreign key (ID_TIPOS_ROLES)
       references TAB_TIPOS_ROLES (ID_TIPOS_ROLES) on delete restrict on update restrict;
-
-alter table TAB_SEGUIMIENTO_PRACTICAS add constraint FK_REFERENCE_37 foreign key (ID_ASIGNACION_PRACTICA)
-      references TAB_ASIGNACIONES_PRACTICAS (ID_ASIGNACION_PRACTICA) on delete restrict on update restrict;
 
 alter table TAB_USUARIOS add constraint FK_REFERENCE_12 foreign key (ID_DATO_PERSONA)
       references TAB_DATOS_PERSONAS (ID_DATO_PERSONA) on delete restrict on update restrict;
@@ -961,27 +832,33 @@ INSERT INTO `TAB_TIPOS_CONTRATO` (`ID_TIPO_CONTRATO`, `TIPO_CONTRATO`) VALUES
 (4, 'Consultoría');
 
 INSERT INTO `TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES` (`CODIGO`, `NOMBRE`, `DESCRIPCION`, `ORDEN`, `OBLIGATORIO`) VALUES
-('PP001', 'Oficio de Asignación de Tutor', 'Oficio de asignación de tutor docente', 1, true),
-('PP002', 'Oficio Personal a Entidad', 'Oficio personal a la entidad receptora', 2, true),
-('PP003', 'Carta de Aceptación', 'Carta de aceptación de la entidad receptora', 3, true),
-('PP004', 'Solicitud Institucional', 'Solicitud institucional valorada', 4, true),
-('PP005', 'Certificado de Culminación', 'Certificado de haber culminado las prácticas', 5, true),
-('PP006', 'Rúbrica Entidad Receptora', 'Rúbrica de evaluación de la entidad', 6, true),
-('PP007', 'Hojas de Asistencia', 'Hojas de asistencia de estudiantes', 7, true),
-('PP008', 'Ficha de Actividades', 'Ficha de registro de actividades realizadas', 8, true),
-('PP009', 'Ficha de Control Docente', 'Ficha de control y seguimiento docente', 9, true),
-('PP010', 'Rúbrica Docente', 'Rúbrica de evaluación del docente', 10, true),
-('PP011', 'Rúbrica de Resultados', 'Rúbrica de evaluación de resultados', 11, true),
-('PP012', 'Respaldo Fotográfico', 'Respaldo en fotos de trabajos realizados', 12, true);
+('PPR-001', 'Oficio de Asignación de Tutor', 'Documento oficial emitido por la coordinación de la carrera que designa al docente responsable de la tutoría y seguimiento de las prácticas de servicio comunitario del estudiante.', 1, true),
+('PPR-002', 'Oficio a Entidad Receptora', 'Carta formal enviada por el estudiante a la institución "Instituto Tecnológico Superior Ibarra", con el propósito de solicitar la oportunidad de realizar sus prácticas de servicio comunitario.', 2, true),
+('PPR-003', 'Carta de Aceptación', 'Carta oficial de la entidad receptora "Instituto Tecnológico Superior Ibarra" que confirma la aceptación del o los estudiantes para realizar las prácticas de servicio comunitario en sus instalaciones.', 3, true),
+('PPR-004', 'Solicitud Institucional Valorada', 'Documento de solicitud formal dirigido al Sr. Rector, Dr. Mario Montenegro, pidiendo la aprobación institucional para la realización de las prácticas de servicio comunitario.', 4, true),
+('PPR-005', 'Certificado de Culminación de Horas', 'Certificado emitido por la entidad receptora "Instituto Tecnológico Superior Ibarra" que acredita que el estudiante ha completado las 60 horas requeridas de prácticas de servicio comunitario.', 5, true),
+('PPR-006', 'Hojas de Asistencia', 'Registro físico de la asistencia del estudiante en la entidad receptora. Incluye las firmas y sellos para validar las horas de trabajo.', 6, true),
+('PPR-007', 'Ficha de Registro de Actividades', 'Documento detallado en el que el estudiante registra las actividades específicas realizadas durante sus prácticas, incluyendo fechas y descripciones.', 7, true),
+('PPR-008', 'Rúbrica de Evaluación de Entidad', 'Formulario de evaluación del desempeño del estudiante, llenado y sellado por la entidad receptora. Valora aspectos como la responsabilidad, la proactividad y la calidad del trabajo.', 8, true),
+('PPR-009', 'Ficha de Control y Seguimiento Docente', 'Documento utilizado por el tutor docente para registrar el seguimiento académico del estudiante durante las prácticas. Incluye visitas o revisiones periódicas.', 9, true),
+('PPR-010', 'Rúbrica de Evaluación Docente', 'Rúbrica de evaluación llenada y firmada por el tutor docente. Califica el desempeño del estudiante en base a los criterios académicos del programa.', 10, true),
+('PPR-011', 'Rúbrica de Evaluación de Resultados', 'Evaluación final realizada por el Departamento de Vinculación con la Sociedad, que valora los resultados y el impacto del proyecto de servicio comunitario en su conjunto.', 11, true),
+('PPR-012', 'Evidencia Fotográfica y Digital', 'Material de apoyo visual y digital, como fotos, capturas, videos o impresiones, que documenta y comprueba la realización de las actividades y trabajos del proyecto.', 12, true);
 
 -- Insertar tipos de documentos para Servicio Comunitario
-INSERT IGNORE INTO `TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO` (`CODIGO`, `NOMBRE`, `DESCRIPCION`, `ORDEN`, `OBLIGATORIO`, `ACTIVO`) VALUES
-('SC.1', 'Plan de Trabajo de Servicio Comunitario', 'Plan detallado de las actividades a realizar durante el servicio comunitario.', 1, 1, 1),
-('SC.2', 'Cronograma de Actividades', 'Cronograma detallado con fechas y horarios de las actividades de servicio comunitario.', 2, 1, 1),
-('SC.3', 'Informe de Actividades Realizadas', 'Informe detallado de todas las actividades realizadas durante el servicio comunitario.', 3, 1, 1),
-('SC.4', 'Evidencias Fotográficas', 'Fotografías que evidencian la realización de las actividades de servicio comunitario.', 4, 1, 1),
-('SC.5', 'Evaluación de la Comunidad', 'Evaluación realizada por la comunidad sobre el impacto del servicio comunitario.', 5, 1, 1),
-('SC.6', 'Informe Final de Servicio Comunitario', 'Informe final que resume todo el trabajo realizado durante el servicio comunitario.', 6, 1, 1);
+INSERT INTO `TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO` (`CODIGO`, `NOMBRE`, `DESCRIPCION`, `ORDEN`, `OBLIGATORIO`, `ACTIVO`) VALUES
+('PSC-001', 'Oficio de Asignación de Tutor', 'Documento oficial emitido por la coordinación de la carrera que designa al docente responsable de la tutoría y seguimiento de las prácticas de servicio comunitario del estudiante.', 1, 1, 1),
+('PSC-002', 'Oficio a Entidad Receptora', 'Carta formal enviada por el estudiante a la institución "Instituto Tecnológico Superior Ibarra", con el propósito de solicitar la oportunidad de realizar sus prácticas de servicio comunitario.', 2, 1, 1),
+('PSC-003', 'Carta de Aceptación', 'Carta oficial de la entidad receptora "Instituto Tecnológico Superior Ibarra" que confirma la aceptación del o los estudiantes para realizar las prácticas de servicio comunitario en sus instalaciones.', 3, 1, 1),
+('PSC-004', 'Solicitud Institucional Valorada', 'Documento de solicitud formal dirigido al Sr. Rector, Dr. Mario Montenegro, pidiendo la aprobación institucional para la realización de las prácticas de servicio comunitario.', 4, 1, 1),
+('PSC-005', 'Certificado de Culminación de Horas', 'Certificado emitido por la entidad receptora "Instituto Tecnológico Superior Ibarra" que acredita que el estudiante ha completado las 60 horas requeridas de prácticas de servicio comunitario.', 5, 1, 1),
+('PSC-006', 'Hojas de Asistencia', 'Registro físico de la asistencia del estudiante en la entidad receptora. Incluye las firmas y sellos para validar las horas de trabajo.', 6, 1, 1),
+('PSC-007', 'Ficha de Registro de Actividades', 'Documento detallado en el que el estudiante registra las actividades específicas realizadas durante sus prácticas, incluyendo fechas y descripciones.', 7, 1, 1),
+('PSC-008', 'Rúbrica de Evaluación de Entidad', 'Formulario de evaluación del desempeño del estudiante, llenado y sellado por la entidad receptora. Valora aspectos como la responsabilidad, la proactividad y la calidad del trabajo.', 8, 1, 1),
+('PSC-009', 'Ficha de Control y Seguimiento Docente', 'Documento utilizado por el tutor docente para registrar el seguimiento académico del estudiante durante las prácticas. Incluye visitas o revisiones periódicas.', 9, 1, 1),
+('PSC-010', 'Rúbrica de Evaluación Docente', 'Rúbrica de evaluación llenada y firmada por el tutor docente. Califica el desempeño del estudiante en base a los criterios académicos del programa.', 10, 1, 1),
+('PSC-011', 'Rúbrica de Evaluación de Resultados', 'Evaluación final realizada por el Departamento de Vinculación con la Sociedad, que valora los resultados y el impacto del proyecto de servicio comunitario en su conjunto.', 11, 1, 1),
+('PSC-012', 'Evidencia Fotográfica y Digital', 'Material de apoyo visual y digital, como fotos, capturas, videos o impresiones, que documenta y comprueba la realización de las actividades y trabajos del proyecto.', 12, 1, 1);
 
 -- Insertar estados para Prácticas Preprofesionales
 INSERT INTO `TAB_ESTADOS_PRACTICAS_PREPROFESIONALES` (`ESTADO`, `DESCRIPCION`, `COLOR`) VALUES
@@ -1040,7 +917,7 @@ INSERT INTO `TAB_USUARIOS` (`ID_USUARIO`, `ID_DATO_PERSONA`, `USUARIO`, `CONTRAS
 (6, 6, 'mgonzalez', '123', '1');
 
 -- Insertar roles para los instructores
-INSERT IGNORE INTO `TAB_ROLES` (`ID_ROL`, `ID_USUARIO`, `ID_TIPOS_ROLES`) VALUES
+INSERT INTO `TAB_ROLES` (`ID_ROL`, `ID_USUARIO`, `ID_TIPOS_ROLES`) VALUES
 (4, 4, 2),
 (5, 5, 2),
 (6, 6, 2);
@@ -1103,18 +980,11 @@ INSERT INTO `TAB_INSTITUCIONES_CONVENIOS` (`ID_INSTITUCION_CONVENIO`, `ID_TIPO_I
 (2, 2, 'Banco del Pacífico', '0987654321001', 'Av. Amazonas, Quito', 'Quito', '022-987654', 'info@bancodelpacifico.com', 'Sr. Carlos Mendoza', 'Ing. Ana Ruiz', '0912345678', 'ana.ruiz@bancodelpacifico.com'),
 (3, 1, 'Fundación Niños del Ecuador', '1122334455001', 'Calle 10 de Agosto, Guayaquil', 'Guayaquil', '042-555666', 'info@ninosdelecuador.org', 'Dra. Sofía Morales', 'Lic. Pedro Aguirre', '0999888777', 'pedro.aguirre@ninosdelecuador.org');
 
--- Insertar algunos estados de prácticas
-INSERT INTO `TAB_ESTADO_PRACTICAS` (`ID_ESTADO_PRACTICAS`, `ESTADO`) VALUES
-(1, 'Pendiente'),
-(2, 'En Progreso'),
-(3, 'Completada'),
-(4, 'Cancelada');
-
 -- Insertar algunas asignaciones de prácticas
-INSERT INTO `TAB_ASIGNACIONES_PRACTICAS` (`ID_ASIGNACION_PRACTICA`, `ID_TIPO_PRACTICA`, `ID_USUARIO`, `ID_ESTADO_PRACTICAS`, `ID_INSTITUCION_CONVENIO`, `FECHA_INICIO`, `FECHA_FIN`, `HORA_TOTAL`, `DESCRIPCION`, `CRONOGRAMA`) VALUES
-(1, 2, 1, 2, 1, '2025-06-01', '2025-08-30', 240, 'Desarrollo e implementación de sistema de gestión hospitalaria', 'Lunes a Viernes 8:00-17:00'),
-(2, 2, 1, 2, 2, '2025-07-01', '2025-09-30', 240, 'Desarrollo de aplicaciones móviles para servicios bancarios', 'Lunes a Viernes 9:00-18:00'),
-(3, 1, 1, 2, 3, '2025-08-01', '2025-10-30', 96, 'Desarrollo de plataforma educativa para niños en situación vulnerable', 'Sábados 8:00-16:00');
+INSERT INTO `TAB_ASIGNACIONES_PRACTICAS` (`ID_ASIGNACION_PRACTICA`, `ID_TIPO_PRACTICA`, `ID_USUARIO`, `ID_INSTITUCION_CONVENIO`, `FECHA_INICIO`, `FECHA_FIN`, `HORA_TOTAL`, `DESCRIPCION`, `CRONOGRAMA`) VALUES
+(1, 2, 1, 1, '2025-06-01', '2025-08-30', 240, 'Desarrollo e implementación de sistema de gestión hospitalaria', 'Lunes a Viernes 8:00-17:00'),
+(2, 2, 1, 2, '2025-07-01', '2025-09-30', 240, 'Desarrollo de aplicaciones móviles para servicios bancarios', 'Lunes a Viernes 9:00-18:00'),
+(3, 1, 1, 3, '2025-08-01', '2025-10-30', 96, 'Desarrollo de plataforma educativa para niños en situación vulnerable', 'Sábados 8:00-16:00');
 
 -- Insertar algunas prácticas preprofesionales
 INSERT INTO `TAB_PRACTICAS_PREPROFESIONALES` (`ID_PRACTICA_PREPROFESIONAL`, `ID_ASIGNACION_PRACTICA`, `ID_ESTUDIANTE`, `ID_INSTRUCTOR`, `ID_INSTITUCION_CONVENIO`, `AREA_ESPECIALIZACION`, `PROYECTO_ESPECIFICO`, `HORAS_PRACTICAS`, `FECHA_INICIO`, `FECHA_FIN`, `ESTADO_PRACTICA`, `EVALUACION_FINAL`, `OBSERVACIONES`) VALUES
@@ -1145,29 +1015,6 @@ INSERT INTO `TAB_SEGUIMIENTO_PRACTICAS_PREPROFESIONALES` (`ID_SEGUIMIENTO_PREPRO
 INSERT INTO `TAB_SEGUIMIENTO_SERVICIO_COMUNITARIO` (`ID_SEGUIMIENTO_SERVICIO`, `ID_SERVICIO_COMUNITARIO`, `HORAS_CUMPLIDAS`, `ACTIVIDADES_REALIZADAS`, `BENEFICIARIOS_ATENDIDOS`, `OBSERVACIONES`, `ARCHIVO_REPORTE`, `FECHA_REPORTE`) VALUES
 (1, 1, 16, 'Capacitación digital a niños, desarrollo de contenido educativo, soporte técnico', '55 beneficiarios (25 niños + 30 adolescentes)', 'Excelente impacto social, los beneficiarios muestran gran interés en aprender', 'reporte_servicio_1.pdf', '2025-08-31 16:00:00');
 
--- Insertar los 12 tipos de documentos de prácticas predefinidos
-INSERT IGNORE INTO `TAB_TIPOS_DOCUMENTOS_PRACTICAS` (`CODIGO`, `NOMBRE`, `DESCRIPCION`, `REQUERIDO`, `ORDEN`, `ACTIVO`) VALUES
-('1.1', 'Oficio de Asignación de Tutor Docente', 'Documento oficial que asigna un tutor docente para el seguimiento de las prácticas preprofesionales del estudiante.', 1, 1, 1),
-('1.2', 'Oficio Personal a Entidad Receptora', 'Oficio dirigido a la entidad receptora solicitando la aceptación del estudiante para realizar sus prácticas.', 1, 2, 1),
-('1.3', 'Carta de Aceptación de Entidad Receptora', 'Carta oficial de la entidad receptora confirmando la aceptación del estudiante para realizar sus prácticas.', 1, 3, 1),
-('1.4', 'Solicitud Institucional Valorada', 'Solicitud institucional que valora y aprueba la realización de prácticas preprofesionales del estudiante.', 1, 4, 1),
-('1.5', 'Certificado de Culminación (60 horas)', 'Certificado que acredita la culminación exitosa de las 60 horas de prácticas preprofesionales.', 1, 5, 1),
-('1.6', 'Rúbrica de Evaluación Entidad Receptora', 'Rúbrica de evaluación completada por la entidad receptora sobre el desempeño del estudiante.', 1, 6, 1),
-('1.7', 'Hojas de Asistencia de Estudiantes', 'Registro de asistencia del estudiante durante el período de prácticas preprofesionales.', 1, 7, 1),
-('1.8', 'Ficha de Registro de Actividades Realizadas', 'Ficha detallada de todas las actividades realizadas por el estudiante durante sus prácticas.', 1, 8, 1),
-('1.9', 'Ficha de Control y Seguimiento Docente', 'Ficha de control y seguimiento completada por el docente tutor durante las prácticas.', 1, 9, 1),
-('1.10', 'Rúbrica de Evaluación de Control y Seguimiento Docente', 'Rúbrica de evaluación del control y seguimiento realizado por el docente tutor.', 1, 10, 1),
-('1.11', 'Rúbrica de Evaluación de Resultados', 'Rúbrica de evaluación final de los resultados obtenidos durante las prácticas preprofesionales.', 1, 11, 1),
-('1.12', 'Respaldo en Fotos, Videos y Evidencias', 'Archivos multimedia y evidencias fotográficas del trabajo realizado durante las prácticas.', 0, 12, 1);
-
--- Insertar estados de revisión predefinidos
-INSERT IGNORE INTO `TAB_ESTADOS_REVISIONES` (`ESTADO`, `DESCRIPCION`, `COLOR`, `ICONO`, `ORDEN`, `ACTIVO`) VALUES
-('Pendiente', 'Documento subido y esperando revisión', 'warning', 'fas fa-clock', 1, 1),
-('En Revisión', 'Documento siendo revisado por el administrador', 'info', 'fas fa-eye', 2, 1),
-('Aprobado', 'Documento aprobado y validado', 'success', 'fas fa-check-circle', 3, 1),
-('Rechazado', 'Documento rechazado, requiere correcciones', 'danger', 'fas fa-times-circle', 4, 1),
-('Requiere Corrección', 'Documento requiere correcciones antes de aprobación', 'warning', 'fas fa-exclamation-triangle', 5, 1);
-
 -- Insertar datos de ejemplo para la tabla TAB_EXPORTACIONES
 INSERT INTO `TAB_EXPORTACIONES` (`ID_USUARIO`, `FECHA_EXPORTACION`, `DESCRIPCION_EXPORTACION`, `TIPO_EXPORTACION`, `ESTADO_EXPORTACION`, `ARCHIVO_EXPORTACION`, `TAMANO_ARCHIVO`) VALUES
 (1, NOW() - INTERVAL 1 DAY, 'Backup completo del sistema - Respaldo diario', 'backup', 'completado', 'backup_diario_20250101_120000.sql', 5242880),
@@ -1176,136 +1023,9 @@ INSERT INTO `TAB_EXPORTACIONES` (`ID_USUARIO`, `FECHA_EXPORTACION`, `DESCRIPCION
 (2, NOW() - INTERVAL 4 DAY, 'Backup semanal completo', 'backup', 'completado', 'backup_semanal_20250104_120000.sql', 15728640),
 (1, NOW() - INTERVAL 5 DAY, 'Backup antes de mantenimiento', 'backup', 'completado', 'backup_mantenimiento_20250105_120000.sql', 6291456);
 
-/*==============================================================*/
-/* Script de verificación y corrección para TAB_DOCUMENTOS_PRACTICAS */
-/*==============================================================*/
-
--- Script para corregir la tabla TAB_DOCUMENTOS_PRACTICAS existente
--- Ejecutar este script si ya tienes la tabla creada pero falta la columna OBSERVACIONES_REVISOR
-
--- Verificar si la columna OBSERVACIONES_REVISOR existe, si no, agregarla
-SET @col_exists = 0;
-SELECT COUNT(*) INTO @col_exists 
-FROM INFORMATION_SCHEMA.COLUMNS 
-WHERE TABLE_SCHEMA = DATABASE() 
-  AND TABLE_NAME = 'TAB_DOCUMENTOS_PRACTICAS' 
-  AND COLUMN_NAME = 'OBSERVACIONES_REVISOR';
-
-SET @sql = IF(@col_exists = 0, 
-    'ALTER TABLE TAB_DOCUMENTOS_PRACTICAS ADD COLUMN OBSERVACIONES_REVISOR text AFTER OBSERVACIONES',
-    'SELECT "La columna OBSERVACIONES_REVISOR ya existe" as mensaje'
-);
-
-PREPARE stmt FROM @sql;
-EXECUTE stmt;
-DEALLOCATE PREPARE stmt;
-
--- Verificar que la columna se agregó correctamente
-SELECT 'Columna OBSERVACIONES_REVISOR agregada correctamente' as RESULTADO;
-
-/*==============================================================*/
-/* Mejoras adicionales del sistema de documentos de prácticas  */
-/*==============================================================*/
-
--- Crear índices adicionales para optimizar consultas (si no existen)
-CREATE INDEX IF NOT EXISTS `IDX_DOCUMENTOS_TIPO_ESTADO` ON `TAB_DOCUMENTOS_PRACTICAS` (`ID_TIPO_DOCUMENTO`, `ID_ESTADO_REVISION`);
-CREATE INDEX IF NOT EXISTS `IDX_DOCUMENTOS_USUARIO_TIPO` ON `TAB_DOCUMENTOS_PRACTICAS` (`ID_USUARIO`, `ID_TIPO_DOCUMENTO`);
-CREATE INDEX IF NOT EXISTS `IDX_DOCUMENTOS_PRIORIDAD` ON `TAB_DOCUMENTOS_PRACTICAS` (`PRIORIDAD`);
-
--- Vista para obtener documentos completos con información relacionada
-CREATE OR REPLACE VIEW `V_DOCUMENTOS_PRACTICAS_COMPLETOS` AS
-SELECT 
-    dp.ID_DOCUMENTO_PRACTICA,
-    dp.NOMBRE_ARCHIVO,
-    dp.TIPO,
-    dp.FECHA_SUBIDA,
-    dp.OBSERVACIONES,
-    dp.OBSERVACIONES_REVISOR,
-    dp.ENTIDAD_RECEPTORA,
-    dp.DOCENTE_TUTOR,
-    dp.PRIORIDAD,
-    dp.FECHA_CREACION,
-    dp.FECHA_ACTUALIZACION,
-    er.ID_ESTADO_REVISION,
-    er.ESTADO as ESTADO_REVISION,
-    er.COLOR as COLOR_ESTADO,
-    er.ICONO as ICONO_ESTADO,
-    tdp.ID_TIPO_DOCUMENTO,
-    tdp.CODIGO as CODIGO_DOCUMENTO,
-    tdp.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
-    tdp.DESCRIPCION as DESCRIPCION_TIPO,
-    tdp.REQUERIDO,
-    u.ID_USUARIO,
-    dp_persona.NOMBRE as NOMBRE_USUARIO,
-    dp_persona.APELLIDO as APELLIDO_USUARIO,
-    dp_persona.CEDULA as CEDULA_USUARIO,
-    dp_persona.EMAIL as EMAIL_USUARIO
-FROM TAB_DOCUMENTOS_PRACTICAS dp
-LEFT JOIN TAB_ESTADOS_REVISIONES er ON dp.ID_ESTADO_REVISION = er.ID_ESTADO_REVISION
-LEFT JOIN TAB_TIPOS_DOCUMENTOS_PRACTICAS tdp ON dp.ID_TIPO_DOCUMENTO = tdp.ID_TIPO_DOCUMENTO
-LEFT JOIN TAB_USUARIOS u ON dp.ID_USUARIO = u.ID_USUARIO
-LEFT JOIN TAB_DATOS_PERSONAS dp_persona ON u.ID_DATO_PERSONA = dp_persona.ID_DATO_PERSONA;
-
--- Procedimiento almacenado para obtener estadísticas de documentos
-DELIMITER //
-CREATE PROCEDURE `SP_ESTADISTICAS_DOCUMENTOS_PRACTICAS`()
-BEGIN
-    SELECT 
-        COUNT(*) as total_documentos,
-        SUM(CASE WHEN dp.ID_ESTADO_REVISION = 1 THEN 1 ELSE 0 END) as pendientes,
-        SUM(CASE WHEN dp.ID_ESTADO_REVISION = 2 THEN 1 ELSE 0 END) as en_revision,
-        SUM(CASE WHEN dp.ID_ESTADO_REVISION = 3 THEN 1 ELSE 0 END) as aprobados,
-        SUM(CASE WHEN dp.ID_ESTADO_REVISION = 4 THEN 1 ELSE 0 END) as rechazados,
-        SUM(CASE WHEN dp.ID_ESTADO_REVISION = 5 THEN 1 ELSE 0 END) as requiere_correccion
-    FROM TAB_DOCUMENTOS_PRACTICAS dp;
-END //
-DELIMITER ;
-
--- Procedimiento almacenado para obtener progreso de un estudiante
-DELIMITER //
-CREATE PROCEDURE `SP_PROGRESO_ESTUDIANTE`(IN p_id_usuario INT)
-BEGIN
-    SELECT 
-        tdp.ID_TIPO_DOCUMENTO,
-        tdp.CODIGO,
-        tdp.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
-        tdp.DESCRIPCION,
-        tdp.REQUERIDO,
-        dp.ID_DOCUMENTO_PRACTICA,
-        dp.FECHA_SUBIDA,
-        er.ESTADO as ESTADO_REVISION,
-        er.COLOR as COLOR_ESTADO,
-        er.ICONO as ICONO_ESTADO,
-        dp.OBSERVACIONES_REVISOR
-    FROM TAB_TIPOS_DOCUMENTOS_PRACTICAS tdp
-    LEFT JOIN TAB_DOCUMENTOS_PRACTICAS dp ON tdp.ID_TIPO_DOCUMENTO = dp.ID_TIPO_DOCUMENTO 
-        AND dp.ID_USUARIO = p_id_usuario
-    LEFT JOIN TAB_ESTADOS_REVISIONES er ON dp.ID_ESTADO_REVISION = er.ID_ESTADO_REVISION
-    WHERE tdp.ACTIVO = 1
-    ORDER BY tdp.ORDEN, tdp.CODIGO;
-END //
-DELIMITER ;
-
--- Trigger para actualizar fecha de actualización automáticamente
-DELIMITER //
-CREATE TRIGGER `TR_DOCUMENTOS_PRACTICAS_UPDATE` 
-BEFORE UPDATE ON `TAB_DOCUMENTOS_PRACTICAS`
-FOR EACH ROW
-BEGIN
-    SET NEW.FECHA_ACTUALIZACION = CURRENT_TIMESTAMP;
-END //
-DELIMITER ;
-
--- Comentarios sobre las tablas
-ALTER TABLE `TAB_TIPOS_DOCUMENTOS_PRACTICAS` COMMENT = 'Tipos de documentos requeridos para prácticas preprofesionales';
-ALTER TABLE `TAB_ESTADOS_REVISIONES` COMMENT = 'Estados posibles para la revisión de documentos';
-ALTER TABLE `TAB_DOCUMENTOS_PRACTICAS` COMMENT = 'Documentos subidos por estudiantes para sus prácticas preprofesionales';
-
 -- Comentarios sobre las tablas
 ALTER TABLE `TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO` COMMENT = 'Tipos de documentos requeridos para servicio comunitario';
 
 -- Verificar que las tablas se crearon correctamente
 SELECT 'Sistema de documentos de prácticas instalado exitosamente' as RESULTADO;
-SELECT COUNT(*) as TIPOS_DOCUMENTOS FROM TAB_TIPOS_DOCUMENTOS_PRACTICAS;
-SELECT COUNT(*) as ESTADOS_REVISION FROM TAB_ESTADOS_REVISIONES;
 SELECT COUNT(*) as TIPOS_DOCUMENTOS_SERVICIO FROM TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO;
