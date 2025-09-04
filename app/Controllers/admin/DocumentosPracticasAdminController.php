@@ -28,14 +28,20 @@ class DocumentosPracticasAdminController extends BaseController
      */
     public function index()
     {
+        $tiposDocumentos = $this->tiposDocumentosModel->getAllTipos();
+        
         $data = [
             'title' => 'Gestión de Documentos de Prácticas',
             'documentos' => $this->getDocumentosCompletos(),
             'estadisticas' => $this->getEstadisticas(),
-            'tipos_documentos' => $this->tiposDocumentosModel->getAllTipos(),
+            'tipos_documentos' => $tiposDocumentos,
+            'tiposDocumentos' => $tiposDocumentos, // Duplicado para compatibilidad
             'estados_revision' => $this->estadosRevisionesModel->getAllEstados(),
             'estudiantes' => $this->getEstudiantes()
         ];
+
+        // Log para depuración
+        log_message('debug', 'Tipos de documentos en index: ' . json_encode($tiposDocumentos));
 
         return view('admin/documentos/documentos_practicas', $data);
     }
@@ -175,6 +181,36 @@ class DocumentosPracticasAdminController extends BaseController
     }
 
     /**
+     * Ver documento en el navegador
+     */
+    public function ver($id)
+    {
+        $documento = $this->documentosModel->find($id);
+        
+        if (!$documento) {
+            return $this->response->setStatusCode(404, 'Documento no encontrado');
+        }
+
+        $rutaArchivo = WRITEPATH . 'uploads/documentos-practicas/' . $documento['NOMBRE_ARCHIVO'];
+        
+        if (!file_exists($rutaArchivo)) {
+            return $this->response->setStatusCode(404, 'Archivo no encontrado');
+        }
+
+        // Obtener el tipo MIME del archivo
+        $tipoMime = mime_content_type($rutaArchivo);
+        
+        // Configurar headers para mostrar el archivo en el navegador
+        $this->response->setHeader('Content-Type', $tipoMime);
+        $this->response->setHeader('Content-Disposition', 'inline; filename="' . $documento['NOMBRE_ARCHIVO'] . '"');
+        $this->response->setHeader('Content-Length', filesize($rutaArchivo));
+        
+        // Leer y enviar el contenido del archivo
+        $contenido = file_get_contents($rutaArchivo);
+        return $this->response->setBody($contenido);
+    }
+
+    /**
      * Eliminar documento
      */
     public function eliminar($id)
@@ -218,9 +254,17 @@ class DocumentosPracticasAdminController extends BaseController
         $builder = $db->table('TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES dp')
             ->select('
                 dp.*,
+                tdp.ID_TIPO_DOCUMENTO_PREPROFESIONAL,
+                tdp.CODIGO as TIPO_DOCUMENTO_CODIGO,
                 tdp.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
+                tdp.DESCRIPCION as TIPO_DOCUMENTO_DESCRIPCION,
+                tdp.ORDEN as TIPO_DOCUMENTO_ORDEN,
+                tdp.OBLIGATORIO as TIPO_DOCUMENTO_OBLIGATORIO,
                 pp.ID_ESTUDIANTE,
-                CONCAT(persona.NOMBRE, " ", persona.APELLIDO) as ESTUDIANTE_NOMBRE
+                CONCAT(persona.NOMBRE, " ", persona.APELLIDO) as ESTUDIANTE_NOMBRE,
+                persona.NOMBRE as NOMBRE_ESTUDIANTE,
+                persona.APELLIDO as APELLIDO_ESTUDIANTE,
+                persona.CEDULA as CEDULA_ESTUDIANTE
             ')
             ->join('TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES tdp', 'dp.ID_TIPO_DOCUMENTO = tdp.ID_TIPO_DOCUMENTO_PREPROFESIONAL', 'left')
             ->join('TAB_PRACTICAS_PREPROFESIONALES pp', 'dp.ID_PRACTICA_PREPROFESIONAL = pp.ID_PRACTICA_PREPROFESIONAL', 'left')
@@ -228,7 +272,13 @@ class DocumentosPracticasAdminController extends BaseController
             ->join('TAB_DATOS_PERSONAS persona', 'e.ID_DATO_PERSONA = persona.ID_DATO_PERSONA', 'left')
             ->orderBy('dp.FECHA_SUBIDA', 'DESC');
 
-        return $builder->get()->getResultArray();
+        $result = $builder->get()->getResultArray();
+        
+        // Log para depuración
+        log_message('debug', 'Consulta SQL: ' . $builder->getCompiledSelect());
+        log_message('debug', 'Resultados obtenidos: ' . count($result));
+        
+        return $result;
     }
 
     /**
@@ -247,16 +297,16 @@ class DocumentosPracticasAdminController extends BaseController
      */
     public function getEstadisticas()
     {
-        $total = $this->documentosModel->countAllResults();
         $aprobados = $this->documentosModel->where('ESTADO_REVISION', 'Aprobado')->countAllResults();
-        $pendientes = $this->documentosModel->where('ESTADO_REVISION', 'Pendiente')->countAllResults();
         $rechazados = $this->documentosModel->where('ESTADO_REVISION', 'Rechazado')->countAllResults();
+        $requiereCorreccion = $this->documentosModel->where('ESTADO_REVISION', 'Requiere Corrección')->countAllResults();
+        $pendientes = $this->documentosModel->where('ESTADO_REVISION', 'Pendiente')->countAllResults();
 
         return [
-            'total' => $total,
-            'aprobados' => $aprobados,
-            'pendientes' => $pendientes,
-            'rechazados' => $rechazados
+            'Aprobados' => $aprobados,
+            'aprobados' => $rechazados, // Para compatibilidad con el ID del HTML
+            'pendientes' => $requiereCorreccion, // Para compatibilidad con el ID del HTML
+            'rechazados' => $pendientes // Para compatibilidad con el ID del HTML
         ];
     }
 
@@ -421,14 +471,125 @@ class DocumentosPracticasAdminController extends BaseController
         try {
             $documentos = $this->getDocumentosCompletos();
             
+            // Log para depuración
+            log_message('debug', 'Documentos obtenidos: ' . json_encode($documentos));
+            
             return $this->response->setJSON([
                 'success' => true,
+                'documentos' => $documentos,
                 'data' => $documentos
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Error al obtener documentos: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error al cargar documentos: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Método de prueba para verificar datos
+     */
+    public function testDatos()
+    {
+        try {
+            // Verificar tipos de documentos
+            $tiposDocumentos = $this->tiposDocumentosModel->getAllTipos();
+            
+            // Verificar documentos
+            $documentos = $this->getDocumentosCompletos();
+            
+            return $this->response->setJSON([
+                'success' => true,
+                'tipos_documentos' => $tiposDocumentos,
+                'documentos' => $documentos,
+                'count_tipos' => count($tiposDocumentos),
+                'count_documentos' => count($documentos)
             ]);
         } catch (\Exception $e) {
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Error al cargar documentos: ' . $e->getMessage()
+                'message' => 'Error: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Crear nuevo tipo de documento PPR
+     */
+    public function crearTipo()
+    {
+        try {
+            $validation = \Config\Services::validation();
+            
+            $validation->setRules([
+                'codigo' => 'required|max_length[50]|regex_match[/^PPR-\d{3}$/]',
+                'nombre' => 'required|max_length[150]',
+                'descripcion' => 'permit_empty|max_length[500]',
+                'orden' => 'required|integer|greater_than[0]|less_than[100]',
+                'obligatorio' => 'required|in_list[0,1]'
+            ]);
+
+            if (!$validation->withRequest($this->request)->run()) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Datos inválidos',
+                    'errors' => $validation->getErrors()
+                ]);
+            }
+
+            $codigo = $this->request->getPost('codigo');
+            $nombre = $this->request->getPost('nombre');
+            $descripcion = $this->request->getPost('descripcion');
+            $orden = $this->request->getPost('orden');
+            $obligatorio = $this->request->getPost('obligatorio');
+
+            // Verificar si el código ya existe
+            if ($this->tiposDocumentosModel->tipoExiste($codigo)) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'El código PPR ya existe. Por favor, use un código diferente.'
+                ]);
+            }
+
+            // Verificar si el orden ya existe
+            $tipoConOrden = $this->tiposDocumentosModel->where('ORDEN', $orden)->first();
+            if ($tipoConOrden) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'El orden ya está en uso. Por favor, use un orden diferente.'
+                ]);
+            }
+
+            $data = [
+                'CODIGO' => $codigo,
+                'NOMBRE' => $nombre,
+                'DESCRIPCION' => $descripcion,
+                'ORDEN' => $orden,
+                'OBLIGATORIO' => $obligatorio
+            ];
+
+            if ($this->tiposDocumentosModel->insert($data)) {
+                $nuevoTipo = $this->tiposDocumentosModel->where('CODIGO', $codigo)->first();
+                
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Tipo de documento PPR creado exitosamente',
+                    'tipo' => $nuevoTipo
+                ]);
+            } else {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Error al crear el tipo de documento'
+                ]);
+            }
+
+        } catch (\Exception $e) {
+            log_message('error', 'Error al crear tipo PPR: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error interno del servidor: ' . $e->getMessage()
             ]);
         }
     }

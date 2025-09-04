@@ -69,10 +69,25 @@ class DashboardAdminController extends BaseController
     
     private function obtenerMetricas()
     {
+        // Verificar que los modelos estén inicializados
+        if (!$this->estudiantesModel) {
+            $this->estudiantesModel = new EstudiantesModel();
+        }
+        if (!$this->instructoresModel) {
+            $this->instructoresModel = new InstructoresModel();
+        }
+        if (!$this->actividadesModel) {
+            $this->actividadesModel = new ActividadesEducacionModel();
+        }
+        if (!$this->conveniosModel) {
+            $this->conveniosModel = new DetallesConveniosModel();
+        }
+        
         try {
             // Total de estudiantes
             $totalEstudiantes = $this->estudiantesModel->countAllResults();
         } catch (\Exception $e) {
+            log_message('error', 'Error al obtener total de estudiantes: ' . $e->getMessage());
             $totalEstudiantes = 0;
         }
         
@@ -80,6 +95,7 @@ class DashboardAdminController extends BaseController
             // Total de instructores
             $totalInstructores = $this->instructoresModel->countAllResults();
         } catch (\Exception $e) {
+            log_message('error', 'Error al obtener total de instructores: ' . $e->getMessage());
             $totalInstructores = 0;
         }
         
@@ -87,6 +103,7 @@ class DashboardAdminController extends BaseController
             // Actividades activas (no finalizadas)
             $actividadesActivas = $this->actividadesModel->where('FECHA_FIN >=', date('Y-m-d'))->countAllResults();
         } catch (\Exception $e) {
+            log_message('error', 'Error al obtener actividades activas: ' . $e->getMessage());
             $actividadesActivas = 0;
         }
         
@@ -94,6 +111,7 @@ class DashboardAdminController extends BaseController
             // Convenios vigentes
             $conveniosVigentes = $this->conveniosModel->where('FECHA_FIN >=', date('Y-m-d'))->countAllResults();
         } catch (\Exception $e) {
+            log_message('error', 'Error al obtener convenios vigentes: ' . $e->getMessage());
             $conveniosVigentes = 0;
         }
         
@@ -107,6 +125,14 @@ class DashboardAdminController extends BaseController
     
     private function obtenerDatosGraficas()
     {
+        // Verificar que los modelos estén inicializados
+        if (!$this->actividadesModel) {
+            $this->actividadesModel = new ActividadesEducacionModel();
+        }
+        if (!$this->practicasModel) {
+            $this->practicasModel = new AsignacionesPracticasModel();
+        }
+        
         try {
             // Actividades por mes (últimos 12 meses) - consulta mejorada
             $sql = "
@@ -223,6 +249,14 @@ class DashboardAdminController extends BaseController
     
     private function obtenerActividadesRecientes()
     {
+        // Verificar que los modelos estén inicializados
+        if (!$this->actividadesModel) {
+            $this->actividadesModel = new ActividadesEducacionModel();
+        }
+        if (!$this->practicasModel) {
+            $this->practicasModel = new AsignacionesPracticasModel();
+        }
+        
         try {
             // Últimas 5 actividades educativas
             $actividades = $this->actividadesModel
@@ -234,6 +268,7 @@ class DashboardAdminController extends BaseController
                 ->limit(5)
                 ->findAll();
         } catch (\Exception $e) {
+            log_message('error', 'Error al obtener actividades recientes: ' . $e->getMessage());
             $actividades = [];
         }
         
@@ -249,6 +284,7 @@ class DashboardAdminController extends BaseController
                 ->limit(5)
                 ->findAll();
         } catch (\Exception $e) {
+            log_message('error', 'Error al obtener prácticas recientes: ' . $e->getMessage());
             $practicas = [];
         }
         
@@ -260,6 +296,14 @@ class DashboardAdminController extends BaseController
     
     private function obtenerVencimientosProximos()
     {
+        // Verificar que los modelos estén inicializados
+        if (!$this->conveniosModel) {
+            $this->conveniosModel = new DetallesConveniosModel();
+        }
+        if (!$this->practicasModel) {
+            $this->practicasModel = new AsignacionesPracticasModel();
+        }
+        
         try {
             // Convenios que vencen en los próximos 30 días
             $conveniosPorVencer = $this->conveniosModel
@@ -271,6 +315,7 @@ class DashboardAdminController extends BaseController
                 ->limit(5)
                 ->findAll();
         } catch (\Exception $e) {
+            log_message('error', 'Error al obtener convenios por vencer: ' . $e->getMessage());
             $conveniosPorVencer = [];
         }
         
@@ -287,6 +332,7 @@ class DashboardAdminController extends BaseController
                 ->limit(5)
                 ->findAll();
         } catch (\Exception $e) {
+            log_message('error', 'Error al obtener prácticas por terminar: ' . $e->getMessage());
             $practicasPorTerminar = [];
         }
         
@@ -298,6 +344,14 @@ class DashboardAdminController extends BaseController
     
     private function obtenerDistribucionCarreras()
     {
+        // Verificar que los modelos estén inicializados
+        if (!$this->estudiantesModel) {
+            $this->estudiantesModel = new EstudiantesModel();
+        }
+        if (!$this->carrerasModel) {
+            $this->carrerasModel = new CarrerasModel();
+        }
+        
         try {
             // Usar consulta SQL directa para asegurar que funcione
             $sql = "
@@ -331,16 +385,41 @@ class DashboardAdminController extends BaseController
             return redirect()->to('/');
         }
         
-        $data = [
-            'totalEstudiantes' => $this->estudiantesModel->countAllResults(),
-            'totalInstructores' => $this->instructoresModel->countAllResults(),
-            'actividadesActivas' => $this->actividadesModel->where('FECHA_FIN >=', date('Y-m-d'))->countAllResults(),
-            'conveniosVigentes' => $this->conveniosModel->where('FECHA_FIN >=', date('Y-m-d'))->countAllResults(),
-            'practicasActivas' => $this->practicasModel->where('FECHA_FIN >=', date('Y-m-d'))->countAllResults(),
-            'institucionesActivas' => $this->institucionesModel->countAllResults()
-        ];
+        // Verificar que los modelos estén inicializados
+        if (!$this->estudiantesModel) {
+            $this->estudiantesModel = new EstudiantesModel();
+        }
+        if (!$this->instructoresModel) {
+            $this->instructoresModel = new InstructoresModel();
+        }
+        if (!$this->actividadesModel) {
+            $this->actividadesModel = new ActividadesEducacionModel();
+        }
+        if (!$this->conveniosModel) {
+            $this->conveniosModel = new DetallesConveniosModel();
+        }
+        if (!$this->practicasModel) {
+            $this->practicasModel = new AsignacionesPracticasModel();
+        }
+        if (!$this->institucionesModel) {
+            $this->institucionesModel = new InstitucionesConveniosModel();
+        }
         
-        return $this->response->setJSON($data);
+        try {
+            $data = [
+                'totalEstudiantes' => $this->estudiantesModel->countAllResults(),
+                'totalInstructores' => $this->instructoresModel->countAllResults(),
+                'actividadesActivas' => $this->actividadesModel->where('FECHA_FIN >=', date('Y-m-d'))->countAllResults(),
+                'conveniosVigentes' => $this->conveniosModel->where('FECHA_FIN >=', date('Y-m-d'))->countAllResults(),
+                'practicasActivas' => $this->practicasModel->where('FECHA_FIN >=', date('Y-m-d'))->countAllResults(),
+                'institucionesActivas' => $this->institucionesModel->countAllResults()
+            ];
+            
+            return $this->response->setJSON($data);
+        } catch (\Exception $e) {
+            log_message('error', 'Error en estadisticas: ' . $e->getMessage());
+            return $this->response->setJSON(['error' => 'Error interno del servidor']);
+        }
     }
     
     // Método temporal para debug de carreras
@@ -348,6 +427,14 @@ class DashboardAdminController extends BaseController
     {
         if (!session()->get('logged_in') || session()->get('rol') != 1) {
             return redirect()->to('/');
+        }
+        
+        // Verificar que los modelos estén inicializados
+        if (!$this->estudiantesModel) {
+            $this->estudiantesModel = new EstudiantesModel();
+        }
+        if (!$this->carrerasModel) {
+            $this->carrerasModel = new CarrerasModel();
         }
         
         try {
@@ -373,6 +460,7 @@ class DashboardAdminController extends BaseController
             return $this->response->setJSON($debug);
             
         } catch (\Exception $e) {
+            log_message('error', 'Error en debugCarreras: ' . $e->getMessage());
             return $this->response->setJSON([
                 'error' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
@@ -385,6 +473,11 @@ class DashboardAdminController extends BaseController
     {
         if (!session()->get('logged_in') || session()->get('rol') != 1) {
             return $this->response->setJSON(['error' => 'No autorizado']);
+        }
+        
+        // Verificar que el modelo esté inicializado
+        if (!$this->actividadesModel) {
+            $this->actividadesModel = new ActividadesEducacionModel();
         }
         
         try {

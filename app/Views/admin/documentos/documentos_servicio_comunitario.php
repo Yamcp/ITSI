@@ -1,6 +1,7 @@
 <?= $this->extend('admin/layouts/mainAdmin') ?>
 
 <?= $this->section('styles') ?>
+<!-- CSS personalizado para documentos de servicio comunitario -->
 <link rel="stylesheet" href="<?= base_url('sistema/assets/css/documentos.css') ?>" />
 <style>
     .documento-card {
@@ -35,6 +36,48 @@
     .estadistica-card:hover {
         transform: scale(1.05);
     }
+    .table-responsive {
+        font-size: 0.9rem;
+    }
+    .text-truncate {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .file-icon {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        color: white;
+    }
+    .badge {
+        font-size: 0.75rem;
+        padding: 0.35em 0.65em;
+    }
+    .form-select option {
+        padding: 8px 12px;
+    }
+    .form-select option.text-success {
+        background-color: #d4edda;
+        color: #155724;
+    }
+    .form-select option.text-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+    .form-select option.text-info {
+        background-color: #d1ecf1;
+        color: #0c5460;
+    }
+    .form-select option.text-warning {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+    .form-select option.text-secondary {
+        background-color: #e2e3e5;
+        color: #383d41;
+    }
 </style>
 <?= $this->endSection() ?>
 
@@ -48,41 +91,40 @@
                     <i class="fas fa-hands-helping me-2"></i>
                     Gestión de Documentos de Servicio Comunitario
                 </h3>
-                <p class="text-center text-muted">Administra todos los documentos de servicio comunitario de los estudiantes clasificados por tipo</p>
             </div>
         </div>
 
         <!-- Estadísticas Generales -->
         <div class="row mb-4">
             <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card estadistica-card text-center shadow-sm">
+                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); border: none; border-radius: 10px;">
                     <div class="card-body">
-                        <h2 class="card-title mb-2" id="totalDocumentosServicio" style="font-size:2.5rem;"><?= $estadisticas['total'] ?? 0 ?></h2>
-                        <p class="card-text fw-bold" style="color: #e0e0e0;">Total Documentos</p>
+                        <h2 class="card-title mb-2" id="Aprobados" style="font-size:2.5rem; color: #fff; text-shadow: 0 2px 4px rgba(23, 162, 184, 0.3);"><?= $estadisticas['Aprobados'] ?? 0 ?></h2>
+                        <p class="card-text fw-bold" style="color: #fff;">Aprobados</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: #fff;">
+                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); border: none; border-radius: 10px;">
                     <div class="card-body">
-                        <h2 class="card-title mb-2" id="documentosAprobadosServicio" style="font-size:2.5rem;"><?= $estadisticas['aprobados'] ?? 0 ?></h2>
-                        <p class="card-text fw-bold" style="color: #e0e0e0;">Aprobados</p>
+                        <h2 class="card-title mb-2" id="Pendientes" style="font-size:2.5rem; color: #fff; text-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);"><?= $estadisticas['pendientes'] ?? 0 ?></h2>
+                        <p class="card-text fw-bold" style="color: #fff;">Pendientes</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #ffc107 0%, #fd7e14 100%); color: #fff;">
+                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); border: none; border-radius: 10px;">
                     <div class="card-body">
-                        <h2 class="card-title mb-2" id="documentosPendientesServicio" style="font-size:2.5rem;"><?= $estadisticas['pendientes'] ?? 0 ?></h2>
-                        <p class="card-text fw-bold" style="color: #fffbe6;">Pendientes</p>
+                        <h2 class="card-title mb-2" id="RequiereCorreccion" style="font-size:2.5rem; color: #fff; text-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);"><?= $estadisticas['requiere_correccion'] ?? 0 ?></h2>
+                        <p class="card-text fw-bold" style="color: #fff;">Requiere Corrección</p>
                     </div>
                 </div>
             </div>
             <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #dc3545 0%, #e83e8c 100%); color: #fff;">
+                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); border: none; border-radius: 10px;">
                     <div class="card-body">
-                        <h2 class="card-title mb-2" id="documentosRechazadosServicio" style="font-size:2.5rem;"><?= $estadisticas['rechazados'] ?? 0 ?></h2>
-                        <p class="card-text fw-bold" style="color: #ffe0e0;">Rechazados</p>
+                        <h2 class="card-title mb-2" id="Rechazados" style="font-size:2.5rem; color: #fff; text-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);"><?= $estadisticas['rechazados'] ?? 0 ?></h2>
+                        <p class="card-text fw-bold" style="color: #fff;">Rechazados</p>
                     </div>
                 </div>
             </div>
@@ -153,29 +195,9 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-2 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm h-100" style="border: none;">
-                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="#" onclick="cambiarVista('grid')" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-th-large fa-2x mb-2" style="color: #6f42c1;"></i>
-                            <div class="fw-bold">Vista Grid</div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-2 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm h-100" style="border: none;">
-                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="#" onclick="cambiarVista('list')" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-list fa-2x mb-2" style="color: #fd7e14;"></i>
-                            <div class="fw-bold">Vista Lista</div>
-                        </a>
-                    </div>
-                </div>
-            </div>
         </div>
 
-        <!-- Vista Grid de Documentos por Tipo -->
+        <!-- Tablas de Documentos por Tipo -->
         <div id="vistaGrid">
             <?php if (!empty($tiposDocumentos)): ?>
                 <?php foreach ($tiposDocumentos as $tipo): ?>
@@ -198,9 +220,25 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="card-body">
-                                    <div class="row" id="documentos-<?= $tipo['ID_TIPO_DOCUMENTO_SERVICIO'] ?>">
-                                        <!-- Los documentos de este tipo se cargarán aquí -->
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover mb-0" id="tabla-<?= $tipo['ID_TIPO_DOCUMENTO_SERVICIO'] ?>">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th width="5%">#</th>
+                                                    <th width="20%">Estudiante</th>
+                                                    <th width="15%">Cédula</th>
+                                                    <th width="20%">Proyecto Social</th>
+                                                    <th width="15%">Archivo</th>
+                                                    <th width="10%">Estado</th>
+                                                    <th width="10%">Fecha</th>
+                                                    <th width="15%">Acciones</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="documentos-<?= $tipo['ID_TIPO_DOCUMENTO_SERVICIO'] ?>">
+                                                <!-- Los documentos de este tipo se cargarán aquí -->
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
@@ -219,52 +257,154 @@
             <?php endif; ?>
         </div>
 
-        <!-- Vista Lista -->
-        <div id="vistaLista" class="d-none">
-            <div class="row">
-                <div class="col-12">
-                    <div class="card shadow-sm border-0">
-                        <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
-                            <span>
-                                <i class="fas fa-list me-2"></i>
-                                Lista de Documentos de Servicio Comunitario
-                            </span>
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-light btn-sm" onclick="cambiarVista('grid')">
-                                    <i class="fas fa-th-large me-1"></i>Grid
-                                </button>
+    </div>
+</div>
+
+<!-- Modal para formulario para crear nuevo tipo de servicio comunitario -->
+<div class="modal fade" id="modalSubirDocumentoServicio" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-cloud-upload-alt me-2"></i>
+                    Crear Nuevo Tipo de Documento
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formSubirDocumentoServicio">
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Código</label>
+                                    <input type="text" class="form-control" id="nuevo_codigo" placeholder="Ej: PSC-013" pattern="PSC-\d{3}">
+                                    <div class="form-text">Formato: PSC-XXX (ej: PSC-013)</div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Nombre del Documento</label>
+                                    <input type="text" class="form-control" id="nuevo_nombre" placeholder="Ej: Informe de Impacto Social">
+                                </div>
                             </div>
                         </div>
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table table-striped align-middle">
-                                    <thead class="table-light">
-                                        <tr>
-                                            <th>Estudiante</th>
-                                            <th>Tipo de Documento</th>
-                                            <th>Estado</th>
-                                            <th>Fecha Subida</th>
-                                            <th>Proyecto Social</th>
-                                            <th>Acciones</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="tablaDocumentosLista">
-                                        <!-- Los documentos se cargarán dinámicamente aquí -->
-                                    </tbody>
-                                </table>
+                        <div class="mb-3">
+                            <label class="form-label">Descripción</label>
+                            <textarea class="form-control" id="nuevo_descripcion" rows="2" placeholder="Descripción detallada del tipo de documento..."></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Orden</label>
+                                    <input type="number" class="form-control" id="nuevo_orden" min="1" max="99" placeholder="13">
+                                </div>
                             </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Tipo</label>
+                                    <select class="form-select" id="nuevo_obligatorio">
+                                        <option value="1">Obligatorio</option>
+                                        <option value="0">Opcional</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-success" onclick="crearNuevoTipo()">
+                                <i class="fas fa-save me-1"></i>Crear Tipo
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="limpiarFormularioNuevoTipo()">
+                                <i class="fas fa-times me-1"></i>Limpiar
+                            </button>
                         </div>
                     </div>
-                </div>
+                </form>    
             </div>
         </div>
     </div>
 </div>
 
+<!-- Modal Cambiar Estado del Documento -->
+<div class="modal fade" id="modalCambiarEstado" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-edit me-2"></i>
+                    Cambiar Estado del Documento
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formCambiarEstado">
+                    <input type="hidden" name="documento_id" id="documento_id_estado">
+                    <div class="mb-3">
+                        <label class="form-label">Documento</label>
+                        <input type="text" class="form-control" id="nombre_documento_estado" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nuevo Estado</label>
+                        <select class="form-select" name="nuevo_estado" id="selectNuevoEstado" required>
+                            <option value="">Seleccionar nuevo estado...</option>
+                            <option value="1">Aprobado</option>
+                            <option value="2">Rechazado</option>
+                            <option value="4">Requiere Corrección</option>
+                            <option value="5">Pendiente</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Comentarios del Administrador</label>
+                        <textarea class="form-control" name="comentarios_estado" rows="3" placeholder="Comentarios sobre el cambio de estado, correcciones necesarias, etc..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarCambioEstado()">
+                    <i class="fas fa-save me-1"></i>Guardar Cambio
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Ver Documento -->
+<div class="modal fade" id="modalVerDocumento" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-eye me-2"></i>
+                    Visualizar Documento
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body p-0">
+                <iframe 
+                    id="iframeDocumento" 
+                    src="" 
+                    style="width: 100%; height: 70vh; border: none;"
+                    title="Vista previa del documento">
+                </iframe>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cerrar
+                </button>
+                <button type="button" class="btn btn-primary" onclick="descargarDesdeModal()">
+                    <i class="fas fa-download me-1"></i>Descargar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
 <script>
     // Variables globales
     let documentosServicio = [];
-    let vistaActual = 'grid';
+    let documentoActualId = null;
 
     // Funciones principales
     function showModal(modalId) {
@@ -272,41 +412,39 @@
         modal.show();
     }
 
-    function cambiarVista(tipo) {
-        vistaActual = tipo;
-        if (tipo === 'grid') {
-            document.getElementById('vistaGrid').classList.remove('d-none');
-            document.getElementById('vistaLista').classList.add('d-none');
-            cargarDocumentosGrid();
-        } else {
-            document.getElementById('vistaGrid').classList.add('d-none');
-            document.getElementById('vistaLista').classList.remove('d-none');
-            generarVistaLista();
-        }
-    }
-
     function cargarDocumentosGrid() {
+        console.log('Iniciando carga de documentos...');
         // Cargar documentos para cada tipo
         fetch('<?= base_url('admin/documentos/servicio/obtenerDocumentos') ?>')
-            .then(response => response.json())
+            .then(response => {
+                console.log('Respuesta recibida:', response.status);
+                return response.json();
+            })
             .then(data => {
+                console.log('Datos recibidos:', data);
                 if (data.success) {
-                    documentosServicio = data.documentos;
+                    documentosServicio = data.documentos || data.data || [];
+                    console.log('Documentos cargados:', documentosServicio);
+                    console.log('Cantidad de documentos:', documentosServicio.length);
                     mostrarDocumentosPorTipo();
                 } else {
+                    console.error('Error en respuesta:', data.message);
                     showNotification('Error al cargar documentos: ' + data.message, 'error');
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                showNotification('Error al cargar documentos', 'error');
+                console.error('Error en fetch:', error);
+                showNotification('Error al cargar documentos: ' + error.message, 'error');
             });
     }
 
     function mostrarDocumentosPorTipo() {
         const tiposDocumentos = <?= json_encode($tiposDocumentos ?? []) ?>;
+        console.log('Tipos de documentos disponibles:', tiposDocumentos);
+        console.log('Documentos a procesar:', documentosServicio);
         
         tiposDocumentos.forEach(tipo => {
+            console.log(`Procesando tipo: ${tipo.CODIGO} - ${tipo.NOMBRE}`);
             const contenedor = document.getElementById(`documentos-${tipo.ID_TIPO_DOCUMENTO_SERVICIO}`);
             if (contenedor) {
                 contenedor.innerHTML = '';
@@ -316,147 +454,99 @@
                     doc.ID_TIPO_DOCUMENTO == tipo.ID_TIPO_DOCUMENTO_SERVICIO
                 );
                 
+                console.log(`Documentos encontrados para tipo ${tipo.CODIGO}:`, documentosTipo.length);
+                
                 if (documentosTipo.length === 0) {
                     contenedor.innerHTML = `
-                        <div class="col-12 text-center py-4">
-                            <div class="alert alert-light">
-                                <i class="fas fa-inbox me-2"></i>
-                                No hay documentos subidos para este tipo
-                            </div>
-                        </div>
+                        <tr>
+                            <td colspan="8" class="text-center py-4">
+                                <div class="alert alert-light mb-0">
+                                    <i class="fas fa-inbox me-2"></i>
+                                    No hay documentos subidos para este tipo
+                                </div>
+                            </td>
+                        </tr>
                     `;
                 } else {
-                    documentosTipo.forEach(doc => {
-                        const documentoCard = crearCardDocumento(doc);
-                        contenedor.appendChild(documentoCard);
+                    documentosTipo.forEach((doc, index) => {
+                        const filaTabla = crearFilaTabla(doc, index + 1);
+                        contenedor.appendChild(filaTabla);
                     });
                 }
+            } else {
+                console.error(`No se encontró el contenedor para tipo ${tipo.ID_TIPO_DOCUMENTO_SERVICIO}`);
             }
         });
     }
 
-    function crearCardDocumento(doc) {
-        const col = document.createElement('div');
-        col.className = 'col-md-6 col-lg-4 mb-3';
+    function crearFilaTabla(doc, numero) {
+        const fila = document.createElement('tr');
         
-        const estadoClass = obtenerClaseEstado(doc.ESTADO_REVISION);
+        const estadoInfo = obtenerEstadoInfo(doc.ESTADO_REVISION);
         const fecha = new Date(doc.FECHA_SUBIDA).toLocaleDateString('es-ES');
         
-        col.innerHTML = `
-            <div class="card documento-card h-100">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <h6 class="card-title mb-0">${doc.NOMBRE_ESTUDIANTE} ${doc.APELLIDO_ESTUDIANTE}</h6>
-                        <span class="badge ${estadoClass} estado-badge">${doc.ESTADO_REVISION}</span>
-                    </div>
-                    <p class="card-text text-muted small mb-2">
-                        <i class="fas fa-file me-1"></i>${doc.NOMBRE_ARCHIVO}
-                    </p>
-                    <p class="card-text text-muted small mb-2">
-                        <i class="fas fa-project-diagram me-1"></i>${doc.PROYECTO_SOCIAL || 'No especificado'}
-                    </p>
-                    <p class="card-text text-muted small mb-3">
-                        <i class="fas fa-calendar me-1"></i>${fecha}
-                    </p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-muted">${doc.CEDULA_ESTUDIANTE}</small>
-                        <div class="btn-group btn-group-sm">
-                            <button class="btn btn-outline-primary" onclick="verDocumento(${doc.ID_DOCUMENTO_SERVICIO})" title="Ver">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-outline-success" onclick="descargarDocumento(${doc.ID_DOCUMENTO_SERVICIO})" title="Descargar">
-                                <i class="fas fa-download"></i>
-                            </button>
-                            <button class="btn btn-outline-warning" onclick="cambiarEstadoDocumento(${doc.ID_DOCUMENTO_SERVICIO})" title="Cambiar Estado">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="btn btn-outline-danger" onclick="eliminarDocumento(${doc.ID_DOCUMENTO_SERVICIO})" title="Eliminar">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </div>
-                    </div>
+        fila.innerHTML = `
+            <td class="text-center">${numero}</td>
+            <td>
+                <div class="fw-bold">${doc.NOMBRE_ESTUDIANTE} ${doc.APELLIDO_ESTUDIANTE}</div>
+            </td>
+            <td>
+                <span class="text-muted">${doc.CEDULA_ESTUDIANTE}</span>
+            </td>
+            <td>
+                <div class="text-truncate" style="max-width: 200px;" title="${doc.PROYECTO_SOCIAL || 'No especificado'}">
+                    <i class="fas fa-project-diagram me-1 text-muted"></i>
+                    ${doc.PROYECTO_SOCIAL || 'No especificado'}
                 </div>
-            </div>
+            </td>
+            <td>
+                <div class="text-truncate" style="max-width: 150px;" title="${doc.NOMBRE_ARCHIVO}">
+                    <i class="fas fa-file me-1 text-muted"></i>
+                    ${doc.NOMBRE_ARCHIVO}
+                </div>
+            </td>
+            <td class="text-center">
+                <span class="badge ${estadoInfo.clase} estado-badge">${estadoInfo.texto}</span>
+            </td>
+            <td class="text-center">
+                <small class="text-muted">${fecha}</small>
+            </td>
+            <td class="text-center">
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-primary" onclick="verDocumento(${doc.ID_DOCUMENTO_SERVICIO})" title="Ver">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-outline-success" onclick="descargarDocumento(${doc.ID_DOCUMENTO_SERVICIO})" title="Descargar">
+                        <i class="fas fa-download"></i>
+                    </button>
+                    <button class="btn btn-outline-warning" onclick="cambiarEstadoDocumento(${doc.ID_DOCUMENTO_SERVICIO})" title="Cambiar Estado">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </div>
+            </td>
         `;
         
-        return col;
+        return fila;
     }
 
-    function generarVistaLista() {
-        const tbody = document.getElementById('tablaDocumentosLista');
-        tbody.innerHTML = '';
-
-        if (documentosServicio.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="text-center py-4">
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            No hay documentos para mostrar
-                        </div>
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-
-        documentosServicio.forEach(doc => {
-            const estadoClass = obtenerClaseEstado(doc.ESTADO_REVISION);
-            const fecha = new Date(doc.FECHA_SUBIDA).toLocaleDateString('es-ES');
-            
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>
-                    <div class="d-flex align-items-center">
-                        <div class="file-icon bg-info me-3" style="width: 40px; height: 40px; font-size: 1.2rem;">
-                            <i class="fas fa-hands-helping"></i>
-                        </div>
-                        <div>
-                            <div class="fw-semibold">${doc.NOMBRE_ESTUDIANTE} ${doc.APELLIDO_ESTUDIANTE}</div>
-                            <small class="text-muted">${doc.CEDULA_ESTUDIANTE}</small>
-                        </div>
-                    </div>
-                </td>
-                <td>
-                    <div>
-                        <div class="fw-semibold">${doc.TIPO_DOCUMENTO_NOMBRE}</div>
-                        <small class="text-muted">${doc.NOMBRE_ARCHIVO}</small>
-                    </div>
-                </td>
-                <td><span class="badge ${estadoClass} estado-badge">${doc.ESTADO_REVISION}</span></td>
-                <td>${fecha}</td>
-                <td>${doc.PROYECTO_SOCIAL || 'No especificado'}</td>
-                <td>
-                    <div class="btn-group btn-group-sm">
-                        <button class="btn btn-outline-primary" onclick="verDocumento(${doc.ID_DOCUMENTO_SERVICIO})" title="Ver">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="btn btn-outline-success" onclick="descargarDocumento(${doc.ID_DOCUMENTO_SERVICIO})" title="Descargar">
-                            <i class="fas fa-download"></i>
-                        </button>
-                        <button class="btn btn-outline-warning" onclick="cambiarEstadoDocumento(${doc.ID_DOCUMENTO_SERVICIO})" title="Cambiar Estado">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="btn btn-outline-danger" onclick="eliminarDocumento(${doc.ID_DOCUMENTO_SERVICIO})" title="Eliminar">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
-                </td>
-            `;
-            
-            tbody.appendChild(row);
-        });
+    function obtenerEstadoInfo(estado) {
+        // Mapeo de estados (tanto números como texto)
+        const estadosMap = {
+            '1': { texto: 'Aprobado', clase: 'bg-success text-white' },
+            '2': { texto: 'Rechazado', clase: 'bg-danger text-white' },
+            '4': { texto: 'Requiere Corrección', clase: 'bg-warning text-dark' },
+            '5': { texto: 'Pendiente', clase: 'bg-secondary text-white' },
+            'Aprobado': { texto: 'Aprobado', clase: 'bg-success text-white' },
+            'Rechazado': { texto: 'Rechazado', clase: 'bg-danger text-white' },
+            'Requiere Corrección': { texto: 'Requiere Corrección', clase: 'bg-warning text-dark' },
+            'Pendiente': { texto: 'Pendiente', clase: 'bg-secondary text-white' }
+        };
+        
+        return estadosMap[estado] || { texto: 'Desconocido', clase: 'bg-secondary text-white' };
     }
 
     function obtenerClaseEstado(estado) {
-        switch (estado) {
-            case 'Aprobado': return 'bg-success text-white';
-            case 'Rechazado': return 'bg-danger text-white';
-            case 'En Revisión': return 'bg-info text-white';
-            case 'Requiere Corrección': return 'bg-warning text-dark';
-            case 'Pendiente': return 'bg-secondary text-white';
-            default: return 'bg-secondary text-white';
-        }
+        return obtenerEstadoInfo(estado).clase;
     }
 
     function aplicarFiltros() {
@@ -486,11 +576,7 @@
         const documentosOriginales = documentosServicio;
         documentosServicio = documentosFiltrados;
         
-        if (vistaActual === 'grid') {
-            mostrarDocumentosPorTipo();
-        } else {
-            generarVistaLista();
-        }
+        mostrarDocumentosPorTipo();
         
         // Restaurar documentos originales para futuros filtros
         documentosServicio = documentosOriginales;
@@ -501,212 +587,226 @@
         document.getElementById('filtroTipo').value = '';
         document.getElementById('buscarEstudiante').value = '';
         
-        if (vistaActual === 'grid') {
-            cargarDocumentosGrid();
-        } else {
-            generarVistaLista();
-        }
+        cargarDocumentosGrid();
     }
 
     function verDocumento(id) {
-        // Redirigir a la descarga para ver el documento
-        window.open(`<?= base_url('admin/documentos/descargarDocumentoServicio') ?>/${id}`, '_blank');
+        // Almacenar el ID del documento actual
+        documentoActualId = id;
+        
+        // Mostrar el documento en un modal
+        const modal = document.getElementById('modalVerDocumento');
+        const iframe = document.getElementById('iframeDocumento');
+        
+        if (iframe) {
+            iframe.src = `<?= base_url('admin/documentos/servicio/ver') ?>/${id}`;
+            const bsModal = new bootstrap.Modal(modal);
+            bsModal.show();
+        }
+    }
+
+    function descargarDesdeModal() {
+        if (documentoActualId) {
+            // Cerrar el modal primero
+            const modal = bootstrap.Modal.getInstance(document.getElementById('modalVerDocumento'));
+            if (modal) {
+                modal.hide();
+            }
+            
+            // Descargar el documento
+            descargarDocumento(documentoActualId);
+        }
     }
 
     function descargarDocumento(id) {
-        // Crear un enlace temporal para descargar
-        const link = document.createElement('a');
-        link.href = `<?= base_url('admin/documentos/descargarDocumentoServicio') ?>/${id}`;
-        link.download = '';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-
-    function eliminarDocumento(id) {
-        if (confirm('¿Estás seguro de que deseas eliminar este documento?')) {
-            fetch(`<?= base_url('admin/documentos/eliminarDocumentoServicio') ?>/${id}`, {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showNotification('Documento eliminado exitosamente', 'success');
-                    cargarDocumentosGrid(); // Recargar documentos
-                } else {
-                    showNotification('Error: ' + data.message, 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('Error al eliminar el documento', 'error');
-            });
-        }
-    }
-
-    function subirDocumento(tipoDocumentoId) {
-        // Crear input de archivo
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.accept = '.pdf,.doc,.docx,.xls,.xlsx,.jpg,.jpeg,.png,.zip,.rar';
-        
-        input.onchange = function(e) {
-            const archivo = e.target.files[0];
-            if (!archivo) return;
-            
-            // Validar tamaño (50 MB máximo)
-            if (archivo.size > 50 * 1024 * 1024) {
-                showNotification('El archivo excede el tamaño máximo permitido (50 MB)', 'error');
-                return;
-            }
-            
-            // Crear FormData
-            const formData = new FormData();
-            formData.append('archivo', archivo);
-            formData.append('id_tipo_documento', tipoDocumentoId);
-            formData.append('id_servicio', 1); // Por ahora usar ID 1, esto debería venir de la sesión o contexto
-            
-            fetch('<?= base_url('admin/documentos/subirDocumentoServicio') ?>', {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest'
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showNotification('Documento subido exitosamente', 'success');
-                    cargarDocumentosGrid(); // Recargar documentos
-                } else {
-                    showNotification('Error: ' + data.message, 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('Error al subir el documento', 'error');
-            });
-        };
-        
-        input.click();
+        // Descargar el documento
+        window.location.href = `<?= base_url('admin/documentos/servicio/download') ?>/${id}`;
     }
 
     function cambiarEstadoDocumento(id) {
-        const nuevoEstado = prompt('Ingrese el nuevo estado (Pendiente, Aprobado, Rechazado):');
+        // Buscar el documento en el array de documentos
+        const documento = documentosServicio.find(doc => doc.ID_DOCUMENTO_SERVICIO == id);
         
-        if (!nuevoEstado || !['Pendiente', 'Aprobado', 'Rechazado'].includes(nuevoEstado)) {
-            showNotification('Estado no válido', 'error');
+        if (documento) {
+            document.getElementById('documento_id_estado').value = id;
+            document.getElementById('nombre_documento_estado').value = `${documento.NOMBRE_ARCHIVO} - ${documento.NOMBRE_ESTUDIANTE} ${documento.APELLIDO_ESTUDIANTE}`;
+        } else {
+            document.getElementById('documento_id_estado').value = id;
+            document.getElementById('nombre_documento_estado').value = 'Documento no encontrado';
+        }
+        
+        // Mostrar modal
+        showModal('modalCambiarEstado');
+    }
+
+    function guardarCambioEstado() {
+        const nuevoEstado = document.querySelector('select[name="nuevo_estado"]').value;
+        const comentarios = document.querySelector('textarea[name="comentarios_estado"]').value;
+        const documentoId = document.getElementById('documento_id_estado').value;
+        
+        if (!nuevoEstado) {
+            showNotification('Debe seleccionar un nuevo estado', 'error');
             return;
         }
         
-        const observaciones = prompt('Ingrese observaciones (opcional):');
-        
         const formData = new FormData();
-        formData.append('id', id);
         formData.append('estado', nuevoEstado);
-        if (observaciones) {
-            formData.append('observaciones', observaciones);
-        }
+        formData.append('observaciones_revisor', comentarios);
         
-        fetch('<?= base_url('admin/documentos/cambiarEstadoDocumentoServicio') ?>', {
+        fetch(`<?= base_url('admin/documentos/servicio/cambiar-estado') ?>/${documentoId}`, {
             method: 'POST',
-            body: formData,
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
+            body: formData
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                showNotification('Estado actualizado exitosamente', 'success');
-                cargarDocumentosGrid(); // Recargar documentos
+                showNotification(data.message, 'success');
+                bootstrap.Modal.getInstance(document.getElementById('modalCambiarEstado')).hide();
+                document.getElementById('formCambiarEstado').reset();
+                
+                // Actualizar el estado del documento en el array local
+                actualizarEstadoDocumentoLocal(documentoId, nuevoEstado);
+                
+                // Actualizar las estadísticas
+                actualizarEstadisticas();
+                
+                // Recargar la vista de documentos
+                mostrarDocumentosPorTipo();
             } else {
-                showNotification('Error: ' + data.message, 'error');
+                showNotification(data.message, 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showNotification('Error al actualizar el estado', 'error');
+            showNotification('Error al cambiar el estado', 'error');
+        });
+    }
+
+    function actualizarEstadoDocumentoLocal(documentoId, nuevoEstado) {
+        // Buscar y actualizar el documento en el array local
+        const documento = documentosServicio.find(doc => doc.ID_DOCUMENTO_SERVICIO == documentoId);
+        if (documento) {
+            // Convertir el número del estado a texto
+            const estadoInfo = obtenerEstadoInfo(nuevoEstado);
+            documento.ESTADO_REVISION = estadoInfo.texto;
+        }
+    }
+
+    function actualizarEstadisticas() {
+        // Contar documentos por estado
+        const aprobados = documentosServicio.filter(doc => doc.ESTADO_REVISION === 'Aprobado').length;
+        const rechazados = documentosServicio.filter(doc => doc.ESTADO_REVISION === 'Rechazado').length;
+        const requiereCorreccion = documentosServicio.filter(doc => doc.ESTADO_REVISION === 'Requiere Corrección').length;
+        const pendientes = documentosServicio.filter(doc => doc.ESTADO_REVISION === 'Pendiente').length;
+        
+        // Actualizar los elementos HTML con los IDs correctos
+        const aprobadosElement = document.getElementById('Aprobados');
+        const rechazadosElement = document.getElementById('Rechazados');
+        const requiereCorreccionElement = document.getElementById('RequiereCorreccion');
+        const pendientesElement = document.getElementById('Pendientes');
+        
+        if (aprobadosElement) aprobadosElement.textContent = aprobados;
+        if (rechazadosElement) rechazadosElement.textContent = rechazados;
+        if (requiereCorreccionElement) requiereCorreccionElement.textContent = requiereCorreccion;
+        if (pendientesElement) pendientesElement.textContent = pendientes;
+        
+        // Agregar animación de actualización
+        [aprobadosElement, rechazadosElement, requiereCorreccionElement, pendientesElement].forEach(element => {
+            if (element) {
+                element.style.transform = 'scale(1.1)';
+                element.style.transition = 'transform 0.3s ease';
+                setTimeout(() => {
+                    element.style.transform = 'scale(1)';
+                }, 300);
+            }
         });
     }
 
     function generarReporteServicio() {
-        const fechaInicio = prompt('Ingrese fecha de inicio (YYYY-MM-DD) o deje vacío para todos:');
-        const fechaFin = prompt('Ingrese fecha de fin (YYYY-MM-DD) o deje vacío para todos:');
-        const estado = prompt('Ingrese estado a filtrar (Pendiente, Aprobado, Rechazado) o deje vacío para todos:');
-        
-        let url = '<?= base_url('admin/documentos/generarReporteServicio') ?>?';
-        const params = new URLSearchParams();
-        
-        if (fechaInicio) params.append('fecha_inicio', fechaInicio);
-        if (fechaFin) params.append('fecha_fin', fechaFin);
-        if (estado) params.append('estado', estado);
-        
-        url += params.toString();
-        
-        fetch(url, {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
+        // Redirigir a la vista de reportes en la misma ventana
+        window.location.href = '<?= base_url('admin/documentos/servicio/reportes') ?>';
+    }
+
+    function revisionMasiva() {
+        showNotification('Función de revisión masiva en desarrollo. Permite cambiar el estado de múltiples documentos a la vez.', 'info');
+    }
+
+    // Funciones para manejar nuevo tipo de servicio comunitario
+
+    function limpiarFormularioNuevoTipo() {
+        document.getElementById('nuevo_codigo').value = '';
+        document.getElementById('nuevo_nombre').value = '';
+        document.getElementById('nuevo_descripcion').value = '';
+        document.getElementById('nuevo_orden').value = '';
+        document.getElementById('nuevo_obligatorio').value = '1';
+    }
+
+    function crearNuevoTipo() {
+        const codigo = document.getElementById('nuevo_codigo').value.trim();
+        const nombre = document.getElementById('nuevo_nombre').value.trim();
+        const descripcion = document.getElementById('nuevo_descripcion').value.trim();
+        const orden = document.getElementById('nuevo_orden').value;
+        const obligatorio = document.getElementById('nuevo_obligatorio').value;
+
+        // Validaciones
+        if (!codigo) {
+            showNotification('El código PSC es requerido', 'error');
+            return;
+        }
+
+        if (!/^PSC-\d{3}$/.test(codigo)) {
+            showNotification('El código debe tener el formato PSC-XXX (ej: PSC-013)', 'error');
+            return;
+        }
+
+        if (!nombre) {
+            showNotification('El nombre del documento es requerido', 'error');
+            return;
+        }
+
+        if (!orden) {
+            showNotification('El orden es requerido', 'error');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('codigo', codigo);
+        formData.append('nombre', nombre);
+        formData.append('descripcion', descripcion);
+        formData.append('orden', orden);
+        formData.append('obligatorio', obligatorio);
+
+        fetch('<?= base_url('admin/documentos/servicio/crear-tipo') ?>', {
+            method: 'POST',
+            body: formData
         })
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                // Crear y descargar archivo CSV
-                const csv = generarCSV(data.data);
-                descargarCSV(csv, 'reporte_documentos_servicio_comunitario.csv');
-                showNotification('Reporte generado exitosamente', 'success');
+                showNotification(data.message, 'success');
+                // Agregar la nueva opción al select
+                agregarOpcionAlSelect(data.tipo);
+                // Limpiar formulario
+                limpiarFormularioNuevoTipo();
             } else {
-                showNotification('Error: ' + data.message, 'error');
+                showNotification(data.message, 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            showNotification('Error al generar el reporte', 'error');
+            showNotification('Error al crear el nuevo tipo de documento', 'error');
         });
     }
 
-    function generarCSV(datos) {
-        if (!datos || datos.length === 0) {
-            return 'No hay datos para exportar';
-        }
+    function agregarOpcionAlSelect(tipo) {
+        const select = document.getElementById('filtroTipo');
+        const option = document.createElement('option');
+        option.value = tipo.ID_TIPO_DOCUMENTO_SERVICIO;
+        option.textContent = `${tipo.CODIGO}. ${tipo.NOMBRE}`;
+        select.appendChild(option);
         
-        const headers = ['ID', 'Tipo Documento', 'Proyecto Social', 'Estudiante', 'Estado', 'Fecha Subida', 'Observaciones'];
-        const csvContent = [
-            headers.join(','),
-            ...datos.map(doc => [
-                doc.ID_DOCUMENTO_SERVICIO,
-                `"${doc.TIPO_DOCUMENTO_NOMBRE}"`,
-                `"${doc.PROYECTO_SOCIAL || ''}"`,
-                `"${doc.NOMBRE_ESTUDIANTE} ${doc.APELLIDO_ESTUDIANTE}"`,
-                doc.ESTADO_REVISION,
-                doc.FECHA_SUBIDA,
-                `"${doc.OBSERVACIONES || ''}"`
-            ].join(','))
-        ].join('\n');
-        
-        return csvContent;
-    }
-
-    function descargarCSV(csvContent, filename) {
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        const url = URL.createObjectURL(blob);
-        link.setAttribute('href', url);
-        link.setAttribute('download', filename);
-        link.style.visibility = 'hidden';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    }
-
-    function revisionMasiva() {
-        showNotification('Función de revisión masiva - Por implementar', 'info');
+        // Seleccionar la nueva opción
+        select.value = tipo.ID_TIPO_DOCUMENTO_SERVICIO;
     }
 
     function showNotification(message, type = 'info') {
@@ -741,8 +841,29 @@
     document.addEventListener('DOMContentLoaded', function() {
         console.log('Vista de documentos de servicio comunitario cargada');
         
+        // Verificar tipos de documentos disponibles
+        const tiposDocumentos = <?= json_encode($tiposDocumentos ?? []) ?>;
+        console.log('Tipos de documentos desde PHP:', tiposDocumentos);
+        
+        if (!tiposDocumentos || tiposDocumentos.length === 0) {
+            console.warn('No hay tipos de documentos configurados');
+            showNotification('No hay tipos de documentos configurados. Contacte al administrador.', 'warning');
+        }
+        
         // Cargar documentos inicialmente
         cargarDocumentosGrid();
+        
+        // Limpiar iframe cuando se cierre el modal de ver documento
+        const modalVerDocumento = document.getElementById('modalVerDocumento');
+        if (modalVerDocumento) {
+            modalVerDocumento.addEventListener('hidden.bs.modal', function() {
+                const iframe = document.getElementById('iframeDocumento');
+                if (iframe) {
+                    iframe.src = '';
+                }
+                documentoActualId = null;
+            });
+        }
     });
 </script>
 <?= $this->endSection() ?>

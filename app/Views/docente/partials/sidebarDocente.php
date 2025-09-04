@@ -17,7 +17,7 @@
                     <span class="hide-menu">INICIO</span>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link" href="<?= base_url('admin/dashboard') ?>" aria-expanded="false">
+                    <a class="sidebar-link" href="<?= base_url('docente/dashboard') ?>" aria-expanded="false">
                         <span>
                             <i class="fa-solid fa-gauge-high fs-6"></i>
                         </span>
@@ -29,7 +29,7 @@
                     <span class="hide-menu">EDUCACIÓN CONTINUA</span>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link" href="<?= base_url('admin/educacion') ?>" aria-expanded="false">
+                    <a class="sidebar-link" href="<?= base_url('docente/educacion') ?>" aria-expanded="false">
                         <span>
                             <i class="fa-solid fa-layer-group fs-6"></i>
                         </span>
@@ -41,7 +41,7 @@
                     <span class="hide-menu">PRÁCTICAS</span>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link" href="<?= base_url('admin/practicas') ?>" aria-expanded="false">
+                    <a class="sidebar-link" href="<?= base_url('docente/practicas') ?>" aria-expanded="false">
                         <span>
                             <i class="fa-solid fa-user-graduate fs-6"></i>
                         </span>

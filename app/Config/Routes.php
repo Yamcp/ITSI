@@ -25,6 +25,7 @@ $routes->group('admin', ['namespace' => 'App\Controllers\admin'], function ($rou
     //Rutas para el perfil
     $routes->get('perfil', 'PerfilAdminController::index');          // Ver el perfil del administrador
     $routes->post('perfil/update', 'PerfilAdminController::update'); // Actualizar el perfil del administrador
+    $routes->post('perfil/upload-image', 'PerfilAdminController::uploadImage'); // Subir imagen de perfil
     
     //Rutas para la cuenta
     $routes->get('cuenta', 'CuentaAdminController::index');          // Ver la cuenta del administrador
@@ -108,6 +109,8 @@ $routes->group('admin', ['namespace' => 'App\Controllers\admin'], function ($rou
     // Rutas específicas para documentos de prácticas
     $routes->get('documentos/practicas', 'DocumentosPracticasAdminController::index'); // Ver documentos de prácticas
     $routes->get('documentos/practicas/obtenerDocumentos', 'DocumentosPracticasAdminController::obtenerDocumentos'); // Obtener documentos de prácticas
+    $routes->get('documentos/practicas/test-datos', 'DocumentosPracticasAdminController::testDatos'); // Prueba de datos
+    $routes->post('documentos/practicas/crear-tipo', 'DocumentosPracticasAdminController::crearTipo'); // Crear nuevo tipo PPR
     $routes->post('documentos/practicas/subir', 'DocumentosPracticasAdminController::store'); // Subir documento de práctica
     $routes->get('documentos/practicas/ver/(:num)', 'DocumentosPracticasAdminController::ver/$1'); // Ver documento
     $routes->get('documentos/practicas/download/(:num)', 'DocumentosPracticasAdminController::descargar/$1'); // Descargar documento
@@ -158,6 +161,18 @@ $routes->group('admin', ['namespace' => 'App\Controllers\admin'], function ($rou
     $routes->get('backup/estadisticas', 'BackupAdminController::estadisticas');     // Obtener estadísticas
 
 });
+
+//----------------------------------------------------------------------------------------------------------------------
+//RUTAS API PARA NOTIFICACIONES
+$routes->group('notificaciones', ['namespace' => 'App\Controllers'], function ($routes) {
+    $routes->get('/', 'NotificacionesController::index');                           // Obtener notificaciones del usuario
+    $routes->get('no-leidas', 'NotificacionesController::noLeidas');               // Obtener notificaciones no leídas
+    $routes->post('marcar-leida/(:num)', 'NotificacionesController::marcarLeida/$1'); // Marcar notificación como leída
+    $routes->post('marcar-todas-leidas', 'NotificacionesController::marcarTodasLeidas'); // Marcar todas como leídas
+    $routes->post('eliminar/(:num)', 'NotificacionesController::eliminar/$1');     // Eliminar notificación
+    $routes->get('contador', 'NotificacionesController::contador');                // Obtener contador de no leídas
+    $routes->get('por-tipo/(:alpha)', 'NotificacionesController::porTipo/$1');     // Obtener por tipo
+});
 //----------------------------------------------------------------------------------------------------------------------
 //RUTAS DOCENTE
 $routes->group('docente', ['namespace' => 'App\Controllers\docente'], function ($routes) {
@@ -165,8 +180,31 @@ $routes->group('docente', ['namespace' => 'App\Controllers\docente'], function (
     $routes->post('dashboard', 'DashboardDocenteController::index');    // El dashboard del docente
     $routes->get('perfil', 'PerfilDocenteController::index');          // Ver el perfil del docente
     $routes->post('perfil/update', 'PerfilDocenteController::update'); // Actualizar el perfil del docente
+    $routes->post('perfil/upload-image', 'PerfilDocenteController::uploadImage'); // Subir imagen de perfil
+    
+    //Rutas para la cuenta
+    $routes->get('cuenta', 'CuentaDocenteController::index');          // Ver la cuenta del docente
+    $routes->post('cuenta/cambiar-password', 'CuentaDocenteController::cambiarPassword'); // Cambiar contraseña
+    
     $routes->get('educacion', 'ActividadesEducacionDocenteController::index');    // Ver la sección de educación
     $routes->get('convenios', 'InstitucionesConveniosController::index');        // Ver la sección de convenios
+    
+    // Rutas para notificaciones
+    $routes->get('notificaciones', 'NotificacionesController::vistaDocente');    // Ver notificaciones del docente
+    
+    // Rutas para evaluaciones
+    $routes->get('evaluaciones', 'EvaluacionesDocenteController::index');        // Ver evaluaciones del docente
+    $routes->get('evaluaciones/obtener', 'EvaluacionesDocenteController::obtenerEvaluaciones'); // Obtener evaluaciones
+    $routes->get('evaluaciones/estadisticas', 'EvaluacionesDocenteController::obtenerEstadisticas'); // Obtener estadísticas
+    
+    // Rutas para prácticas (tutorías)
+    $routes->get('practicas', 'PracticasDocenteController::index');              // Ver prácticas del docente
+    $routes->get('practicas/detalle-estudiante/(:num)', 'PracticasDocenteController::detalleEstudiante/$1'); // Detalle de estudiante
+    $routes->post('practicas/evaluar-estudiante', 'PracticasDocenteController::evaluarEstudiante'); // Evaluar estudiante
+    $routes->post('practicas/generar-reporte', 'PracticasDocenteController::generarReporte'); // Generar reporte
+    $routes->get('practicas/alertas', 'PracticasDocenteController::obtenerAlertas'); // Obtener alertas
+    $routes->get('actividades', 'ActividadesDocenteController::index');          // Ver actividades del docente
+    $routes->get('estudiantes', 'EstudiantesDocenteController::index');          // Ver estudiantes del docente
 });
 
 //----------------------------------------------------------------------------------------------------------------------
@@ -176,8 +214,21 @@ $routes->group('estudiante', ['namespace' => 'App\Controllers\estudiante'], func
     $routes->post('dashboard', 'DashboardEstudianteController::index');    // El dashboard del estudiante
     $routes->get('perfil', 'PerfilEstudianteController::index');          // Ver el perfil del estudiante
     $routes->post('perfil/update', 'PerfilEstudianteController::update'); // Actualizar el perfil del estudiante
+    $routes->post('perfil/upload-image', 'PerfilEstudianteController::uploadImage'); // Subir imagen de perfil
+    
+    //Rutas para la cuenta
+    $routes->get('cuenta', 'CuentaEstudianteController::index');          // Ver la cuenta del estudiante
+    $routes->post('cuenta/cambiar-password', 'CuentaEstudianteController::cambiarPassword'); // Cambiar contraseña
+    
     $routes->get('educacion', 'ActividadesEducacionEstudianteController::index');    // Ver la sección de educación
     $routes->get('convenios', 'InstitucionesConveniosController::index');        // Ver la sección de convenios
+    
+    // Rutas para prácticas
+    $routes->get('practicas', 'PracticasEstudianteController::index'); // Ver prácticas del estudiante
+    $routes->get('practicas/detalle/(:num)/(:alpha)', 'PracticasEstudianteController::detalle/$1/$2'); // Detalle de práctica
+    $routes->post('practicas/registrar-actividad', 'PracticasEstudianteController::registrarActividad'); // Registrar actividad
+    $routes->post('practicas/subir-documento', 'PracticasEstudianteController::subirDocumento'); // Subir documento
+    $routes->get('practicas/actividades/(:num)/(:alpha)', 'PracticasEstudianteController::obtenerActividades/$1/$2'); // Obtener actividades
     
     // Rutas para documentos de prácticas
     $routes->get('documentos-practicas', 'DocumentosPracticasEstudianteController::index'); // Ver documentos de prácticas
@@ -186,4 +237,7 @@ $routes->group('estudiante', ['namespace' => 'App\Controllers\estudiante'], func
     $routes->get('documentos-practicas/progreso', 'DocumentosPracticasEstudianteController::verProgreso'); // Ver progreso
     $routes->get('documentos-practicas/descargar/(:num)', 'DocumentosPracticasEstudianteController::descargarDocumento/$1'); // Descargar documento
     $routes->post('documentos-practicas/eliminar/(:num)', 'DocumentosPracticasEstudianteController::eliminarDocumento/$1'); // Eliminar documento
+    
+    // Rutas para notificaciones
+    $routes->get('notificaciones', 'NotificacionesController::vistaEstudiante');    // Ver notificaciones del estudiante
 });

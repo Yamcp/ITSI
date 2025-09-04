@@ -9,6 +9,9 @@ use App\Models\InstitucionesConveniosModel;
 use App\Models\TiposPracticasModel;
 use App\Models\EstadosPracticasModel;
 use App\Models\CarrerasModel;
+use App\Models\NotificacionesModel;
+use App\Models\UsuariosModel;
+use App\Libraries\EmailNotificaciones;
 
 class PracticasAdminController extends BaseController
 {
@@ -18,6 +21,9 @@ class PracticasAdminController extends BaseController
     protected $tiposPracticasModel;
     protected $estadosPracticasModel;
     protected $carrerasModel;
+    protected $notificacionesModel;
+    protected $usuariosModel;
+    protected $emailNotificaciones;
 
     public function __construct()
     {
@@ -27,6 +33,9 @@ class PracticasAdminController extends BaseController
         $this->tiposPracticasModel = new TiposPracticasModel();
         $this->estadosPracticasModel = new EstadosPracticasModel();
         $this->carrerasModel = new CarrerasModel();
+        $this->notificacionesModel = new NotificacionesModel();
+        $this->usuariosModel = new UsuariosModel();
+        $this->emailNotificaciones = new EmailNotificaciones();
     }
 
     public function index()
@@ -325,9 +334,12 @@ class PracticasAdminController extends BaseController
                 ]);
             }
 
+            // Enviar notificaciones después de crear la práctica exitosamente
+            $this->enviarNotificacionesPractica($estudiante, $institucion, $tipoPractica, $asignacionId, $fechaInicio, $fechaFin, $horasTotal, $descripcion);
+
             return $this->response->setJSON([
                 'success' => true,
-                'message' => 'Práctica creada exitosamente'
+                'message' => 'Práctica creada exitosamente y notificaciones enviadas'
             ]);
 
         } catch (\Exception $e) {
@@ -961,5 +973,198 @@ class PracticasAdminController extends BaseController
         }
 
         return $builder->get()->getResultArray();
+    }
+
+    /**
+     * Enviar notificaciones de nueva práctica asignada
+     */
+    private function enviarNotificacionesPractica($idEstudiante, $idInstitucion, $tipoPractica, $asignacionId, $fechaInicio, $fechaFin, $horasTotal, $descripcion)
+    {
+        try {
+            // Obtener información del estudiante
+            $estudiante = $this->obtenerInformacionEstudiante($idEstudiante);
+            if (!$estudiante) {
+                log_message('error', 'No se pudo obtener información del estudiante para notificación');
+                return false;
+            }
+
+            // Obtener información de la institución
+            $institucion = $this->obtenerInformacionInstitucion($idInstitucion);
+            if (!$institucion) {
+                log_message('error', 'No se pudo obtener información de la institución para notificación');
+                return false;
+            }
+
+            // Obtener tutor asignado (por defecto el instructor con ID 1, pero se puede mejorar)
+            $tutor = $this->obtenerInformacionTutor(1); // Se puede mejorar para asignar tutores automáticamente
+
+            // Preparar datos para las notificaciones
+            $datosPractica = [
+                'id_practica' => $asignacionId,
+                'tipo' => $tipoPractica == 2 ? 'preprofesional' : 'servicio',
+                'estudiante' => $estudiante['nombre_completo'],
+                'institucion' => $institucion['nombre'],
+                'tutor' => $tutor['nombre_completo'],
+                'fecha_inicio' => $fechaInicio,
+                'fecha_fin' => $fechaFin,
+                'horas' => $horasTotal,
+                'descripcion' => $descripcion
+            ];
+
+            // Obtener ID de usuario del estudiante
+            $idUsuarioEstudiante = $this->obtenerIdUsuarioEstudiante($idEstudiante);
+            if (!$idUsuarioEstudiante) {
+                log_message('error', 'No se pudo obtener ID de usuario del estudiante');
+                return false;
+            }
+
+            // Obtener ID de usuario del tutor
+            $idUsuarioTutor = $this->obtenerIdUsuarioTutor(1); // Se puede mejorar
+            if (!$idUsuarioTutor) {
+                log_message('error', 'No se pudo obtener ID de usuario del tutor');
+                return false;
+            }
+
+            // Crear notificaciones
+            $resultado = $this->notificacionesModel->crearNotificacionAsignacionPractica(
+                $idUsuarioEstudiante,
+                $idUsuarioTutor,
+                $datosPractica
+            );
+
+            if ($resultado) {
+                log_message('info', 'Notificaciones de práctica enviadas exitosamente');
+                
+                // Enviar email de notificación
+                $this->enviarEmailNotificacion($estudiante, $tutor, $datosPractica);
+            } else {
+                log_message('error', 'Error al crear notificaciones de práctica');
+            }
+
+            return $resultado;
+
+        } catch (\Exception $e) {
+            log_message('error', 'Error en enviarNotificacionesPractica: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Obtener información del estudiante
+     */
+    private function obtenerInformacionEstudiante($idEstudiante)
+    {
+        $db = \Config\Database::connect();
+        
+        $builder = $db->table('TAB_ESTUDIANTES e')
+            ->select('
+                e.ID_ESTUDIANTE,
+                CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as nombre_completo,
+                dp.EMAIL,
+                c.NOMBRE as carrera
+            ')
+            ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+            ->join('TAB_CARRERAS c', 'c.ID_CARRERA = e.ID_CARRERA')
+            ->where('e.ID_ESTUDIANTE', $idEstudiante);
+
+        return $builder->get()->getRowArray();
+    }
+
+    /**
+     * Obtener información de la institución
+     */
+    private function obtenerInformacionInstitucion($idInstitucion)
+    {
+        $db = \Config\Database::connect();
+        
+        $builder = $db->table('TAB_INSTITUCIONES_CONVENIOS ic')
+            ->select('
+                ic.ID_INSTITUCION_CONVENIO,
+                ic.NOMBRE as nombre,
+                ti.INSTITUCION as tipo
+            ')
+            ->join('TAB_TIPOS_INSTITUCION ti', 'ti.ID_TIPO_INSTITUCION = ic.ID_TIPO_INSTITUCION')
+            ->where('ic.ID_INSTITUCION_CONVENIO', $idInstitucion);
+
+        return $builder->get()->getRowArray();
+    }
+
+    /**
+     * Obtener información del tutor
+     */
+    private function obtenerInformacionTutor($idInstructor)
+    {
+        $db = \Config\Database::connect();
+        
+        $builder = $db->table('TAB_INSTRUCTORES i')
+            ->select('
+                i.ID_INSTRUCTOR,
+                CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as nombre_completo,
+                dp.EMAIL
+            ')
+            ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = i.ID_DATO_PERSONA')
+            ->where('i.ID_INSTRUCTOR', $idInstructor);
+
+        return $builder->get()->getRowArray();
+    }
+
+    /**
+     * Obtener ID de usuario del estudiante
+     */
+    private function obtenerIdUsuarioEstudiante($idEstudiante)
+    {
+        $db = \Config\Database::connect();
+        
+        $builder = $db->table('TAB_ESTUDIANTES e')
+            ->select('u.ID_USUARIO')
+            ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+            ->join('TAB_USUARIOS u', 'u.ID_DATO_PERSONA = dp.ID_DATO_PERSONA')
+            ->where('e.ID_ESTUDIANTE', $idEstudiante);
+
+        $result = $builder->get()->getRowArray();
+        return $result ? $result['ID_USUARIO'] : null;
+    }
+
+    /**
+     * Obtener ID de usuario del tutor
+     */
+    private function obtenerIdUsuarioTutor($idInstructor)
+    {
+        $db = \Config\Database::connect();
+        
+        $builder = $db->table('TAB_INSTRUCTORES i')
+            ->select('u.ID_USUARIO')
+            ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = i.ID_DATO_PERSONA')
+            ->join('TAB_USUARIOS u', 'u.ID_DATO_PERSONA = dp.ID_DATO_PERSONA')
+            ->where('i.ID_INSTRUCTOR', $idInstructor);
+
+        $result = $builder->get()->getRowArray();
+        return $result ? $result['ID_USUARIO'] : null;
+    }
+
+    /**
+     * Enviar email de notificación
+     */
+    private function enviarEmailNotificacion($estudiante, $tutor, $datosPractica)
+    {
+        try {
+            // Enviar emails usando la librería de notificaciones
+            $resultado = $this->emailNotificaciones->enviarNotificacionAsignacionPractica(
+                $estudiante,
+                $tutor,
+                $datosPractica
+            );
+            
+            if ($resultado) {
+                log_message('info', "Emails de notificación enviados exitosamente a: {$estudiante['email']} y {$tutor['email']}");
+            } else {
+                log_message('warning', "Error enviando emails de notificación a: {$estudiante['email']} y {$tutor['email']}");
+            }
+            
+            return $resultado;
+        } catch (\Exception $e) {
+            log_message('error', 'Error enviando email de notificación: ' . $e->getMessage());
+            return false;
+        }
     }
 }

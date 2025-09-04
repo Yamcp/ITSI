@@ -1,5 +1,5 @@
-<!-- app/Views/admin/perfil/perfilAdmin.php -->
-<?= $this->extend('admin/layouts/mainAdmin') ?>
+<!-- app/Views/docente/perfil/perfilDocente.php -->
+<?= $this->extend('docente/layouts/mainDocente') ?>
 
 <?= $this->section('styles') ?>
 <link href="<?= base_url('css/profile.css') ?>" rel="stylesheet" />
@@ -124,6 +124,41 @@
         color: #6c757d;
         font-size: 0.95rem;
     }
+    
+    .form-control[readonly] {
+        background-color: #f8f9fa;
+        border-color: #e9ecef;
+        color: #6c757d;
+        cursor: not-allowed;
+    }
+    
+    .form-control[readonly]:focus {
+        border-color: #e9ecef;
+        box-shadow: none;
+    }
+    
+    .btn-camera {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        transition: all 0.3s ease;
+    }
+    
+    .btn-camera:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    
+    .profile-avatar {
+        transition: all 0.3s ease;
+    }
+    
+    .profile-avatar:hover {
+        transform: scale(1.05);
+    }
 </style>
 <?= $this->endSection() ?>
 
@@ -134,7 +169,17 @@
         <div class="profile-header text-center">
             <div class="row align-items-center">
                 <div class="col-md-3">
-                    <img src="<?= base_url('assets/img/avatar.png') ?>" alt="Avatar" class="profile-avatar mb-3">
+                    <div class="position-relative d-inline-block">
+                        <img src="<?= !empty($usuario['FOTO_URL']) ? base_url('uploads/perfiles/' . $usuario['FOTO_URL']) : 'data:image/svg+xml;base64,' . base64_encode('<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="60" fill="#e9ecef"/><circle cx="60" cy="45" r="20" fill="#6c757d"/><path d="M30 95c0-16.569 13.431-30 30-30s30 13.431 30 30" fill="#6c757d"/></svg>') ?>" 
+                             alt="Avatar" class="profile-avatar mb-3" id="preview-avatar">
+                        <div class="position-absolute top-0 end-0">
+                            <button type="button" class="btn btn-sm btn-primary rounded-circle btn-camera" 
+                                    data-bs-toggle="modal" data-bs-target="#modalImagen" 
+                                    title="Cambiar imagen">
+                                <i class="fas fa-camera"></i>
+                            </button>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-md-9 text-md-start">
                     <h1 class="display-6 fw-bold mb-2"><?= $usuario['NOMBRE'] . ' ' . $usuario['APELLIDO'] ?></h1>
@@ -292,7 +337,20 @@
                             </div>
                         <?php endif; ?>
 
-                        <form action="<?= base_url('admin/perfil/update') ?>" method="post" id="formPerfil">
+                        <?php if (isset($validation) && $validation->hasError('nombre')): ?>
+                            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>Errores de validación:</strong>
+                                <ul class="mb-0 mt-2">
+                                    <?php foreach ($validation->getErrors() as $error): ?>
+                                        <li><?= $error ?></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        <?php endif; ?>
+
+                        <form action="<?= base_url('docente/perfil/update') ?>" method="post" id="formPerfil">
                             <?= csrf_field() ?>
 
                             <div class="row">
@@ -300,21 +358,17 @@
                                     <label for="nombre" class="form-label fw-semibold">
                                         <i class="fas fa-user me-1"></i>Nombre
                                     </label>
-                                    <input type="text" class="form-control <?= (isset($validation) && $validation->hasError('nombre')) ? 'is-invalid' : '' ?>"
-                                        id="nombre" name="nombre" value="<?= $usuario['NOMBRE'] ?>" required>
-                                    <div class="invalid-feedback">
-                                        <?= (isset($validation) && $validation->hasError('nombre')) ? $validation->getError('nombre') : '' ?>
-                                    </div>
+                                    <input type="text" class="form-control" id="nombre" name="nombre" 
+                                        value="<?= $usuario['NOMBRE'] ?>" readonly>
+                                    <small class="text-muted">El nombre no se puede modificar</small>
                                 </div>
                                 <div class="col-md-6 mb-3">
                                     <label for="apellido" class="form-label fw-semibold">
                                         <i class="fas fa-user me-1"></i>Apellido
                                     </label>
-                                    <input type="text" class="form-control <?= (isset($validation) && $validation->hasError('apellido')) ? 'is-invalid' : '' ?>"
-                                        id="apellido" name="apellido" value="<?= $usuario['APELLIDO'] ?>" required>
-                                    <div class="invalid-feedback">
-                                        <?= (isset($validation) && $validation->hasError('apellido')) ? $validation->getError('apellido') : '' ?>
-                                    </div>
+                                    <input type="text" class="form-control" id="apellido" name="apellido" 
+                                        value="<?= $usuario['APELLIDO'] ?>" readonly>
+                                    <small class="text-muted">El apellido no se puede modificar</small>
                                 </div>
                             </div>
 
@@ -411,7 +465,22 @@
                                         <i class="fas fa-calendar-plus me-1"></i>Fecha de Ingreso
                                     </label>
                                     <input type="date" class="form-control" id="fecha_ingreso" name="fecha_ingreso" 
-                                        value="<?= $usuario['FECHA_INGRESO'] ?>">
+                                        value="<?= $usuario['FECHA_INGRESO'] ?>" readonly>
+                                    <small class="text-muted">La fecha de ingreso no se puede modificar</small>
+                                </div>
+                            </div>
+
+                            <!-- Botones de Acción -->
+                            <div class="row mt-4">
+                                <div class="col-12">
+                                    <div class="d-flex justify-content-end gap-3">
+                                        <button type="button" class="btn btn-outline-secondary btn-modern" onclick="resetForm()">
+                                            <i class="fas fa-undo me-2"></i>Cancelar
+                                        </button>
+                                        <button type="submit" class="btn btn-success btn-modern">
+                                            <i class="fas fa-save me-2"></i>Guardar Cambios
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </form>
@@ -421,59 +490,196 @@
         </div>
     </div>
 </div>
+
+<!-- Modal para subir imagen -->
+<div class="modal fade" id="modalImagen" tabindex="-1" aria-labelledby="modalImagenLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalImagenLabel">
+                    <i class="fas fa-camera me-2"></i>Cambiar Imagen de Perfil
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formImagen" enctype="multipart/form-data">
+                    <?= csrf_field() ?>
+                    
+                    <!-- Vista previa de la imagen actual -->
+                    <div class="text-center mb-3">
+                        <img src="<?= !empty($usuario['FOTO_URL']) ? base_url('uploads/perfiles/' . $usuario['FOTO_URL']) : 'data:image/svg+xml;base64,' . base64_encode('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><circle cx="100" cy="100" r="100" fill="#e9ecef"/><circle cx="100" cy="75" r="35" fill="#6c757d"/><path d="M50 160c0-27.614 22.386-50 50-50s50 22.386 50 50" fill="#6c757d"/></svg>') ?>" 
+                             alt="Imagen actual" class="img-thumbnail" id="imagen-actual" style="max-width: 200px; max-height: 200px;">
+                    </div>
+                    
+                    <!-- Campo de subida -->
+                    <div class="mb-3">
+                        <label for="foto_perfil" class="form-label fw-semibold">
+                            <i class="fas fa-image me-1"></i>Seleccionar Nueva Imagen
+                        </label>
+                        <input type="file" class="form-control" id="foto_perfil" name="foto_perfil" 
+                               accept="image/*" onchange="previewImage(this)">
+                        <div class="form-text">
+                            Formatos permitidos: JPG, PNG, GIF. Tamaño máximo: 2MB
+                        </div>
+                    </div>
+                    
+                    <!-- Vista previa de la nueva imagen -->
+                    <div id="preview-container" class="text-center" style="display: none;">
+                        <h6>Vista previa:</h6>
+                        <img id="preview-nueva" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" tabindex="-1">
+                    <i class="fas fa-times me-1"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-primary" onclick="subirImagen()" tabindex="-1">
+                    <i class="fas fa-upload me-1"></i>Subir Imagen
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // El formulario ahora solo maneja información personal
-        // No se requiere validación especial de contraseñas
-    });
+// Variables globales
+var csrfToken = '<?= csrf_token() ?>';
+var csrfHash = '<?= csrf_hash() ?>';
+var uploadUrl = '<?= base_url('docente/perfil/upload-image') ?>';
 
-    function resetForm() {
-        if (confirm('¿Está seguro de que desea restaurar todos los campos a sus valores originales?')) {
-            document.getElementById('formPerfil').reset();
-            // Restaurar valores originales de información personal
-            document.getElementById('nombre').value = '<?= $usuario['NOMBRE'] ?>';
-            document.getElementById('apellido').value = '<?= $usuario['APELLIDO'] ?>';
-            document.getElementById('celular').value = '<?= $usuario['CELULAR'] ?>';
-            document.getElementById('direccion').value = '<?= $usuario['DIRECCION'] ?>';
-            document.getElementById('email').value = '<?= $usuario['EMAIL'] ?>';
-            document.getElementById('genero').value = '<?= $usuario['GENERO'] ?>';
-            document.getElementById('estado_civil').value = '<?= $usuario['ESTADO_CIVIL'] ?>';
-            document.getElementById('nacionalidad').value = '<?= $usuario['NACIONALIDAD'] ?>';
-            document.getElementById('fecha_ingreso').value = '<?= $usuario['FECHA_INGRESO'] ?>';
-            
-            showNotification('Formulario restaurado exitosamente', 'info');
-        }
+// Función para resetear formulario
+function resetForm() {
+    if (confirm('¿Está seguro de que desea restaurar todos los campos editables a sus valores originales?')) {
+        document.getElementById('formPerfil').reset();
+        alert('Formulario restaurado exitosamente');
     }
+}
 
-    function showNotification(message, type = 'info') {
-        const colors = {
-            success: '#27ae60',
-            error: '#e74c3c',
-            warning: '#f39c12',
-            info: '#3498db'
+// Función para vista previa de imagen
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        var reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('preview-nueva').src = e.target.result;
+            document.getElementById('preview-container').style.display = 'block';
         };
-
-        const notification = document.createElement('div');
-        notification.className = 'position-fixed top-0 end-0 m-3';
-        notification.style.zIndex = '9999';
-        notification.innerHTML = `
-            <div class="alert alert-${type} alert-dismissible fade show" role="alert" style="background: ${colors[type]}; color: white; border: none; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
-                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
-                ${message}
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
-            </div>
-        `;
-
-        document.body.appendChild(notification);
-
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.remove();
-            }
-        }, 5000);
+        reader.readAsDataURL(input.files[0]);
     }
+}
+
+// Función para subir imagen
+function subirImagen() {
+    var fileInput = document.getElementById('foto_perfil');
+    var file = fileInput.files[0];
+    
+    if (!file) {
+        alert('Por favor selecciona una imagen');
+        return;
+    }
+    
+    if (file.size > 2 * 1024 * 1024) {
+        alert('La imagen es demasiado grande. Máximo 2MB');
+        return;
+    }
+    
+    var allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (allowedTypes.indexOf(file.type) === -1) {
+        alert('Formato no válido. Solo se permiten JPG, PNG y GIF');
+        return;
+    }
+    
+    var formData = new FormData();
+    formData.append('foto_perfil', file);
+    formData.append(csrfToken, csrfHash);
+    
+    var submitBtn = document.querySelector('#modalImagen .btn-primary');
+    var originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = 'Subiendo...';
+    submitBtn.disabled = true;
+    
+    fetch(uploadUrl, {
+        method: 'POST',
+        body: formData
+    })
+    .then(function(response) {
+        return response.json();
+    })
+    .then(function(data) {
+        if (data.success) {
+            alert('Imagen actualizada correctamente');
+            document.getElementById('preview-avatar').src = data.image_url;
+            var modal = bootstrap.Modal.getInstance(document.getElementById('modalImagen'));
+            modal.hide();
+            document.getElementById('formImagen').reset();
+            document.getElementById('preview-container').style.display = 'none';
+        } else {
+            alert(data.message || 'Error al subir la imagen');
+        }
+    })
+    .catch(function(error) {
+        console.error('Error:', error);
+        alert('Error al subir la imagen');
+    })
+    .finally(function() {
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+}
+
+// Manejo de accesibilidad del modal
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('modalImagen');
+    const modalInstance = new bootstrap.Modal(modal);
+    
+    // Manejar el foco cuando el modal se muestra
+    modal.addEventListener('shown.bs.modal', function() {
+        // Remover tabindex="-1" de los botones cuando el modal está visible
+        const buttons = modal.querySelectorAll('button[tabindex="-1"]');
+        buttons.forEach(button => {
+            button.removeAttribute('tabindex');
+        });
+        
+        // Enfocar el primer elemento interactivo
+        const firstFocusable = modal.querySelector('input, button, select, textarea, [tabindex]:not([tabindex="-1"])');
+        if (firstFocusable) {
+            firstFocusable.focus();
+        }
+    });
+    
+    // Manejar el foco cuando el modal se oculta
+    modal.addEventListener('hidden.bs.modal', function() {
+        // Restaurar tabindex="-1" a los botones cuando el modal está oculto
+        const buttons = modal.querySelectorAll('button');
+        buttons.forEach(button => {
+            if (button.getAttribute('data-bs-dismiss') || button.onclick) {
+                button.setAttribute('tabindex', '-1');
+            }
+        });
+        
+        // Enfocar el botón que abrió el modal
+        const triggerButton = document.querySelector('[data-bs-target="#modalImagen"]');
+        if (triggerButton) {
+            triggerButton.focus();
+        }
+    });
+    
+    // Manejar el cierre del modal con Escape
+    modal.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            modalInstance.hide();
+        }
+    });
+});
+
+// Verificar que las funciones estén disponibles
+console.log('Funciones cargadas:', {
+    resetForm: typeof resetForm,
+    previewImage: typeof previewImage,
+    subirImagen: typeof subirImagen
+});
 </script>
 <?= $this->endSection() ?>

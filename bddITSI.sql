@@ -68,22 +68,6 @@ create table TAB_ACTIVIDADES_EDUCACION
 );
 
 /*==============================================================*/
-/* Table: TAB_ASISTENCIAS_PRACTICAS                             */
-/*==============================================================*/
-create table TAB_ASISTENCIAS_PRACTICAS
-(
-   ID_ASISTENCIA        int not null auto_increment,
-   ID_ASIGNACION_PRACTICA int,
-   FECHA_ASISTENCIA     date,
-   HORA_ENTRADA         time not null,
-   HORA_SALIDA          time not null,
-   ACTIVIDADES_DIA      text not null,
-   FECHA_REGISTRO       timestamp not null default current_timestamp on update current_timestamp,
-   OBSERVACIONES        text not null,
-   primary key (ID_ASISTENCIA)
-);
-
-/*==============================================================*/
 /* Table: TAB_ASIGNACIONES_PRACTICAS                            */
 /*==============================================================*/
 create table TAB_ASIGNACIONES_PRACTICAS
@@ -418,50 +402,108 @@ create table TAB_SERVICIO_COMUNITARIO
 );
 
 /*==============================================================*/
-/* Table: TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES            */
+/* Table: TAB_ESTADOS_REVISIONES                                */
+/*==============================================================*/
+create table TAB_ESTADOS_REVISIONES
+(
+   ID_ESTADO_REVISION int not null auto_increment,
+   ESTADO varchar(50) not null,
+   DESCRIPCION text,
+   COLOR varchar(20) DEFAULT '#6c757d',
+   ORDEN int DEFAULT 1,
+   ACTIVO boolean DEFAULT true,
+   FECHA_CREACION timestamp DEFAULT CURRENT_TIMESTAMP,
+   FECHA_ACTUALIZACION timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   primary key (ID_ESTADO_REVISION),
+   UNIQUE KEY UK_ESTADO (ESTADO),
+   KEY IDX_ORDEN (ORDEN),
+   KEY IDX_ACTIVO (ACTIVO)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+/*==============================================================*/
+/* Table: TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES (Mejorada) */
 /*==============================================================*/
 create table TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES
 (
    ID_DOCUMENTO_PREPROFESIONAL int not null auto_increment,
    ID_PRACTICA_PREPROFESIONAL  int,
    ID_TIPO_DOCUMENTO           int,
-   NOMBRE_ARCHIVO              varchar(255),
+   ID_ESTADO_REVISION          int DEFAULT 1,
+   NOMBRE_ARCHIVO              varchar(255) NOT NULL,
+   NOMBRE_ORIGINAL             varchar(255),
    TIPO_ARCHIVO                varchar(100),
-   FECHA_SUBIDA                timestamp,
-   ESTADO_REVISION             varchar(50),
+   TAMANO_ARCHIVO              bigint,
+   RUTA_ARCHIVO                varchar(500),
+   FECHA_SUBIDA                timestamp DEFAULT CURRENT_TIMESTAMP,
+   FECHA_REVISION              timestamp NULL,
+   ID_REVISOR                  int,
    OBSERVACIONES               text,
-   primary key (ID_DOCUMENTO_PREPROFESIONAL)
-);
+   OBSERVACIONES_REVISOR       text,
+   VERSION                     int DEFAULT 1,
+   ACTIVO                      boolean DEFAULT true,
+   FECHA_CREACION              timestamp DEFAULT CURRENT_TIMESTAMP,
+   FECHA_ACTUALIZACION         timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   primary key (ID_DOCUMENTO_PREPROFESIONAL),
+   KEY IDX_PRACTICA (ID_PRACTICA_PREPROFESIONAL),
+   KEY IDX_TIPO_DOCUMENTO (ID_TIPO_DOCUMENTO),
+   KEY IDX_ESTADO_REVISION (ID_ESTADO_REVISION),
+   KEY IDX_REVISOR (ID_REVISOR),
+   KEY IDX_FECHA_SUBIDA (FECHA_SUBIDA),
+   KEY IDX_ACTIVO (ACTIVO)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*==============================================================*/
-/* Table: TAB_DOCUMENTOS_SERVICIO_COMUNITARIO                   */
+/* Table: TAB_DOCUMENTOS_SERVICIO_COMUNITARIO (Mejorada)       */
 /*==============================================================*/
 create table TAB_DOCUMENTOS_SERVICIO_COMUNITARIO
 (
    ID_DOCUMENTO_SERVICIO       int not null auto_increment,
-   ID_SERVICIO_COMUNITARIO    int,
+   ID_SERVICIO_COMUNITARIO     int,
    ID_TIPO_DOCUMENTO           int,
-   NOMBRE_ARCHIVO              varchar(255),
+   ID_ESTADO_REVISION          int DEFAULT 1,
+   NOMBRE_ARCHIVO              varchar(255) NOT NULL,
+   NOMBRE_ORIGINAL             varchar(255),
    TIPO_ARCHIVO                varchar(100),
-   FECHA_SUBIDA                timestamp,
-   ESTADO_REVISION             varchar(50),
+   TAMANO_ARCHIVO              bigint,
+   RUTA_ARCHIVO                varchar(500),
+   FECHA_SUBIDA                timestamp DEFAULT CURRENT_TIMESTAMP,
+   FECHA_REVISION              timestamp NULL,
+   ID_REVISOR                  int,
    OBSERVACIONES               text,
-   primary key (ID_DOCUMENTO_SERVICIO)
-);
+   OBSERVACIONES_REVISOR       text,
+   VERSION                     int DEFAULT 1,
+   ACTIVO                      boolean DEFAULT true,
+   FECHA_CREACION              timestamp DEFAULT CURRENT_TIMESTAMP,
+   FECHA_ACTUALIZACION         timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   primary key (ID_DOCUMENTO_SERVICIO),
+   KEY IDX_SERVICIO (ID_SERVICIO_COMUNITARIO),
+   KEY IDX_TIPO_DOCUMENTO (ID_TIPO_DOCUMENTO),
+   KEY IDX_ESTADO_REVISION (ID_ESTADO_REVISION),
+   KEY IDX_REVISOR (ID_REVISOR),
+   KEY IDX_FECHA_SUBIDA (FECHA_SUBIDA),
+   KEY IDX_ACTIVO (ACTIVO)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*==============================================================*/
-/* Table: TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES                 */
+/* Table: TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES (Mejorada)     */
 /*==============================================================*/
 create table TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES
 (
    ID_TIPO_DOCUMENTO_PREPROFESIONAL int not null auto_increment,
-   CODIGO                           varchar(50),
-   NOMBRE                           varchar(150),
+   CODIGO                           varchar(50) NOT NULL,
+   NOMBRE                           varchar(150) NOT NULL,
    DESCRIPCION                      text,
-   ORDEN                            int,
-   OBLIGATORIO                      boolean default true,
-   primary key (ID_TIPO_DOCUMENTO_PREPROFESIONAL)
-);
+   ORDEN                            int DEFAULT 1,
+   OBLIGATORIO                      boolean DEFAULT true,
+   ACTIVO                           boolean DEFAULT true,
+   FECHA_CREACION                   timestamp DEFAULT CURRENT_TIMESTAMP,
+   FECHA_ACTUALIZACION              timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   primary key (ID_TIPO_DOCUMENTO_PREPROFESIONAL),
+   UNIQUE KEY UK_CODIGO (CODIGO),
+   KEY IDX_ORDEN (ORDEN),
+   KEY IDX_ACTIVO (ACTIVO),
+   KEY IDX_OBLIGATORIO (OBLIGATORIO)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*==============================================================*/
 /* Table: TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO             */
@@ -635,6 +677,131 @@ create table TAB_EVALUACIONES_ENLACES
 );
 
 /*==============================================================*/
+/* Table: TAB_ENTIDADES_RECEPTORAS (Nueva)                     */
+/*==============================================================*/
+create table TAB_ENTIDADES_RECEPTORAS
+(
+   ID_ENTIDAD_RECEPTORA int not null auto_increment,
+   NOMBRE               varchar(200) not null,
+   RUC                  varchar(20),
+   DIRECCION            text,
+   CIUDAD               varchar(50),
+   TELEFONO             varchar(20),
+   EMAIL                varchar(100),
+   REPRESENTANTE_LEGAL  varchar(150),
+   CONTACTO_DIRECTO     varchar(150),
+   TELEFONO_CONTACTO    varchar(20),
+   EMAIL_CONTACTO       varchar(100),
+   TIPO_ENTIDAD         varchar(50) DEFAULT 'Pública',
+   ACTIVO               boolean DEFAULT true,
+   FECHA_CREACION       timestamp DEFAULT CURRENT_TIMESTAMP,
+   FECHA_ACTUALIZACION  timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   primary key (ID_ENTIDAD_RECEPTORA),
+   UNIQUE KEY UK_RUC (RUC),
+   KEY IDX_NOMBRE (NOMBRE),
+   KEY IDX_CIUDAD (CIUDAD),
+   KEY IDX_ACTIVO (ACTIVO)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+/*==============================================================*/
+/* Table: TAB_DOCENTES_TUTORES (Nueva)                         */
+/*==============================================================*/
+create table TAB_DOCENTES_TUTORES
+(
+   ID_DOCENTE_TUTOR     int not null auto_increment,
+   ID_USUARIO           int,
+   ID_DATO_PERSONA      int,
+   ESPECIALIDAD         varchar(200),
+   TITULO_PROFESIONAL   varchar(200),
+   AREA_ESPECIALIZACION varchar(200),
+   AÑOS_EXPERIENCIA     int DEFAULT 0,
+   ACTIVO               boolean DEFAULT true,
+   FECHA_CREACION       timestamp DEFAULT CURRENT_TIMESTAMP,
+   FECHA_ACTUALIZACION  timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   primary key (ID_DOCENTE_TUTOR),
+   UNIQUE KEY UK_USUARIO (ID_USUARIO),
+   KEY IDX_ESPECIALIDAD (ESPECIALIDAD),
+   KEY IDX_ACTIVO (ACTIVO)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+/*==============================================================*/
+/* Table: TAB_ASIGNACIONES_DOCENTES_PRACTICAS (Nueva)          */
+/*==============================================================*/
+create table TAB_ASIGNACIONES_DOCENTES_PRACTICAS
+(
+   ID_ASIGNACION_DOCENTE int not null auto_increment,
+   ID_PRACTICA_PREPROFESIONAL int NULL,
+   ID_SERVICIO_COMUNITARIO int NULL,
+   ID_DOCENTE_TUTOR     int,
+   TIPO_ASIGNACION      varchar(50) DEFAULT 'Principal', -- Principal, Suplente, Co-tutor
+   FECHA_ASIGNACION     timestamp DEFAULT CURRENT_TIMESTAMP,
+   FECHA_FIN            timestamp NULL,
+   OBSERVACIONES        text,
+   ACTIVO               boolean DEFAULT true,
+   primary key (ID_ASIGNACION_DOCENTE),
+   KEY IDX_PRACTICA (ID_PRACTICA_PREPROFESIONAL),
+   KEY IDX_SERVICIO (ID_SERVICIO_COMUNITARIO),
+   KEY IDX_DOCENTE (ID_DOCENTE_TUTOR),
+   KEY IDX_TIPO (TIPO_ASIGNACION),
+   KEY IDX_ACTIVO (ACTIVO),
+   CHECK ((ID_PRACTICA_PREPROFESIONAL IS NOT NULL AND ID_SERVICIO_COMUNITARIO IS NULL) OR 
+          (ID_PRACTICA_PREPROFESIONAL IS NULL AND ID_SERVICIO_COMUNITARIO IS NOT NULL))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+/*==============================================================*/
+/* Table: TAB_HISTORIAL_CAMBIOS_DOCUMENTOS (Nueva)             */
+/*==============================================================*/
+create table TAB_HISTORIAL_CAMBIOS_DOCUMENTOS
+(
+   ID_HISTORIAL         int not null auto_increment,
+   ID_DOCUMENTO_PREPROFESIONAL int NULL,
+   ID_DOCUMENTO_SERVICIO int NULL,
+   ID_USUARIO           int,
+   TIPO_CAMBIO          varchar(50) NOT NULL, -- Estado, Observaciones, Archivo
+   VALOR_ANTERIOR       text,
+   VALOR_NUEVO          text,
+   OBSERVACIONES        text,
+   FECHA_CAMBIO         timestamp DEFAULT CURRENT_TIMESTAMP,
+   IP_USUARIO           varchar(45),
+   USER_AGENT           text,
+   primary key (ID_HISTORIAL),
+   KEY IDX_DOCUMENTO_PRACTICAS (ID_DOCUMENTO_PREPROFESIONAL),
+   KEY IDX_DOCUMENTO_SERVICIO (ID_DOCUMENTO_SERVICIO),
+   KEY IDX_USUARIO (ID_USUARIO),
+   KEY IDX_TIPO_CAMBIO (TIPO_CAMBIO),
+   KEY IDX_FECHA_CAMBIO (FECHA_CAMBIO),
+   CHECK ((ID_DOCUMENTO_PREPROFESIONAL IS NOT NULL AND ID_DOCUMENTO_SERVICIO IS NULL) OR 
+          (ID_DOCUMENTO_PREPROFESIONAL IS NULL AND ID_DOCUMENTO_SERVICIO IS NOT NULL))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+/*==============================================================*/
+/* Table: TAB_NOTIFICACIONES_DOCUMENTOS (Nueva)                */
+/*==============================================================*/
+create table TAB_NOTIFICACIONES_DOCUMENTOS
+(
+   ID_NOTIFICACION      int not null auto_increment,
+   ID_DOCUMENTO_PREPROFESIONAL int NULL,
+   ID_DOCUMENTO_SERVICIO int NULL,
+   ID_USUARIO_DESTINATARIO int,
+   TIPO_NOTIFICACION    varchar(50) NOT NULL, -- Nuevo, Revisado, Aprobado, Rechazado, Requiere Corrección
+   TITULO               varchar(200) NOT NULL,
+   MENSAJE              text NOT NULL,
+   LEIDA                boolean DEFAULT false,
+   FECHA_NOTIFICACION   timestamp DEFAULT CURRENT_TIMESTAMP,
+   FECHA_LECTURA        timestamp NULL,
+   ACTIVO               boolean DEFAULT true,
+   primary key (ID_NOTIFICACION),
+   KEY IDX_DOCUMENTO_PRACTICAS (ID_DOCUMENTO_PREPROFESIONAL),
+   KEY IDX_DOCUMENTO_SERVICIO (ID_DOCUMENTO_SERVICIO),
+   KEY IDX_USUARIO (ID_USUARIO_DESTINATARIO),
+   KEY IDX_TIPO (TIPO_NOTIFICACION),
+   KEY IDX_LEIDA (LEIDA),
+   KEY IDX_ACTIVO (ACTIVO),
+   CHECK ((ID_DOCUMENTO_PREPROFESIONAL IS NOT NULL AND ID_DOCUMENTO_SERVICIO IS NULL) OR 
+          (ID_DOCUMENTO_PREPROFESIONAL IS NULL AND ID_DOCUMENTO_SERVICIO IS NOT NULL))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+/*==============================================================*/
 /* Restricciones de Clave Foránea                               */
 /*==============================================================*/
 
@@ -752,6 +919,16 @@ alter table TAB_DOCUMENTOS_SERVICIO_COMUNITARIO add constraint FK_DOCS_SERVICIO_
 alter table TAB_DOCUMENTOS_SERVICIO_COMUNITARIO add constraint FK_DOCS_SERVICIO_TIPO foreign key (ID_TIPO_DOCUMENTO)
       references TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO (ID_TIPO_DOCUMENTO_SERVICIO) on delete restrict on update restrict;
 
+alter table TAB_DOCUMENTOS_SERVICIO_COMUNITARIO add constraint FK_DOCS_SERVICIO_ESTADO 
+      foreign key (ID_ESTADO_REVISION) 
+      references TAB_ESTADOS_REVISIONES (ID_ESTADO_REVISION) 
+      on delete restrict on update restrict;
+
+alter table TAB_DOCUMENTOS_SERVICIO_COMUNITARIO add constraint FK_DOCS_SERVICIO_REVISOR 
+      foreign key (ID_REVISOR) 
+      references TAB_USUARIOS (ID_USUARIO) 
+      on delete restrict on update restrict;
+
 alter table TAB_SEGUIMIENTO_PRACTICAS_PREPROFESIONALES add constraint FK_SEGUIMIENTO_PREPROFESIONALES_PRACTICA foreign key (ID_PRACTICA_PREPROFESIONAL)
       references TAB_PRACTICAS_PREPROFESIONALES (ID_PRACTICA_PREPROFESIONAL) on delete restrict on update restrict;
 
@@ -781,6 +958,67 @@ alter table TAB_EVALUACIONES_ENLACES add constraint FK_EVALUACIONES_ENLACES_ACTI
 
 alter table TAB_EVALUACIONES_ENLACES add constraint FK_EVALUACIONES_ENLACES_USUARIO foreign key (ID_USUARIO_CREADOR)
       references TAB_USUARIOS (ID_USUARIO) on delete restrict on update restrict;
+
+-- Restricciones para las nuevas tablas de documentos (ya definidas anteriormente)
+
+-- Restricciones para TAB_DOCENTES_TUTORES
+alter table TAB_DOCENTES_TUTORES add constraint FK_DOCENTES_USUARIO 
+      foreign key (ID_USUARIO) 
+      references TAB_USUARIOS (ID_USUARIO) 
+      on delete restrict on update restrict;
+
+alter table TAB_DOCENTES_TUTORES add constraint FK_DOCENTES_PERSONA 
+      foreign key (ID_DATO_PERSONA) 
+      references TAB_DATOS_PERSONAS (ID_DATO_PERSONA) 
+      on delete restrict on update restrict;
+
+-- Restricciones para TAB_ASIGNACIONES_DOCENTES_PRACTICAS
+alter table TAB_ASIGNACIONES_DOCENTES_PRACTICAS add constraint FK_ASIGNACIONES_PRACTICA 
+      foreign key (ID_PRACTICA_PREPROFESIONAL) 
+      references TAB_PRACTICAS_PREPROFESIONALES (ID_PRACTICA_PREPROFESIONAL) 
+      on delete restrict on update restrict;
+
+alter table TAB_ASIGNACIONES_DOCENTES_PRACTICAS add constraint FK_ASIGNACIONES_SERVICIO 
+      foreign key (ID_SERVICIO_COMUNITARIO) 
+      references TAB_SERVICIO_COMUNITARIO (ID_SERVICIO_COMUNITARIO) 
+      on delete restrict on update restrict;
+
+alter table TAB_ASIGNACIONES_DOCENTES_PRACTICAS add constraint FK_ASIGNACIONES_DOCENTE 
+      foreign key (ID_DOCENTE_TUTOR) 
+      references TAB_DOCENTES_TUTORES (ID_DOCENTE_TUTOR) 
+      on delete restrict on update restrict;
+
+-- Restricciones para TAB_HISTORIAL_CAMBIOS_DOCUMENTOS
+alter table TAB_HISTORIAL_CAMBIOS_DOCUMENTOS add constraint FK_HISTORIAL_DOCUMENTO_PRACTICAS 
+      foreign key (ID_DOCUMENTO_PREPROFESIONAL) 
+      references TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES (ID_DOCUMENTO_PREPROFESIONAL) 
+      on delete restrict on update restrict;
+
+alter table TAB_HISTORIAL_CAMBIOS_DOCUMENTOS add constraint FK_HISTORIAL_DOCUMENTO_SERVICIO 
+      foreign key (ID_DOCUMENTO_SERVICIO) 
+      references TAB_DOCUMENTOS_SERVICIO_COMUNITARIO (ID_DOCUMENTO_SERVICIO) 
+      on delete restrict on update restrict;
+
+alter table TAB_HISTORIAL_CAMBIOS_DOCUMENTOS add constraint FK_HISTORIAL_USUARIO 
+      foreign key (ID_USUARIO) 
+      references TAB_USUARIOS (ID_USUARIO) 
+      on delete restrict on update restrict;
+
+-- Restricciones para TAB_NOTIFICACIONES_DOCUMENTOS
+alter table TAB_NOTIFICACIONES_DOCUMENTOS add constraint FK_NOTIFICACIONES_DOCUMENTO_PRACTICAS 
+      foreign key (ID_DOCUMENTO_PREPROFESIONAL) 
+      references TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES (ID_DOCUMENTO_PREPROFESIONAL) 
+      on delete restrict on update restrict;
+
+alter table TAB_NOTIFICACIONES_DOCUMENTOS add constraint FK_NOTIFICACIONES_DOCUMENTO_SERVICIO 
+      foreign key (ID_DOCUMENTO_SERVICIO) 
+      references TAB_DOCUMENTOS_SERVICIO_COMUNITARIO (ID_DOCUMENTO_SERVICIO) 
+      on delete restrict on update restrict;
+
+alter table TAB_NOTIFICACIONES_DOCUMENTOS add constraint FK_NOTIFICACIONES_USUARIO 
+      foreign key (ID_USUARIO_DESTINATARIO) 
+      references TAB_USUARIOS (ID_USUARIO) 
+      on delete restrict on update restrict;
 
 /*==============================================================*/
 /* Insertar datos iniciales                                     */
@@ -876,6 +1114,14 @@ INSERT INTO `TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO` (`CODIGO`, `NOMBRE`, `DE
 ('PSC-010', 'Rúbrica de Evaluación Docente', 'Rúbrica de evaluación llenada y firmada por el tutor docente. Califica el desempeño del estudiante en base a los criterios académicos del programa.', 10, 1, 1),
 ('PSC-011', 'Rúbrica de Evaluación de Resultados', 'Evaluación final realizada por el Departamento de Vinculación con la Sociedad, que valora los resultados y el impacto del proyecto de servicio comunitario en su conjunto.', 11, 1, 1),
 ('PSC-012', 'Evidencia Fotográfica y Digital', 'Material de apoyo visual y digital, como fotos, capturas, videos o impresiones, que documenta y comprueba la realización de las actividades y trabajos del proyecto.', 12, 1, 1);
+
+-- Insertar estados de revisión
+INSERT INTO TAB_ESTADOS_REVISIONES (ID_ESTADO_REVISION, ESTADO, DESCRIPCION, COLOR, ORDEN) VALUES
+(1, 'Pendiente', 'Documento pendiente de revisión', '#ffc107', 1),
+(2, 'En Revisión', 'Documento siendo revisado por el docente', '#17a2b8', 2),
+(3, 'Aprobado', 'Documento aprobado por el revisor', '#28a745', 3),
+(4, 'Rechazado', 'Documento rechazado por el revisor', '#dc3545', 4),
+(5, 'Requiere Corrección', 'Documento que requiere correcciones', '#fd7e14', 5);
 
 -- Insertar estados para Prácticas Preprofesionales
 INSERT INTO `TAB_ESTADOS_PRACTICAS_PREPROFESIONALES` (`ID_ESTADO_PREPROFESIONAL`, `ESTADO`, `DESCRIPCION`, `COLOR`) VALUES
@@ -1067,19 +1313,27 @@ INSERT INTO `TAB_INSTITUCION_CARRERA` (`ID_INSTITUCION_CARRERA`, `ID_CARRERA`, `
 (5, 5, 3), -- Atención Integral a Adultos Mayores - Fundación
 (6, 6, 2); -- Marketing Digital - Banco
 
--- Insertar documentos de prácticas preprofesionales
-INSERT INTO `TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES` (`ID_DOCUMENTO_PREPROFESIONAL`, `ID_PRACTICA_PREPROFESIONAL`, `ID_TIPO_DOCUMENTO`, `NOMBRE_ARCHIVO`, `TIPO_ARCHIVO`, `FECHA_SUBIDA`, `ESTADO_REVISION`, `OBSERVACIONES`) VALUES
-(1, 1, 1, 'oficio_asignacion_tutor_001.pdf', 'application/pdf', '2025-06-01 10:00:00', 'Aprobado', 'Documento oficial de asignación de tutor'),
-(2, 1, 2, 'oficio_entidad_receptora_001.pdf', 'application/pdf', '2025-06-02 14:30:00', 'Aprobado', 'Oficio enviado a la entidad receptora'),
-(3, 1, 3, 'carta_aceptacion_001.pdf', 'application/pdf', '2025-06-03 09:15:00', 'Aprobado', 'Carta de aceptación de la entidad'),
-(4, 2, 1, 'oficio_asignacion_tutor_002.pdf', 'application/pdf', '2025-07-01 11:00:00', 'Aprobado', 'Documento oficial de asignación de tutor'),
-(5, 2, 2, 'oficio_entidad_receptora_002.pdf', 'application/pdf', '2025-07-02 15:45:00', 'Aprobado', 'Oficio enviado a la entidad receptora');
-
 -- Insertar documentos de servicio comunitario
-INSERT INTO `TAB_DOCUMENTOS_SERVICIO_COMUNITARIO` (`ID_DOCUMENTO_SERVICIO`, `ID_SERVICIO_COMUNITARIO`, `ID_TIPO_DOCUMENTO`, `NOMBRE_ARCHIVO`, `TIPO_ARCHIVO`, `FECHA_SUBIDA`, `ESTADO_REVISION`, `OBSERVACIONES`) VALUES
-(1, 1, 1, 'oficio_asignacion_tutor_sc_001.pdf', 'application/pdf', '2025-08-01 10:00:00', 'Aprobado', 'Documento oficial de asignación de tutor para servicio comunitario'),
-(2, 1, 2, 'oficio_entidad_receptora_sc_001.pdf', 'application/pdf', '2025-08-02 14:30:00', 'Aprobado', 'Oficio enviado a la entidad receptora para servicio comunitario'),
-(3, 1, 3, 'carta_aceptacion_sc_001.pdf', 'application/pdf', '2025-08-03 09:15:00', 'Aprobado', 'Carta de aceptación de la entidad para servicio comunitario');
+INSERT INTO `TAB_DOCUMENTOS_SERVICIO_COMUNITARIO` (
+    `ID_DOCUMENTO_SERVICIO`, 
+    `ID_SERVICIO_COMUNITARIO`, 
+    `ID_TIPO_DOCUMENTO`, 
+    `ID_ESTADO_REVISION`,
+    `NOMBRE_ARCHIVO`, 
+    `NOMBRE_ORIGINAL`,
+    `TIPO_ARCHIVO`, 
+    `TAMANO_ARCHIVO`,
+    `RUTA_ARCHIVO`,
+    `FECHA_SUBIDA`, 
+    `FECHA_REVISION`,
+    `ID_REVISOR`,
+    `OBSERVACIONES`,
+    `OBSERVACIONES_REVISOR`,
+    `VERSION`
+) VALUES
+(7, 1, 4, 3, 'solicitud_institucional_sc_001_20250804.pdf', 'Solicitud Institucional SC - Rector.pdf', 'application/pdf', 298496, '/uploads/documentos-servicio/', '2025-08-04 13:00:00', '2025-08-04 15:10:00', 1, 'Solicitud institucional valorada para servicio comunitario', 'Solicitud aprobada por el rector', 1),
+(8, 1, 5, 3, 'certificado_culminacion_sc_001_20251030.pdf', 'Certificado Culminación SC - 96 horas.pdf', 'application/pdf', 201728, '/uploads/documentos-servicio/', '2025-10-30 15:00:00', '2025-10-30 17:30:00', 1, 'Certificado de culminación de 96 horas de servicio comunitario', 'Certificado válido y completo', 1),
+(9, 1, 6, 3, 'hojas_asistencia_sc_001_20251030.pdf', 'Hojas de Asistencia SC - Carlos.pdf', 'application/pdf', 123456, '/uploads/documentos-servicio/', '2025-10-30 15:15:00', '2025-10-30 17:45:00', 1, 'Hojas de asistencia completas y validadas para servicio comunitario', 'Hojas de asistencia validadas correctamente', 1);
 
 -- Insertar evaluaciones de prácticas preprofesionales
 INSERT INTO `TAB_EVALUACIONES_PRACTICAS_PREPROFESIONALES` (`ID_EVALUACION_PREPROFESIONAL`, `ID_PRACTICA_PREPROFESIONAL`, `ID_EVALUADOR`, `TIPO_EVALUACION`, `CRITERIO_1`, `CRITERIO_2`, `CRITERIO_3`, `CRITERIO_4`, `CRITERIO_5`, `NOTA_FINAL`, `COMENTARIOS`, `FECHA_EVALUACION`) VALUES
@@ -1129,20 +1383,662 @@ INSERT INTO `TAB_EVALUACIONES_PRACTICAS_PREPROFESIONALES` (`ID_EVALUACION_PREPRO
 INSERT INTO `TAB_EVALUACIONES_SERVICIO_COMUNITARIO` (`ID_EVALUACION_SERVICIO`, `ID_SERVICIO_COMUNITARIO`, `ID_EVALUADOR`, `TIPO_EVALUACION`, `CRITERIO_1`, `CRITERIO_2`, `CRITERIO_3`, `CRITERIO_4`, `CRITERIO_5`, `NOTA_FINAL`, `COMENTARIOS`, `FECHA_EVALUACION`) VALUES
 (2, 1, 3, 'Evaluación Final', 9.5, 9.5, 9.0, 9.5, 9.5, 9.4, 'Proyecto excepcional con impacto social muy positivo. La plataforma educativa ha beneficiado significativamente a la comunidad.', '2025-10-30 16:00:00');
 
--- Insertar más documentos de prácticas preprofesionales
-INSERT INTO `TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES` (`ID_DOCUMENTO_PREPROFESIONAL`, `ID_PRACTICA_PREPROFESIONAL`, `ID_TIPO_DOCUMENTO`, `NOMBRE_ARCHIVO`, `TIPO_ARCHIVO`, `FECHA_SUBIDA`, `ESTADO_REVISION`, `OBSERVACIONES`) VALUES
-(6, 1, 4, 'solicitud_institucional_001.pdf', 'application/pdf', '2025-06-04 11:30:00', 'Aprobado', 'Solicitud institucional valorada y aprobada'),
-(7, 1, 5, 'certificado_culminacion_001.pdf', 'application/pdf', '2025-08-30 16:00:00', 'Aprobado', 'Certificado de culminación de 240 horas'),
-(8, 1, 6, 'hojas_asistencia_001.pdf', 'application/pdf', '2025-08-30 16:15:00', 'Aprobado', 'Hojas de asistencia completas y validadas'),
-(9, 2, 3, 'carta_aceptacion_002.pdf', 'application/pdf', '2025-07-03 10:20:00', 'Aprobado', 'Carta de aceptación de la entidad bancaria'),
-(10, 2, 4, 'solicitud_institucional_002.pdf', 'application/pdf', '2025-07-04 12:45:00', 'Aprobado', 'Solicitud institucional valorada y aprobada');
-
 -- Insertar más documentos de servicio comunitario
-INSERT INTO `TAB_DOCUMENTOS_SERVICIO_COMUNITARIO` (`ID_DOCUMENTO_SERVICIO`, `ID_SERVICIO_COMUNITARIO`, `ID_TIPO_DOCUMENTO`, `NOMBRE_ARCHIVO`, `TIPO_ARCHIVO`, `FECHA_SUBIDA`, `ESTADO_REVISION`, `OBSERVACIONES`) VALUES
-(4, 1, 4, 'solicitud_institucional_sc_001.pdf', 'application/pdf', '2025-08-04 13:00:00', 'Aprobado', 'Solicitud institucional valorada para servicio comunitario'),
-(5, 1, 5, 'certificado_culminacion_sc_001.pdf', 'application/pdf', '2025-10-30 15:00:00', 'Aprobado', 'Certificado de culminación de 96 horas de servicio comunitario'),
-(6, 1, 6, 'hojas_asistencia_sc_001.pdf', 'application/pdf', '2025-10-30 15:15:00', 'Aprobado', 'Hojas de asistencia completas y validadas para servicio comunitario');
+INSERT INTO `TAB_DOCUMENTOS_SERVICIO_COMUNITARIO` (
+    `ID_DOCUMENTO_SERVICIO`, 
+    `ID_SERVICIO_COMUNITARIO`, 
+    `ID_TIPO_DOCUMENTO`, 
+    `ID_ESTADO_REVISION`,
+    `NOMBRE_ARCHIVO`, 
+    `NOMBRE_ORIGINAL`,
+    `TIPO_ARCHIVO`, 
+    `TAMANO_ARCHIVO`,
+    `RUTA_ARCHIVO`,
+    `FECHA_SUBIDA`, 
+    `FECHA_REVISION`,
+    `ID_REVISOR`,
+    `OBSERVACIONES`,
+    `OBSERVACIONES_REVISOR`,
+    `VERSION`
+) VALUES
+(10, 1, 7, 3, 'ficha_registro_actividades_sc_001_20251015.pdf', 'Ficha Registro Actividades SC - Carlos.pdf', 'application/pdf', 98765, '/uploads/documentos-servicio/', '2025-10-15 11:30:00', '2025-10-15 14:20:00', 1, 'Ficha de registro de actividades de servicio comunitario', 'Ficha completa y detallada', 1),
+(11, 1, 8, 3, 'rubrica_evaluacion_entidad_sc_001_20251025.pdf', 'Rúbrica Evaluación Entidad SC - Carlos.pdf', 'application/pdf', 87654, '/uploads/documentos-servicio/', '2025-10-25 15:00:00', '2025-10-25 16:30:00', 1, 'Rúbrica de evaluación de entidad para servicio comunitario', 'Rúbrica completada correctamente', 1),
+(12, 1, 9, 3, 'ficha_control_seguimiento_sc_001_20251020.pdf', 'Ficha Control Seguimiento SC - Carlos.pdf', 'application/pdf', 112233, '/uploads/documentos-servicio/', '2025-10-20 10:15:00', '2025-10-20 12:45:00', 1, 'Ficha de control y seguimiento docente para servicio comunitario', 'Seguimiento realizado correctamente', 1);
+
+-- Insertar entidades receptoras de ejemplo
+INSERT INTO TAB_ENTIDADES_RECEPTORAS (NOMBRE, RUC, DIRECCION, CIUDAD, TELEFONO, EMAIL, REPRESENTANTE_LEGAL, CONTACTO_DIRECTO, TELEFONO_CONTACTO, EMAIL_CONTACTO, TIPO_ENTIDAD) VALUES
+('Hospital San Vicente de Paúl', '1234567890001', 'Av. 17 de Julio, Ibarra', 'Ibarra', '062-123456', 'contacto@hospitalsanvicente.com', 'Dr. Juan Pérez', 'Lic. María González', '0987654321', 'maria.gonzalez@hospitalsanvicente.com', 'Pública'),
+('Banco del Pacífico', '0987654321001', 'Av. Amazonas, Quito', 'Quito', '022-987654', 'info@bancodelpacifico.com', 'Sr. Carlos Mendoza', 'Ing. Ana Ruiz', '0912345678', 'ana.ruiz@bancodelpacifico.com', 'Privada'),
+('Fundación Niños del Ecuador', '1122334455001', 'Calle 10 de Agosto, Guayaquil', 'Guayaquil', '042-555666', 'info@ninosdelecuador.org', 'Dra. Sofía Morales', 'Lic. Pedro Aguirre', '0999888777', 'pedro.aguirre@ninosdelecuador.org', 'Privada'),
+('Municipio de Ibarra', '1760001230001', 'Plaza de la Independencia, Ibarra', 'Ibarra', '062-123456', 'info@municipioibarra.gob.ec', 'Alcalde Juan Carlos', 'Secretaria General', '0987654321', 'secretaria@municipioibarra.gob.ec', 'Pública'),
+('Empresa Tecnológica XYZ', '1234567890002', 'Zona Industrial, Ibarra', 'Ibarra', '062-987654', 'info@tecnologiaxyz.com', 'Ing. Director', 'RRHH', '0912345678', 'rrhh@tecnologiaxyz.com', 'Privada'),
+('Casa de la Cultura', '1234567890003', 'Calle Bolívar, Ibarra', 'Ibarra', '062-555777', 'info@casaculturaibarra.gob.ec', 'Lic. Director Cultural', 'Coordinador de Proyectos', '0987654321', 'proyectos@casaculturaibarra.gob.ec', 'Pública'),
+('Fundación Telefónica', '1234567890004', 'Av. 6 de Diciembre, Quito', 'Quito', '022-333444', 'info@fundaciontelefonica.org', 'Director Ejecutivo', 'Coordinador Social', '0912345678', 'social@fundaciontelefonica.org', 'Privada');
+
+-- Insertar docentes tutores de ejemplo
+INSERT INTO `TAB_DATOS_PERSONAS` (`ID_DATO_PERSONA`, `NOMBRE`, `APELLIDO`, `CEDULA`, `CELULAR`, `DIRECCION`, `EMAIL`, `GENERO`, `ESTADO_CIVIL`, `NACIONALIDAD`, `FECHA_INGRESO`, `ACTIVO`, `FOTO_URL`) VALUES
+(17, 'Mario', 'Montenegro', '1234567890', '0987654321', 'Ibarra, Ecuador', 'mario.montenegro@itsi.edu.ec', 'Masculino', 'Casado', 'Ecuatoriana', '2020-01-15', 1, ''),
+(18, 'Juan', 'Pérez', '0987654321', '0912345678', 'Quito, Ecuador', 'juan.perez@itsi.edu.ec', 'Masculino', 'Soltero', 'Ecuatoriana', '2020-02-20', 1, ''),
+(19, 'María', 'González', '1122334455', '0999888777', 'Guayaquil, Ecuador', 'maria.gonzalez@itsi.edu.ec', 'Femenino', 'Casada', 'Ecuatoriana', '2020-03-25', 1, '');
+
+INSERT INTO `TAB_USUARIOS` (`ID_USUARIO`, `ID_DATO_PERSONA`, `USUARIO`, `CONTRASENA`, `ESTADO`) VALUES
+(17, 17, 'mmontenegro', '123', '1'),
+(18, 18, 'jperez', '123', '1'),
+(19, 19, 'mgonzalez', '123', '1');
+
+INSERT INTO `TAB_ROLES` (`ID_ROL`, `ID_USUARIO`, `ID_TIPOS_ROLES`) VALUES
+(17, 17, 2),
+(18, 18, 2),
+(19, 19, 2);
+
+INSERT INTO TAB_DOCENTES_TUTORES (ID_USUARIO, ID_DATO_PERSONA, ESPECIALIDAD, TITULO_PROFESIONAL, AREA_ESPECIALIZACION, AÑOS_EXPERIENCIA) VALUES
+(17, 17, 'Administración Educativa', 'Doctor en Educación', 'Gestión Académica', 15),
+(18, 18, 'Desarrollo de Software', 'Ingeniero en Sistemas', 'Tecnologías de la Información', 10),
+(19, 19, 'Psicología Educativa', 'Magíster en Psicología', 'Orientación Estudiantil', 8);
+
+-- Insertar más docentes tutores
+INSERT INTO `TAB_DATOS_PERSONAS` (`ID_DATO_PERSONA`, `NOMBRE`, `APELLIDO`, `CEDULA`, `CELULAR`, `DIRECCION`, `EMAIL`, `GENERO`, `ESTADO_CIVIL`, `NACIONALIDAD`, `FECHA_INGRESO`, `ACTIVO`, `FOTO_URL`) VALUES
+(20, 'Roberto', 'Silva', '1122334455', '0999888777', 'Cuenca, Ecuador', 'roberto.silva@itsi.edu.ec', 'Masculino', 'Casado', 'Ecuatoriana', '2020-04-01', 1, ''),
+(21, 'Patricia', 'Vega', '2233445566', '0888777666', 'Guayaquil, Ecuador', 'patricia.vega@itsi.edu.ec', 'Femenino', 'Soltera', 'Ecuatoriana', '2020-05-15', 1, '');
+
+INSERT INTO `TAB_USUARIOS` (`ID_USUARIO`, `ID_DATO_PERSONA`, `USUARIO`, `CONTRASENA`, `ESTADO`) VALUES
+(20, 20, 'rsilva', '123456', '1'),
+(21, 21, 'pvega', '123456', '1');
+
+INSERT INTO `TAB_ROLES` (`ID_ROL`, `ID_USUARIO`, `ID_TIPOS_ROLES`) VALUES
+(20, 20, 2),
+(21, 21, 2);
+
+INSERT INTO TAB_DOCENTES_TUTORES (ID_USUARIO, ID_DATO_PERSONA, ESPECIALIDAD, TITULO_PROFESIONAL, AREA_ESPECIALIZACION, AÑOS_EXPERIENCIA) VALUES
+(20, 20, 'Trabajo Social', 'Magíster en Trabajo Social', 'Proyectos Sociales', 12),
+(21, 21, 'Antropología Cultural', 'Doctora en Antropología', 'Culturas Indígenas', 8);
+
+-- Insertar más estudiantes de ejemplo
+INSERT INTO `TAB_DATOS_PERSONAS` (`ID_DATO_PERSONA`, `NOMBRE`, `APELLIDO`, `CEDULA`, `CELULAR`, `DIRECCION`, `EMAIL`, `GENERO`, `ESTADO_CIVIL`, `NACIONALIDAD`, `FECHA_INGRESO`, `ACTIVO`, `FOTO_URL`) VALUES
+(22, 'Luis Fernando', 'Herrera Castro', '1005678901', '0943210987', 'Ambato, Ecuador', 'luis.herrera2023@itsi.edu.ec', 'Masculino', 'Soltero', 'Ecuatoriana', '2025-02-05', 1, ''),
+(23, 'Sofía Alejandra', 'Morales Jiménez', '1006789012', '0932109876', 'Riobamba, Ecuador', 'sofia.morales2023@itsi.edu.ec', 'Femenino', 'Soltera', 'Ecuatoriana', '2025-02-10', 1, ''),
+(24, 'Diego Armando', 'Vargas Ruiz', '1007890123', '0921098765', 'Loja, Ecuador', 'diego.vargas2023@itsi.edu.ec', 'Masculino', 'Soltero', 'Ecuatoriana', '2025-02-15', 1, ''),
+(25, 'Valentina', 'Castro Mendoza', '1008901234', '0910987654', 'Machala, Ecuador', 'valentina.castro2023@itsi.edu.ec', 'Femenino', 'Soltera', 'Ecuatoriana', '2025-02-20', 1, ''),
+(26, 'Andrés Felipe', 'López Sánchez', '1009012345', '0909876543', 'Portoviejo, Ecuador', 'andres.lopez2023@itsi.edu.ec', 'Masculino', 'Soltero', 'Ecuatoriana', '2025-02-25', 1, ''),
+(27, 'Camila Estefanía', 'Ramírez Flores', '1010123456', '0998765432', 'Esmeraldas, Ecuador', 'camila.ramirez2023@itsi.edu.ec', 'Femenino', 'Soltera', 'Ecuatoriana', '2025-03-01', 1, '');
+
+INSERT INTO `TAB_USUARIOS` (`ID_USUARIO`, `ID_DATO_PERSONA`, `USUARIO`, `CONTRASENA`, `ESTADO`) VALUES
+(22, 22, 'lherrera', '123456', '1'),
+(23, 23, 'smorales', '123456', '1'),
+(24, 24, 'dvargas', '123456', '1'),
+(25, 25, 'vcastro', '123456', '1'),
+(26, 26, 'alopez', '123456', '1'),
+(27, 27, 'cramirez', '123456', '1');
+
+INSERT INTO `TAB_ROLES` (`ID_ROL`, `ID_USUARIO`, `ID_TIPOS_ROLES`) VALUES
+(22, 22, 3),
+(23, 23, 3),
+(24, 24, 3),
+(25, 25, 3),
+(26, 26, 3),
+(27, 27, 3);
+
+INSERT INTO `TAB_ESTUDIANTES` (`ID_ESTUDIANTE`, `ID_TIPO_ESTADO`, `ID_DATO_PERSONA`, `ID_CARRERA`, `SEMESTRE_ACTUAL`) VALUES
+(11, 1, 22, 1, 3),  -- Luis Fernando - Desarrollo de Software - 3er semestre
+(12, 1, 23, 2, 2),  -- Sofía Alejandra - Diseño Gráfico - 2do semestre
+(13, 1, 24, 3, 4),  -- Diego Armando - Redes y Telecomunicaciones - 4to semestre
+(14, 1, 25, 1, 1),  -- Valentina - Desarrollo de Software - 1er semestre
+(15, 1, 26, 4, 3),  -- Andrés Felipe - Administración - 3er semestre
+(16, 1, 27, 2, 2);  -- Camila Estefanía - Diseño Gráfico - 2do semestre
+
+-- Insertar más asignaciones de prácticas
+INSERT INTO `TAB_ASIGNACIONES_PRACTICAS` (`ID_ASIGNACION_PRACTICA`, `ID_TIPO_PRACTICA`, `ID_USUARIO`, `ID_INSTITUCION_CONVENIO`, `FECHA_INICIO`, `FECHA_FIN`, `HORA_TOTAL`, `DESCRIPCION`, `CRONOGRAMA`) VALUES
+(4, 2, 1, 1, '2025-09-01', '2025-11-30', 240, 'Desarrollo de sistema de gestión hospitalaria para el Hospital San Vicente', 'Lunes a Viernes 8:00-17:00'),
+(5, 2, 1, 2, '2025-10-01', '2025-12-31', 240, 'Desarrollo de aplicación móvil bancaria para Banco del Pacífico', 'Lunes a Viernes 9:00-18:00'),
+(6, 1, 1, 3, '2025-11-01', '2026-01-31', 96, 'Desarrollo de plataforma educativa para Fundación Niños del Ecuador', 'Sábados 8:00-16:00'),
+(7, 2, 1, 1, '2025-12-01', '2026-02-28', 240, 'Sistema de gestión hospitalaria avanzado para el Hospital San Vicente', 'Lunes a Viernes 8:00-17:00'),
+(8, 1, 1, 2, '2026-01-01', '2026-03-31', 96, 'Proyecto social de alfabetización digital para Banco del Pacífico', 'Sábados 9:00-17:00'),
+(9, 1, 1, 3, '2026-02-01', '2026-04-30', 96, 'Proyecto cultural comunitario para Fundación Niños del Ecuador', 'Sábados 10:00-18:00'),
+(10, 1, 1, 1, '2026-03-01', '2026-05-31', 96, 'Proyecto de inclusión digital para el Hospital San Vicente', 'Sábados 9:00-17:00');
+
+-- Insertar más prácticas preprofesionales
+INSERT INTO `TAB_PRACTICAS_PREPROFESIONALES` (`ID_PRACTICA_PREPROFESIONAL`, `ID_ASIGNACION_PRACTICA`, `ID_ESTUDIANTE`, `ID_INSTRUCTOR`, `ID_INSTITUCION_CONVENIO`, `AREA_ESPECIALIZACION`, `PROYECTO_ESPECIFICO`, `HORAS_PRACTICAS`, `FECHA_INICIO`, `FECHA_FIN`, `ESTADO_PRACTICA`, `EVALUACION_FINAL`, `OBSERVACIONES`) VALUES
+(3, 4, 11, 1, 1, 'Desarrollo de Software', 'Sistema de gestión de historias clínicas digitales', 240, '2025-09-01', '2025-11-30', 'En Progreso', NULL, 'Estudiante con excelente desempeño en desarrollo web'),
+(4, 5, 12, 2, 2, 'Desarrollo Móvil', 'Aplicación móvil para consultas bancarias y transferencias', 240, '2025-10-01', '2025-12-31', 'En Progreso', NULL, 'Proyecto en desarrollo con tecnologías React Native'),
+(5, 7, 13, 1, 1, 'Desarrollo de Software', 'Sistema de gestión hospitalaria avanzado', 240, '2025-12-01', '2026-02-28', 'Pendiente', NULL, 'Práctica programada para diciembre');
+
+-- Insertar más servicios comunitarios
+INSERT INTO `TAB_SERVICIO_COMUNITARIO` (`ID_SERVICIO_COMUNITARIO`, `ID_ASIGNACION_PRACTICA`, `ID_ESTUDIANTE`, `ID_INSTRUCTOR`, `ID_INSTITUCION_CONVENIO`, `PROYECTO_SOCIAL`, `COMUNIDAD_BENEFICIADA`, `HORAS_SERVICIO`, `FECHA_INICIO`, `FECHA_FIN`, `ESTADO_SERVICIO`, `IMPACTO_SOCIAL`, `OBSERVACIONES`) VALUES
+(2, 6, 14, 3, 3, 'Plataforma Educativa Digital', 'Niños y adolescentes en situación vulnerable de Guayaquil', 96, '2025-11-01', '2026-01-31', 'En Progreso', 'Mejora en el acceso a educación digital para 200+ niños', 'Proyecto con alto impacto social positivo'),
+(3, 8, 15, 1, 2, 'Alfabetización Digital para Adultos Mayores', 'Adultos mayores de la comunidad de Ibarra', 96, '2026-01-01', '2026-03-31', 'Pendiente', 'Capacitación digital para 50+ adultos mayores', 'Proyecto de inclusión digital'),
+(4, 9, 16, 2, 3, 'Preservación Cultural Digital', 'Comunidades indígenas de la región', 96, '2026-02-01', '2026-04-30', 'Pendiente', 'Digitalización de tradiciones culturales', 'Proyecto de preservación cultural'),
+(5, 10, 11, 3, 1, 'Inclusión Digital para Personas con Discapacidad', 'Personas con discapacidad visual y auditiva', 96, '2026-03-01', '2026-05-31', 'Pendiente', 'Tecnologías accesibles para 30+ personas', 'Proyecto de inclusión social');
+
+-- Insertar asignaciones de docentes tutores
+INSERT INTO `TAB_ASIGNACIONES_DOCENTES_PRACTICAS` (`ID_ASIGNACION_DOCENTE`, `ID_PRACTICA_PREPROFESIONAL`, `ID_SERVICIO_COMUNITARIO`, `ID_DOCENTE_TUTOR`, `TIPO_ASIGNACION`, `FECHA_ASIGNACION`, `OBSERVACIONES`) VALUES
+-- Prácticas preprofesionales
+(1, 1, NULL, 1, 'Principal', '2025-06-01', 'Tutor principal asignado'),
+(2, 2, NULL, 2, 'Principal', '2025-07-01', 'Tutor principal asignado'),
+(3, 3, NULL, 1, 'Principal', '2025-09-01', 'Tutor principal asignado'),
+(4, 4, NULL, 2, 'Principal', '2025-10-01', 'Tutor principal asignado'),
+(5, 5, NULL, 1, 'Principal', '2025-12-01', 'Tutor principal asignado'),
+-- Servicios comunitarios
+(6, NULL, 1, 3, 'Principal', '2025-08-01', 'Tutor principal asignado'),
+(7, NULL, 2, 3, 'Principal', '2025-11-01', 'Tutor principal asignado'),
+(8, NULL, 3, 1, 'Principal', '2026-01-01', 'Tutor principal asignado'),
+(9, NULL, 4, 2, 'Principal', '2026-02-01', 'Tutor principal asignado'),
+(10, NULL, 5, 3, 'Principal', '2026-03-01', 'Tutor principal asignado');
+
+-- Insertar documentos de prácticas preprofesionales de ejemplo
+INSERT INTO `TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES` (
+    `ID_DOCUMENTO_PREPROFESIONAL`, 
+    `ID_PRACTICA_PREPROFESIONAL`, 
+    `ID_TIPO_DOCUMENTO`, 
+    `ID_ESTADO_REVISION`, 
+    `NOMBRE_ARCHIVO`, 
+    `NOMBRE_ORIGINAL`, 
+    `TIPO_ARCHIVO`, 
+    `TAMANO_ARCHIVO`, 
+    `RUTA_ARCHIVO`, 
+    `FECHA_SUBIDA`, 
+    `FECHA_REVISION`, 
+    `ID_REVISOR`, 
+    `OBSERVACIONES`, 
+    `OBSERVACIONES_REVISOR`, 
+    `VERSION`
+) VALUES
+(1, 1, 1, 3, 'oficio_asignacion_tutor_001_20250601.pdf', 'Oficio Asignación Tutor - Juan Carlos.pdf', 'application/pdf', 245760, '/uploads/documentos-practicas/', '2025-06-01 10:00:00', '2025-06-01 14:30:00', 17, 'Documento oficial de asignación', 'Documento aprobado correctamente', 1),
+(2, 1, 2, 3, 'oficio_entidad_receptora_001_20250602.pdf', 'Oficio Entidad Receptora - Hospital.pdf', 'application/pdf', 189440, '/uploads/documentos-practicas/', '2025-06-02 14:30:00', '2025-06-02 16:45:00', 17, 'Oficio enviado a la entidad receptora', 'Oficio bien redactado y formal', 1),
+(3, 1, 3, 3, 'carta_aceptacion_001_20250603.pdf', 'Carta Aceptación - Hospital.pdf', 'application/pdf', 156672, '/uploads/documentos-practicas/', '2025-06-03 09:15:00', '2025-06-03 11:20:00', 17, 'Carta de aceptación de la entidad', 'Carta oficial con sello institucional', 1),
+(4, 2, 1, 3, 'oficio_asignacion_tutor_002_20250701.pdf', 'Oficio Asignación Tutor - María Elena.pdf', 'application/pdf', 234880, '/uploads/documentos-practicas/', '2025-07-01 11:00:00', '2025-07-01 13:15:00', 18, 'Documento oficial de asignación', 'Asignación correcta del tutor', 1),
+(5, 2, 2, 3, 'oficio_entidad_receptora_002_20250702.pdf', 'Oficio Entidad Receptora - Banco.pdf', 'application/pdf', 178944, '/uploads/documentos-practicas/', '2025-07-02 15:45:00', '2025-07-02 17:20:00', 18, 'Oficio enviado a la entidad receptora', 'Oficio formal y bien estructurado', 1);
+
+-- Documentos adicionales con diferentes estados
+INSERT INTO `TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES` (
+    `ID_DOCUMENTO_PREPROFESIONAL`, 
+    `ID_PRACTICA_PREPROFESIONAL`, 
+    `ID_TIPO_DOCUMENTO`, 
+    `ID_ESTADO_REVISION`,
+    `NOMBRE_ARCHIVO`, 
+    `NOMBRE_ORIGINAL`,
+    `TIPO_ARCHIVO`, 
+    `TAMANO_ARCHIVO`,
+    `RUTA_ARCHIVO`,
+    `FECHA_SUBIDA`, 
+    `FECHA_REVISION`,
+    `ID_REVISOR`,
+    `OBSERVACIONES`,
+    `OBSERVACIONES_REVISOR`,
+    `VERSION`
+) VALUES
+-- Documentos con estado "Requiere Corrección"
+(14, 1, 6, 5, 'hojas_asistencia_001_20250830.pdf', 'Hojas de Asistencia - Juan Carlos.pdf', 'application/pdf', 123456, '/uploads/documentos-practicas/', '2025-08-30 16:15:00', '2025-08-30 17:45:00', 17, 'Hojas de asistencia completas', 'Faltan firmas en algunas fechas, corregir y volver a subir', 1),
+(15, 2, 7, 5, 'ficha_registro_actividades_002_20250915.pdf', 'Ficha Registro Actividades - María.pdf', 'application/pdf', 98765, '/uploads/documentos-practicas/', '2025-09-15 11:30:00', '2025-09-15 14:20:00', 18, 'Ficha de registro de actividades', 'Descripción de actividades muy general, especificar más detalles', 1),
+-- Documentos rechazados
+(16, 1, 8, 4, 'rubrica_evaluacion_entidad_001_20250825.pdf', 'Rúbrica Evaluación Entidad - Juan.pdf', 'application/pdf', 87654, '/uploads/documentos-practicas/', '2025-08-25 15:00:00', '2025-08-25 16:30:00', 17, 'Rúbrica de evaluación de entidad', 'Documento no tiene sello oficial de la entidad, rechazado', 1),
+(17, 2, 9, 4, 'ficha_control_seguimiento_002_20250920.pdf', 'Ficha Control Seguimiento - María.pdf', 'application/pdf', 112233, '/uploads/documentos-practicas/', '2025-09-20 10:15:00', '2025-09-20 12:45:00', 18, 'Ficha de control y seguimiento docente', 'Faltan las firmas del tutor docente, documento inválido', 1);
+
+-- Insertar documentos de servicio comunitario de ejemplo
+INSERT INTO `TAB_DOCUMENTOS_SERVICIO_COMUNITARIO` (
+    `ID_DOCUMENTO_SERVICIO`, 
+    `ID_SERVICIO_COMUNITARIO`, 
+    `ID_TIPO_DOCUMENTO`, 
+    `ID_ESTADO_REVISION`,
+    `NOMBRE_ARCHIVO`, 
+    `NOMBRE_ORIGINAL`,
+    `TIPO_ARCHIVO`, 
+    `TAMANO_ARCHIVO`,
+    `RUTA_ARCHIVO`,
+    `FECHA_SUBIDA`, 
+    `FECHA_REVISION`,
+    `ID_REVISOR`,
+    `OBSERVACIONES`,
+    `OBSERVACIONES_REVISOR`,
+    `VERSION`
+) VALUES
+-- Documentos para servicio comunitario 1 (Carlos Alberto - Fundación) - APROBADOS
+(15, 1, 1, 3, 'oficio_asignacion_tutor_sc_001_20250801.pdf', 'Oficio Asignación Tutor SC - Carlos.pdf', 'application/pdf', 234880, '/uploads/documentos-servicio/', '2025-08-01 10:00:00', '2025-08-01 14:30:00', 1, 'Documento oficial de asignación para servicio comunitario', 'Documento aprobado correctamente', 1),
+(16, 1, 2, 3, 'oficio_entidad_receptora_sc_001_20250802.pdf', 'Oficio Entidad Receptora SC - Fundación.pdf', 'application/pdf', 189440, '/uploads/documentos-servicio/', '2025-08-02 14:30:00', '2025-08-02 16:45:00', 1, 'Oficio enviado a la entidad receptora para servicio comunitario', 'Oficio bien redactado y formal', 1),
+(17, 1, 3, 3, 'carta_aceptacion_sc_001_20250803.pdf', 'Carta Aceptación SC - Fundación.pdf', 'application/pdf', 156672, '/uploads/documentos-servicio/', '2025-08-03 09:15:00', '2025-08-03 11:20:00', 1, 'Carta de aceptación de la entidad para servicio comunitario', 'Carta oficial con sello institucional', 1),
+(18, 1, 4, 3, 'solicitud_institucional_sc_001_20250804.pdf', 'Solicitud Institucional SC - Rector.pdf', 'application/pdf', 298496, '/uploads/documentos-servicio/', '2025-08-04 13:00:00', '2025-08-04 15:10:00', 1, 'Solicitud institucional valorada para servicio comunitario', 'Solicitud aprobada por el rector', 1),
+(19, 1, 5, 3, 'certificado_culminacion_sc_001_20251030.pdf', 'Certificado Culminación SC - 96 horas.pdf', 'application/pdf', 201728, '/uploads/documentos-servicio/', '2025-10-30 15:00:00', '2025-10-30 17:30:00', 1, 'Certificado de culminación de 96 horas de servicio comunitario', 'Certificado válido y completo', 1),
+
+-- Documentos para servicio comunitario 2 (Valentina - Fundación) - PENDIENTES
+(20, 2, 1, 1, 'oficio_asignacion_tutor_sc_002_20251101.pdf', 'Oficio Asignación Tutor SC - Valentina.pdf', 'application/pdf', 234880, '/uploads/documentos-servicio/', '2025-11-01 09:00:00', NULL, NULL, 'Documento pendiente de revisión', NULL, 1),
+(21, 2, 2, 1, 'oficio_entidad_receptora_sc_002_20251102.pdf', 'Oficio Entidad Receptora SC - Fundación.pdf', 'application/pdf', 189440, '/uploads/documentos-servicio/', '2025-11-02 14:00:00', NULL, NULL, 'Oficio enviado a la entidad receptora', NULL, 1),
+(22, 2, 3, 1, 'carta_aceptacion_sc_002_20251103.pdf', 'Carta Aceptación SC - Fundación.pdf', 'application/pdf', 156672, '/uploads/documentos-servicio/', '2025-11-03 10:30:00', NULL, NULL, 'Carta de aceptación de la entidad', NULL, 1),
+
+-- Documentos para servicio comunitario 3 (Andrés - Empresa) - PENDIENTES
+(23, 3, 1, 1, 'oficio_asignacion_tutor_sc_003_20260101.pdf', 'Oficio Asignación Tutor SC - Andrés.pdf', 'application/pdf', 234880, '/uploads/documentos-servicio/', '2026-01-01 08:30:00', NULL, NULL, 'Documento pendiente de revisión', NULL, 1),
+(24, 3, 2, 1, 'oficio_entidad_receptora_sc_003_20260102.pdf', 'Oficio Entidad Receptora SC - Empresa.pdf', 'application/pdf', 189440, '/uploads/documentos-servicio/', '2026-01-02 13:15:00', NULL, NULL, 'Oficio enviado a la entidad receptora', NULL, 1),
+
+-- Documentos con estado "Requiere Corrección" - Servicio Comunitario
+(25, 1, 6, 5, 'hojas_asistencia_sc_001_20251030.pdf', 'Hojas de Asistencia SC - Carlos.pdf', 'application/pdf', 123456, '/uploads/documentos-servicio/', '2025-10-30 15:15:00', '2025-10-30 17:45:00', 1, 'Hojas de asistencia completas para servicio comunitario', 'Faltan firmas en algunas fechas, corregir y volver a subir', 1),
+(26, 1, 7, 5, 'ficha_registro_actividades_sc_001_20251015.pdf', 'Ficha Registro Actividades SC - Carlos.pdf', 'application/pdf', 98765, '/uploads/documentos-servicio/', '2025-10-15 11:30:00', '2025-10-15 14:20:00', 1, 'Ficha de registro de actividades de servicio comunitario', 'Descripción de actividades muy general, especificar más detalles', 1),
+
+-- Documentos rechazados - Servicio Comunitario
+(27, 1, 8, 4, 'rubrica_evaluacion_entidad_sc_001_20251025.pdf', 'Rúbrica Evaluación Entidad SC - Carlos.pdf', 'application/pdf', 87654, '/uploads/documentos-servicio/', '2025-10-25 15:00:00', '2025-10-25 16:30:00', 1, 'Rúbrica de evaluación de entidad para servicio comunitario', 'Documento no tiene sello oficial de la entidad, rechazado', 1),
+(28, 1, 9, 4, 'ficha_control_seguimiento_sc_001_20251020.pdf', 'Ficha Control Seguimiento SC - Carlos.pdf', 'application/pdf', 112233, '/uploads/documentos-servicio/', '2025-10-20 10:15:00', '2025-10-20 12:45:00', 1, 'Ficha de control y seguimiento docente para servicio comunitario', 'Faltan las firmas del tutor docente, documento inválido', 1);
+
+-- Insertar notificaciones de ejemplo
+INSERT INTO `TAB_NOTIFICACIONES_DOCUMENTOS` (`ID_DOCUMENTO_PREPROFESIONAL`, `ID_USUARIO_DESTINATARIO`, `TIPO_NOTIFICACION`, `TITULO`, `MENSAJE`, `LEIDA`) VALUES
+-- Notificaciones para prácticas preprofesionales
+(1, 1, 'Aprobado', 'Documento Aprobado', 'El documento "Oficio Asignación Tutor - Juan Carlos.pdf" ha sido aprobado por el revisor.', true),
+(2, 1, 'Aprobado', 'Documento Aprobado', 'El documento "Oficio Entidad Receptora - Hospital.pdf" ha sido aprobado por el revisor.', true),
+(3, 1, 'Aprobado', 'Documento Aprobado', 'El documento "Carta Aceptación - Hospital.pdf" ha sido aprobado por el revisor.', true),
+(4, 2, 'Aprobado', 'Documento Aprobado', 'El documento "Oficio Asignación Tutor - María Elena.pdf" ha sido aprobado por el revisor.', true),
+(5, 2, 'Aprobado', 'Documento Aprobado', 'El documento "Oficio Entidad Receptora - Banco.pdf" ha sido aprobado por el revisor.', true),
+(14, 1, 'Requiere Corrección', 'Documento Requiere Corrección', 'El documento "Hojas de Asistencia - Juan Carlos.pdf" requiere correcciones: Faltan firmas en algunas fechas, corregir y volver a subir.', false),
+(15, 2, 'Requiere Corrección', 'Documento Requiere Corrección', 'El documento "Ficha Registro Actividades - María.pdf" requiere correcciones: Descripción de actividades muy general, especificar más detalles.', false),
+(16, 1, 'Rechazado', 'Documento Rechazado', 'El documento "Rúbrica Evaluación Entidad - Juan.pdf" ha sido rechazado: Documento no tiene sello oficial de la entidad, rechazado.', false),
+(17, 2, 'Rechazado', 'Documento Rechazado', 'El documento "Ficha Control Seguimiento - María.pdf" ha sido rechazado: Faltan las firmas del tutor docente, documento inválido.', false);
+
+-- Insertar historial de cambios de ejemplo
+INSERT INTO `TAB_HISTORIAL_CAMBIOS_DOCUMENTOS` (`ID_DOCUMENTO_PREPROFESIONAL`, `ID_USUARIO`, `TIPO_CAMBIO`, `VALOR_ANTERIOR`, `VALOR_NUEVO`, `OBSERVACIONES`) VALUES
+-- Historial para prácticas preprofesionales
+(1, 17, 'Estado', 'Pendiente', 'Aprobado', 'Documento revisado y aprobado correctamente'),
+(2, 17, 'Estado', 'Pendiente', 'Aprobado', 'Oficio bien redactado y formal'),
+(3, 17, 'Estado', 'Pendiente', 'Aprobado', 'Carta oficial con sello institucional'),
+(4, 18, 'Estado', 'Pendiente', 'Aprobado', 'Asignación correcta del tutor'),
+(5, 18, 'Estado', 'Pendiente', 'Aprobado', 'Oficio formal y bien estructurado'),
+(14, 17, 'Estado', 'Pendiente', 'Requiere Corrección', 'Faltan firmas en algunas fechas, corregir y volver a subir'),
+(15, 18, 'Estado', 'Pendiente', 'Requiere Corrección', 'Descripción de actividades muy general, especificar más detalles'),
+(16, 17, 'Estado', 'Pendiente', 'Rechazado', 'Documento no tiene sello oficial de la entidad, rechazado'),
+(17, 18, 'Estado', 'Pendiente', 'Rechazado', 'Faltan las firmas del tutor docente, documento inválido');
+
+-- ==============================================================
+-- VISTAS PARA FACILITAR CONSULTAS
+-- ==============================================================
+
+-- Vista para documentos de prácticas preprofesionales
+CREATE OR REPLACE VIEW V_DOCUMENTOS_PRACTICAS_COMPLETOS AS
+SELECT 
+    dp.ID_DOCUMENTO_PREPROFESIONAL,
+    dp.ID_PRACTICA_PREPROFESIONAL,
+    dp.ID_TIPO_DOCUMENTO,
+    dp.ID_ESTADO_REVISION,
+    dp.NOMBRE_ARCHIVO,
+    dp.NOMBRE_ORIGINAL,
+    dp.TIPO_ARCHIVO,
+    dp.TAMANO_ARCHIVO,
+    dp.RUTA_ARCHIVO,
+    dp.FECHA_SUBIDA,
+    dp.FECHA_REVISION,
+    dp.ID_REVISOR,
+    dp.OBSERVACIONES,
+    dp.OBSERVACIONES_REVISOR,
+    dp.VERSION,
+    dp.ACTIVO,
+    'PRACTICAS' as TIPO_MODALIDAD,
+    
+    -- Información del tipo de documento
+    tdp.CODIGO as TIPO_DOCUMENTO_CODIGO,
+    tdp.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
+    tdp.DESCRIPCION as TIPO_DOCUMENTO_DESCRIPCION,
+    tdp.ORDEN as TIPO_DOCUMENTO_ORDEN,
+    tdp.OBLIGATORIO as TIPO_DOCUMENTO_OBLIGATORIO,
+    
+    -- Información del estado
+    er.ESTADO as ESTADO_REVISION,
+    er.DESCRIPCION as ESTADO_DESCRIPCION,
+    er.COLOR as ESTADO_COLOR,
+    
+    -- Información del estudiante
+    pp.ID_ESTUDIANTE,
+    CONCAT(persona.NOMBRE, ' ', persona.APELLIDO) as ESTUDIANTE_NOMBRE,
+    persona.NOMBRE as NOMBRE_ESTUDIANTE,
+    persona.APELLIDO as APELLIDO_ESTUDIANTE,
+    persona.CEDULA as CEDULA_ESTUDIANTE,
+    
+    -- Información de la entidad receptora
+    ic.NOMBRE as ENTIDAD_RECEPTORA,
+    ic.RUC as ENTIDAD_RUC,
+    ic.CIUDAD as ENTIDAD_CIUDAD,
+    
+    -- Información del revisor
+    CONCAT(rev_persona.NOMBRE, ' ', rev_persona.APELLIDO) as REVISOR_NOMBRE,
+    rev_persona.NOMBRE as NOMBRE_REVISOR,
+    rev_persona.APELLIDO as APELLIDO_REVISOR,
+    
+    -- Información del docente tutor
+    CONCAT(dt_persona.NOMBRE, ' ', dt_persona.APELLIDO) as DOCENTE_TUTOR,
+    dt_persona.NOMBRE as NOMBRE_DOCENTE,
+    dt_persona.APELLIDO as APELLIDO_DOCENTE,
+    dt.ESPECIALIDAD as DOCENTE_ESPECIALIDAD,
+    dt.TITULO_PROFESIONAL as DOCENTE_TITULO
+
+FROM TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES dp
+LEFT JOIN TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES tdp ON dp.ID_TIPO_DOCUMENTO = tdp.ID_TIPO_DOCUMENTO_PREPROFESIONAL
+LEFT JOIN TAB_ESTADOS_REVISIONES er ON dp.ID_ESTADO_REVISION = er.ID_ESTADO_REVISION
+LEFT JOIN TAB_PRACTICAS_PREPROFESIONALES pp ON dp.ID_PRACTICA_PREPROFESIONAL = pp.ID_PRACTICA_PREPROFESIONAL
+LEFT JOIN TAB_ESTUDIANTES e ON pp.ID_ESTUDIANTE = e.ID_ESTUDIANTE
+LEFT JOIN TAB_DATOS_PERSONAS persona ON e.ID_DATO_PERSONA = persona.ID_DATO_PERSONA
+LEFT JOIN TAB_INSTITUCIONES_CONVENIOS ic ON pp.ID_INSTITUCION_CONVENIO = ic.ID_INSTITUCION_CONVENIO
+LEFT JOIN TAB_USUARIOS rev_usuario ON dp.ID_REVISOR = rev_usuario.ID_USUARIO
+LEFT JOIN TAB_DATOS_PERSONAS rev_persona ON rev_usuario.ID_DATO_PERSONA = rev_persona.ID_DATO_PERSONA
+LEFT JOIN TAB_ASIGNACIONES_DOCENTES_PRACTICAS adp ON pp.ID_PRACTICA_PREPROFESIONAL = adp.ID_PRACTICA_PREPROFESIONAL AND adp.TIPO_ASIGNACION = 'Principal'
+LEFT JOIN TAB_DOCENTES_TUTORES dt ON adp.ID_DOCENTE_TUTOR = dt.ID_DOCENTE_TUTOR
+LEFT JOIN TAB_USUARIOS dt_usuario ON dt.ID_USUARIO = dt_usuario.ID_USUARIO
+LEFT JOIN TAB_DATOS_PERSONAS dt_persona ON dt_usuario.ID_DATO_PERSONA = dt_persona.ID_DATO_PERSONA
+WHERE dp.ACTIVO = true;
+
+-- Vista para documentos de servicio comunitario
+CREATE OR REPLACE VIEW V_DOCUMENTOS_SERVICIO_COMPLETOS AS
+SELECT 
+    ds.ID_DOCUMENTO_SERVICIO as ID_DOCUMENTO_PREPROFESIONAL,
+    ds.ID_SERVICIO_COMUNITARIO as ID_PRACTICA_PREPROFESIONAL,
+    ds.ID_TIPO_DOCUMENTO,
+    ds.ID_ESTADO_REVISION,
+    ds.NOMBRE_ARCHIVO,
+    ds.NOMBRE_ORIGINAL,
+    ds.TIPO_ARCHIVO,
+    ds.TAMANO_ARCHIVO,
+    ds.RUTA_ARCHIVO,
+    ds.FECHA_SUBIDA,
+    ds.FECHA_REVISION,
+    ds.ID_REVISOR,
+    ds.OBSERVACIONES,
+    ds.OBSERVACIONES_REVISOR,
+    ds.VERSION,
+    ds.ACTIVO,
+    'SERVICIO_COMUNITARIO' as TIPO_MODALIDAD,
+    
+    -- Información del tipo de documento
+    tds.CODIGO as TIPO_DOCUMENTO_CODIGO,
+    tds.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
+    tds.DESCRIPCION as TIPO_DOCUMENTO_DESCRIPCION,
+    tds.ORDEN as TIPO_DOCUMENTO_ORDEN,
+    tds.OBLIGATORIO as TIPO_DOCUMENTO_OBLIGATORIO,
+    
+    -- Información del estado
+    er.ESTADO as ESTADO_REVISION,
+    er.DESCRIPCION as ESTADO_DESCRIPCION,
+    er.COLOR as ESTADO_COLOR,
+    
+    -- Información del estudiante
+    sc.ID_ESTUDIANTE,
+    CONCAT(persona.NOMBRE, ' ', persona.APELLIDO) as ESTUDIANTE_NOMBRE,
+    persona.NOMBRE as NOMBRE_ESTUDIANTE,
+    persona.APELLIDO as APELLIDO_ESTUDIANTE,
+    persona.CEDULA as CEDULA_ESTUDIANTE,
+    
+    -- Información de la entidad receptora
+    ic.NOMBRE as ENTIDAD_RECEPTORA,
+    ic.RUC as ENTIDAD_RUC,
+    ic.CIUDAD as ENTIDAD_CIUDAD,
+    
+    -- Información del revisor
+    CONCAT(rev_persona.NOMBRE, ' ', rev_persona.APELLIDO) as REVISOR_NOMBRE,
+    rev_persona.NOMBRE as NOMBRE_REVISOR,
+    rev_persona.APELLIDO as APELLIDO_REVISOR,
+    
+    -- Información del docente tutor
+    CONCAT(dt_persona.NOMBRE, ' ', dt_persona.APELLIDO) as DOCENTE_TUTOR,
+    dt_persona.NOMBRE as NOMBRE_DOCENTE,
+    dt_persona.APELLIDO as APELLIDO_DOCENTE,
+    dt.ESPECIALIDAD as DOCENTE_ESPECIALIDAD,
+    dt.TITULO_PROFESIONAL as DOCENTE_TITULO
+
+FROM TAB_DOCUMENTOS_SERVICIO_COMUNITARIO ds
+LEFT JOIN TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO tds ON ds.ID_TIPO_DOCUMENTO = tds.ID_TIPO_DOCUMENTO_SERVICIO
+LEFT JOIN TAB_ESTADOS_REVISIONES er ON ds.ID_ESTADO_REVISION = er.ID_ESTADO_REVISION
+LEFT JOIN TAB_SERVICIO_COMUNITARIO sc ON ds.ID_SERVICIO_COMUNITARIO = sc.ID_SERVICIO_COMUNITARIO
+LEFT JOIN TAB_ESTUDIANTES e ON sc.ID_ESTUDIANTE = e.ID_ESTUDIANTE
+LEFT JOIN TAB_DATOS_PERSONAS persona ON e.ID_DATO_PERSONA = persona.ID_DATO_PERSONA
+LEFT JOIN TAB_INSTITUCIONES_CONVENIOS ic ON sc.ID_INSTITUCION_CONVENIO = ic.ID_INSTITUCION_CONVENIO
+LEFT JOIN TAB_USUARIOS rev_usuario ON ds.ID_REVISOR = rev_usuario.ID_USUARIO
+LEFT JOIN TAB_DATOS_PERSONAS rev_persona ON rev_usuario.ID_DATO_PERSONA = rev_persona.ID_DATO_PERSONA
+LEFT JOIN TAB_ASIGNACIONES_DOCENTES_PRACTICAS adp ON sc.ID_SERVICIO_COMUNITARIO = adp.ID_SERVICIO_COMUNITARIO AND adp.TIPO_ASIGNACION = 'Principal'
+LEFT JOIN TAB_DOCENTES_TUTORES dt ON adp.ID_DOCENTE_TUTOR = dt.ID_DOCENTE_TUTOR
+LEFT JOIN TAB_USUARIOS dt_usuario ON dt.ID_USUARIO = dt_usuario.ID_USUARIO
+LEFT JOIN TAB_DATOS_PERSONAS dt_persona ON dt_usuario.ID_DATO_PERSONA = dt_persona.ID_DATO_PERSONA
+WHERE ds.ACTIVO = true;
+
+-- Vista unificada para ambos tipos
+CREATE OR REPLACE VIEW V_DOCUMENTOS_UNIFICADOS AS
+SELECT * FROM V_DOCUMENTOS_PRACTICAS_COMPLETOS
+UNION ALL
+SELECT * FROM V_DOCUMENTOS_SERVICIO_COMPLETOS
+ORDER BY FECHA_SUBIDA DESC;
+
+-- ==============================================================
+-- PROCEDIMIENTOS ALMACENADOS
+-- ==============================================================
+
+-- Procedimiento para cambiar estado de documento preprofesional
+DELIMITER //
+CREATE PROCEDURE IF NOT EXISTS SP_CAMBIAR_ESTADO_DOCUMENTO_PRACTICAS(
+    IN p_id_documento INT,
+    IN p_nuevo_estado INT,
+    IN p_id_revisor INT,
+    IN p_observaciones TEXT
+)
+BEGIN
+    DECLARE v_estado_anterior INT;
+    DECLARE v_estado_anterior_texto VARCHAR(50);
+    DECLARE v_nuevo_estado_texto VARCHAR(50);
+    
+    -- Obtener estado anterior
+    SELECT ID_ESTADO_REVISION, (SELECT ESTADO FROM TAB_ESTADOS_REVISIONES WHERE ID_ESTADO_REVISION = dp.ID_ESTADO_REVISION)
+    INTO v_estado_anterior, v_estado_anterior_texto
+    FROM TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES dp
+    WHERE ID_DOCUMENTO_PREPROFESIONAL = p_id_documento;
+    
+    -- Obtener nombre del nuevo estado
+    SELECT ESTADO INTO v_nuevo_estado_texto
+    FROM TAB_ESTADOS_REVISIONES
+    WHERE ID_ESTADO_REVISION = p_nuevo_estado;
+    
+    -- Actualizar documento
+    UPDATE TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES 
+    SET 
+        ID_ESTADO_REVISION = p_nuevo_estado,
+        ID_REVISOR = p_id_revisor,
+        OBSERVACIONES_REVISOR = p_observaciones,
+        FECHA_REVISION = CURRENT_TIMESTAMP
+    WHERE ID_DOCUMENTO_PREPROFESIONAL = p_id_documento;
+    
+    -- Registrar en historial
+    INSERT INTO TAB_HISTORIAL_CAMBIOS_DOCUMENTOS (
+        ID_DOCUMENTO_PREPROFESIONAL,
+        ID_USUARIO,
+        TIPO_CAMBIO,
+        VALOR_ANTERIOR,
+        VALOR_NUEVO,
+        OBSERVACIONES
+    ) VALUES (
+        p_id_documento,
+        p_id_revisor,
+        'Estado',
+        v_estado_anterior_texto,
+        v_nuevo_estado_texto,
+        p_observaciones
+    );
+    
+END //
+DELIMITER ;
+
+-- Procedimiento para cambiar estado de documento servicio comunitario
+DELIMITER //
+CREATE PROCEDURE IF NOT EXISTS SP_CAMBIAR_ESTADO_DOCUMENTO_SERVICIO(
+    IN p_id_documento INT,
+    IN p_nuevo_estado INT,
+    IN p_id_revisor INT,
+    IN p_observaciones TEXT
+)
+BEGIN
+    DECLARE v_estado_anterior INT;
+    DECLARE v_estado_anterior_texto VARCHAR(50);
+    DECLARE v_nuevo_estado_texto VARCHAR(50);
+    
+    -- Obtener estado anterior
+    SELECT ID_ESTADO_REVISION, (SELECT ESTADO FROM TAB_ESTADOS_REVISIONES WHERE ID_ESTADO_REVISION = ds.ID_ESTADO_REVISION)
+    INTO v_estado_anterior, v_estado_anterior_texto
+    FROM TAB_DOCUMENTOS_SERVICIO_COMUNITARIO ds
+    WHERE ID_DOCUMENTO_SERVICIO = p_id_documento;
+    
+    -- Obtener nombre del nuevo estado
+    SELECT ESTADO INTO v_nuevo_estado_texto
+    FROM TAB_ESTADOS_REVISIONES
+    WHERE ID_ESTADO_REVISION = p_nuevo_estado;
+    
+    -- Actualizar documento
+    UPDATE TAB_DOCUMENTOS_SERVICIO_COMUNITARIO 
+    SET 
+        ID_ESTADO_REVISION = p_nuevo_estado,
+        ID_REVISOR = p_id_revisor,
+        OBSERVACIONES_REVISOR = p_observaciones,
+        FECHA_REVISION = CURRENT_TIMESTAMP
+    WHERE ID_DOCUMENTO_SERVICIO = p_id_documento;
+    
+    -- Registrar en historial
+    INSERT INTO TAB_HISTORIAL_CAMBIOS_DOCUMENTOS (
+        ID_DOCUMENTO_SERVICIO,
+        ID_USUARIO,
+        TIPO_CAMBIO,
+        VALOR_ANTERIOR,
+        VALOR_NUEVO,
+        OBSERVACIONES
+    ) VALUES (
+        p_id_documento,
+        p_id_revisor,
+        'Estado',
+        v_estado_anterior_texto,
+        v_nuevo_estado_texto,
+        p_observaciones
+    );
+    
+END //
+DELIMITER ;
+
+-- ==============================================================
+-- ÍNDICES ADICIONALES PARA OPTIMIZACIÓN
+-- ==============================================================
+
+-- Índices para mejorar rendimiento de consultas
+CREATE INDEX IDX_DOCUMENTOS_FECHA_ESTADO ON TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES (FECHA_SUBIDA, ID_ESTADO_REVISION);
+CREATE INDEX IDX_DOCUMENTOS_TIPO_ESTADO ON TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES (ID_TIPO_DOCUMENTO, ID_ESTADO_REVISION);
+CREATE INDEX IDX_DOCUMENTOS_PRACTICA_ESTADO ON TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES (ID_PRACTICA_PREPROFESIONAL, ID_ESTADO_REVISION);
+
+-- ==============================================================
+-- COMENTARIOS DE TABLAS
+-- ==============================================================
+
+ALTER TABLE TAB_ESTADOS_REVISIONES COMMENT = 'Estados de revisión de documentos de prácticas preprofesionales';
+ALTER TABLE TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES COMMENT = 'Tipos de documentos requeridos para prácticas preprofesionales';
+ALTER TABLE TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES COMMENT = 'Documentos subidos por estudiantes para prácticas preprofesionales';
+ALTER TABLE TAB_ENTIDADES_RECEPTORAS COMMENT = 'Entidades receptoras donde se realizan las prácticas preprofesionales';
+ALTER TABLE TAB_DOCENTES_TUTORES COMMENT = 'Docentes tutores asignados a las prácticas preprofesionales';
+ALTER TABLE TAB_ASIGNACIONES_DOCENTES_PRACTICAS COMMENT = 'Asignaciones de docentes tutores a prácticas específicas';
+ALTER TABLE TAB_HISTORIAL_CAMBIOS_DOCUMENTOS COMMENT = 'Historial de cambios realizados en los documentos';
+ALTER TABLE TAB_NOTIFICACIONES_DOCUMENTOS COMMENT = 'Notificaciones relacionadas con documentos de prácticas';
+
+-- ==============================================================
+-- VERIFICACIÓN DE DATOS INSERTADOS
+-- ==============================================================
+
+SELECT 'Datos de ejemplo insertados exitosamente para ambas modalidades' as RESULTADO;
+
+-- Verificar documentos por estado - Prácticas Preprofesionales
+SELECT 
+    'PRACTICAS_PREPROFESIONALES' as MODALIDAD,
+    er.ESTADO,
+    COUNT(*) as CANTIDAD
+FROM TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES dp
+LEFT JOIN TAB_ESTADOS_REVISIONES er ON dp.ID_ESTADO_REVISION = er.ID_ESTADO_REVISION
+GROUP BY er.ESTADO, er.ORDEN
+ORDER BY er.ORDEN;
+
+-- Verificar documentos por estado - Servicio Comunitario
+SELECT 
+    'SERVICIO_COMUNITARIO' as MODALIDAD,
+    er.ESTADO,
+    COUNT(*) as CANTIDAD
+FROM TAB_DOCUMENTOS_SERVICIO_COMUNITARIO ds
+LEFT JOIN TAB_ESTADOS_REVISIONES er ON ds.ID_ESTADO_REVISION = er.ID_ESTADO_REVISION
+GROUP BY ds.ID_ESTADO_REVISION, er.ESTADO, er.ORDEN
+ORDER BY er.ORDEN;
+
+-- Verificar notificaciones por tipo
+SELECT 
+    TIPO_NOTIFICACION,
+    COUNT(*) as CANTIDAD,
+    SUM(CASE WHEN LEIDA = true THEN 1 ELSE 0 END) as LEIDAS,
+    SUM(CASE WHEN LEIDA = false THEN 1 ELSE 0 END) as NO_LEIDAS
+FROM TAB_NOTIFICACIONES_DOCUMENTOS
+GROUP BY TIPO_NOTIFICACION;
+
+-- Verificar historial de cambios
+SELECT 
+    TIPO_CAMBIO,
+    COUNT(*) as CANTIDAD
+FROM TAB_HISTORIAL_CAMBIOS_DOCUMENTOS
+GROUP BY TIPO_CAMBIO;
+
+-- Verificar asignaciones de docentes
+SELECT 
+    CASE 
+        WHEN ID_PRACTICA_PREPROFESIONAL IS NOT NULL THEN 'PRACTICAS_PREPROFESIONALES'
+        ELSE 'SERVICIO_COMUNITARIO'
+    END as MODALIDAD,
+    COUNT(*) as CANTIDAD
+FROM TAB_ASIGNACIONES_DOCENTES_PRACTICAS
+GROUP BY MODALIDAD;
 
 -- Verificar que las tablas se crearon correctamente
-SELECT 'Sistema de documentos de prácticas instalado exitosamente' as RESULTADO;
+SELECT 'Sistema de documentos de prácticas y servicio comunitario actualizado exitosamente' as RESULTADO;
 SELECT COUNT(*) as TIPOS_DOCUMENTOS_SERVICIO FROM TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO;
+SELECT COUNT(*) as ESTADOS_REVISION FROM TAB_ESTADOS_REVISIONES;
+SELECT COUNT(*) as TIPOS_DOCUMENTOS FROM TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES;
+SELECT COUNT(*) as ENTIDADES_RECEPTORAS FROM TAB_ENTIDADES_RECEPTORAS;
+SELECT COUNT(*) as DOCENTES_TUTORES FROM TAB_DOCENTES_TUTORES;
+SELECT COUNT(*) as DOCUMENTOS_PRACTICAS FROM TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES;
+SELECT COUNT(*) as DOCUMENTOS_SERVICIO FROM TAB_DOCUMENTOS_SERVICIO_COMUNITARIO;
+SELECT COUNT(*) as NOTIFICACIONES FROM TAB_NOTIFICACIONES_DOCUMENTOS;
+SELECT COUNT(*) as HISTORIAL_CAMBIOS FROM TAB_HISTORIAL_CAMBIOS_DOCUMENTOS;
+
+-- Verificar vistas creadas
+SELECT 'Vistas creadas exitosamente' as RESULTADO;
+SELECT COUNT(*) as VISTA_PRACTICAS FROM information_schema.views WHERE table_name = 'V_DOCUMENTOS_PRACTICAS_COMPLETOS';
+SELECT COUNT(*) as VISTA_SERVICIO FROM information_schema.views WHERE table_name = 'V_DOCUMENTOS_SERVICIO_COMPLETOS';
+SELECT COUNT(*) as VISTA_UNIFICADA FROM information_schema.views WHERE table_name = 'V_DOCUMENTOS_UNIFICADOS';
+
+-- Verificar procedimientos almacenados
+SELECT 'Procedimientos almacenados creados exitosamente' as RESULTADO;
+SELECT COUNT(*) as PROC_PRACTICAS FROM information_schema.routines WHERE routine_name = 'SP_CAMBIAR_ESTADO_DOCUMENTO_PRACTICAS';
+SELECT COUNT(*) as PROC_SERVICIO FROM information_schema.routines WHERE routine_name = 'SP_CAMBIAR_ESTADO_DOCUMENTO_SERVICIO';
+
+-- Script para crear la tabla de notificaciones
+-- Ejecutar este script en la base de datos para habilitar el sistema de notificaciones
+
+CREATE TABLE IF NOT EXISTS `TAB_NOTIFICACIONES` (
+  `ID_NOTIFICACION` int(11) NOT NULL AUTO_INCREMENT,
+  `ID_USUARIO_DESTINATARIO` int(11) NOT NULL COMMENT 'Usuario que recibe la notificación',
+  `ID_USUARIO_REMITENTE` int(11) DEFAULT NULL COMMENT 'Usuario que envía la notificación (puede ser NULL para notificaciones del sistema)',
+  `TITULO` varchar(200) NOT NULL COMMENT 'Título de la notificación',
+  `MENSAJE` text NOT NULL COMMENT 'Mensaje de la notificación',
+  `TIPO_NOTIFICACION` enum('asignacion_practica','tutoria_asignada','recordatorio','general') NOT NULL DEFAULT 'general' COMMENT 'Tipo de notificación',
+  `ID_REFERENCIA` int(11) DEFAULT NULL COMMENT 'ID de la entidad relacionada (ej: ID de práctica)',
+  `TABLA_REFERENCIA` varchar(100) DEFAULT NULL COMMENT 'Tabla de la entidad relacionada',
+  `LEIDA` tinyint(1) NOT NULL DEFAULT 0 COMMENT 'Indica si la notificación ha sido leída',
+  `FECHA_LEIDA` datetime DEFAULT NULL COMMENT 'Fecha y hora cuando fue leída',
+  `PRIORIDAD` enum('alta','media','baja') NOT NULL DEFAULT 'media' COMMENT 'Prioridad de la notificación',
+  `ACTIVA` tinyint(1) NOT NULL DEFAULT 1 COMMENT 'Indica si la notificación está activa (soft delete)',
+  `FECHA_CREACION` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'Fecha de creación',
+  `FECHA_ACTUALIZACION` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP COMMENT 'Fecha de última actualización',
+  PRIMARY KEY (`ID_NOTIFICACION`),
+  KEY `idx_usuario_destinatario` (`ID_USUARIO_DESTINATARIO`),
+  KEY `idx_usuario_remitente` (`ID_USUARIO_REMITENTE`),
+  KEY `idx_tipo_notificacion` (`TIPO_NOTIFICACION`),
+  KEY `idx_leida` (`LEIDA`),
+  KEY `idx_activa` (`ACTIVA`),
+  KEY `idx_fecha_creacion` (`FECHA_CREACION`),
+  KEY `idx_prioridad` (`PRIORIDAD`),
+  CONSTRAINT `fk_notificaciones_destinatario` FOREIGN KEY (`ID_USUARIO_DESTINATARIO`) REFERENCES `TAB_USUARIOS` (`ID_USUARIO`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_notificaciones_remitente` FOREIGN KEY (`ID_USUARIO_REMITENTE`) REFERENCES `TAB_USUARIOS` (`ID_USUARIO`) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tabla para almacenar notificaciones del sistema';
+
+-- Insertar algunos datos de ejemplo (opcional)
+-- INSERT INTO `TAB_NOTIFICACIONES` (`ID_USUARIO_DESTINATARIO`, `ID_USUARIO_REMITENTE`, `TITULO`, `MENSAJE`, `TIPO_NOTIFICACION`, `PRIORIDAD`) VALUES
+-- (1, 1, 'Bienvenido al Sistema', 'Bienvenido al sistema de gestión de prácticas ITSI. Aquí recibirás notificaciones importantes sobre tus prácticas.', 'general', 'media'),
+-- (2, 1, 'Nueva Tutoria Asignada', 'Has sido asignado como tutor de una nueva práctica preprofesional.', 'tutoria_asignada', 'alta');
+
+-- Crear índices adicionales para optimizar consultas frecuentes
+CREATE INDEX `idx_notificaciones_usuario_tipo` ON `TAB_NOTIFICACIONES` (`ID_USUARIO_DESTINATARIO`, `TIPO_NOTIFICACION`, `ACTIVA`);
+CREATE INDEX `idx_notificaciones_usuario_leida` ON `TAB_NOTIFICACIONES` (`ID_USUARIO_DESTINATARIO`, `LEIDA`, `ACTIVA`);
+CREATE INDEX `idx_notificaciones_fecha_tipo` ON `TAB_NOTIFICACIONES` (`FECHA_CREACION`, `TIPO_NOTIFICACION`, `ACTIVA`);

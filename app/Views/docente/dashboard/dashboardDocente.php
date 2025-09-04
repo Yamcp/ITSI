@@ -150,25 +150,25 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-3 col-sm-6 mb-3">
-                                <a href="<?= site_url('docente/educacion') ?>" class="btn btn-primary quick-action-btn w-100">
+                                <a href="<?= base_url('docente/educacion') ?>" class="btn btn-primary quick-action-btn w-100">
                                     <i class="fas fa-plus-circle me-2"></i>
                                     Nueva Actividad
                                 </a>
                             </div>
                             <div class="col-md-3 col-sm-6 mb-3">
-                                <a href="<?= site_url('docente/actividades') ?>" class="btn btn-success quick-action-btn w-100">
+                                <a href="<?= base_url('docente/actividades') ?>" class="btn btn-success quick-action-btn w-100">
                                     <i class="fas fa-list me-2"></i>
                                     Mis Actividades
                                 </a>
                             </div>
                             <div class="col-md-3 col-sm-6 mb-3">
-                                <a href="<?= site_url('docente/estudiantes') ?>" class="btn btn-info quick-action-btn w-100">
+                                <a href="<?= base_url('docente/estudiantes') ?>" class="btn btn-info quick-action-btn w-100">
                                     <i class="fas fa-users me-2"></i>
                                     Ver Estudiantes
                                 </a>
                             </div>
                             <div class="col-md-3 col-sm-6 mb-3">
-                                <a href="<?= site_url('docente/perfil') ?>" class="btn btn-warning quick-action-btn w-100">
+                                <a href="<?= base_url('docente/perfil') ?>" class="btn btn-warning quick-action-btn w-100">
                                     <i class="fas fa-user-edit me-2"></i>
                                     Mi Perfil
                                 </a>

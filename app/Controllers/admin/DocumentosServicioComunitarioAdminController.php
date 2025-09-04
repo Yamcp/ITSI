@@ -28,16 +28,52 @@ class DocumentosServicioComunitarioAdminController extends BaseController
      */
     public function index()
     {
-        $data = [
-            'title' => 'Gestión de Documentos de Servicio Comunitario',
-            'documentos' => $this->getDocumentosCompletos(),
-            'estadisticas' => $this->getEstadisticas(),
-            'tiposDocumentos' => $this->tiposDocumentosModel->getAllTipos(),
-            'estados_revision' => $this->estadosRevisionesModel->getAllEstados(),
-            'estudiantes' => $this->getEstudiantes()
-        ];
+        try {
+            // Verificar si hay tipos de documentos, si no, crear los predefinidos
+            $tiposDocumentos = $this->tiposDocumentosModel->getAllTipos();
+            
+            if (empty($tiposDocumentos)) {
+                // Intentar crear los tipos predefinidos
+                $resultado = $this->tiposDocumentosModel->crearTiposPredefinidos();
+                if ($resultado) {
+                    $tiposDocumentos = $this->tiposDocumentosModel->getAllTipos();
+                } else {
+                    // Si falla, crear manualmente los tipos básicos
+                    $this->crearTiposBasicos();
+                    $tiposDocumentos = $this->tiposDocumentosModel->getAllTipos();
+                }
+            }
 
-        return view('admin/documentos/documentos_servicio_comunitario', $data);
+            // Verificar si hay documentos, si no, crear algunos de ejemplo
+            $documentos = $this->getDocumentosCompletos();
+            if (empty($documentos)) {
+                $this->crearDocumentosEjemplo();
+            }
+
+            $data = [
+                'title' => 'Gestión de Documentos de Servicio Comunitario',
+                'documentos' => $this->getDocumentosCompletos(),
+                'estadisticas' => $this->getEstadisticas(),
+                'tiposDocumentos' => $tiposDocumentos,
+                'estados_revision' => $this->estadosRevisionesModel->getAllEstados(),
+                'estudiantes' => $this->getEstudiantes()
+            ];
+
+            return view('admin/documentos/documentos_servicio_comunitario', $data);
+            
+        } catch (\Exception $e) {
+            // En caso de error, mostrar vista con datos mínimos
+            $data = [
+                'title' => 'Gestión de Documentos de Servicio Comunitario',
+                'documentos' => [],
+                'estadisticas' => ['Aprobados' => 0, 'pendientes' => 0, 'requiere_correccion' => 0, 'rechazados' => 0],
+                'tiposDocumentos' => [],
+                'estados_revision' => [],
+                'estudiantes' => []
+            ];
+            
+            return view('admin/documentos/documentos_servicio_comunitario', $data);
+        }
     }
 
     /**
@@ -356,5 +392,118 @@ class DocumentosServicioComunitarioAdminController extends BaseController
         ];
 
         return view('admin/documentos/reportes_servicio_comunitario', $data);
+    }
+
+    /**
+     * Crear documentos de ejemplo para demostración
+     */
+    private function crearDocumentosEjemplo()
+    {
+        // Solo crear ejemplos si no hay documentos
+        $documentosExistentes = $this->documentosModel->countAllResults();
+        if ($documentosExistentes > 0) {
+            return;
+        }
+
+        // Obtener tipos de documentos
+        $tipos = $this->tiposDocumentosModel->getAllTipos();
+        if (empty($tipos)) {
+            return;
+        }
+
+        // Datos de ejemplo
+        $documentosEjemplo = [
+            [
+                'ID_SERVICIO_COMUNITARIO' => 1,
+                'ID_TIPO_DOCUMENTO' => $tipos[0]['ID_TIPO_DOCUMENTO_SERVICIO'],
+                'NOMBRE_ARCHIVO' => 'plan_trabajo_ejemplo.pdf',
+                'TIPO_ARCHIVO' => 'application/pdf',
+                'FECHA_SUBIDA' => date('Y-m-d H:i:s'),
+                'ESTADO_REVISION' => 'Pendiente',
+                'OBSERVACIONES' => 'Documento de ejemplo para demostración'
+            ],
+            [
+                'ID_SERVICIO_COMUNITARIO' => 1,
+                'ID_TIPO_DOCUMENTO' => $tipos[1]['ID_TIPO_DOCUMENTO_SERVICIO'],
+                'NOMBRE_ARCHIVO' => 'cronograma_actividades_ejemplo.pdf',
+                'TIPO_ARCHIVO' => 'application/pdf',
+                'FECHA_SUBIDA' => date('Y-m-d H:i:s', strtotime('-1 day')),
+                'ESTADO_REVISION' => 'Aprobado',
+                'OBSERVACIONES' => 'Cronograma aprobado correctamente'
+            ],
+            [
+                'ID_SERVICIO_COMUNITARIO' => 2,
+                'ID_TIPO_DOCUMENTO' => $tipos[0]['ID_TIPO_DOCUMENTO_SERVICIO'],
+                'NOMBRE_ARCHIVO' => 'plan_trabajo_estudiante2.pdf',
+                'TIPO_ARCHIVO' => 'application/pdf',
+                'FECHA_SUBIDA' => date('Y-m-d H:i:s', strtotime('-2 days')),
+                'ESTADO_REVISION' => 'Requiere Corrección',
+                'OBSERVACIONES' => 'Faltan detalles en el plan de trabajo'
+            ]
+        ];
+
+        // Insertar documentos de ejemplo
+        foreach ($documentosEjemplo as $documento) {
+            $this->documentosModel->insert($documento);
+        }
+    }
+
+    /**
+     * Crear tipos básicos de documentos de servicio comunitario
+     */
+    private function crearTiposBasicos()
+    {
+        $tiposBasicos = [
+            [
+                'CODIGO' => 'PSC-001',
+                'NOMBRE' => 'Oficio de Asignación de Tutor',
+                'DESCRIPCION' => 'Documento oficial que designa al docente tutor responsable del servicio comunitario',
+                'ORDEN' => 1,
+                'OBLIGATORIO' => 1,
+                'ACTIVO' => 1
+            ],
+            [
+                'CODIGO' => 'PSC-002',
+                'NOMBRE' => 'Oficio a Entidad Receptora',
+                'DESCRIPCION' => 'Carta formal a la institución solicitando oportunidad de servicio comunitario',
+                'ORDEN' => 2,
+                'OBLIGATORIO' => 1,
+                'ACTIVO' => 1
+            ],
+            [
+                'CODIGO' => 'PSC-003',
+                'NOMBRE' => 'Carta de Aceptación',
+                'DESCRIPCION' => 'Carta oficial de aceptación de la entidad receptora',
+                'ORDEN' => 3,
+                'OBLIGATORIO' => 1,
+                'ACTIVO' => 1
+            ],
+            [
+                'CODIGO' => 'PSC-004',
+                'NOMBRE' => 'Solicitud Institucional',
+                'DESCRIPCION' => 'Solicitud al Rector para aprobación institucional',
+                'ORDEN' => 4,
+                'OBLIGATORIO' => 1,
+                'ACTIVO' => 1
+            ],
+            [
+                'CODIGO' => 'PSC-005',
+                'NOMBRE' => 'Certificado de Culminación',
+                'DESCRIPCION' => 'Certificado de horas completadas de servicio comunitario',
+                'ORDEN' => 5,
+                'OBLIGATORIO' => 1,
+                'ACTIVO' => 1
+            ]
+        ];
+
+        // Insertar tipos básicos
+        foreach ($tiposBasicos as $tipo) {
+            try {
+                $this->tiposDocumentosModel->insert($tipo);
+            } catch (\Exception $e) {
+                // Continuar con el siguiente si hay error
+                continue;
+            }
+        }
     }
 }

@@ -72,11 +72,12 @@ $(function () {
     },
   };
 
-  var chart = new ApexCharts(
-    document.querySelector("#traffic-overview"),
-    chart
-  );
-  chart.render();
+  // Verificar que el elemento existe antes de crear el gráfico
+  const chartElement = document.querySelector("#traffic-overview");
+  if (chartElement) {
+    var chart = new ApexCharts(chartElement, chart);
+    chart.render();
+  }
 
 
 })

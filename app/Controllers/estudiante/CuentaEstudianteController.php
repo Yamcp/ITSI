@@ -24,7 +24,7 @@ class CuentaEstudianteController extends BaseController
             return redirect()->to('auth/login');
         }
 
-        // Obtener información básica del usuarioad
+        // Obtener información básica del usuario
         $usuario = $this->usuariosModel->find($userId);
         
         $data = [
@@ -81,7 +81,20 @@ class CuentaEstudianteController extends BaseController
         // Verificar que la contraseña actual sea correcta
         $usuario = $this->usuariosModel->find($userId);
         
-        if (!password_verify($passwordActual, $usuario['CONTRASENA'])) {
+        // Verificar contraseña (soporta tanto hash como texto plano para transición)
+        $passwordValid = false;
+        if ($usuario) {
+            // Primero intentar verificar como hash
+            if (password_verify($passwordActual, $usuario['CONTRASENA'])) {
+                $passwordValid = true;
+            } 
+            // Si falla, verificar como texto plano (para usuarios existentes)
+            else if ($passwordActual === $usuario['CONTRASENA']) {
+                $passwordValid = true;
+            }
+        }
+        
+        if (!$passwordValid) {
             return redirect()->back()->withInput()->with('error', 'La contraseña actual es incorrecta');
         }
 
