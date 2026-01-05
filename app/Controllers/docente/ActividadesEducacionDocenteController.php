@@ -137,15 +137,32 @@ class ActividadesEducacionDocenteController extends BaseController
             'FECHA_FIN' => $this->request->getPost('fecha_fin'),
             'LUGAR' => $this->request->getPost('lugar'),
             'HORARIO' => $this->request->getPost('horario'),
-
+            'INCLUYE_CERTIFICADO' => $this->request->getPost('incluye_certificado') ? 1 : 0,
             'PROGRAMA_DETALLADO' => $this->request->getPost('programa_detallado')
         ];
 
-        if ($this->actividadesModel->insert($datos)) {
-            return redirect()->to('/docente/actividades-educacion')->with('success', 'Actividad creada exitosamente');
+        // Debug: Verificar datos antes de insertar
+        log_message('debug', 'Datos a insertar: ' . json_encode($datos));
+        log_message('debug', 'Usuario ID de sesión: ' . session()->get('usuario_id'));
+        
+        // Verificar si el usuario está logueado
+        if (!session()->get('usuario_id')) {
+            return redirect()->back()->withInput()->with('error', 'Error: No se encontró el ID de usuario en la sesión');
         }
-
-        return redirect()->back()->withInput()->with('error', 'Error al crear la actividad');
+        
+        // Intentar insertar con manejo de errores más detallado
+        try {
+            if ($this->actividadesModel->insert($datos)) {
+                return redirect()->to('/docente/actividades-educacion')->with('success', 'Actividad creada exitosamente');
+            } else {
+                $errors = $this->actividadesModel->errors();
+                log_message('error', 'Errores del modelo: ' . json_encode($errors));
+                return redirect()->back()->withInput()->with('error', 'Error al crear la actividad. Errores: ' . implode(', ', $errors));
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Excepción al insertar: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Error al crear la actividad: ' . $e->getMessage());
+        }
     }
 
     public function show($id)
@@ -263,7 +280,7 @@ class ActividadesEducacionDocenteController extends BaseController
             'FECHA_FIN' => $this->request->getPost('fecha_fin'),
             'LUGAR' => $this->request->getPost('lugar'),
             'HORARIO' => $this->request->getPost('horario'),
-
+            'INCLUYE_CERTIFICADO' => $this->request->getPost('incluye_certificado') ? 1 : 0,
             'PROGRAMA_DETALLADO' => $this->request->getPost('programa_detallado')
         ];
 
@@ -281,6 +298,36 @@ class ActividadesEducacionDocenteController extends BaseController
         }
 
         return redirect()->back()->with('error', 'Error al eliminar la actividad');
+    }
+
+    // Método de prueba temporal para debug
+    public function testInsert()
+    {
+        $datos = [
+            'ID_INSTRUCTOR' => 1,
+            'ID_TIPO_MODALIDAD' => 1,
+            'ID_TIPO_ACTIVIDAD' => 1,
+            'ID_USUARIO' => 1,
+            'NOMBRE_ACTIVIDAD' => 'Prueba de Actividad',
+            'DESCRIPCION' => 'Esta es una descripción de prueba para verificar la inserción',
+            'OBJETIVOS' => 'Objetivos de prueba para verificar la inserción',
+            'DURACION_HORAS' => 10,
+            'FECHA_INICIO' => '2025-08-07',
+            'FECHA_FIN' => '2025-08-08',
+            'LUGAR' => 'Lugar de Prueba',
+            'HORARIO' => '8:00-12:00',
+            'INCLUYE_CERTIFICADO' => 1,
+            'PROGRAMA_DETALLADO' => 'Programa de prueba'
+        ];
+        
+        log_message('debug', 'Datos de prueba: ' . json_encode($datos));
+        
+        if ($this->actividadesModel->insert($datos)) {
+            echo "Inserción exitosa! ID: " . $this->actividadesModel->getInsertID();
+        } else {
+            $errors = $this->actividadesModel->errors();
+            echo "Error en inserción: " . implode(', ', $errors);
+        }
     }
 
     public function calendario()

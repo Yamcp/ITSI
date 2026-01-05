@@ -422,10 +422,11 @@
                         <label class="form-label">Nuevo Estado</label>
                         <select class="form-select" name="nuevo_estado" id="selectNuevoEstado" required>
                             <option value="">Seleccionar nuevo estado...</option>
-                            <option value="1">Aprobado</option>
-                            <option value="2">Rechazado</option>
-                            <option value="4">Requiere Corrección</option>
-                            <option value="5">Pendiente</option>
+                            <option value="1">Pendiente</option>
+                            <option value="2">En Revisión</option>
+                            <option value="3">Aprobado</option>
+                            <option value="4">Rechazado</option>
+                            <option value="5">Requiere Corrección</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -595,16 +596,18 @@
 
 
     function obtenerEstadoInfo(estado) {
-        // Mapeo de estados (tanto números como texto)
+        // Mapeo de estados según la base de datos
         const estadosMap = {
-            '1': { texto: 'Aprobado', clase: 'bg-success text-white' },
-            '2': { texto: 'Rechazado', clase: 'bg-danger text-white' },
-            '4': { texto: 'Requiere Corrección', clase: 'bg-warning text-dark' },
-            '5': { texto: 'Pendiente', clase: 'bg-secondary text-white' },
+            '1': { texto: 'Pendiente', clase: 'bg-secondary text-white' },
+            '2': { texto: 'En Revisión', clase: 'bg-info text-white' },
+            '3': { texto: 'Aprobado', clase: 'bg-success text-white' },
+            '4': { texto: 'Rechazado', clase: 'bg-danger text-white' },
+            '5': { texto: 'Requiere Corrección', clase: 'bg-warning text-dark' },
+            'Pendiente': { texto: 'Pendiente', clase: 'bg-secondary text-white' },
+            'En Revisión': { texto: 'En Revisión', clase: 'bg-info text-white' },
             'Aprobado': { texto: 'Aprobado', clase: 'bg-success text-white' },
             'Rechazado': { texto: 'Rechazado', clase: 'bg-danger text-white' },
-            'Requiere Corrección': { texto: 'Requiere Corrección', clase: 'bg-warning text-dark' },
-            'Pendiente': { texto: 'Pendiente', clase: 'bg-secondary text-white' }
+            'Requiere Corrección': { texto: 'Requiere Corrección', clase: 'bg-warning text-dark' }
         };
         
         return estadosMap[estado] || { texto: 'Desconocido', clase: 'bg-secondary text-white' };
@@ -828,6 +831,7 @@
             // Convertir el número del estado a texto
             const estadoInfo = obtenerEstadoInfo(nuevoEstado);
             documento.ESTADO_REVISION = estadoInfo.texto;
+            documento.ID_ESTADO_REVISION = nuevoEstado;
         }
     }
 

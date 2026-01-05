@@ -1166,12 +1166,12 @@ INSERT INTO `TAB_INSTRUCTORES` (`ID_INSTRUCTOR`, `ID_TIPO_INSTRUCTOR`, `ID_DATO_
 (3, 3, 6, 'Inteligencia Artificial', 'Doctora en Ciencias de la Computación');
 
 -- Insertar actividades educativas de ejemplo
-INSERT INTO `TAB_ACTIVIDADES_EDUCACION` (`ID_ACTIVIDAD_EDUCACION`, `ID_INSTRUCTOR`, `ID_TIPO_MODALIDAD`, `ID_TIPO_ACTIVIDAD`, `ID_USUARIO`, `NOMBRE_ACTIVIDAD`, `DESCRIPCION`, `OBJETIVOS`, `DURACION_HORAS`, `FECHA_INICIO`, `FECHA_FIN`, `LUGAR`, `HORARIO`, `INCLUYE_CERTIFICADO`, `PROGRAMA_DETALLADO`) VALUES
-(1, 1, 1, 1, 1, 'Desarrollo Web Full Stack', 'Curso completo de desarrollo web con tecnologías modernas como React, Node.js, MongoDB y más.', 'Formar desarrolladores full stack competentes en tecnologías web modernas', 4, '2025-08-18', '2025-08-19', 'Laboratorio de Programación', 'Lunes a Martess 16:00-18:00', 1, 'Módulo 1: HTML/CSS/JavaScript\r\nMódulo 2: React.js\r\nMódulo 3: Node.js\r\nMódulo 4: Base de datos\r\nMódulo 5: Proyecto final'),
-(2, 2, 2, 2, 1, 'Reparación de Equipos de Cómputo', 'Taller práctico de mantenimiento y reparación de hardware de computadoras.', 'Capacitar en técnicas de diagnóstico y reparación de equipos', 40, '2025-10-01', '2025-10-31', 'Plataforma Virtual', 'Sábados 9:00-13:00', 1, 'Diagnóstico de problemas\nReparación de hardware\nMantenimiento preventivo\nInstalación de software'),
-(3, 3, 1, 3, 1, 'Inteligencia Artificial y Machine Learning', 'Seminario sobre tendencias actuales en IA y aplicaciones prácticas.', 'Actualizar conocimientos en inteligencia artificial y sus aplicaciones', 16, '2025-12-15', '2025-12-16', 'Auditorio Principal', '8:00-17:00', 1, 'Introducción a la IA\nMachine Learning básico\nDeep Learning\nAplicaciones prácticas\nCasos de estudio'),
-(4, 1, 1, 1, 1, 'Programación en Python', 'Curso introductorio de programación usando Python como lenguaje principal.', 'Enseñar los fundamentos de programación usando Python', 80, '2025-08-01', '2025-09-30', 'Laboratorio de Programación', 'Martes y Jueves 18:00-20:00', 1, 'Variables y tipos de datos\nEstructuras de control\nFunciones\nPOO\nLibrerías básicas'),
-(5, 2, 2, 2, 1, 'Configuración de Redes', 'Taller de configuración y administración de redes de computadoras.', 'Capacitar en configuración y administración de redes', 32, '2025-11-01', '2025-11-30', 'Laboratorio de Redes', 'Sábados 8:00-12:00', 1, 'Protocolos de red\nConfiguración de routers\nSwitches y VLANs\nSeguridad en redes');
+INSERT INTO `TAB_ACTIVIDADES_EDUCACION` (`ID_ACTIVIDAD_EDUCACION`, `ID_INSTRUCTOR`, `ID_TIPO_MODALIDAD`, `ID_TIPO_ACTIVIDAD`, `ID_USUARIO`, `ID_PERIODO_ACADEMICO`, `NOMBRE_ACTIVIDAD`, `DESCRIPCION`, `OBJETIVOS`, `DURACION_HORAS`, `FECHA_INICIO`, `FECHA_FIN`, `LUGAR`, `HORARIO`, `INCLUYE_CERTIFICADO`, `PROGRAMA_DETALLADO`) VALUES
+(1, 1, 1, 1, 1, 4, 'Desarrollo Web Full Stack', 'Curso completo de desarrollo web con tecnologías modernas como React, Node.js, MongoDB y más.', 'Formar desarrolladores full stack competentes en tecnologías web modernas', 4, '2025-08-18', '2025-08-19', 'Laboratorio de Programación', 'Lunes a Martess 16:00-18:00', 1, 'Módulo 1: HTML/CSS/JavaScript\r\nMódulo 2: React.js\r\nMódulo 3: Node.js\r\nMódulo 4: Base de datos\r\nMódulo 5: Proyecto final'),
+(2, 2, 2, 2, 1, 4, 'Reparación de Equipos de Cómputo', 'Taller práctico de mantenimiento y reparación de hardware de computadoras.', 'Capacitar en técnicas de diagnóstico y reparación de equipos', 40, '2025-10-01', '2025-10-31', 'Plataforma Virtual', 'Sábados 9:00-13:00', 1, 'Diagnóstico de problemas\nReparación de hardware\nMantenimiento preventivo\nInstalación de software'),
+(3, 3, 1, 3, 1, 4, 'Inteligencia Artificial y Machine Learning', 'Seminario sobre tendencias actuales en IA y aplicaciones prácticas.', 'Actualizar conocimientos en inteligencia artificial y sus aplicaciones', 16, '2025-12-15', '2025-12-16', 'Auditorio Principal', '8:00-17:00', 1, 'Introducción a la IA\nMachine Learning básico\nDeep Learning\nAplicaciones prácticas\nCasos de estudio'),
+(4, 1, 1, 1, 1, 4, 'Programación en Python', 'Curso introductorio de programación usando Python como lenguaje principal.', 'Enseñar los fundamentos de programación usando Python', 80, '2025-08-01', '2025-09-30', 'Laboratorio de Programación', 'Martes y Jueves 18:00-20:00', 1, 'Variables y tipos de datos\nEstructuras de control\nFunciones\nPOO\nLibrerías básicas'),
+(5, 2, 2, 2, 1, 4, 'Configuración de Redes', 'Taller de configuración y administración de redes de computadoras.', 'Capacitar en configuración y administración de redes', 32, '2025-11-01', '2025-11-30', 'Laboratorio de Redes', 'Sábados 8:00-12:00', 1, 'Protocolos de red\nConfiguración de routers\nSwitches y VLANs\nSeguridad en redes');
 
 -- Insertar usuarios de ejemplo si no existen
 INSERT INTO `TAB_USUARIOS` (`ID_USUARIO`, `ID_DATO_PERSONA`, `USUARIO`, `CONTRASENA`, `ESTADO`) VALUES
@@ -1244,19 +1244,19 @@ INSERT INTO `TAB_INSTITUCIONES_CONVENIOS` (`ID_INSTITUCION_CONVENIO`, `ID_TIPO_I
 (3, 1, 'Fundación Niños del Ecuador', '1122334455001', 'Calle 10 de Agosto, Guayaquil', 'Guayaquil', '042-555666', 'info@ninosdelecuador.org', 'Dra. Sofía Morales', 'Lic. Pedro Aguirre', '0999888777', 'pedro.aguirre@ninosdelecuador.org');
 
 -- Insertar algunas asignaciones de prácticas
-INSERT INTO `TAB_ASIGNACIONES_PRACTICAS` (`ID_ASIGNACION_PRACTICA`, `ID_TIPO_PRACTICA`, `ID_USUARIO`, `ID_INSTITUCION_CONVENIO`, `FECHA_INICIO`, `FECHA_FIN`, `HORA_TOTAL`, `DESCRIPCION`, `CRONOGRAMA`) VALUES
-(1, 2, 1, 1, '2025-06-01', '2025-08-30', 240, 'Desarrollo e implementación de sistema de gestión hospitalaria', 'Lunes a Viernes 8:00-17:00'),
-(2, 2, 1, 2, '2025-07-01', '2025-09-30', 240, 'Desarrollo de aplicaciones móviles para servicios bancarios', 'Lunes a Viernes 9:00-18:00'),
-(3, 1, 1, 3, '2025-08-01', '2025-10-30', 96, 'Desarrollo de plataforma educativa para niños en situación vulnerable', 'Sábados 8:00-16:00');
+INSERT INTO `TAB_ASIGNACIONES_PRACTICAS` (`ID_ASIGNACION_PRACTICA`, `ID_TIPO_PRACTICA`, `ID_USUARIO`, `ID_PERIODO_ACADEMICO`, `ID_INSTITUCION_CONVENIO`, `FECHA_INICIO`, `FECHA_FIN`, `HORA_TOTAL`, `DESCRIPCION`, `CRONOGRAMA`) VALUES
+(1, 2, 1, 4, 1, '2025-06-01', '2025-08-30', 240, 'Desarrollo e implementación de sistema de gestión hospitalaria', 'Lunes a Viernes 8:00-17:00'),
+(2, 2, 1, 4, 2, '2025-07-01', '2025-09-30', 240, 'Desarrollo de aplicaciones móviles para servicios bancarios', 'Lunes a Viernes 9:00-18:00'),
+(3, 1, 1, 4, 3, '2025-08-01', '2025-10-30', 96, 'Desarrollo de plataforma educativa para niños en situación vulnerable', 'Sábados 8:00-16:00');
 
 -- Insertar algunas prácticas preprofesionales
-INSERT INTO `TAB_PRACTICAS_PREPROFESIONALES` (`ID_PRACTICA_PREPROFESIONAL`, `ID_ASIGNACION_PRACTICA`, `ID_ESTUDIANTE`, `ID_INSTRUCTOR`, `ID_INSTITUCION_CONVENIO`, `AREA_ESPECIALIZACION`, `PROYECTO_ESPECIFICO`, `HORAS_PRACTICAS`, `FECHA_INICIO`, `FECHA_FIN`, `ESTADO_PRACTICA`, `EVALUACION_FINAL`, `OBSERVACIONES`) VALUES
-(1, 1, 1, 1, 1, 'Desarrollo de Software', 'Sistema de gestión de pacientes y citas médicas', 240, '2025-06-01', '2025-08-30', 'En Progreso', NULL, 'Estudiante con buen desempeño en desarrollo web'),
-(2, 2, 2, 2, 2, 'Desarrollo Móvil', 'Aplicación móvil para consulta de saldos y transferencias', 240, '2025-07-01', '2025-09-30', 'En Progreso', NULL, 'Proyecto en desarrollo con tecnologías React Native');
+INSERT INTO `TAB_PRACTICAS_PREPROFESIONALES` (`ID_PRACTICA_PREPROFESIONAL`, `ID_ASIGNACION_PRACTICA`, `ID_ESTUDIANTE`, `ID_INSTRUCTOR`, `ID_INSTITUCION_CONVENIO`, `ID_PERIODO_ACADEMICO`, `AREA_ESPECIALIZACION`, `PROYECTO_ESPECIFICO`, `HORAS_PRACTICAS`, `FECHA_INICIO`, `FECHA_FIN`, `ESTADO_PRACTICA`, `EVALUACION_FINAL`, `OBSERVACIONES`) VALUES
+(1, 1, 1, 1, 1, 4, 'Desarrollo de Software', 'Sistema de gestión de pacientes y citas médicas', 240, '2025-06-01', '2025-08-30', 'En Progreso', NULL, 'Estudiante con buen desempeño en desarrollo web'),
+(2, 2, 2, 2, 2, 4, 'Desarrollo Móvil', 'Aplicación móvil para consulta de saldos y transferencias', 240, '2025-07-01', '2025-09-30', 'En Progreso', NULL, 'Proyecto en desarrollo con tecnologías React Native');
 
 -- Insertar algunos servicios comunitarios
-INSERT INTO `TAB_SERVICIO_COMUNITARIO` (`ID_SERVICIO_COMUNITARIO`, `ID_ASIGNACION_PRACTICA`, `ID_ESTUDIANTE`, `ID_INSTRUCTOR`, `ID_INSTITUCION_CONVENIO`, `PROYECTO_SOCIAL`, `COMUNIDAD_BENEFICIADA`, `HORAS_SERVICIO`, `FECHA_INICIO`, `FECHA_FIN`, `ESTADO_SERVICIO`, `IMPACTO_SOCIAL`, `OBSERVACIONES`) VALUES
-(1, 3, 3, 3, 3, 'Plataforma Educativa Digital', 'Niños y adolescentes en situación vulnerable de Guayaquil', 96, '2025-08-01', '2025-10-30', 'En Progreso', 'Mejora en el acceso a educación digital para 200+ niños', 'Proyecto con alto impacto social positivo');
+INSERT INTO `TAB_SERVICIO_COMUNITARIO` (`ID_SERVICIO_COMUNITARIO`, `ID_ASIGNACION_PRACTICA`, `ID_ESTUDIANTE`, `ID_INSTRUCTOR`, `ID_INSTITUCION_CONVENIO`, `ID_PERIODO_ACADEMICO`, `PROYECTO_SOCIAL`, `COMUNIDAD_BENEFICIADA`, `HORAS_SERVICIO`, `FECHA_INICIO`, `FECHA_FIN`, `ESTADO_SERVICIO`, `IMPACTO_SOCIAL`, `OBSERVACIONES`) VALUES
+(1, 3, 3, 3, 3, 4, 'Plataforma Educativa Digital', 'Niños y adolescentes en situación vulnerable de Guayaquil', 96, '2025-08-01', '2025-10-30', 'En Progreso', 'Mejora en el acceso a educación digital para 200+ niños', 'Proyecto con alto impacto social positivo');
 
 -- Insertar algunas asistencias de ejemplo
 INSERT INTO `TAB_ASISTENCIAS_PRACTICAS_PREPROFESIONALES` (`ID_ASISTENCIA_PREPROFESIONAL`, `ID_PRACTICA_PREPROFESIONAL`, `FECHA_ASISTENCIA`, `HORA_ENTRADA`, `HORA_SALIDA`, `ACTIVIDADES_DIA`, `COMPETENCIAS_DESARROLLADAS`, `FECHA_REGISTRO`, `OBSERVACIONES`) VALUES
@@ -1285,6 +1285,28 @@ INSERT INTO `TAB_EXPORTACIONES` (`ID_USUARIO`, `FECHA_EXPORTACION`, `DESCRIPCION
 (1, NOW() - INTERVAL 3 DAY, 'Backup de emergencia - Antes de actualización', 'backup', 'completado', 'backup_emergencia_20250103_120000.sql', 8388608),
 (2, NOW() - INTERVAL 4 DAY, 'Backup semanal completo', 'backup', 'completado', 'backup_semanal_20250104_120000.sql', 15728640),
 (1, NOW() - INTERVAL 5 DAY, 'Backup antes de mantenimiento', 'backup', 'completado', 'backup_mantenimiento_20250105_120000.sql', 6291456);
+
+-- ==============================================================
+-- INSERTAR DATOS DE PERÍODOS ACADÉMICOS
+-- ==============================================================
+
+-- Insertar períodos académicos de ejemplo
+INSERT INTO `TAB_PERIODOS_ACADEMICOS` (`ID_PERIODO_ACADEMICO`, `NOMBRE_PERIODO`, `AÑO_ACADEMICO`, `FECHA_INICIO`, `FECHA_FIN`, `TIPO_PERIODO`, `NUMERO_PERIODO`, `ESTADO`, `DESCRIPCION`) VALUES
+-- Períodos del año 2024 (finalizados)
+(1, 'Primer Semestre', 2024, '2024-01-15', '2024-06-30', 'Semestre', 1, 'Finalizado', 'Primer semestre académico del año 2024'),
+(2, 'Segundo Semestre', 2024, '2024-07-15', '2024-12-20', 'Semestre', 2, 'Finalizado', 'Segundo semestre académico del año 2024'),
+
+-- Períodos del año 2025 (actual y planificados)
+(3, 'Primer Semestre', 2025, '2025-01-15', '2025-06-30', 'Semestre', 1, 'Finalizado', 'Primer semestre académico del año 2025'),
+(4, 'Segundo Semestre', 2025, '2025-07-15', '2025-12-20', 'Semestre', 2, 'Activo', 'Segundo semestre académico del año 2025 - Período actual'),
+
+-- Períodos del año 2026 (planificados)
+(5, 'Primer Semestre', 2026, '2026-01-15', '2026-06-30', 'Semestre', 1, 'Planificado', 'Primer semestre académico del año 2026'),
+(6, 'Segundo Semestre', 2026, '2026-07-15', '2026-12-20', 'Semestre', 2, 'Planificado', 'Segundo semestre académico del año 2026'),
+
+-- Períodos especiales
+(7, 'Período Intensivo', 2025, '2025-12-21', '2026-01-14', 'Trimestre', 1, 'Planificado', 'Período intensivo de verano 2025-2026'),
+(8, 'Período de Nivelación', 2025, '2025-06-01', '2025-07-14', 'Trimestre', 1, 'Finalizado', 'Período de nivelación y cursos de verano 2025');
 
 -- Insertar empleados de ejemplo
 INSERT INTO `TAB_EMPLEADOS` (`ID_EMPLEADO`, `ID_DEPARTAMENTO`, `ID_DATO_PERSONA`, `ID_TIPO_CONTRATO`, `CARGO`, `FECHA_INGRESO`) VALUES
@@ -1666,6 +1688,17 @@ SELECT
     dp.ACTIVO,
     'PRACTICAS' as TIPO_MODALIDAD,
     
+    -- Información del período académico
+    pp.ID_PERIODO_ACADEMICO,
+    pa.NOMBRE_PERIODO,
+    pa.AÑO_ACADEMICO,
+    pa.FECHA_INICIO as PERIODO_FECHA_INICIO,
+    pa.FECHA_FIN as PERIODO_FECHA_FIN,
+    pa.TIPO_PERIODO,
+    pa.NUMERO_PERIODO,
+    pa.ESTADO as PERIODO_ESTADO,
+    CONCAT(pa.NOMBRE_PERIODO, ' - ', pa.AÑO_ACADEMICO) as PERIODO_COMPLETO,
+    
     -- Información del tipo de documento
     tdp.CODIGO as TIPO_DOCUMENTO_CODIGO,
     tdp.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
@@ -1706,6 +1739,7 @@ FROM TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES dp
 LEFT JOIN TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES tdp ON dp.ID_TIPO_DOCUMENTO = tdp.ID_TIPO_DOCUMENTO_PREPROFESIONAL
 LEFT JOIN TAB_ESTADOS_REVISIONES er ON dp.ID_ESTADO_REVISION = er.ID_ESTADO_REVISION
 LEFT JOIN TAB_PRACTICAS_PREPROFESIONALES pp ON dp.ID_PRACTICA_PREPROFESIONAL = pp.ID_PRACTICA_PREPROFESIONAL
+LEFT JOIN TAB_PERIODOS_ACADEMICOS pa ON pp.ID_PERIODO_ACADEMICO = pa.ID_PERIODO_ACADEMICO
 LEFT JOIN TAB_ESTUDIANTES e ON pp.ID_ESTUDIANTE = e.ID_ESTUDIANTE
 LEFT JOIN TAB_DATOS_PERSONAS persona ON e.ID_DATO_PERSONA = persona.ID_DATO_PERSONA
 LEFT JOIN TAB_INSTITUCIONES_CONVENIOS ic ON pp.ID_INSTITUCION_CONVENIO = ic.ID_INSTITUCION_CONVENIO
@@ -1737,6 +1771,17 @@ SELECT
     ds.VERSION,
     ds.ACTIVO,
     'SERVICIO_COMUNITARIO' as TIPO_MODALIDAD,
+    
+    -- Información del período académico
+    sc.ID_PERIODO_ACADEMICO,
+    pa.NOMBRE_PERIODO,
+    pa.AÑO_ACADEMICO,
+    pa.FECHA_INICIO as PERIODO_FECHA_INICIO,
+    pa.FECHA_FIN as PERIODO_FECHA_FIN,
+    pa.TIPO_PERIODO,
+    pa.NUMERO_PERIODO,
+    pa.ESTADO as PERIODO_ESTADO,
+    CONCAT(pa.NOMBRE_PERIODO, ' - ', pa.AÑO_ACADEMICO) as PERIODO_COMPLETO,
     
     -- Información del tipo de documento
     tds.CODIGO as TIPO_DOCUMENTO_CODIGO,
@@ -1778,6 +1823,7 @@ FROM TAB_DOCUMENTOS_SERVICIO_COMUNITARIO ds
 LEFT JOIN TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO tds ON ds.ID_TIPO_DOCUMENTO = tds.ID_TIPO_DOCUMENTO_SERVICIO
 LEFT JOIN TAB_ESTADOS_REVISIONES er ON ds.ID_ESTADO_REVISION = er.ID_ESTADO_REVISION
 LEFT JOIN TAB_SERVICIO_COMUNITARIO sc ON ds.ID_SERVICIO_COMUNITARIO = sc.ID_SERVICIO_COMUNITARIO
+LEFT JOIN TAB_PERIODOS_ACADEMICOS pa ON sc.ID_PERIODO_ACADEMICO = pa.ID_PERIODO_ACADEMICO
 LEFT JOIN TAB_ESTUDIANTES e ON sc.ID_ESTUDIANTE = e.ID_ESTUDIANTE
 LEFT JOIN TAB_DATOS_PERSONAS persona ON e.ID_DATO_PERSONA = persona.ID_DATO_PERSONA
 LEFT JOIN TAB_INSTITUCIONES_CONVENIOS ic ON sc.ID_INSTITUCION_CONVENIO = ic.ID_INSTITUCION_CONVENIO
@@ -1797,7 +1843,357 @@ SELECT * FROM V_DOCUMENTOS_SERVICIO_COMPLETOS
 ORDER BY FECHA_SUBIDA DESC;
 
 -- ==============================================================
--- PROCEDIMIENTOS ALMACENADOS
+-- VISTAS ESPECIALIZADAS PARA PERÍODOS ACADÉMICOS
+-- ==============================================================
+
+-- Vista para obtener el período académico actual
+CREATE OR REPLACE VIEW V_PERIODO_ACADEMICO_ACTUAL AS
+SELECT 
+    ID_PERIODO_ACADEMICO,
+    NOMBRE_PERIODO,
+    AÑO_ACADEMICO,
+    FECHA_INICIO,
+    FECHA_FIN,
+    TIPO_PERIODO,
+    NUMERO_PERIODO,
+    ESTADO,
+    DESCRIPCION,
+    CONCAT(NOMBRE_PERIODO, ' - ', AÑO_ACADEMICO) as PERIODO_COMPLETO
+FROM TAB_PERIODOS_ACADEMICOS 
+WHERE ESTADO = 'Activo' 
+AND ACTIVO = true
+ORDER BY FECHA_INICIO DESC
+LIMIT 1;
+
+-- Vista para obtener todos los períodos académicos ordenados
+CREATE OR REPLACE VIEW V_PERIODOS_ACADEMICOS_ORDENADOS AS
+SELECT 
+    ID_PERIODO_ACADEMICO,
+    NOMBRE_PERIODO,
+    AÑO_ACADEMICO,
+    FECHA_INICIO,
+    FECHA_FIN,
+    TIPO_PERIODO,
+    NUMERO_PERIODO,
+    ESTADO,
+    DESCRIPCION,
+    CONCAT(NOMBRE_PERIODO, ' - ', AÑO_ACADEMICO) as PERIODO_COMPLETO,
+    CASE 
+        WHEN ESTADO = 'Activo' THEN 1
+        WHEN ESTADO = 'Planificado' THEN 2
+        WHEN ESTADO = 'Finalizado' THEN 3
+        ELSE 4
+    END as ORDEN_ESTADO
+FROM TAB_PERIODOS_ACADEMICOS 
+WHERE ACTIVO = true
+ORDER BY AÑO_ACADEMICO DESC, NUMERO_PERIODO DESC, ORDEN_ESTADO;
+
+-- Vista para estadísticas por período académico
+CREATE OR REPLACE VIEW V_ESTADISTICAS_PERIODOS AS
+SELECT 
+    pa.ID_PERIODO_ACADEMICO,
+    pa.NOMBRE_PERIODO,
+    pa.AÑO_ACADEMICO,
+    pa.TIPO_PERIODO,
+    pa.ESTADO,
+    CONCAT(pa.NOMBRE_PERIODO, ' - ', pa.AÑO_ACADEMICO) as PERIODO_COMPLETO,
+    
+    -- Estadísticas de prácticas preprofesionales
+    COUNT(DISTINCT pp.ID_PRACTICA_PREPROFESIONAL) as TOTAL_PRACTICAS_PREPROFESIONALES,
+    COUNT(DISTINCT CASE WHEN pp.ESTADO_PRACTICA = 'En Progreso' THEN pp.ID_PRACTICA_PREPROFESIONAL END) as PRACTICAS_EN_PROGRESO,
+    COUNT(DISTINCT CASE WHEN pp.ESTADO_PRACTICA = 'Completada' THEN pp.ID_PRACTICA_PREPROFESIONAL END) as PRACTICAS_COMPLETADAS,
+    COUNT(DISTINCT CASE WHEN pp.ESTADO_PRACTICA = 'Cancelada' THEN pp.ID_PRACTICA_PREPROFESIONAL END) as PRACTICAS_CANCELADAS,
+    
+    -- Estadísticas de servicio comunitario
+    COUNT(DISTINCT sc.ID_SERVICIO_COMUNITARIO) as TOTAL_SERVICIOS_COMUNITARIOS,
+    COUNT(DISTINCT CASE WHEN sc.ESTADO_SERVICIO = 'En Progreso' THEN sc.ID_SERVICIO_COMUNITARIO END) as SERVICIOS_EN_PROGRESO,
+    COUNT(DISTINCT CASE WHEN sc.ESTADO_SERVICIO = 'Completado' THEN sc.ID_SERVICIO_COMUNITARIO END) as SERVICIOS_COMPLETADOS,
+    COUNT(DISTINCT CASE WHEN sc.ESTADO_SERVICIO = 'Cancelado' THEN sc.ID_SERVICIO_COMUNITARIO END) as SERVICIOS_CANCELADOS,
+    
+    -- Estadísticas de actividades educativas
+    COUNT(DISTINCT ae.ID_ACTIVIDAD_EDUCACION) as TOTAL_ACTIVIDADES_EDUCATIVAS,
+    
+    -- Estadísticas de estudiantes
+    COUNT(DISTINCT e.ID_ESTUDIANTE) as TOTAL_ESTUDIANTES_PARTICIPANTES,
+    
+    -- Estadísticas de documentos
+    COUNT(DISTINCT dp.ID_DOCUMENTO_PREPROFESIONAL) as TOTAL_DOCUMENTOS_PRACTICAS,
+    COUNT(DISTINCT ds.ID_DOCUMENTO_SERVICIO) as TOTAL_DOCUMENTOS_SERVICIO,
+    
+    -- Fechas del período
+    pa.FECHA_INICIO,
+    pa.FECHA_FIN,
+    DATEDIFF(pa.FECHA_FIN, pa.FECHA_INICIO) as DIAS_DURACION
+
+FROM TAB_PERIODOS_ACADEMICOS pa
+LEFT JOIN TAB_PRACTICAS_PREPROFESIONALES pp ON pa.ID_PERIODO_ACADEMICO = pp.ID_PERIODO_ACADEMICO
+LEFT JOIN TAB_SERVICIO_COMUNITARIO sc ON pa.ID_PERIODO_ACADEMICO = sc.ID_PERIODO_ACADEMICO
+LEFT JOIN TAB_ACTIVIDADES_EDUCACION ae ON pa.ID_PERIODO_ACADEMICO = ae.ID_PERIODO_ACADEMICO
+LEFT JOIN TAB_ESTUDIANTES e ON (pp.ID_ESTUDIANTE = e.ID_ESTUDIANTE OR sc.ID_ESTUDIANTE = e.ID_ESTUDIANTE)
+LEFT JOIN TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES dp ON pp.ID_PRACTICA_PREPROFESIONAL = dp.ID_PRACTICA_PREPROFESIONAL
+LEFT JOIN TAB_DOCUMENTOS_SERVICIO_COMUNITARIO ds ON sc.ID_SERVICIO_COMUNITARIO = ds.ID_SERVICIO_COMUNITARIO
+WHERE pa.ACTIVO = true
+GROUP BY pa.ID_PERIODO_ACADEMICO, pa.NOMBRE_PERIODO, pa.AÑO_ACADEMICO, pa.TIPO_PERIODO, pa.ESTADO, pa.FECHA_INICIO, pa.FECHA_FIN
+ORDER BY pa.AÑO_ACADEMICO DESC, pa.NUMERO_PERIODO DESC;
+
+-- Vista para documentos filtrados por período académico
+CREATE OR REPLACE VIEW V_DOCUMENTOS_POR_PERIODO AS
+SELECT 
+    vd.*,
+    pa.NOMBRE_PERIODO,
+    pa.AÑO_ACADEMICO,
+    pa.TIPO_PERIODO,
+    pa.ESTADO as PERIODO_ESTADO,
+    CONCAT(pa.NOMBRE_PERIODO, ' - ', pa.AÑO_ACADEMICO) as PERIODO_COMPLETO
+FROM V_DOCUMENTOS_UNIFICADOS vd
+LEFT JOIN TAB_PERIODOS_ACADEMICOS pa ON vd.ID_PERIODO_ACADEMICO = pa.ID_PERIODO_ACADEMICO
+WHERE pa.ACTIVO = true
+ORDER BY pa.AÑO_ACADEMICO DESC, pa.NUMERO_PERIODO DESC, vd.FECHA_SUBIDA DESC;
+
+-- Vista para prácticas por período académico
+CREATE OR REPLACE VIEW V_PRACTICAS_POR_PERIODO AS
+SELECT 
+    pp.ID_PRACTICA_PREPROFESIONAL,
+    pp.ID_ASIGNACION_PRACTICA,
+    pp.ID_ESTUDIANTE,
+    pp.ID_INSTRUCTOR,
+    pp.ID_INSTITUCION_CONVENIO,
+    pp.AREA_ESPECIALIZACION,
+    pp.PROYECTO_ESPECIFICO,
+    pp.HORAS_PRACTICAS,
+    pp.FECHA_INICIO,
+    pp.FECHA_FIN,
+    pp.ESTADO_PRACTICA,
+    pp.EVALUACION_FINAL,
+    pp.OBSERVACIONES,
+    pp.ID_PERIODO_ACADEMICO,
+    
+    -- Información del período académico
+    pa.NOMBRE_PERIODO,
+    pa.AÑO_ACADEMICO,
+    pa.TIPO_PERIODO,
+    pa.ESTADO as PERIODO_ESTADO,
+    CONCAT(pa.NOMBRE_PERIODO, ' - ', pa.AÑO_ACADEMICO) as PERIODO_COMPLETO,
+    
+    -- Información del estudiante
+    CONCAT(persona.NOMBRE, ' ', persona.APELLIDO) as ESTUDIANTE_NOMBRE,
+    persona.CEDULA as CEDULA_ESTUDIANTE,
+    c.NOMBRE as CARRERA_NOMBRE,
+    e.SEMESTRE_ACTUAL,
+    
+    -- Información de la entidad receptora
+    ic.NOMBRE as ENTIDAD_RECEPTORA,
+    ic.CIUDAD as ENTIDAD_CIUDAD,
+    
+    -- Información del instructor
+    CONCAT(inst_persona.NOMBRE, ' ', inst_persona.APELLIDO) as INSTRUCTOR_NOMBRE,
+    inst.ESPECIALIDAD as INSTRUCTOR_ESPECIALIDAD
+
+FROM TAB_PRACTICAS_PREPROFESIONALES pp
+LEFT JOIN TAB_PERIODOS_ACADEMICOS pa ON pp.ID_PERIODO_ACADEMICO = pa.ID_PERIODO_ACADEMICO
+LEFT JOIN TAB_ESTUDIANTES e ON pp.ID_ESTUDIANTE = e.ID_ESTUDIANTE
+LEFT JOIN TAB_DATOS_PERSONAS persona ON e.ID_DATO_PERSONA = persona.ID_DATO_PERSONA
+LEFT JOIN TAB_CARRERAS c ON e.ID_CARRERA = c.ID_CARRERA
+LEFT JOIN TAB_INSTITUCIONES_CONVENIOS ic ON pp.ID_INSTITUCION_CONVENIO = ic.ID_INSTITUCION_CONVENIO
+LEFT JOIN TAB_INSTRUCTORES inst ON pp.ID_INSTRUCTOR = inst.ID_INSTRUCTOR
+LEFT JOIN TAB_DATOS_PERSONAS inst_persona ON inst.ID_DATO_PERSONA = inst_persona.ID_DATO_PERSONA
+WHERE pa.ACTIVO = true
+ORDER BY pa.AÑO_ACADEMICO DESC, pa.NUMERO_PERIODO DESC, pp.FECHA_INICIO DESC;
+
+-- Vista para servicios comunitarios por período académico
+CREATE OR REPLACE VIEW V_SERVICIOS_POR_PERIODO AS
+SELECT 
+    sc.ID_SERVICIO_COMUNITARIO,
+    sc.ID_ASIGNACION_PRACTICA,
+    sc.ID_ESTUDIANTE,
+    sc.ID_INSTRUCTOR,
+    sc.ID_INSTITUCION_CONVENIO,
+    sc.PROYECTO_SOCIAL,
+    sc.COMUNIDAD_BENEFICIADA,
+    sc.HORAS_SERVICIO,
+    sc.FECHA_INICIO,
+    sc.FECHA_FIN,
+    sc.ESTADO_SERVICIO,
+    sc.IMPACTO_SOCIAL,
+    sc.OBSERVACIONES,
+    sc.ID_PERIODO_ACADEMICO,
+    
+    -- Información del período académico
+    pa.NOMBRE_PERIODO,
+    pa.AÑO_ACADEMICO,
+    pa.TIPO_PERIODO,
+    pa.ESTADO as PERIODO_ESTADO,
+    CONCAT(pa.NOMBRE_PERIODO, ' - ', pa.AÑO_ACADEMICO) as PERIODO_COMPLETO,
+    
+    -- Información del estudiante
+    CONCAT(persona.NOMBRE, ' ', persona.APELLIDO) as ESTUDIANTE_NOMBRE,
+    persona.CEDULA as CEDULA_ESTUDIANTE,
+    c.NOMBRE as CARRERA_NOMBRE,
+    e.SEMESTRE_ACTUAL,
+    
+    -- Información de la entidad receptora
+    ic.NOMBRE as ENTIDAD_RECEPTORA,
+    ic.CIUDAD as ENTIDAD_CIUDAD,
+    
+    -- Información del instructor
+    CONCAT(inst_persona.NOMBRE, ' ', inst_persona.APELLIDO) as INSTRUCTOR_NOMBRE,
+    inst.ESPECIALIDAD as INSTRUCTOR_ESPECIALIDAD
+
+FROM TAB_SERVICIO_COMUNITARIO sc
+LEFT JOIN TAB_PERIODOS_ACADEMICOS pa ON sc.ID_PERIODO_ACADEMICO = pa.ID_PERIODO_ACADEMICO
+LEFT JOIN TAB_ESTUDIANTES e ON sc.ID_ESTUDIANTE = e.ID_ESTUDIANTE
+LEFT JOIN TAB_DATOS_PERSONAS persona ON e.ID_DATO_PERSONA = persona.ID_DATO_PERSONA
+LEFT JOIN TAB_CARRERAS c ON e.ID_CARRERA = c.ID_CARRERA
+LEFT JOIN TAB_INSTITUCIONES_CONVENIOS ic ON sc.ID_INSTITUCION_CONVENIO = ic.ID_INSTITUCION_CONVENIO
+LEFT JOIN TAB_INSTRUCTORES inst ON sc.ID_INSTRUCTOR = inst.ID_INSTRUCTOR
+LEFT JOIN TAB_DATOS_PERSONAS inst_persona ON inst.ID_DATO_PERSONA = inst_persona.ID_DATO_PERSONA
+WHERE pa.ACTIVO = true
+ORDER BY pa.AÑO_ACADEMICO DESC, pa.NUMERO_PERIODO DESC, sc.FECHA_INICIO DESC;
+
+-- ==============================================================
+-- PROCEDIMIENTOS ALMACENADOS PARA PERÍODOS ACADÉMICOS
+-- ==============================================================
+
+-- Procedimiento para obtener el período académico actual
+DELIMITER //
+CREATE PROCEDURE IF NOT EXISTS SP_OBTENER_PERIODO_ACTUAL()
+BEGIN
+    SELECT 
+        ID_PERIODO_ACADEMICO,
+        NOMBRE_PERIODO,
+        AÑO_ACADEMICO,
+        FECHA_INICIO,
+        FECHA_FIN,
+        TIPO_PERIODO,
+        NUMERO_PERIODO,
+        ESTADO,
+        DESCRIPCION,
+        CONCAT(NOMBRE_PERIODO, ' - ', AÑO_ACADEMICO) as PERIODO_COMPLETO
+    FROM TAB_PERIODOS_ACADEMICOS 
+    WHERE ESTADO = 'Activo' 
+    AND ACTIVO = true
+    ORDER BY FECHA_INICIO DESC
+    LIMIT 1;
+END //
+DELIMITER ;
+
+-- Procedimiento para obtener estadísticas de un período específico
+DELIMITER //
+CREATE PROCEDURE IF NOT EXISTS SP_ESTADISTICAS_PERIODO(
+    IN p_id_periodo INT
+)
+BEGIN
+    SELECT 
+        pa.ID_PERIODO_ACADEMICO,
+        pa.NOMBRE_PERIODO,
+        pa.AÑO_ACADEMICO,
+        pa.TIPO_PERIODO,
+        pa.ESTADO,
+        CONCAT(pa.NOMBRE_PERIODO, ' - ', pa.AÑO_ACADEMICO) as PERIODO_COMPLETO,
+        
+        -- Estadísticas de prácticas preprofesionales
+        COUNT(DISTINCT pp.ID_PRACTICA_PREPROFESIONAL) as TOTAL_PRACTICAS_PREPROFESIONALES,
+        COUNT(DISTINCT CASE WHEN pp.ESTADO_PRACTICA = 'En Progreso' THEN pp.ID_PRACTICA_PREPROFESIONAL END) as PRACTICAS_EN_PROGRESO,
+        COUNT(DISTINCT CASE WHEN pp.ESTADO_PRACTICA = 'Completada' THEN pp.ID_PRACTICA_PREPROFESIONAL END) as PRACTICAS_COMPLETADAS,
+        COUNT(DISTINCT CASE WHEN pp.ESTADO_PRACTICA = 'Cancelada' THEN pp.ID_PRACTICA_PREPROFESIONAL END) as PRACTICAS_CANCELADAS,
+        
+        -- Estadísticas de servicio comunitario
+        COUNT(DISTINCT sc.ID_SERVICIO_COMUNITARIO) as TOTAL_SERVICIOS_COMUNITARIOS,
+        COUNT(DISTINCT CASE WHEN sc.ESTADO_SERVICIO = 'En Progreso' THEN sc.ID_SERVICIO_COMUNITARIO END) as SERVICIOS_EN_PROGRESO,
+        COUNT(DISTINCT CASE WHEN sc.ESTADO_SERVICIO = 'Completado' THEN sc.ID_SERVICIO_COMUNITARIO END) as SERVICIOS_COMPLETADOS,
+        COUNT(DISTINCT CASE WHEN sc.ESTADO_SERVICIO = 'Cancelado' THEN sc.ID_SERVICIO_COMUNITARIO END) as SERVICIOS_CANCELADOS,
+        
+        -- Estadísticas de actividades educativas
+        COUNT(DISTINCT ae.ID_ACTIVIDAD_EDUCACION) as TOTAL_ACTIVIDADES_EDUCATIVAS,
+        
+        -- Estadísticas de estudiantes
+        COUNT(DISTINCT e.ID_ESTUDIANTE) as TOTAL_ESTUDIANTES_PARTICIPANTES,
+        
+        -- Estadísticas de documentos
+        COUNT(DISTINCT dp.ID_DOCUMENTO_PREPROFESIONAL) as TOTAL_DOCUMENTOS_PRACTICAS,
+        COUNT(DISTINCT ds.ID_DOCUMENTO_SERVICIO) as TOTAL_DOCUMENTOS_SERVICIO,
+        
+        -- Fechas del período
+        pa.FECHA_INICIO,
+        pa.FECHA_FIN,
+        DATEDIFF(pa.FECHA_FIN, pa.FECHA_INICIO) as DIAS_DURACION
+
+    FROM TAB_PERIODOS_ACADEMICOS pa
+    LEFT JOIN TAB_PRACTICAS_PREPROFESIONALES pp ON pa.ID_PERIODO_ACADEMICO = pp.ID_PERIODO_ACADEMICO
+    LEFT JOIN TAB_SERVICIO_COMUNITARIO sc ON pa.ID_PERIODO_ACADEMICO = sc.ID_PERIODO_ACADEMICO
+    LEFT JOIN TAB_ACTIVIDADES_EDUCACION ae ON pa.ID_PERIODO_ACADEMICO = ae.ID_PERIODO_ACADEMICO
+    LEFT JOIN TAB_ESTUDIANTES e ON (pp.ID_ESTUDIANTE = e.ID_ESTUDIANTE OR sc.ID_ESTUDIANTE = e.ID_ESTUDIANTE)
+    LEFT JOIN TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES dp ON pp.ID_PRACTICA_PREPROFESIONAL = dp.ID_PRACTICA_PREPROFESIONAL
+    LEFT JOIN TAB_DOCUMENTOS_SERVICIO_COMUNITARIO ds ON sc.ID_SERVICIO_COMUNITARIO = ds.ID_SERVICIO_COMUNITARIO
+    WHERE pa.ID_PERIODO_ACADEMICO = p_id_periodo
+    AND pa.ACTIVO = true
+    GROUP BY pa.ID_PERIODO_ACADEMICO, pa.NOMBRE_PERIODO, pa.AÑO_ACADEMICO, pa.TIPO_PERIODO, pa.ESTADO, pa.FECHA_INICIO, pa.FECHA_FIN;
+END //
+DELIMITER ;
+
+-- Procedimiento para cambiar el estado de un período académico
+DELIMITER //
+CREATE PROCEDURE IF NOT EXISTS SP_CAMBIAR_ESTADO_PERIODO(
+    IN p_id_periodo INT,
+    IN p_nuevo_estado VARCHAR(20)
+)
+BEGIN
+    DECLARE v_estado_anterior VARCHAR(20);
+    
+    -- Obtener estado anterior
+    SELECT ESTADO INTO v_estado_anterior
+    FROM TAB_PERIODOS_ACADEMICOS
+    WHERE ID_PERIODO_ACADEMICO = p_id_periodo;
+    
+    -- Actualizar estado
+    UPDATE TAB_PERIODOS_ACADEMICOS 
+    SET ESTADO = p_nuevo_estado,
+        FECHA_ACTUALIZACION = CURRENT_TIMESTAMP
+    WHERE ID_PERIODO_ACADEMICO = p_id_periodo;
+    
+    -- Si se activa un período, desactivar otros períodos del mismo año
+    IF p_nuevo_estado = 'Activo' THEN
+        UPDATE TAB_PERIODOS_ACADEMICOS 
+        SET ESTADO = 'Inactivo',
+            FECHA_ACTUALIZACION = CURRENT_TIMESTAMP
+        WHERE ID_PERIODO_ACADEMICO != p_id_periodo
+        AND AÑO_ACADEMICO = (SELECT AÑO_ACADEMICO FROM TAB_PERIODOS_ACADEMICOS WHERE ID_PERIODO_ACADEMICO = p_id_periodo)
+        AND ESTADO = 'Activo';
+    END IF;
+    
+    SELECT 'Período actualizado exitosamente' as RESULTADO;
+END //
+DELIMITER ;
+
+-- Procedimiento para obtener documentos por período académico
+DELIMITER //
+CREATE PROCEDURE IF NOT EXISTS SP_DOCUMENTOS_POR_PERIODO(
+    IN p_id_periodo INT,
+    IN p_tipo_modalidad VARCHAR(50)
+)
+BEGIN
+    IF p_tipo_modalidad = 'PRACTICAS' OR p_tipo_modalidad IS NULL THEN
+        SELECT * FROM V_DOCUMENTOS_PRACTICAS_COMPLETOS 
+        WHERE ID_PERIODO_ACADEMICO = p_id_periodo
+        ORDER BY FECHA_SUBIDA DESC;
+    END IF;
+    
+    IF p_tipo_modalidad = 'SERVICIO_COMUNITARIO' OR p_tipo_modalidad IS NULL THEN
+        SELECT * FROM V_DOCUMENTOS_SERVICIO_COMPLETOS 
+        WHERE ID_PERIODO_ACADEMICO = p_id_periodo
+        ORDER BY FECHA_SUBIDA DESC;
+    END IF;
+    
+    IF p_tipo_modalidad IS NULL THEN
+        SELECT * FROM V_DOCUMENTOS_UNIFICADOS 
+        WHERE ID_PERIODO_ACADEMICO = p_id_periodo
+        ORDER BY FECHA_SUBIDA DESC;
+    END IF;
+END //
+DELIMITER ;
+
+-- ==============================================================
+-- PROCEDIMIENTOS ALMACENADOS ORIGINALES
 -- ==============================================================
 
 -- Procedimiento para cambiar estado de documento preprofesional
@@ -1929,6 +2325,75 @@ ALTER TABLE TAB_HISTORIAL_CAMBIOS_DOCUMENTOS COMMENT = 'Historial de cambios rea
 ALTER TABLE TAB_NOTIFICACIONES_DOCUMENTOS COMMENT = 'Notificaciones relacionadas con documentos de prácticas';
 
 -- ==============================================================
+-- TABLA DE PERÍODOS ACADÉMICOS
+-- ==============================================================
+
+-- Crear tabla de períodos académicos
+CREATE TABLE IF NOT EXISTS TAB_PERIODOS_ACADEMICOS (
+    ID_PERIODO_ACADEMICO int NOT NULL AUTO_INCREMENT,
+    NOMBRE_PERIODO varchar(100) NOT NULL,
+    AÑO_ACADEMICO int NOT NULL,
+    FECHA_INICIO date NOT NULL,
+    FECHA_FIN date NOT NULL,
+    TIPO_PERIODO enum('Semestre', 'Trimestre', 'Cuatrimestre', 'Anual') NOT NULL DEFAULT 'Semestre',
+    NUMERO_PERIODO int NOT NULL,
+    ESTADO enum('Activo', 'Inactivo', 'Finalizado', 'Planificado') NOT NULL DEFAULT 'Planificado',
+    DESCRIPCION text,
+    FECHA_CREACION timestamp DEFAULT CURRENT_TIMESTAMP,
+    FECHA_ACTUALIZACION timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    ACTIVO boolean DEFAULT true,
+    PRIMARY KEY (ID_PERIODO_ACADEMICO),
+    UNIQUE KEY UK_PERIODO_ANIO (AÑO_ACADEMICO, NUMERO_PERIODO, TIPO_PERIODO),
+    KEY IDX_AÑO_ACADEMICO (AÑO_ACADEMICO),
+    KEY IDX_ESTADO (ESTADO),
+    KEY IDX_FECHA_INICIO (FECHA_INICIO),
+    KEY IDX_ACTIVO (ACTIVO)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci 
+COMMENT='Períodos académicos del instituto';
+
+-- Agregar campo de período académico a las tablas principales
+ALTER TABLE TAB_ASIGNACIONES_PRACTICAS 
+ADD COLUMN ID_PERIODO_ACADEMICO int DEFAULT NULL AFTER ID_ASIGNACION_PRACTICA,
+ADD KEY IDX_PERIODO_ACADEMICO (ID_PERIODO_ACADEMICO);
+
+ALTER TABLE TAB_PRACTICAS_PREPROFESIONALES 
+ADD COLUMN ID_PERIODO_ACADEMICO int DEFAULT NULL AFTER ID_PRACTICA_PREPROFESIONAL,
+ADD KEY IDX_PERIODO_ACADEMICO (ID_PERIODO_ACADEMICO);
+
+ALTER TABLE TAB_SERVICIO_COMUNITARIO 
+ADD COLUMN ID_PERIODO_ACADEMICO int DEFAULT NULL AFTER ID_SERVICIO_COMUNITARIO,
+ADD KEY IDX_PERIODO_ACADEMICO (ID_PERIODO_ACADEMICO);
+
+ALTER TABLE TAB_ACTIVIDADES_EDUCACION 
+ADD COLUMN ID_PERIODO_ACADEMICO int DEFAULT NULL AFTER ID_ACTIVIDAD_EDUCACION,
+ADD KEY IDX_PERIODO_ACADEMICO (ID_PERIODO_ACADEMICO);
+
+-- Agregar restricciones de clave foránea
+ALTER TABLE TAB_ASIGNACIONES_PRACTICAS 
+ADD CONSTRAINT FK_ASIGNACIONES_PERIODO 
+FOREIGN KEY (ID_PERIODO_ACADEMICO) 
+REFERENCES TAB_PERIODOS_ACADEMICOS (ID_PERIODO_ACADEMICO) 
+ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+ALTER TABLE TAB_PRACTICAS_PREPROFESIONALES 
+ADD CONSTRAINT FK_PRACTICAS_PERIODO 
+FOREIGN KEY (ID_PERIODO_ACADEMICO) 
+REFERENCES TAB_PERIODOS_ACADEMICOS (ID_PERIODO_ACADEMICO) 
+ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+ALTER TABLE TAB_SERVICIO_COMUNITARIO 
+ADD CONSTRAINT FK_SERVICIO_PERIODO 
+FOREIGN KEY (ID_PERIODO_ACADEMICO) 
+REFERENCES TAB_PERIODOS_ACADEMICOS (ID_PERIODO_ACADEMICO) 
+ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+ALTER TABLE TAB_ACTIVIDADES_EDUCACION 
+ADD CONSTRAINT FK_ACTIVIDADES_PERIODO 
+FOREIGN KEY (ID_PERIODO_ACADEMICO) 
+REFERENCES TAB_PERIODOS_ACADEMICOS (ID_PERIODO_ACADEMICO) 
+ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+-- ==============================================================
 -- VERIFICACIÓN DE DATOS INSERTADOS
 -- ==============================================================
 
@@ -1991,6 +2456,59 @@ SELECT COUNT(*) as DOCUMENTOS_PRACTICAS FROM TAB_DOCUMENTOS_PRACTICAS_PREPROFESI
 SELECT COUNT(*) as DOCUMENTOS_SERVICIO FROM TAB_DOCUMENTOS_SERVICIO_COMUNITARIO;
 SELECT COUNT(*) as NOTIFICACIONES FROM TAB_NOTIFICACIONES_DOCUMENTOS;
 SELECT COUNT(*) as HISTORIAL_CAMBIOS FROM TAB_HISTORIAL_CAMBIOS_DOCUMENTOS;
+
+-- ==============================================================
+-- VERIFICACIÓN DEL SISTEMA DE PERÍODOS ACADÉMICOS
+-- ==============================================================
+
+SELECT 'Sistema de períodos académicos implementado exitosamente' as RESULTADO;
+SELECT COUNT(*) as PERIODOS_ACADEMICOS FROM TAB_PERIODOS_ACADEMICOS;
+SELECT COUNT(*) as PERIODOS_ACTIVOS FROM TAB_PERIODOS_ACADEMICOS WHERE ESTADO = 'Activo';
+SELECT COUNT(*) as PERIODOS_FINALIZADOS FROM TAB_PERIODOS_ACADEMICOS WHERE ESTADO = 'Finalizado';
+SELECT COUNT(*) as PERIODOS_PLANIFICADOS FROM TAB_PERIODOS_ACADEMICOS WHERE ESTADO = 'Planificado';
+
+-- Verificar períodos académicos insertados
+SELECT 
+    ID_PERIODO_ACADEMICO,
+    NOMBRE_PERIODO,
+    AÑO_ACADEMICO,
+    TIPO_PERIODO,
+    NUMERO_PERIODO,
+    ESTADO,
+    CONCAT(NOMBRE_PERIODO, ' - ', AÑO_ACADEMICO) as PERIODO_COMPLETO
+FROM TAB_PERIODOS_ACADEMICOS 
+ORDER BY AÑO_ACADEMICO DESC, NUMERO_PERIODO DESC;
+
+-- Verificar que las vistas se crearon correctamente
+SELECT 'Vistas de períodos académicos creadas exitosamente' as RESULTADO;
+SELECT COUNT(*) as VISTA_PERIODO_ACTUAL FROM information_schema.views WHERE table_name = 'V_PERIODO_ACADEMICO_ACTUAL';
+SELECT COUNT(*) as VISTA_PERIODOS_ORDENADOS FROM information_schema.views WHERE table_name = 'V_PERIODOS_ACADEMICOS_ORDENADOS';
+SELECT COUNT(*) as VISTA_ESTADISTICAS_PERIODOS FROM information_schema.views WHERE table_name = 'V_ESTADISTICAS_PERIODOS';
+SELECT COUNT(*) as VISTA_DOCUMENTOS_POR_PERIODO FROM information_schema.views WHERE table_name = 'V_DOCUMENTOS_POR_PERIODO';
+SELECT COUNT(*) as VISTA_PRACTICAS_POR_PERIODO FROM information_schema.views WHERE table_name = 'V_PRACTICAS_POR_PERIODO';
+SELECT COUNT(*) as VISTA_SERVICIOS_POR_PERIODO FROM information_schema.views WHERE table_name = 'V_SERVICIOS_POR_PERIODO';
+
+-- Verificar procedimientos almacenados de períodos académicos
+SELECT 'Procedimientos almacenados de períodos académicos creados exitosamente' as RESULTADO;
+SELECT COUNT(*) as PROC_PERIODO_ACTUAL FROM information_schema.routines WHERE routine_name = 'SP_OBTENER_PERIODO_ACTUAL';
+SELECT COUNT(*) as PROC_ESTADISTICAS_PERIODO FROM information_schema.routines WHERE routine_name = 'SP_ESTADISTICAS_PERIODO';
+SELECT COUNT(*) as PROC_CAMBIAR_ESTADO_PERIODO FROM information_schema.routines WHERE routine_name = 'SP_CAMBIAR_ESTADO_PERIODO';
+SELECT COUNT(*) as PROC_DOCUMENTOS_POR_PERIODO FROM information_schema.routines WHERE routine_name = 'SP_DOCUMENTOS_POR_PERIODO';
+
+-- Ejemplo de consultas útiles para períodos académicos
+SELECT 'Ejemplos de consultas útiles:' as INFORMACION;
+
+-- Obtener período académico actual
+SELECT 'Período académico actual:' as CONSULTA;
+SELECT * FROM V_PERIODO_ACADEMICO_ACTUAL;
+
+-- Obtener estadísticas del período actual
+SELECT 'Estadísticas del período actual:' as CONSULTA;
+CALL SP_ESTADISTICAS_PERIODO(4);
+
+-- Obtener todos los períodos ordenados
+SELECT 'Todos los períodos académicos:' as CONSULTA;
+SELECT * FROM V_PERIODOS_ACADEMICOS_ORDENADOS LIMIT 5;
 
 -- Verificar vistas creadas
 SELECT 'Vistas creadas exitosamente' as RESULTADO;

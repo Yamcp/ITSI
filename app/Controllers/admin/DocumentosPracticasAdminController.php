@@ -140,11 +140,13 @@ class DocumentosPracticasAdminController extends BaseController
     public function cambiarEstado($id)
     {
         $nuevoEstado = $this->request->getPost('estado');
-        $observaciones = $this->request->getPost('observaciones');
+        $observaciones = $this->request->getPost('observaciones_revisor');
 
         $data = [
-            'ESTADO_REVISION' => $nuevoEstado,
-            'OBSERVACIONES' => $observaciones
+            'ID_ESTADO_REVISION' => $nuevoEstado,
+            'OBSERVACIONES_REVISOR' => $observaciones,
+            'FECHA_REVISION' => date('Y-m-d H:i:s'),
+            'ID_REVISOR' => session()->get('id_usuario')
         ];
 
         if ($this->documentosModel->update($id, $data)) {
@@ -260,14 +262,18 @@ class DocumentosPracticasAdminController extends BaseController
                 tdp.DESCRIPCION as TIPO_DOCUMENTO_DESCRIPCION,
                 tdp.ORDEN as TIPO_DOCUMENTO_ORDEN,
                 tdp.OBLIGATORIO as TIPO_DOCUMENTO_OBLIGATORIO,
+                er.ESTADO as ESTADO_REVISION,
                 pp.ID_ESTUDIANTE,
+                ic.NOMBRE as ENTIDAD_RECEPTORA,
                 CONCAT(persona.NOMBRE, " ", persona.APELLIDO) as ESTUDIANTE_NOMBRE,
                 persona.NOMBRE as NOMBRE_ESTUDIANTE,
                 persona.APELLIDO as APELLIDO_ESTUDIANTE,
                 persona.CEDULA as CEDULA_ESTUDIANTE
             ')
             ->join('TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES tdp', 'dp.ID_TIPO_DOCUMENTO = tdp.ID_TIPO_DOCUMENTO_PREPROFESIONAL', 'left')
+            ->join('TAB_ESTADOS_REVISIONES er', 'dp.ID_ESTADO_REVISION = er.ID_ESTADO_REVISION', 'left')
             ->join('TAB_PRACTICAS_PREPROFESIONALES pp', 'dp.ID_PRACTICA_PREPROFESIONAL = pp.ID_PRACTICA_PREPROFESIONAL', 'left')
+            ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'pp.ID_INSTITUCION_CONVENIO = ic.ID_INSTITUCION_CONVENIO', 'left')
             ->join('TAB_ESTUDIANTES e', 'pp.ID_ESTUDIANTE = e.ID_ESTUDIANTE', 'left')
             ->join('TAB_DATOS_PERSONAS persona', 'e.ID_DATO_PERSONA = persona.ID_DATO_PERSONA', 'left')
             ->orderBy('dp.FECHA_SUBIDA', 'DESC');
@@ -297,16 +303,18 @@ class DocumentosPracticasAdminController extends BaseController
      */
     public function getEstadisticas()
     {
-        $aprobados = $this->documentosModel->where('ESTADO_REVISION', 'Aprobado')->countAllResults();
-        $rechazados = $this->documentosModel->where('ESTADO_REVISION', 'Rechazado')->countAllResults();
-        $requiereCorreccion = $this->documentosModel->where('ESTADO_REVISION', 'Requiere Corrección')->countAllResults();
-        $pendientes = $this->documentosModel->where('ESTADO_REVISION', 'Pendiente')->countAllResults();
+        // Usar ID_ESTADO_REVISION en lugar de ESTADO_REVISION
+        $aprobados = $this->documentosModel->where('ID_ESTADO_REVISION', 2)->countAllResults(); // Aprobado = 2
+        $rechazados = $this->documentosModel->where('ID_ESTADO_REVISION', 3)->countAllResults(); // Rechazado = 3
+        $requiereCorreccion = $this->documentosModel->where('ID_ESTADO_REVISION', 5)->countAllResults(); // Requiere Corrección = 5
+        $pendientes = $this->documentosModel->where('ID_ESTADO_REVISION', 1)->countAllResults(); // Pendiente = 1
 
         return [
             'Aprobados' => $aprobados,
-            'aprobados' => $rechazados, // Para compatibilidad con el ID del HTML
-            'pendientes' => $requiereCorreccion, // Para compatibilidad con el ID del HTML
-            'rechazados' => $pendientes // Para compatibilidad con el ID del HTML
+            'aprobados' => $aprobados, // Corregido para mostrar aprobados
+            'pendientes' => $pendientes, // Corregido para mostrar pendientes
+            'rechazados' => $rechazados, // Corregido para mostrar rechazados
+            'requiere_correccion' => $requiereCorreccion // Agregado para compatibilidad
         ];
     }
 

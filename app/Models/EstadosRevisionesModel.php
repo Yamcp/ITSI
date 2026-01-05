@@ -122,16 +122,22 @@ class EstadosRevisionesModel extends Model
     /**
      * Obtener estadísticas por estado
      */
-    public function getEstadisticasPorEstado()
+    public function getEstadisticasPorEstado($tabla = 'TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES')
     {
         $db = \Config\Database::connect();
         $estados = $this->getAllEstados();
         $estadisticas = [];
 
         foreach ($estados as $estado) {
-            $count = $db->table('TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES')
-                ->where('ESTADO_REVISION', $estado['ESTADO'])
-                ->countAllResults();
+            // Verificar si la tabla tiene la columna ESTADO_REVISION
+            if ($this->columnExists($tabla, 'ESTADO_REVISION')) {
+                $count = $db->table($tabla)
+                    ->where('ESTADO_REVISION', $estado['ESTADO'])
+                    ->countAllResults();
+            } else {
+                // Si no existe la columna, retornar 0
+                $count = 0;
+            }
 
             $estadisticas[] = [
                 'ID_ESTADO_REVISION' => $estado['ID_ESTADO_REVISION'],
@@ -151,6 +157,16 @@ class EstadosRevisionesModel extends Model
     public function estadoExiste($estado)
     {
         return $this->getEstadoPorNombre($estado) !== null;
+    }
+
+    /**
+     * Verificar si una columna existe en una tabla
+     */
+    private function columnExists($tabla, $columna)
+    {
+        $db = \Config\Database::connect();
+        $query = $db->query("SHOW COLUMNS FROM `{$tabla}` LIKE '{$columna}'");
+        return $query->getNumRows() > 0;
     }
 
     /**

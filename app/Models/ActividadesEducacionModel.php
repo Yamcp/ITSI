@@ -23,7 +23,13 @@ class ActividadesEducacionModel extends Model
         'ID_USUARIO' => 'required|integer',
         'DURACION_HORAS' => 'required|integer',
         'FECHA_INICIO' => 'required|valid_date',
-        'FECHA_FIN' => 'required|valid_date'
+        'FECHA_FIN' => 'required|valid_date',
+        'DESCRIPCION' => 'required|min_length[10]',
+        'OBJETIVOS' => 'required|min_length[10]',
+        'LUGAR' => 'required|max_length[150]',
+        'HORARIO' => 'required|max_length[100]',
+        'PROGRAMA_DETALLADO' => 'required',
+        'INCLUYE_CERTIFICADO' => 'required|in_list[0,1]'
     ];
     
     // Validar que fecha fin >= fecha inicio
@@ -49,8 +55,7 @@ class ActividadesEducacionModel extends Model
     public function getActividadCompleta($id)
     {
         $builder = $this->db->table('TAB_ACTIVIDADES_EDUCACION ae')
-            ->select('ae.*, ta.ACTIVIDAD as TIPO_ACTIVIDAD, tm.MODALIDAD, 
-                     i.ESPECIALIDAD, dp.NOMBRE, dp.APELLIDO')
+            ->select('ae.*, ta.ACTIVIDAD as TIPO_ACTIVIDAD, tm.MODALIDAD, i.ESPECIALIDAD, dp.NOMBRE, dp.APELLIDO')
             ->join('TAB_TIPOS_ACTIVIDADES ta', 'ta.ID_TIPO_ACTIVIDAD = ae.ID_TIPO_ACTIVIDAD')
             ->join('TAB_TIPOS_MODALIDADES tm', 'tm.ID_TIPO_MODALIDAD = ae.ID_TIPO_MODALIDAD')
             ->join('TAB_INSTRUCTORES i', 'i.ID_INSTRUCTOR = ae.ID_INSTRUCTOR')
