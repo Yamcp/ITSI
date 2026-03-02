@@ -14,11 +14,17 @@
     }
     
     .profile-avatar {
-        width: 120px;
-        height: 120px;
-        border: 4px solid rgba(255,255,255,0.3);
+        width: 2cm !important;
+        height: 2cm !important;
+        min-width: 2cm !important;
+        min-height: 2cm !important;
+        max-width: 2cm !important;
+        max-height: 2cm !important;
+        border: 2px solid rgba(255,255,255,0.3);
         border-radius: 50%;
-        object-fit: cover;
+        object-fit: cover !important;
+        object-position: center !important;
+        display: block !important;
     }
     
     .stats-card {
@@ -159,6 +165,47 @@
     .profile-avatar:hover {
         transform: scale(1.05);
     }
+    
+    /* Círculo del perfil: ~2×2 cm, la foto se recorta dentro */
+    .perfil-avatar-wrap {
+        width: 2cm;
+        height: 2cm;
+        overflow: hidden;
+        border-radius: 50%;
+        flex-shrink: 0;
+    }
+    .perfil-avatar-wrap img {
+        width: 100% !important;
+        height: 100% !important;
+        min-width: 100% !important;
+        min-height: 100% !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        object-fit: cover !important;
+        object-position: center !important;
+        display: block !important;
+    }
+    /* Modal: mismo círculo ~2×2 cm */
+    .modal-perfil-img-wrap {
+        width: 2cm;
+        height: 2cm;
+        margin: 0 auto;
+        overflow: hidden;
+        border-radius: 50%;
+    }
+    .modal-perfil-img-wrap img,
+    #imagen-actual,
+    #preview-nueva {
+        width: 100% !important;
+        height: 100% !important;
+        min-width: 100% !important;
+        min-height: 100% !important;
+        max-width: 100% !important;
+        max-height: 100% !important;
+        object-fit: cover !important;
+        object-position: center !important;
+        display: block !important;
+    }
 </style>
 <?= $this->endSection() ?>
 
@@ -169,7 +216,7 @@
         <div class="profile-header text-center">
             <div class="row align-items-center">
                 <div class="col-md-3">
-                    <div class="position-relative d-inline-block">
+                    <div class="position-relative d-inline-block perfil-avatar-wrap">
                         <img src="<?= !empty($usuario['FOTO_URL']) ? base_url('uploads/perfiles/' . $usuario['FOTO_URL']) : 'data:image/svg+xml;base64,' . base64_encode('<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120"><circle cx="60" cy="60" r="60" fill="#e9ecef"/><circle cx="60" cy="45" r="20" fill="#6c757d"/><path d="M30 95c0-16.569 13.431-30 30-30s30 13.431 30 30" fill="#6c757d"/></svg>') ?>" 
                              alt="Avatar" class="profile-avatar mb-3" id="preview-avatar">
                         <div class="position-absolute top-0 end-0">
@@ -506,9 +553,9 @@
                     <?= csrf_field() ?>
                     
                     <!-- Vista previa de la imagen actual -->
-                    <div class="text-center mb-3">
+                    <div class="text-center mb-3 modal-perfil-img-wrap">
                         <img src="<?= !empty($usuario['FOTO_URL']) ? base_url('uploads/perfiles/' . $usuario['FOTO_URL']) : 'data:image/svg+xml;base64,' . base64_encode('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><circle cx="100" cy="100" r="100" fill="#e9ecef"/><circle cx="100" cy="75" r="35" fill="#6c757d"/><path d="M50 160c0-27.614 22.386-50 50-50s50 22.386 50 50" fill="#6c757d"/></svg>') ?>" 
-                             alt="Imagen actual" class="img-thumbnail" id="imagen-actual" style="max-width: 200px; max-height: 200px;">
+                             alt="Imagen actual" class="img-thumbnail" id="imagen-actual">
                     </div>
                     
                     <!-- Campo de subida -->
@@ -526,17 +573,28 @@
                     <!-- Vista previa de la nueva imagen -->
                     <div id="preview-container" class="text-center" style="display: none;">
                         <h6>Vista previa:</h6>
-                        <img id="preview-nueva" class="img-thumbnail" style="max-width: 200px; max-height: 200px;">
+                        <div class="modal-perfil-img-wrap mt-2">
+                            <img id="preview-nueva" class="img-thumbnail" alt="Vista previa">
+                        </div>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" tabindex="-1">
-                    <i class="fas fa-times me-1"></i>Cancelar
-                </button>
-                <button type="button" class="btn btn-primary" onclick="subirImagen()" tabindex="-1">
-                    <i class="fas fa-upload me-1"></i>Subir Imagen
-                </button>
+            <div class="modal-footer d-flex justify-content-between flex-wrap gap-2">
+                <div>
+                    <?php if (!empty($usuario['FOTO_URL'])): ?>
+                    <button type="button" class="btn btn-outline-danger" id="btnEliminarFoto" onclick="eliminarFoto()">
+                        <i class="fas fa-trash-alt me-1"></i>Eliminar foto
+                    </button>
+                    <?php endif; ?>
+                </div>
+                <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" tabindex="-1">
+                        <i class="fas fa-times me-1"></i>Cancelar
+                    </button>
+                    <button type="button" class="btn btn-primary" id="btnSubirImagen" onclick="subirImagen()">
+                        <i class="fas fa-upload me-1"></i>Subir Imagen
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -546,10 +604,43 @@
 
 <?= $this->section('scripts') ?>
 <script>
-// Variables globales
-var csrfToken = '<?= csrf_token() ?>';
-var csrfHash = '<?= csrf_hash() ?>';
-var uploadUrl = '<?= base_url('admin/perfil/upload-image') ?>';
+// Variables globales (CodeIgniter 4: nombre del campo CSRF y valor del token)
+<?php
+$csrfName = (config('Security')->tokenName ?? 'csrf_test_name');
+$csrfValue = csrf_token();
+?>
+var csrfTokenName = <?= json_encode($csrfName) ?>;
+var csrfTokenValue = <?= json_encode($csrfValue) ?>;
+var uploadUrl = <?= json_encode(base_url('admin/perfil/upload-image')) ?>;
+var deleteImageUrl = <?= json_encode(base_url('admin/perfil/delete-image')) ?>;
+
+// Función para eliminar foto de perfil
+function eliminarFoto() {
+    if (!confirm('¿Eliminar la foto de perfil? Se mostrará el avatar por defecto.')) return;
+    var btn = document.getElementById('btnEliminarFoto');
+    if (btn) { btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Eliminando...'; }
+    var formData = new FormData();
+    formData.append(csrfTokenName, csrfTokenValue);
+    fetch(deleteImageUrl, { method: 'POST', body: formData })
+        .then(function(r) { return r.json().catch(function() { return { success: false, message: 'Error del servidor' }; }); })
+        .then(function(data) {
+            if (data.success) {
+                var modalInstance = bootstrap.Modal.getInstance(document.getElementById('modalImagen'));
+                if (modalInstance) modalInstance.hide();
+                alert('Foto eliminada correctamente');
+                window.location.reload();
+            } else {
+                alert(data.message || 'Error al eliminar la foto');
+            }
+        })
+        .catch(function(err) {
+            console.error(err);
+            alert('Error al eliminar la foto');
+        })
+        .finally(function() {
+            if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-trash-alt me-1"></i>Eliminar foto'; }
+        });
+}
 
 // Función para resetear formulario
 function resetForm() {
@@ -586,47 +677,63 @@ function subirImagen() {
         return;
     }
     
-    var allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    var allowedTypes = ['image/jpeg', 'image/png',];
     if (allowedTypes.indexOf(file.type) === -1) {
-        alert('Formato no válido. Solo se permiten JPG, PNG y GIF');
+        alert('Formato no válido. Solo se permiten JPG, PNG');
         return;
     }
     
     var formData = new FormData();
     formData.append('foto_perfil', file);
-    formData.append(csrfToken, csrfHash);
+    formData.append(csrfTokenName, csrfTokenValue);
     
-    var submitBtn = document.querySelector('#modalImagen .btn-primary');
-    var originalText = submitBtn.innerHTML;
-    submitBtn.innerHTML = 'Subiendo...';
-    submitBtn.disabled = true;
+    var submitBtn = document.getElementById('btnSubirImagen');
+    var originalText = submitBtn ? submitBtn.innerHTML : '';
+    if (submitBtn) {
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" role="status"></span>Subiendo...';
+        submitBtn.disabled = true;
+    }
     
     fetch(uploadUrl, {
         method: 'POST',
         body: formData
     })
     .then(function(response) {
-        return response.json();
+        return response.json().catch(function() { return { success: false, message: 'Respuesta no válida del servidor' }; });
     })
     .then(function(data) {
         if (data.success) {
+            // Restaurar botón primero
+            if (submitBtn) {
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            }
+            // Actualizar avatar en la página
+            var avatar = document.getElementById('preview-avatar');
+            if (avatar && data.image_url) avatar.src = data.image_url;
+            // Cerrar modal
+            var modalEl = document.getElementById('modalImagen');
+            if (modalEl) {
+                var modalInstance = bootstrap.Modal.getInstance(modalEl);
+                if (modalInstance) modalInstance.hide();
+            }
+            // Limpiar formulario y vista previa
+            var formImg = document.getElementById('formImagen');
+            if (formImg) formImg.reset();
+            var previewCnt = document.getElementById('preview-container');
+            if (previewCnt) previewCnt.style.display = 'none';
+            // Mensaje y recargar para actualizar navbar y sesión
             alert('Imagen actualizada correctamente');
-            document.getElementById('preview-avatar').src = data.image_url;
-            var modal = bootstrap.Modal.getInstance(document.getElementById('modalImagen'));
-            modal.hide();
-            document.getElementById('formImagen').reset();
-            document.getElementById('preview-container').style.display = 'none';
+            window.location.reload();
         } else {
+            if (submitBtn) { submitBtn.innerHTML = originalText; submitBtn.disabled = false; }
             alert(data.message || 'Error al subir la imagen');
         }
     })
     .catch(function(error) {
         console.error('Error:', error);
+        if (submitBtn) { submitBtn.innerHTML = originalText; submitBtn.disabled = false; }
         alert('Error al subir la imagen');
-    })
-    .finally(function() {
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
     });
 }
 

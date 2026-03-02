@@ -39,15 +39,19 @@ class UsuariosModel extends Model
 
             // Verificar contraseña (soporta tanto hash como texto plano para transición)
             $passwordValid = false;
+            $requiereCambioPassword = false;
+
             if ($user) {
-                // Primero intentar verificar como hash
+                // Primero intentar verificar como hash seguro
                 if (password_verify($contrasena, $user->password_hash)) {
                     $passwordValid = true;
+                    $requiereCambioPassword = false;
                 } 
-                // Si falla, verificar como texto plano (para usuarios existentes)
+                // Si falla, verificar como texto plano (usuarios antiguos con contraseña sin hash)
                 else if ($contrasena === $user->password_hash) {
                     $passwordValid = true;
-                    // Opcional: actualizar a hash para futuras verificaciones
+                    $requiereCambioPassword = true; // Forzar cambio de contraseña en el siguiente paso
+                    // Opcional: aquí podrías actualizar a hash automáticamente
                     // $this->actualizarPasswordHash($user->id, $contrasena);
                 }
             }
@@ -63,7 +67,8 @@ class UsuariosModel extends Model
                         'email' => $user->email,
                         'rol' => $user->rol,
                         'nombre_rol' => $user->nombre_rol,
-                        'estado' => $user->estado
+                        'estado' => $user->estado,
+                        'requiere_cambio_password' => $requiereCambioPassword,
                     ]
                 ];
             }

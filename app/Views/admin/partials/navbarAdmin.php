@@ -22,6 +22,21 @@ if (!$periodoNombre) {
 <header class="app-header w-100">
     <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #00367c;">
         <a class="navbar-brand d-flex align-items-center" href="<?= base_url('admin/inicio') ?>"></a>
+
+        <?php if ($periodoNombre): ?>
+            <div class="d-flex flex-column justify-content-center ms-3">
+                <span class="text-white fw-semibold small">
+                    Período académico:
+                    <strong><?= esc($periodoNombre) ?></strong>
+                </span>
+                <?php if ($periodoRango): ?>
+                    <span class="text-white-50 small">
+                        <?= esc($periodoRango) ?>
+                    </span>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
+
         <ul class="navbar-nav">
             <li class="nav-item d-block d-xl-none">
                 <a class="nav-link sidebartoggler nav-icon-hover" id="headerCollapse" href="javascript:void(0)">
@@ -36,17 +51,6 @@ if (!$periodoNombre) {
                         <i class="ti ti-user-circle me-1"></i>
                         Bienvenido al sistema, <?= session('nombre') ?? 'Administrador' ?>
                     </span>
-                    <?php if ($periodoNombre): ?>
-                        <span class="text-white-50 small">
-                            Período académico:
-                            <strong><?= esc($periodoNombre) ?></strong>
-                            <?php if ($periodoRango): ?>
-                                <span class="ms-1">
-                                    (<?= esc($periodoRango) ?>)
-                                </span>
-                            <?php endif; ?>
-                        </span>
-                    <?php endif; ?>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link nav-icon-hover" href="javascript:void(0)" id="drop2" data-bs-toggle="dropdown" aria-expanded="false">

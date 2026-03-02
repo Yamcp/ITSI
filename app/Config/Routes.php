@@ -26,6 +26,7 @@ $routes->group('admin', ['namespace' => 'App\Controllers\admin'], function ($rou
     $routes->get('perfil', 'PerfilAdminController::index');          // Ver el perfil del administrador
     $routes->post('perfil/update', 'PerfilAdminController::update'); // Actualizar el perfil del administrador
     $routes->post('perfil/upload-image', 'PerfilAdminController::uploadImage'); // Subir imagen de perfil
+    $routes->post('perfil/delete-image', 'PerfilAdminController::deleteImage'); // Eliminar imagen de perfil
     
     //Rutas para la cuenta
     $routes->get('cuenta', 'CuentaAdminController::index');          // Ver la cuenta del administrador

@@ -136,19 +136,8 @@
 </head>
 
 <body>
-    <!-- Toasts -->
+    <!-- Toast solo para mensajes de éxito (ej. sesión cerrada) -->
     <div class="position-fixed top-0 end-0 p-3" style="z-index: 1055">
-        <?php if (session()->getFlashdata('error')) : ?>
-            <div class="toast align-items-center text-bg-danger border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
-                <div class="d-flex">
-                    <div class="toast-body">
-                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                        <?= session()->getFlashdata('error') ?>
-                    </div>
-                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
-                </div>
-            </div>
-        <?php endif; ?>
         <?php if (session()->getFlashdata('success')) : ?>
             <div class="toast align-items-center text-bg-success border-0 show" role="alert" aria-live="assertive" aria-atomic="true">
                 <div class="d-flex">
@@ -170,6 +159,13 @@
                     <h1 class="login-title">Sistema de Vinculación</h1>
                     <div class="login-subtitle">Por favor, inicie sesión para continuar</div>
                 </div>
+                <?php if (session()->getFlashdata('error')) : ?>
+                    <div class="alert alert-danger d-flex align-items-center mb-3 py-2" role="alert">
+                        <i class="bi bi-exclamation-triangle-fill me-2 fs-5 flex-shrink-0"></i>
+                        <div class="flex-grow-1"><?= esc(session()->getFlashdata('error')) ?></div>
+                        <button type="button" class="btn-close flex-shrink-0" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                    </div>
+                <?php endif; ?>
                 <form action="<?= site_url('auth/autenticar') ?>" method="post" id="loginForm" autocomplete="off" novalidate>
                     <?= csrf_field() ?>
                     <div class="form-floating mb-3">

@@ -1,6 +1,36 @@
 <!-- app/Views/dashboard/dashboard.php -->
 <?= $this->extend('admin/layouts/mainAdmin') ?>
 
+<?php
+use Config\Database;
+
+// Fallback: si el controlador no envía el período, lo obtenemos aquí
+$periodoNombreDashboard = $periodoAcademicoNombre ?? session('periodo_academico_nombre');
+$periodoRangoDashboard  = $periodoAcademicoRango ?? session('periodo_academico_rango');
+
+if (!$periodoNombreDashboard) {
+    try {
+        $db = Database::connect();
+        $row = $db->query("SELECT * FROM V_PERIODO_ACADEMICO_ACTUAL LIMIT 1")->getRowArray();
+
+        if ($row) {
+            $periodoNombreDashboard = $row['NOMBRE_PERIODO'] ?? null;
+            $periodoRangoDashboard  = ($row['FECHA_INICIO'] ?? '') . ' - ' . ($row['FECHA_FIN'] ?? '');
+
+            // Persistir en sesión para reutilizarlo en otras vistas
+            if ($periodoNombreDashboard) {
+                session()->set('periodo_academico_nombre', $periodoNombreDashboard);
+            }
+            if ($periodoRangoDashboard) {
+                session()->set('periodo_academico_rango', $periodoRangoDashboard);
+            }
+        }
+    } catch (\Throwable $e) {
+        log_message('error', 'Dashboard admin view - error obteniendo período académico actual: ' . $e->getMessage());
+    }
+}
+?>
+
 <?= $this->section('styles') ?>
 <!-- CSS personalizado para el dashboard -->
 <style>
@@ -188,6 +218,20 @@
                             Panel de Control
                         </h2>
                         <p class="text-muted mb-0">Bienvenido al Sistema del Departamento de Vinculación</p>
+                        <div class="mt-2">
+                            <h5 class="mb-0 text-primary">
+                                <i class="fas fa-calendar-check me-2"></i>
+                                Período académico actual:
+                                <?php if (!empty($periodoNombreDashboard)): ?>
+                                    <strong><?= esc($periodoNombreDashboard) ?></strong>
+                                    <?php if (!empty($periodoRangoDashboard)): ?>
+                                        <span class="text-muted fw-normal fs-6">(<?= esc($periodoRangoDashboard) ?>)</span>
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <span class="text-muted fw-normal">No hay período configurado</span>
+                                <?php endif; ?>
+                            </h5>
+                        </div>
                     </div>
                     <div class="text-end">
                     <span class="badge bg-light text-dark fs-6 mb-2">Administrador</span>

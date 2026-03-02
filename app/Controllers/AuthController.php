@@ -48,6 +48,7 @@ class AuthController extends BaseController
 
         if ($resultado['status']) {
             $userData = $resultado['usuario'];
+            $requiereCambioPassword = !empty($userData['requiere_cambio_password']);
             
             // Verificar que el usuario esté activo
             if ($userData['estado'] != '1') {
@@ -118,9 +119,25 @@ class AuthController extends BaseController
             }
 
             // Log para debugging (remover en producción)
-            log_message('info', 'Usuario autenticado: ' . $usuario . ' con rol: ' . $userData['rol']);
+            log_message('info', 'Usuario autenticado: ' . $usuario . ' con rol: ' . $userData['rol'] . ' - requiere cambio password: ' . ($requiereCambioPassword ? 'sí' : 'no'));
 
-            // Redirigir según el rol del usuario
+            // Si el usuario tiene contraseña en texto plano (usuarios antiguos),
+            // redirigir primero a la vista de cambio de contraseña según su rol.
+            if ($requiereCambioPassword) {
+                switch ((int)$userData['rol']) {
+                    case 1: // Administrador
+                        return redirect()->to('/admin/cuenta')
+                            ->with('info', 'Por seguridad, por favor cambia tu contraseña inicial antes de continuar.');
+                    case 2: // Docente/Instructor
+                        return redirect()->to('/docente/cuenta')
+                            ->with('info', 'Por seguridad, por favor cambia tu contraseña inicial antes de continuar.');
+                    case 3: // Estudiante
+                        return redirect()->to('/estudiante/cuenta')
+                            ->with('info', 'Por seguridad, por favor cambia tu contraseña inicial antes de continuar.');
+                }
+            }
+
+            // Si no requiere cambio, redirigir según el rol del usuario
             return $this->redirigirSegunRol((int)$userData['rol']);
             
         } else {

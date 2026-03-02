@@ -218,4 +218,59 @@ class PerfilAdminController extends BaseController
             ]);
         }
     }
+
+    /**
+     * Eliminar la foto de perfil del usuario
+     */
+    public function deleteImage()
+    {
+        $session = session();
+
+        if (!$session->get('logged_in')) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Usuario no autenticado'
+            ]);
+        }
+
+        $userId = $session->get('id_usuario');
+        $usuarioModel = new UsuariosModel();
+        $usuario = $usuarioModel->getUserProfile($userId);
+
+        if (!$usuario) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Usuario no encontrado'
+            ]);
+        }
+
+        try {
+            $fotoUrl = $usuario['FOTO_URL'] ?? null;
+
+            if (!empty($fotoUrl) && file_exists(ROOTPATH . 'public/uploads/perfiles/' . $fotoUrl)) {
+                unlink(ROOTPATH . 'public/uploads/perfiles/' . $fotoUrl);
+            }
+
+            $datosPersona = ['FOTO_URL' => ''];
+            $resultado = $usuarioModel->actualizarPerfil($userId, $datosPersona, []);
+
+            if ($resultado) {
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Foto de perfil eliminada correctamente'
+                ]);
+            }
+
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error al actualizar el perfil'
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Error eliminando imagen de perfil: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error interno del servidor'
+            ]);
+        }
+    }
 }

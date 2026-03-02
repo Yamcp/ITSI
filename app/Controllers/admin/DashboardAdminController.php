@@ -9,6 +9,7 @@ use App\Models\InstitucionesConveniosModel;
 use App\Models\DetallesConveniosModel;
 use App\Models\AsignacionesPracticasModel;
 use App\Models\CarrerasModel;
+use Config\Database;
 
 class DashboardAdminController extends BaseController
 {
@@ -53,6 +54,24 @@ class DashboardAdminController extends BaseController
         // Obtener distribución por carrera
         $distribucionCarreras = $this->obtenerDistribucionCarreras();
 
+        // Obtener período académico actual (reutilizando lógica del navbar)
+        $periodoNombre = session('periodo_academico_nombre');
+        $periodoRango  = session('periodo_academico_rango');
+
+        if (!$periodoNombre) {
+            try {
+                $db = Database::connect();
+                $row = $db->query("SELECT * FROM V_PERIODO_ACADEMICO_ACTUAL LIMIT 1")->getRowArray();
+
+                if ($row) {
+                    $periodoNombre = $row['NOMBRE_PERIODO'] ?? null;
+                    $periodoRango  = ($row['FECHA_INICIO'] ?? '') . ' - ' . ($row['FECHA_FIN'] ?? '');
+                }
+            } catch (\Throwable $e) {
+                log_message('error', 'Dashboard admin - error obteniendo período académico actual: ' . $e->getMessage());
+            }
+        }
+
         $data = [
             'title' => 'Panel de Control | ITSI',
             'description' => 'Dashboard del sistema ITSI',
@@ -61,7 +80,9 @@ class DashboardAdminController extends BaseController
             'datosGraficas' => $datosGraficas,
             'actividadesRecientes' => $actividadesRecientes,
             'vencimientos' => $vencimientos,
-            'distribucionCarreras' => $distribucionCarreras
+            'distribucionCarreras' => $distribucionCarreras,
+            'periodoAcademicoNombre' => $periodoNombre,
+            'periodoAcademicoRango' => $periodoRango,
         ];
 
         return view('admin/dashboard/dashboardAdmin', $data);
