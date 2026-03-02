@@ -1,3 +1,24 @@
+<?php
+use Config\Database;
+
+$periodoNombre = session('periodo_academico_nombre');
+$periodoRango  = session('periodo_academico_rango');
+
+if (!$periodoNombre) {
+    try {
+        $db = Database::connect();
+        $row = $db->query("SELECT * FROM V_PERIODO_ACADEMICO_ACTUAL LIMIT 1")->getRowArray();
+
+        if ($row) {
+            $periodoNombre = $row['NOMBRE_PERIODO'] ?? null;
+            $periodoRango  = ($row['FECHA_INICIO'] ?? '') . ' - ' . ($row['FECHA_FIN'] ?? '');
+        }
+    } catch (\Throwable $e) {
+        log_message('error', 'Navbar admin - error obteniendo período académico actual: ' . $e->getMessage());
+    }
+}
+?>
+
 <header class="app-header w-100">
     <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #00367c;">
         <a class="navbar-brand d-flex align-items-center" href="<?= base_url('admin/inicio') ?>"></a>
@@ -10,11 +31,22 @@
         </ul>
         <div class="navbar-collapse justify-content-end px-0" id="navbarNav">
             <ul class="navbar-nav flex-row ms-auto align-items-center justify-content-end">
-                <li class="nav-item me-3">
+                <li class="nav-item me-3 d-flex flex-column align-items-end">
                     <span class="text-white fw-medium">
                         <i class="ti ti-user-circle me-1"></i>
                         Bienvenido al sistema, <?= session('nombre') ?? 'Administrador' ?>
                     </span>
+                    <?php if ($periodoNombre): ?>
+                        <span class="text-white-50 small">
+                            Período académico:
+                            <strong><?= esc($periodoNombre) ?></strong>
+                            <?php if ($periodoRango): ?>
+                                <span class="ms-1">
+                                    (<?= esc($periodoRango) ?>)
+                                </span>
+                            <?php endif; ?>
+                        </span>
+                    <?php endif; ?>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link nav-icon-hover" href="javascript:void(0)" id="drop2" data-bs-toggle="dropdown" aria-expanded="false">

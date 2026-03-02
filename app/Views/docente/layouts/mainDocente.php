@@ -53,6 +53,37 @@
     <script src="<?= base_url('sistema/assets/js/dashboard.js') ?>"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+
+    <script>
+        // Cierre automático de sesión al cerrar la pestaña/ventana (docente)
+        (function() {
+            let cerrandoSesionPorSistema = false;
+
+            window.addEventListener('beforeunload', function () {
+                if (cerrandoSesionPorSistema || window.__cerrandoSesionAuto) {
+                    return;
+                }
+
+                cerrandoSesionPorSistema = true;
+                window.__cerrandoSesionAuto = true;
+
+                const url = '<?= base_url('auth/cerrar-sesion') ?>';
+
+                if (navigator.sendBeacon) {
+                    const data = new Blob([], { type: 'application/x-www-form-urlencoded' });
+                    navigator.sendBeacon(url, data);
+                } else {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open('POST', url, false);
+                    try {
+                        xhr.send();
+                    } catch (e) {
+                        // Ignorar errores
+                    }
+                }
+            });
+        })();
+    </script>
 </body>
 
 </html>

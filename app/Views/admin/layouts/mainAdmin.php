@@ -58,8 +58,48 @@
     <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
     
     <script>
+        // Cierre automático de sesión al cerrar la pestaña/ventana
+        (function() {
+            let cerrandoSesionPorSistema = false;
+
+            // Exponer flag global para reutilizarlo desde otras funciones si es necesario
+            window.__cerrandoSesionAuto = false;
+
+            window.addEventListener('beforeunload', function () {
+                if (cerrandoSesionPorSistema || window.__cerrandoSesionAuto) {
+                    return;
+                }
+
+                cerrandoSesionPorSistema = true;
+                window.__cerrandoSesionAuto = true;
+
+                const url = '<?= base_url('auth/cerrar-sesion') ?>';
+
+                // Intento principal con sendBeacon (POST)
+                if (navigator.sendBeacon) {
+                    try {
+                        const data = new Blob([], { type: 'application/x-www-form-urlencoded' });
+                        navigator.sendBeacon(url, data);
+                    } catch (e) {
+                        // Ignorar errores de beacon
+                    }
+                }
+
+                // Disparo adicional por GET para evitar problemas de CSRF o métodos
+                try {
+                    const img = new Image();
+                    img.src = url + '?auto=1&_ts=' + Date.now();
+                } catch (e) {
+                    // Ignorar errores
+                }
+            });
+        })();
+    </script>
+    
+    <script>
         // Función para manejar el cierre de sesión
         function cerrarSesion() {
+            window.__cerrandoSesionAuto = true;
             // Mostrar indicador de carga
             const btnCerrar = document.getElementById('btnCerrarSesion') || document.querySelector('a[href*="cerrar-sesion"]');
             if (btnCerrar) {

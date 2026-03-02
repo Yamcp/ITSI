@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\UsuariosModel;
+use Config\Database;
 
 class AuthController extends BaseController 
 {
@@ -63,6 +64,33 @@ class AuthController extends BaseController
                 'estado' => $userData['estado'],
                 'logged_in' => TRUE
             ];
+
+            // Intentar obtener el período académico actual y guardarlo en sesión
+            try {
+                $db = Database::connect();
+
+                // Primero intentamos usar la vista V_PERIODO_ACADEMICO_ACTUAL si existe
+                $builder = $db->table('V_PERIODO_ACADEMICO_ACTUAL');
+                $periodo = $builder->get(1)->getRowArray();
+
+                // Si no hay resultados en la vista, probamos directamente sobre la tabla de períodos
+                if (!$periodo) {
+                    $builder = $db->table('TAB_PERIODOS_ACADEMICOS');
+                    $builder->where('ESTADO', 'Activo');
+                    $builder->orderBy('FECHA_INICIO', 'DESC');
+                    $periodo = $builder->get(1)->getRowArray();
+                }
+
+                if ($periodo) {
+                    $ses_data['periodo_academico_id'] = $periodo['ID_PERIODO_ACADEMICO'] ?? null;
+                    $ses_data['periodo_academico_nombre'] = $periodo['NOMBRE_PERIODO'] ?? null;
+                    $ses_data['periodo_academico_anio'] = $periodo['AÑO_ACADEMICO'] ?? ($periodo['ANIO_ACADEMICO'] ?? null);
+                    $ses_data['periodo_academico_rango'] = ($periodo['FECHA_INICIO'] ?? '') . ' - ' . ($periodo['FECHA_FIN'] ?? '');
+                }
+            } catch (\Throwable $e) {
+                // En caso de error, solo registramos el problema y continuamos sin interrumpir el login
+                log_message('error', 'Error al obtener período académico actual: ' . $e->getMessage());
+            }
 
             $session->set($ses_data);
 
@@ -135,8 +163,12 @@ class AuthController extends BaseController
             'apellido',
             'rol',
             'estado',
-            'logged_in',
-            'foto_perfil'
+                'logged_in',
+                'foto_perfil',
+                'periodo_academico_id',
+                'periodo_academico_nombre',
+                'periodo_academico_anio',
+                'periodo_academico_rango'
         ]);
         
         // Destruir la sesión completa
