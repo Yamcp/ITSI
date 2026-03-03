@@ -18,8 +18,10 @@ class DocumentosPracticasModel extends Model
         'NOMBRE_ARCHIVO',
         'TIPO_ARCHIVO',
         'FECHA_SUBIDA',
-        'ESTADO_REVISION',
-        'OBSERVACIONES'
+        'ID_ESTADO_REVISION',
+        'OBSERVACIONES',
+        'ENTIDAD_RECEPTORA',
+        'DOCENTE_TUTOR'
     ];
 
     // Dates
@@ -36,7 +38,7 @@ class DocumentosPracticasModel extends Model
         'NOMBRE_ARCHIVO' => 'required|max_length[255]',
         'TIPO_ARCHIVO' => 'required|max_length[100]',
         'FECHA_SUBIDA' => 'required|valid_date',
-        'ESTADO_REVISION' => 'permit_empty|max_length[50]',
+        'ID_ESTADO_REVISION' => 'permit_empty|integer|in_list[1,2,3,4,5]',
         'OBSERVACIONES' => 'permit_empty'
     ];
 
@@ -197,11 +199,33 @@ class DocumentosPracticasModel extends Model
         }
         
         $builder->select($selectFields);
-        // No hay tabla de estados, usar campo directo
         $builder->join('TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES tdp', 'dp.ID_TIPO_DOCUMENTO = tdp.ID_TIPO_DOCUMENTO_PREPROFESIONAL', 'left');
-        $builder->where('dp.ID_USUARIO', $idUsuario);
+
+        // Filtrar por prácticas del estudiante (la tabla usa ID_PRACTICA_PREPROFESIONAL, no ID_USUARIO)
+        $estudiante = $this->db->table('TAB_ESTUDIANTES e')
+            ->select('e.ID_ESTUDIANTE')
+            ->join('TAB_USUARIOS u', 'u.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+            ->where('u.ID_USUARIO', $idUsuario)
+            ->get()
+            ->getRowArray();
+        if ($estudiante) {
+            $idsPracticas = $this->db->table('practicas_preprofesionales')
+                ->select('ID_PRACTICA_PREPROFESIONAL')
+                ->where('ID_ESTUDIANTE', $estudiante['ID_ESTUDIANTE'])
+                ->get()
+                ->getResultArray();
+            $ids = array_column($idsPracticas, 'ID_PRACTICA_PREPROFESIONAL');
+            if (!empty($ids)) {
+                $builder->whereIn('dp.ID_PRACTICA_PREPROFESIONAL', $ids);
+            } else {
+                $builder->where('1 = 0'); // sin prácticas, sin documentos
+            }
+        } else {
+            $builder->where('1 = 0');
+        }
+
         $builder->orderBy('tdp.CODIGO', 'ASC');
-        
+
         return $builder->get()->getResultArray();
     }
 
@@ -331,44 +355,116 @@ class DocumentosPracticasModel extends Model
     }
 
     /**
-     * Verificar si un estudiante ya tiene un documento de un tipo específico
+     * Verificar si un estudiante ya tiene un documento de un tipo específico.
+     * La tabla usa ID_PRACTICA_PREPROFESIONAL (no ID_USUARIO). Se obtienen las prácticas del estudiante y se filtran documentos por ellas.
      */
     public function verificarDocumentoExistente($idUsuario, $idTipoDocumento)
     {
-        return $this->where('ID_PRACTICA_PREPROFESIONAL', $idUsuario)
+        $estudiante = $this->db->table('TAB_ESTUDIANTES e')
+            ->select('e.ID_ESTUDIANTE')
+            ->join('TAB_USUARIOS u', 'u.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+            ->where('u.ID_USUARIO', $idUsuario)
+            ->get()
+            ->getRowArray();
+        if (!$estudiante) {
+            return null;
+        }
+        $idsPracticas = $this->db->table('practicas_preprofesionales')
+            ->select('ID_PRACTICA_PREPROFESIONAL')
+            ->where('ID_ESTUDIANTE', $estudiante['ID_ESTUDIANTE'])
+            ->get()
+            ->getResultArray();
+        $ids = array_column($idsPracticas, 'ID_PRACTICA_PREPROFESIONAL');
+        if (empty($ids)) {
+            return null;
+        }
+        return $this->whereIn('ID_PRACTICA_PREPROFESIONAL', $ids)
                     ->where('ID_TIPO_DOCUMENTO', $idTipoDocumento)
                     ->first();
     }
 
     /**
-     * Obtener progreso de documentos por estudiante
+     * Obtener ID de la primera práctica preprofesional del estudiante (por ID_USUARIO).
+     * Usado al subir documento cuando no se envía id_practica en el formulario.
+     */
+    public function getIdPrimeraPracticaEstudiante($idUsuario)
+    {
+        $row = $this->db->table('TAB_ESTUDIANTES e')
+            ->select('e.ID_ESTUDIANTE')
+            ->join('TAB_USUARIOS u', 'u.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+            ->where('u.ID_USUARIO', $idUsuario)
+            ->get()
+            ->getRowArray();
+        if (!$row) {
+            return null;
+        }
+        $practica = $this->db->table('practicas_preprofesionales')
+            ->select('ID_PRACTICA_PREPROFESIONAL')
+            ->where('ID_ESTUDIANTE', $row['ID_ESTUDIANTE'])
+            ->orderBy('ID_PRACTICA_PREPROFESIONAL', 'ASC')
+            ->limit(1)
+            ->get()
+            ->getRowArray();
+        return $practica ? (int) $practica['ID_PRACTICA_PREPROFESIONAL'] : null;
+    }
+
+    /**
+     * Obtener progreso de documentos por estudiante.
+     * La tabla usa ID_PRACTICA_PREPROFESIONAL (no ID_USUARIO). Se obtienen las prácticas del estudiante y se filtran documentos por ellas.
      */
     public function getProgresoEstudiante($idUsuario)
     {
+        // Obtener ID_ESTUDIANTE del usuario (via TAB_USUARIOS / TAB_ESTUDIANTES por ID_DATO_PERSONA)
+        $estudiante = $this->db->table('TAB_ESTUDIANTES e')
+            ->select('e.ID_ESTUDIANTE')
+            ->join('TAB_USUARIOS u', 'u.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+            ->where('u.ID_USUARIO', $idUsuario)
+            ->get()
+            ->getRowArray();
+
+        if (!$estudiante) {
+            return [];
+        }
+
+        $idsPracticas = $this->db->table('practicas_preprofesionales')
+            ->select('ID_PRACTICA_PREPROFESIONAL')
+            ->where('ID_ESTUDIANTE', $estudiante['ID_ESTUDIANTE'])
+            ->get()
+            ->getResultArray();
+        $ids = array_column($idsPracticas, 'ID_PRACTICA_PREPROFESIONAL');
+        if (empty($ids)) {
+            $ids = [0]; // evita IN () vacío; no habrá documentos
+        }
+
         $builder = $this->db->table($this->table . ' dp');
-        
-        // Construir SELECT dinámicamente
-        $selectFields = '
+
+        $selectFields = "
             tdp.ID_TIPO_DOCUMENTO_PREPROFESIONAL,
             tdp.CODIGO,
             tdp.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
-            dp.ID_DOCUMENTO_PREPROFESIONAL,
-            dp.FECHA_SUBIDA,
-            er.ESTADO as ESTADO_REVISION
-        ';
-        
-        // Agregar OBSERVACIONES_REVISOR solo si la columna existe
+            MAX(dp.ID_DOCUMENTO_PREPROFESIONAL) as ID_DOCUMENTO_PREPROFESIONAL,
+            MAX(dp.FECHA_SUBIDA) as FECHA_SUBIDA,
+            CASE MAX(dp.ID_ESTADO_REVISION)
+                WHEN 1 THEN 'Pendiente'
+                WHEN 2 THEN 'Aprobado'
+                WHEN 3 THEN 'Rechazado'
+                WHEN 4 THEN 'En Revisión'
+                WHEN 5 THEN 'Requiere Corrección'
+                ELSE 'Pendiente'
+            END as ESTADO_REVISION
+        ";
+
         if ($this->columnExists('OBSERVACIONES_REVISOR')) {
-            $selectFields .= ', dp.OBSERVACIONES_REVISOR';
+            $selectFields .= ', MAX(dp.OBSERVACIONES_REVISOR) as OBSERVACIONES_REVISOR';
         }
-        
+
+        // Desde tipos, LEFT JOIN documentos que pertenezcan a prácticas del estudiante (un tipo puede tener 0 o 1 doc por estudiante)
+        $builder->from('TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES tdp');
+        $builder->join($this->table . ' dp', 'dp.ID_TIPO_DOCUMENTO = tdp.ID_TIPO_DOCUMENTO_PREPROFESIONAL AND dp.ID_PRACTICA_PREPROFESIONAL IN (' . implode(',', array_map('intval', $ids)) . ')', 'left');
         $builder->select($selectFields);
-        $builder->join('TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES tdp', 'dp.ID_TIPO_DOCUMENTO = tdp.ID_TIPO_DOCUMENTO_PREPROFESIONAL', 'right');
-        // No hay tabla de estados, usar campo directo
-        $builder->where('dp.ID_USUARIO', $idUsuario);
-        $builder->orWhere('dp.ID_USUARIO IS NULL');
+        $builder->groupBy('tdp.ID_TIPO_DOCUMENTO_PREPROFESIONAL, tdp.CODIGO, tdp.NOMBRE');
         $builder->orderBy('tdp.CODIGO', 'ASC');
-        
+
         return $builder->get()->getResultArray();
     }
 

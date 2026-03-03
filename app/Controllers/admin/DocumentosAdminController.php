@@ -87,11 +87,11 @@ class DocumentosAdminController extends BaseController
                     ]);
                 }
                 
-                // Validar tamaño (máximo 50 MB)
-                if ($archivo->getSize() > 50 * 1024 * 1024) {
+                // Validar tamaño (máximo 10 MB)
+                if ($archivo->getSize() > 10 * 1024 * 1024) {
                     return $this->response->setJSON([
                         'success' => false,
-                        'message' => 'El archivo excede el tamaño máximo permitido (50 MB)'
+                        'message' => 'El archivo excede el tamaño máximo permitido (10 MB)'
                     ]);
                 }
                 
@@ -300,11 +300,11 @@ class DocumentosAdminController extends BaseController
                     ]);
                 }
                 
-                // Validar tamaño (máximo 50 MB)
-                if ($archivo->getSize() > 50 * 1024 * 1024) {
+                // Validar tamaño (máximo 10 MB)
+                if ($archivo->getSize() > 10 * 1024 * 1024) {
                     return $this->response->setJSON([
                         'success' => false,
-                        'message' => 'El archivo excede el tamaño máximo permitido (50 MB)'
+                        'message' => 'El archivo excede el tamaño máximo permitido (10 MB)'
                     ]);
                 }
                 

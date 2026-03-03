@@ -240,7 +240,8 @@ $routes->group('estudiante', ['namespace' => 'App\Controllers\estudiante'], func
     $routes->get('convenios', 'InstitucionesConveniosController::index');        // Ver la sección de convenios
     
     // Rutas para prácticas
-    $routes->get('practicas', 'PracticasEstudianteController::index'); // Ver prácticas del estudiante
+    $routes->get('practicas', 'PracticasEstudianteController::index'); // Prácticas preprofesionales
+    $routes->get('practicas/servicio-comunitario', 'PracticasEstudianteController::servicioComunitario'); // Prácticas de servicio comunitario
     $routes->get('practicas/detalle/(:num)/(:alpha)', 'PracticasEstudianteController::detalle/$1/$2'); // Detalle de práctica
     $routes->post('practicas/registrar-actividad', 'PracticasEstudianteController::registrarActividad'); // Registrar actividad
     $routes->post('practicas/subir-documento', 'PracticasEstudianteController::subirDocumento'); // Subir documento

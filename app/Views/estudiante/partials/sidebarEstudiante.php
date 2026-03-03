@@ -53,7 +53,15 @@
                         <span>
                             <i class="fa-solid fa-user-graduate fs-6"></i>
                         </span>
-                        <span class="hide-menu">Mis prácticas</span>
+                        <span class="hide-menu">Prácticas Preprofesionales</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link" href="<?= base_url('estudiante/practicas/servicio-comunitario') ?>" aria-expanded="false">
+                        <span>
+                            <i class="fa-solid fa-hands-helping fs-6"></i>
+                        </span>
+                        <span class="hide-menu">Prácticas de servicio comunitario</span>
                     </a>
                 </li>
             </ul>

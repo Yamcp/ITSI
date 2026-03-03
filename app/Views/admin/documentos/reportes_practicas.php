@@ -121,7 +121,7 @@
                                 <label class="form-label">Docente Tutor</label>
                                 <select class="form-select" name="docente_tutor">
                                     <option value="">Todos los docentes</option>
-                                    <option value="1" <?= (isset($filtros['docente_tutor']) && $filtros['docente_tutor'] == '1') ? 'selected' : '' ?>>Dr. Mario Montenegro - Rector</option>
+                                    <option value="1" <?= (isset($filtros['docente_tutor']) && $filtros['docente_tutor'] == '1') ? 'selected' : '' ?>>Dr. tenegro - Rector</option>
                                     <option value="2" <?= (isset($filtros['docente_tutor']) && $filtros['docente_tutor'] == '2') ? 'selected' : '' ?>>Ing. Juan Pérez - Coordinador</option>
                                     <option value="3" <?= (isset($filtros['docente_tutor']) && $filtros['docente_tutor'] == '3') ? 'selected' : '' ?>>Mg. María González - Tutora</option>
                                 </select>

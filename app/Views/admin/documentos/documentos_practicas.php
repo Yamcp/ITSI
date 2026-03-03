@@ -197,116 +197,6 @@
             </div>
         </div>
 
-        <!-- Datos para validación - Prácticas Laborales 240 horas -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card shadow-sm border-primary">
-                    <div class="card-header bg-primary text-white py-2">
-                        <h5 class="mb-0">
-                            <i class="fas fa-clipboard-list me-2"></i>
-                            Datos para validación - Prácticas Laborales 240 horas
-                        </h5>
-                    </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-bordered table-sm mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th style="width: 8%;">NUM</th>
-                                        <th style="width: 77%;">DATOS</th>
-                                        <th style="width: 15%;" class="text-center">CHECKLIST</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr class="table-info">
-                                        <td colspan="3" class="fw-bold">INFORME DE PRÁCTICAS LABORALES</td>
-                                    </tr>
-                                    <tr>
-                                        <td>1</td>
-                                        <td>Oficio de asignación de tutor docente emitido por el coordinador de la carrera.</td>
-                                        <td class="text-center">—</td>
-                                    </tr>
-                                    <tr>
-                                        <td>2</td>
-                                        <td>Oficio personal realizado a la entidad receptora donde se realizó las prácticas laborales.</td>
-                                        <td class="text-center">—</td>
-                                    </tr>
-                                    <tr>
-                                        <td>3</td>
-                                        <td>Carta de aceptación de la entidad receptora, dirigida al estudiante o al ITSI, con él o los nombres de los estudiantes que van a realizar las Prácticas laborales.</td>
-                                        <td class="text-center">—</td>
-                                    </tr>
-                                    <tr>
-                                        <td>4</td>
-                                        <td>Solicitud institucional valorada dirigida al Sr. Rector Dr. Mario Montenegro solicitando a la institución la aceptación de las prácticas laborales, previamente aprobada.</td>
-                                        <td class="text-center">—</td>
-                                    </tr>
-                                    <tr>
-                                        <td>5</td>
-                                        <td>Certificado de haber culminado las Prácticas Laborales por 240 horas, emitido por la entidad receptora al estudiante.</td>
-                                        <td class="text-center">—</td>
-                                    </tr>
-                                    <tr class="table-info">
-                                        <td colspan="3" class="fw-bold">Rúbricas y hojas de asistencia para el seguimiento docente.</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="small text-muted">Depende del total de horas.</td>
-                                        <td colspan="2"></td>
-                                    </tr>
-                                    <tr>
-                                        <td>1</td>
-                                        <td><strong>Rúbrica de Evaluación Entidad Receptora.</strong> <span class="text-muted">(Llena, firmada y sellada por las entidades receptoras)</span></td>
-                                        <td class="text-center">—</td>
-                                    </tr>
-                                    <tr>
-                                        <td>2</td>
-                                        <td><strong>Hojas de asistencia de estudiantes.</strong> <span class="text-muted">(Llenas, firmadas y selladas por las entidades receptoras)</span></td>
-                                        <td class="text-center">—</td>
-                                    </tr>
-                                    <tr>
-                                        <td>3</td>
-                                        <td><strong>Ficha de registro de Actividades Realizadas.</strong> <span class="text-muted">(Llenas, firmadas y selladas por las entidades receptoras)</span></td>
-                                        <td class="text-center">—</td>
-                                    </tr>
-                                    <tr>
-                                        <td class="small text-muted">Por semana una visita</td>
-                                        <td colspan="2"></td>
-                                    </tr>
-                                    <tr>
-                                        <td>1</td>
-                                        <td><strong>Ficha de Control y Seguimiento Docente.</strong> <span class="text-muted">(Llenas, firmadas y selladas por los docentes tutores)</span></td>
-                                        <td class="text-center">—</td>
-                                    </tr>
-                                    <tr>
-                                        <td>2</td>
-                                        <td><strong>Rúbrica de Evaluación de Control y Seguimiento Docente.</strong> <span class="text-muted">(Llena, firmada y sellada por los docentes tutores)</span></td>
-                                        <td class="text-center">—</td>
-                                    </tr>
-                                    <tr>
-                                        <td>1</td>
-                                        <td>Respaldo en fotos de los trabajos y actividades realizadas en las prácticas laborales, por medio de fotos, capturas, videos, impresiones, entre otros.</td>
-                                        <td class="text-center">—</td>
-                                    </tr>
-                                    <tr class="table-info">
-                                        <td colspan="3" class="fw-bold">ENVÍO DE DOCUMENTO FINAL Y LLENAR LA BASE DE DATOS</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="alert alert-warning mb-0 rounded-0 border-0 border-top border-warning">
-                            <strong><i class="fas fa-exclamation-circle me-2"></i>RECUERDE:</strong>
-                            <ul class="mb-0 mt-1">
-                                <li>Es importante completar todos los datos en el orden indicado.</li>
-                                <li>Los documentos deben contar con firmas y sellos originales tanto de la entidad receptora como del ITSI.</li>
-                                <li>Una vez reunidos todos los documentos, debe acudir al coordinador para la validación.</li>
-                                <li>Después de la validación, se debe cargar toda la información relacionada en la base de datos del instituto.</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Tablas de Documentos por Tipo -->
         <div id="vistaGrid">
             <?php if (!empty($tiposDocumentos)): ?>
@@ -475,7 +365,7 @@
                         <label class="form-label">Docente Tutor</label>
                         <select class="form-select" name="filtro_docente">
                             <option value="">Todos los docentes</option>
-                            <option value="1">Dr. Mario Montenegro - Rector</option>
+                            <option value="1">Dr. José Pijal - Rector</option>
                             <option value="2">Ing. Juan Pérez - Coordinador</option>
                             <option value="3">Mg. María González - Tutora</option>
                         </select>

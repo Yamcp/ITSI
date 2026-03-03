@@ -90,20 +90,30 @@ class DocumentosPracticasEstudianteController extends BaseController
             }
 
             if ($archivo->isValid() && !$archivo->hasMoved()) {
+                $idPractica = $this->request->getPost('id_practica');
+                if (empty($idPractica)) {
+                    $idPractica = $this->documentosModel->getIdPrimeraPracticaEstudiante($idUsuario);
+                }
+                if (empty($idPractica)) {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'No tienes una práctica preprofesional registrada. Regístrala primero.'
+                    ]);
+                }
+
                 $nombreArchivo = $this->generarNombreArchivo($archivo, $idUsuario);
                 $archivo->move($uploadPath, $nombreArchivo);
 
                 $datos = [
+                    'ID_PRACTICA_PREPROFESIONAL' => (int) $idPractica,
                     'ID_ESTADO_REVISION' => 1, // Estado inicial: Pendiente
                     'ID_TIPO_DOCUMENTO' => $this->request->getPost('tipo_documento'),
-                    'ID_USUARIO' => $idUsuario,
                     'NOMBRE_ARCHIVO' => $nombreArchivo,
-                    'TIPO' => $archivo->getClientName(),
+                    'TIPO_ARCHIVO' => $archivo->getClientMimeType() ?: $archivo->getClientName(),
                     'FECHA_SUBIDA' => date('Y-m-d H:i:s'),
                     'OBSERVACIONES' => $this->request->getPost('observaciones') ?? '',
                     'ENTIDAD_RECEPTORA' => $this->request->getPost('entidad_receptora') ?? '',
-                    'DOCENTE_TUTOR' => $this->request->getPost('docente_tutor') ?? '',
-                    'PRIORIDAD' => 'media'
+                    'DOCENTE_TUTOR' => $this->request->getPost('docente_tutor') ?? ''
                 ];
 
                 if ($this->documentosModel->insert($datos)) {

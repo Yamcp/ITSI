@@ -123,8 +123,8 @@
         <div class="row">
             <div class="col-12">
                 <h3 class="text-center my-3">
-                    <i class="fas fa-briefcase me-2"></i>
-                    Mis Prácticas
+                    <i class="fas fa-user-graduate me-2"></i>
+                    Prácticas Preprofesionales
                 </h3>
             </div>
         </div>
@@ -200,7 +200,7 @@
             <div class="col-md-3 col-sm-6 mb-3">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="#" onclick="contactarSupervisor()" style="text-decoration: none; color: inherit;">
+                        <a href="https://wa.me/593995298537" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: inherit;">
                             <i class="fas fa-comments fa-2x mb-2" style="color: #dc3545; text-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);"></i>
                             <div class="fw-bold">Contactar Supervisor</div>
                         </a>
@@ -209,38 +209,16 @@
             </div>
         </div>
 
-        <!-- Tabs Navigation -->
+        <!-- Listado de Prácticas Preprofesionales -->
         <div class="row">
             <div class="col-12">
                 <div class="card border-0 shadow-sm">
-                    <div class="card-body pb-0">
-                        <ul class="nav nav-tabs nav-justified rounded-pill bg-light px-2 py-1" id="practicasTabs" role="tablist" style="gap: 0.5rem;">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active rounded-pill fw-semibold text-primary" id="preprofesionales-tab" data-bs-toggle="tab" data-bs-target="#preprofesionales" type="button" role="tab" aria-selected="true" style="transition: background 0.2s;">
-                                    <i class="fas fa-building me-2"></i>
-                                    Prácticas Preprofesionales
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-pill fw-semibold text-success" id="servicio-tab" data-bs-toggle="tab" data-bs-target="#servicio" type="button" role="tab" aria-selected="false" style="transition: background 0.2s;">
-                                    <i class="fas fa-heart me-2"></i>
-                                    Servicio Comunitario
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-pill fw-semibold text-info" id="documentos-tab" data-bs-toggle="tab" data-bs-target="#documentos" type="button" role="tab" aria-selected="false" style="transition: background 0.2s;">
-                                    <i class="fas fa-file-alt me-2"></i>
-                                    Mis Documentos
-                                </button>
-                            </li>
-                        </ul>
-                        <hr class="mt-0 mb-2" style="border-top: 2px solid #e3e6f0;">
-
-                        <!-- Contenido de las pestañas -->
-                        <div class="tab-content mt-3" id="practicasTabContent">
-                            <!-- Prácticas Preprofesionales -->
-                            <div class="tab-pane fade show active" id="preprofesionales" role="tabpanel">
-                                <?php if (!empty($practicasPreprofesionales)): ?>
+                    <div class="card-body">
+                        <h5 class="mb-4">
+                            <i class="fas fa-building me-2"></i>
+                            Mis prácticas preprofesionales
+                        </h5>
+                        <?php if (!empty($practicasPreprofesionales)): ?>
                                     <?php foreach ($practicasPreprofesionales as $practica): ?>
                                         <div class="practica-card">
                                             <div class="practica-header">
@@ -305,7 +283,7 @@
                                                     </div>
                                                     <div class="col-md-4 text-center">
                                                         <div class="progreso-circular">
-                                                            <canvas id="progresoPre<?= $practica['ID_PRACTICA_PREPROFESIONAL'] ?>" width="80" height="80"></canvas>
+                                                            <canvas id="progresoPre<?= $practica['ID_PRACTICA_PREPROFESIONAL'] ?>" width="80" height="80" data-porcentaje="75"></canvas>
                                                             <div class="progreso-texto">75%</div>
                                                         </div>
                                                     </div>
@@ -336,202 +314,242 @@
                                         <p class="text-muted">Contacta con tu coordinador para más información</p>
                                     </div>
                                 <?php endif; ?>
-                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                            <!-- Servicio Comunitario -->
-                            <div class="tab-pane fade" id="servicio" role="tabpanel">
-                                <?php if (!empty($serviciosComunitarios)): ?>
-                                    <?php foreach ($serviciosComunitarios as $servicio): ?>
-                                        <div class="practica-card">
-                                            <div class="practica-header" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
-                                                <div class="row align-items-center">
-                                                    <div class="col-md-8">
-                                                        <h5 class="mb-1">
-                                                            <i class="fas fa-heart me-2"></i>
-                                                            <?= $servicio['INSTITUCION_NOMBRE'] ?>
-                                                        </h5>
-                                                        <p class="mb-0 opacity-75"><?= $servicio['PROYECTO_SOCIAL'] ?? 'Sin descripción específica' ?></p>
-                                                    </div>
-                                                    <div class="col-md-4 text-md-end">
-                                                        <?php
-                                                        $estadoClass = '';
-                                                        switch($servicio['ESTADO_SERVICIO']) {
-                                                            case 'Completado':
-                                                                $estadoClass = 'bg-success text-white';
-                                                                break;
-                                                            case 'En Progreso':
-                                                                $estadoClass = 'bg-warning text-dark';
-                                                                break;
-                                                            case 'Pendiente':
-                                                                $estadoClass = 'bg-info text-dark';
-                                                                break;
-                                                            default:
-                                                                $estadoClass = 'bg-secondary text-white';
-                                                        }
-                                                        ?>
-                                                        <span class="estado-badge <?= $estadoClass ?>"><?= $servicio['ESTADO_SERVICIO'] ?></span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="practica-body">
-                                                <div class="row">
-                                                    <div class="col-md-8">
-                                                        <div class="row mb-3">
-                                                            <div class="col-md-6">
-                                                                <strong>Período:</strong><br>
-                                                                <small class="text-muted">
-                                                                    <?= date('d/m/Y', strtotime($servicio['FECHA_INICIO'])) ?> - 
-                                                                    <?= date('d/m/Y', strtotime($servicio['FECHA_FIN'])) ?>
-                                                                </small>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <strong>Horas Totales:</strong><br>
-                                                                <span class="badge bg-info"><?= $servicio['HORAS_SERVICIO'] ?>h</span>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row">
-                                                            <div class="col-md-6">
-                                                                <strong>Supervisor:</strong><br>
-                                                                <small class="text-muted"><?= $servicio['SUPERVISOR_NOMBRE'] ?? 'No asignado' ?></small>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <strong>Progreso:</strong><br>
-                                                                <div class="progress" style="height: 8px;">
-                                                                    <div class="progress-bar bg-info" style="width: 47%"></div>
-                                                                </div>
-                                                                <small class="text-muted">47% completado</small>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-4 text-center">
-                                                        <div class="progreso-circular">
-                                                            <canvas id="progresoServ<?= $servicio['ID_SERVICIO_COMUNITARIO'] ?>" width="80" height="80"></canvas>
-                                                            <div class="progreso-texto">47%</div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <hr>
-                                                <div class="row">
-                                                    <div class="col-12">
-                                                        <div class="btn-group w-100" role="group">
-                                                            <button class="btn btn-outline-primary accion-btn" onclick="verDetallePractica(<?= $servicio['ID_SERVICIO_COMUNITARIO'] ?>, 'servicio')">
-                                                                <i class="fas fa-eye me-1"></i>Ver Detalle
-                                                            </button>
-                                                            <button class="btn btn-outline-success accion-btn" onclick="registrarActividadPractica(<?= $servicio['ID_SERVICIO_COMUNITARIO'] ?>, 'servicio')">
-                                                                <i class="fas fa-plus me-1"></i>Registrar
-                                                            </button>
-                                                            <button class="btn btn-outline-info accion-btn" onclick="verDocumentos(<?= $servicio['ID_SERVICIO_COMUNITARIO'] ?>, 'servicio')">
-                                                                <i class="fas fa-file-alt me-1"></i>Documentos
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+        <?php
+        $tiposArr = $tipos_documentos ?? [];
+        $progreso = $progreso_documentos ?? [];
+        $idx = 0;
+        ?>
+
+        <!-- Tabla 1: Informe de Prácticas Laborales -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header text-white" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                        <h5 class="mb-0">
+                            <i class="fas fa-file-contract me-2"></i>
+                            INFORME DE PRÁCTICAS LABORALES
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th width="60" class="text-center">NUM</th>
+                                        <th>DATOS</th>
+                                        <th width="140" class="text-center">CHECKLIST</th>
+                                        <th width="160" class="text-center">ACCIÓN</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach (($checklist_informe ?? []) as $item): ?>
+                                        <?php
+                                        $tipo = $tiposArr[$idx] ?? $tiposArr[0] ?? null;
+                                        $idTipo = $tipo['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?? $tipo['ID_TIPO_DOCUMENTO'] ?? 0;
+                                        $docRow = null;
+                                        foreach ($progreso as $doc) {
+                                            $docTipoId = $doc['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?? $doc['ID_TIPO_DOCUMENTO'] ?? null;
+                                            if ($docTipoId == $idTipo && !empty($doc['ID_DOCUMENTO_PRACTICA'] ?? $doc['ID_DOCUMENTO_PREPROFESIONAL'] ?? null)) {
+                                                $docRow = $doc;
+                                                break;
+                                            }
+                                        }
+                                        $estado = $docRow ? ($docRow['ESTADO_REVISION'] ?? 'Pendiente') : 'Pendiente';
+                                        $idDoc = $docRow['ID_DOCUMENTO_PRACTICA'] ?? $docRow['ID_DOCUMENTO_PREPROFESIONAL'] ?? null;
+                                        $idx++;
+                                        ?>
+                                    <tr>
+                                        <td class="text-center fw-bold"><?= $item['num'] ?></td>
+                                        <td><small><?= esc($item['datos']) ?></small></td>
+                                        <td class="text-center">
+                                            <?php if ($estado === 'Aprobado'): ?>
+                                                <span class="badge bg-success"><i class="fas fa-check me-1"></i>Aprobado</span>
+                                            <?php elseif ($docRow): ?>
+                                                <span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i><?= $estado ?></span>
+                                            <?php else: ?>
+                                                <span class="badge bg-secondary"><i class="fas fa-minus me-1"></i>Pendiente</span>
+                                            <?php endif; ?>
+                                        </td>
+                                        <td class="text-center">
+                                            <?php if ($docRow && $idDoc): ?>
+                                                <button type="button" class="btn btn-outline-primary btn-sm me-1" onclick="verDocumentoPractica(<?= (int)$idDoc ?>)" title="Ver"><i class="fas fa-eye"></i></button>
+                                                <button type="button" class="btn btn-outline-success btn-sm me-1" onclick="descargarDocumentoPractica(<?= (int)$idDoc ?>)" title="Descargar"><i class="fas fa-download"></i></button>
+                                                <?php if ($estado !== 'Aprobado'): ?>
+                                                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="eliminarDocumentoPractica(<?= (int)$idDoc ?>)"><i class="fas fa-trash"></i></button>
+                                                <?php endif; ?>
+                                            <?php else: ?>
+                                                <button type="button" class="btn btn-primary btn-sm" onclick="mostrarModalSubirDoc(this)" data-tipo-id="<?= (int)$idTipo ?>" data-desc="<?= esc($item['datos']) ?>"><i class="fas fa-upload me-1"></i>Subir</button>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
                                     <?php endforeach; ?>
-                                <?php else: ?>
-                                    <div class="text-center py-5">
-                                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                                        <h5 class="text-muted">No tienes servicios comunitarios asignados</h5>
-                                        <p class="text-muted">Contacta con tu coordinador para más información</p>
-                                    </div>
-                                <?php endif; ?>
-                            </div>
-
-                            <!-- Documentos -->
-                            <div class="tab-pane fade" id="documentos" role="tabpanel">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h6 class="mb-3">
-                                            <i class="fas fa-file-pdf me-2"></i>
-                                            Documentos Requeridos
-                                        </h6>
-                                        <div class="documento-item">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <i class="fas fa-file-pdf text-danger me-2"></i>
-                                                    <strong>Carta de Presentación</strong>
-                                                    <br><small class="text-muted">Documento oficial de presentación</small>
-                                                </div>
-                                                <div>
-                                                    <span class="badge bg-success">Completado</span>
-                                                    <button class="btn btn-sm btn-outline-primary ms-2">
-                                                        <i class="fas fa-download"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="documento-item">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <i class="fas fa-file-word text-primary me-2"></i>
-                                                    <strong>Plan de Trabajo</strong>
-                                                    <br><small class="text-muted">Cronograma de actividades</small>
-                                                </div>
-                                                <div>
-                                                    <span class="badge bg-warning">Pendiente</span>
-                                                    <button class="btn btn-sm btn-outline-success ms-2">
-                                                        <i class="fas fa-upload"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="documento-item">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <i class="fas fa-file-excel text-success me-2"></i>
-                                                    <strong>Registro de Actividades</strong>
-                                                    <br><small class="text-muted">Seguimiento diario</small>
-                                                </div>
-                                                <div>
-                                                    <span class="badge bg-info">En Progreso</span>
-                                                    <button class="btn btn-sm btn-outline-primary ms-2">
-                                                        <i class="fas fa-edit"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <h6 class="mb-3">
-                                            <i class="fas fa-upload me-2"></i>
-                                            Subir Nuevo Documento
-                                        </h6>
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <form id="formSubirDocumento" enctype="multipart/form-data">
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Tipo de Documento</label>
-                                                        <select class="form-select" name="tipo_documento" required>
-                                                            <option value="">Seleccionar...</option>
-                                                            <option value="carta_presentacion">Carta de Presentación</option>
-                                                            <option value="plan_trabajo">Plan de Trabajo</option>
-                                                            <option value="registro_actividades">Registro de Actividades</option>
-                                                            <option value="informe_semanal">Informe Semanal</option>
-                                                            <option value="informe_final">Informe Final</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Archivo</label>
-                                                        <input type="file" class="form-control" name="archivo" accept=".pdf,.doc,.docx,.xls,.xlsx" required>
-                                                        <div class="form-text">Formatos permitidos: PDF, DOC, DOCX, XLS, XLSX</div>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Descripción</label>
-                                                        <textarea class="form-control" name="descripcion" rows="3" placeholder="Descripción del documento..."></textarea>
-                                                    </div>
-                                                    <button type="submit" class="btn btn-primary w-100">
-                                                        <i class="fas fa-upload me-1"></i>Subir Documento
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Tabla 2: Rúbricas y hojas de asistencia para el seguimiento docente -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header text-white" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                        <h5 class="mb-0">
+                            <i class="fas fa-clipboard-check me-2"></i>
+                            Rúbricas y hojas de asistencia para el seguimiento docente
+                        </h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th width="60" class="text-center">NUM</th>
+                                        <th>DATOS</th>
+                                        <th width="140" class="text-center">CHECKLIST</th>
+                                        <th width="160" class="text-center">ACCIÓN</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach (($checklist_rubricas ?? []) as $item): ?>
+                                        <?php if (!empty($item['items'])): ?>
+                                            <?php foreach ($item['items'] as $sub): ?>
+                                                <?php
+                                                $tipo = $tiposArr[$idx] ?? $tiposArr[0] ?? null;
+                                                $idTipo = $tipo['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?? $tipo['ID_TIPO_DOCUMENTO'] ?? 0;
+                                                $docRow = null;
+                                                foreach ($progreso as $doc) {
+                                                    $docTipoId = $doc['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?? $doc['ID_TIPO_DOCUMENTO'] ?? null;
+                                                    if ($docTipoId == $idTipo && !empty($doc['ID_DOCUMENTO_PRACTICA'] ?? $doc['ID_DOCUMENTO_PREPROFESIONAL'] ?? null)) {
+                                                        $docRow = $doc;
+                                                        break;
+                                                    }
+                                                }
+                                                $estado = $docRow ? ($docRow['ESTADO_REVISION'] ?? 'Pendiente') : 'Pendiente';
+                                                $idDoc = $docRow['ID_DOCUMENTO_PRACTICA'] ?? $docRow['ID_DOCUMENTO_PREPROFESIONAL'] ?? null;
+                                                $idx++;
+                                                ?>
+                                            <tr>
+                                                <td class="text-center"><small class="text-muted"><?= $item['num'] ?></small></td>
+                                                <td><small><?= esc($sub['datos']) ?></small></td>
+                                                <td class="text-center">
+                                                    <?php if ($estado === 'Aprobado'): ?>
+                                                        <span class="badge bg-success"><i class="fas fa-check me-1"></i>Aprobado</span>
+                                                    <?php elseif ($docRow): ?>
+                                                        <span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i><?= $estado ?></span>
+                                                    <?php else: ?>
+                                                        <span class="badge bg-secondary"><i class="fas fa-minus me-1"></i>Pendiente</span>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td class="text-center">
+                                                    <?php if ($docRow && $idDoc): ?>
+                                                        <button type="button" class="btn btn-outline-primary btn-sm me-1" onclick="verDocumentoPractica(<?= (int)$idDoc ?>)"><i class="fas fa-eye"></i></button>
+                                                        <button type="button" class="btn btn-outline-success btn-sm me-1" onclick="descargarDocumentoPractica(<?= (int)$idDoc ?>)"><i class="fas fa-download"></i></button>
+                                                        <?php if ($estado !== 'Aprobado'): ?>
+                                                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="eliminarDocumentoPractica(<?= (int)$idDoc ?>)"><i class="fas fa-trash"></i></button>
+                                                        <?php endif; ?>
+                                                    <?php else: ?>
+                                                        <button type="button" class="btn btn-primary btn-sm" onclick="mostrarModalSubirDoc(this)" data-tipo-id="<?= (int)$idTipo ?>" data-desc="<?= esc($sub['datos']) ?>"><i class="fas fa-upload me-1"></i>Subir</button>
+                                                    <?php endif; ?>
+                                                </td>
+                                            </tr>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <?php
+                                            $tipo = $tiposArr[$idx] ?? $tiposArr[0] ?? null;
+                                            $idTipo = $tipo['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?? $tipo['ID_TIPO_DOCUMENTO'] ?? 0;
+                                            $docRow = null;
+                                            foreach ($progreso as $doc) {
+                                                $docTipoId = $doc['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?? $doc['ID_TIPO_DOCUMENTO'] ?? null;
+                                                if ($docTipoId == $idTipo && !empty($doc['ID_DOCUMENTO_PRACTICA'] ?? $doc['ID_DOCUMENTO_PREPROFESIONAL'] ?? null)) {
+                                                    $docRow = $doc;
+                                                    break;
+                                                }
+                                            }
+                                            $estado = $docRow ? ($docRow['ESTADO_REVISION'] ?? 'Pendiente') : 'Pendiente';
+                                            $idDoc = $docRow['ID_DOCUMENTO_PRACTICA'] ?? $docRow['ID_DOCUMENTO_PREPROFESIONAL'] ?? null;
+                                            $idx++;
+                                            ?>
+                                            <tr>
+                                                <td class="text-center fw-bold"><?= $item['num'] ?></td>
+                                                <td><small><?= esc($item['datos']) ?></small></td>
+                                                <td class="text-center">
+                                                    <?php if ($estado === 'Aprobado'): ?>
+                                                        <span class="badge bg-success"><i class="fas fa-check me-1"></i>Aprobado</span>
+                                                    <?php elseif ($docRow): ?>
+                                                        <span class="badge bg-warning text-dark"><i class="fas fa-clock me-1"></i><?= $estado ?></span>
+                                                    <?php else: ?>
+                                                        <span class="badge bg-secondary"><i class="fas fa-minus me-1"></i>Pendiente</span>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td class="text-center">
+                                                    <?php if ($docRow && $idDoc): ?>
+                                                        <button type="button" class="btn btn-outline-primary btn-sm me-1" onclick="verDocumentoPractica(<?= (int)$idDoc ?>)"><i class="fas fa-eye"></i></button>
+                                                        <button type="button" class="btn btn-outline-success btn-sm me-1" onclick="descargarDocumentoPractica(<?= (int)$idDoc ?>)"><i class="fas fa-download"></i></button>
+                                                        <?php if ($estado !== 'Aprobado'): ?>
+                                                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="eliminarDocumentoPractica(<?= (int)$idDoc ?>)"><i class="fas fa-trash"></i></button>
+                                                        <?php endif; ?>
+                                                    <?php else: ?>
+                                                        <button type="button" class="btn btn-primary btn-sm" onclick="mostrarModalSubirDoc(this)" data-tipo-id="<?= (int)$idTipo ?>" data-desc="<?= esc($item['datos']) ?>"><i class="fas fa-upload me-1"></i>Subir</button>
+                                                    <?php endif; ?>
+                                                </td>
+                                            </tr>
+                                        <?php endif; ?>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <p class="text-muted small mt-2 mb-0">
+                    <strong>ENVÍO DE DOCUMENTO FINAL Y LLENAR LA BASE DE DATOS:</strong> Una vez completados los documentos, envía el informe final y registra los datos en el sistema.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Subir Documento (checklist prácticas) -->
+<div class="modal fade" id="modalSubirDocumentoPractica" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-cloud-upload-alt me-2"></i>Subir Documento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formSubirDocumentoPractica" enctype="multipart/form-data">
+                    <input type="hidden" name="tipo_documento" id="tipo_documento_practica_id">
+                    <input type="hidden" name="id_practica" id="id_practica_modal">
+                    <div class="mb-3">
+                        <label class="form-label">Documento</label>
+                        <input type="text" class="form-control" id="tipo_documento_practica_nombre" readonly>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6"><div class="mb-3"><label class="form-label">Entidad Receptora</label><input type="text" class="form-control" name="entidad_receptora" id="entidad_receptora_modal" placeholder="Ej: Nombre institución"></div></div>
+                        <div class="col-md-6"><div class="mb-3"><label class="form-label">Docente Tutor</label><input type="text" class="form-control" name="docente_tutor" id="docente_tutor_modal" placeholder="Nombre del tutor"></div></div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Archivo</label>
+                        <input type="file" class="form-control" name="archivo" id="archivoDocumentoPractica" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.mp4,.avi,.zip,.rar" required>
+                        <small class="text-muted">Máx. 10 MB. Formatos: PDF, DOC, JPG, MP4, ZIP</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Observaciones (opcional)</label>
+                        <textarea class="form-control" name="observaciones" rows="2"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="subirDocumentoPractica()"><i class="fas fa-upload me-1"></i>Subir</button>
             </div>
         </div>
     </div>
@@ -698,6 +716,82 @@
 <script>
     // Variables globales
     let practicaActual = null;
+    const baseUrlDocumentos = '<?= base_url('estudiante/documentos-practicas') ?>';
+    // Datos de prácticas para rellenar Entidad Receptora y Docente Tutor en el modal de subir documento
+    const practicasParaModal = <?= json_encode(array_map(function($p) {
+        return [
+            'id' => (int)($p['ID_PRACTICA_PREPROFESIONAL'] ?? 0),
+            'entidad_receptora' => $p['INSTITUCION_NOMBRE'] ?? '',
+            'docente_tutor' => trim($p['SUPERVISOR_NOMBRE'] ?? '')
+        ];
+    }, $practicasPreprofesionales ?? [])) ?>;
+
+    function mostrarModalSubirDoc(btn) {
+        document.getElementById('tipo_documento_practica_id').value = btn.getAttribute('data-tipo-id') || '';
+        document.getElementById('tipo_documento_practica_nombre').value = btn.getAttribute('data-desc') || '';
+        var idPractica = btn.getAttribute('data-practica-id');
+        var entidad = '';
+        var tutor = '';
+        if (practicasParaModal.length) {
+            var datos = idPractica ? practicasParaModal.find(function(p) { return p.id == idPractica; }) : practicasParaModal[0];
+            if (datos) {
+                entidad = datos.entidad_receptora || '';
+                tutor = datos.docente_tutor || '';
+            }
+        }
+        var form = document.getElementById('formSubirDocumentoPractica');
+        if (form.elements['entidad_receptora']) form.elements['entidad_receptora'].value = entidad;
+        if (form.elements['docente_tutor']) form.elements['docente_tutor'].value = tutor;
+        if (form.elements['id_practica']) form.elements['id_practica'].value = idPractica || (practicasParaModal[0] ? practicasParaModal[0].id : '');
+        new bootstrap.Modal(document.getElementById('modalSubirDocumentoPractica')).show();
+    }
+
+    function subirDocumentoPractica() {
+        const form = document.getElementById('formSubirDocumentoPractica');
+        const archivo = document.getElementById('archivoDocumentoPractica').files[0];
+        if (!archivo) {
+            showNotification('Selecciona un archivo', 'warning');
+            return;
+        }
+        const formData = new FormData(form);
+        const btn = form.closest('.modal').querySelector('.btn-primary');
+        const txt = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Subiendo...';
+        btn.disabled = true;
+        fetch(baseUrlDocumentos + '/subir', { method: 'POST', body: formData })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('modalSubirDocumentoPractica')).hide();
+                    form.reset();
+                    setTimeout(() => location.reload(), 1200);
+                } else {
+                    showNotification(data.message || 'Error al subir', 'error');
+                }
+            })
+            .catch(() => showNotification('Error al subir el documento', 'error'))
+            .finally(() => { btn.innerHTML = txt; btn.disabled = false; });
+    }
+
+    function verDocumentoPractica(id) {
+        window.open(baseUrlDocumentos + '/descargar/' + id, '_blank');
+    }
+
+    function descargarDocumentoPractica(id) {
+        window.location.href = baseUrlDocumentos + '/descargar/' + id;
+    }
+
+    function eliminarDocumentoPractica(id) {
+        if (!confirm('¿Eliminar este documento?')) return;
+        fetch(baseUrlDocumentos + '/eliminar/' + id, { method: 'POST' })
+            .then(r => r.json())
+            .then(data => {
+                showNotification(data.message || (data.success ? 'Eliminado' : 'Error'), data.success ? 'success' : 'error');
+                if (data.success) setTimeout(() => location.reload(), 1200);
+            })
+            .catch(() => showNotification('Error al eliminar', 'error'));
+    }
 
     // Funciones principales
     function verDetallePractica(id, tipo) {
@@ -740,9 +834,6 @@
         showNotification('Mostrando progreso detallado...', 'info');
     }
 
-    function contactarSupervisor() {
-        showNotification('Abriendo chat con supervisor...', 'info');
-    }
 
     function verDocumentos(id, tipo) {
         showNotification('Mostrando documentos de la práctica...', 'info');
@@ -821,18 +912,18 @@
 
     // Inicialización
     document.addEventListener('DOMContentLoaded', function() {
-        // Establecer fecha actual por defecto
         const today = new Date().toISOString().split('T')[0];
-        document.querySelector('input[name="fecha_actividad"]').value = today;
-        
-        // Dibujar gráficos de progreso para las prácticas existentes
+        var fechaInput = document.querySelector('input[name="fecha_actividad"]');
+        if (fechaInput) fechaInput.value = today;
+
+        // Dibujar gráficos de progreso para prácticas preprofesionales
         setTimeout(() => {
-            document.querySelectorAll('[id^="progresoPre"], [id^="progresoServ"]').forEach(canvas => {
+            document.querySelectorAll('[id^="progresoPre"]').forEach(canvas => {
                 const ctx = canvas.getContext('2d');
                 const centerX = canvas.width / 2;
                 const centerY = canvas.height / 2;
                 const radius = 30;
-                const percentage = canvas.id.includes('Pre') ? 75 : 47;
+                const percentage = parseInt(canvas.getAttribute('data-porcentaje'), 10) || 75;
 
                 // Círculo de fondo
                 ctx.beginPath();
@@ -841,22 +932,15 @@
                 ctx.lineWidth = 6;
                 ctx.stroke();
 
-                // Círculo de progreso
+                // Círculo de progreso (mismo color verde para ambas prácticas)
                 ctx.beginPath();
                 ctx.arc(centerX, centerY, radius, -Math.PI / 2, (-Math.PI / 2) + (2 * Math.PI * percentage / 100));
-                ctx.strokeStyle = canvas.id.includes('Pre') ? '#28a745' : '#17a2b8';
+                ctx.strokeStyle = '#28a745';
                 ctx.lineWidth = 6;
                 ctx.lineCap = 'round';
                 ctx.stroke();
             });
         }, 100);
-    });
-
-    // Manejo de formulario de subida de documentos
-    document.getElementById('formSubirDocumento').addEventListener('submit', function(e) {
-        e.preventDefault();
-        showNotification('Documento subido exitosamente', 'success');
-        this.reset();
     });
 </script>
 <?= $this->endSection() ?>
