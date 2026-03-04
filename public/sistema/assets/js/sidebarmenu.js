@@ -17,6 +17,14 @@ $(function () {
     var element = $("ul#sidebarnav a").filter(function () {
       return this.href === url || this.href === path; // || url.href.indexOf(this.href) === 0;
     });
+    // Si varios enlaces apuntan a la misma URL, marcar solo el primero como activo (evita que Documentación y Formatos se marquen ambos)
+    var seenHref = {};
+    element = element.filter(function () {
+      var key = this.href;
+      if (seenHref[key]) return false;
+      seenHref[key] = true;
+      return true;
+    });
     element.parentsUntil(".sidebar-nav").each(function (index) {
       if ($(this).is("li") && $(this).children("a").length !== 0) {
         $(this).children("a").addClass("active");
@@ -32,6 +40,11 @@ $(function () {
   
     element.addClass("active");
     $("#sidebarnav a").on("click", function (e) {
+      // Si el enlace no tiene submenú (no es desplegable), dejar que navegue normalmente
+      if ($(this).next("ul").length === 0) {
+        return;
+      }
+      e.preventDefault();
       if (!$(this).hasClass("active")) {
         // hide any open menus and remove all other classes
         $("ul", $(this).parents("ul:first")).removeClass("in");

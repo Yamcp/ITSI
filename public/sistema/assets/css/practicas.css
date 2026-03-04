@@ -1,20 +1,16 @@
 /* CSS específico para la página de Prácticas - Mayor especificidad */
 
-/* Forzar el margen izquierdo para evitar superposición con el sidebar */
-#main-wrapper[data-layout="vertical"][data-sidebartype="full"] .body-wrapper {
-    margin-left: 270px !important;
-}
-
-#main-wrapper[data-layout="vertical"][data-sidebartype="full"] .container-fluid {
-    margin-left: 0 !important;
-    padding-left: 20px !important;
-    padding-right: 20px !important;
+/* No duplicar margen: el tema ya aplica margin-left al .body-wrapper.
+   Solo ajustar padding del contenido para reducir espacio entre sidebar y contenido. */
+#main-wrapper[data-layout="vertical"][data-sidebartype="full"] .body-wrapper .container-fluid {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
 }
 
 /* Asegurar que el contenido principal no se desborde */
 #main-wrapper[data-layout="vertical"][data-sidebartype="full"] main {
     width: 100% !important;
-    max-width: calc(100vw - 270px) !important;
+    max-width: 100% !important;
     overflow-x: hidden !important;
 }
 
@@ -299,28 +295,20 @@ body {
     overflow-x: hidden !important;
 }
 
-/* Asegurar que el contenido principal tenga el ancho correcto */
-#layoutSidenav_content {
-    margin-left: 270px !important;
-    transition: margin-left 0.2s ease-in !important;
+/* Sección Formatos Servicio Comunitario - imagen QR */
+.formatos-qr-wrap {
+    max-width: 600px;
+    margin: 0 auto;
+}
+.formatos-qr-img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
 }
 
-/* Ajustar el ancho del contenido principal */
-main {
-    width: 100% !important;
-    max-width: calc(100vw - 270px) !important;
-}
-
-/* Responsive para diferentes tamaños */
-@media (max-width: 1200px) {
-    #layoutSidenav_content {
-        margin-left: 270px !important;
-    }
-    
-    main {
-        max-width: calc(100vw - 270px) !important;
-    }
-}
+/* El tema (styles.min.css) ya define margin-left para .body-wrapper y el sidebar.
+   No redefinir #layoutSidenav_content aquí para evitar doble espacio. */
 
 @media (max-width: 992px) {
     .container-fluid {

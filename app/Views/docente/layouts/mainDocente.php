@@ -1,15 +1,15 @@
-<!-- app/Views/docente/layouts/mainDocente.php -->
-<!DOCTYPE html>2
+<!DOCTYPE html>
 <html lang="es">
 
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ITSI - Vinculación</title>
+    <title>Departamento de Vinculación</title>
     <link rel="shortcut icon" type="image/png" href="<?= base_url('sistema/assets/images/logos/logo.png') ?>" />
 
     <!-- ESTILOS -->
     <link rel="stylesheet" href="<?= base_url('sistema/assets/css/styles.min.css') ?>" />
+    <?= $this->renderSection('styles') ?>
 </head>
 
 <body>
@@ -53,6 +53,7 @@
     <script src="<?= base_url('sistema/assets/js/dashboard.js') ?>"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+    <?= $this->renderSection('scripts') ?>
 </body>
 
 </html>

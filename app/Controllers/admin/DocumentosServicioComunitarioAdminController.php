@@ -56,7 +56,8 @@ class DocumentosServicioComunitarioAdminController extends BaseController
                 'estadisticas' => $this->getEstadisticas(),
                 'tiposDocumentos' => $tiposDocumentos,
                 'estados_revision' => $this->estadosRevisionesModel->getAllEstados(),
-                'estudiantes' => $this->getEstudiantes()
+                'estudiantes' => $this->getEstudiantes(),
+                'qr_servicio_url' => $this->getQrServicioUrl(),
             ];
 
             return view('admin/documentos/documentos_servicio_comunitario', $data);
@@ -69,11 +70,56 @@ class DocumentosServicioComunitarioAdminController extends BaseController
                 'estadisticas' => ['Aprobados' => 0, 'pendientes' => 0, 'requiere_correccion' => 0, 'rechazados' => 0],
                 'tiposDocumentos' => [],
                 'estados_revision' => [],
-                'estudiantes' => []
+                'estudiantes' => [],
+                'qr_servicio_url' => $this->getQrServicioUrl(),
             ];
             
             return view('admin/documentos/documentos_servicio_comunitario', $data);
         }
+    }
+
+    /**
+     * Obtener URL del QR de servicio comunitario. Se refleja en el perfil del estudiante.
+     */
+    private function getQrServicioUrl()
+    {
+        $qrFile = WRITEPATH . 'uploads/qr/servicio_comunitario.png';
+        if (file_exists($qrFile) && is_readable($qrFile)) {
+            return base_url('qr/servicio');
+        }
+        return base_url('sistema/assets/images/practicas/formatos-servicio-comunitario-qr.png');
+    }
+
+    /**
+     * Subir / actualizar imagen QR de formatos de servicio comunitario.
+     * Se refleja en el perfil del estudiante (Servicio Comunitario).
+     */
+    public function subirQr()
+    {
+        $file = $this->request->getFile('qr_imagen');
+        if (!$file || !$file->isValid()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Seleccione una imagen válida (PNG o JPG).'
+            ]);
+        }
+        $ext = strtolower($file->getClientExtension());
+        if (!in_array($ext, ['png', 'jpg', 'jpeg'], true)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Solo se permiten imágenes PNG o JPG.'
+            ]);
+        }
+        $qrDir = WRITEPATH . 'uploads/qr/';
+        if (!is_dir($qrDir)) {
+            mkdir($qrDir, 0755, true);
+        }
+        $file->move($qrDir, 'servicio_comunitario.png');
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => 'Código QR actualizado. Se verá en el perfil del estudiante.',
+            'url' => $this->getQrServicioUrl()
+        ]);
     }
 
     /**

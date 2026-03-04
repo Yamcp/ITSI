@@ -1,47 +1,119 @@
 <?= $this->extend('estudiante/layouts/mainEstudiante') ?>
 
 <?= $this->section('styles') ?>
-<!-- CSS personalizado para prácticas -->
 <link rel="stylesheet" href="<?= base_url('sistema/assets/css/practicas.css') ?>" />
 <style>
+    :root {
+        --dashboard-radius: 16px;
+        --dashboard-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        --dashboard-shadow-hover: 0 12px 32px rgba(0,0,0,0.12);
+        --gradient-pre: linear-gradient(145deg, #0ea5e9 0%, #06b6d4 100%);
+        --gradient-serv: linear-gradient(145deg, #ec4899 0%, #f59e0b 100%);
+        --gradient-active: linear-gradient(145deg, #10b981 0%, #14b8a6 100%);
+        --gradient-actividades: linear-gradient(145deg, #6366f1 0%, #8b5cf6 100%);
+    }
+    .practicas-page { font-family: 'Segoe UI', system-ui, sans-serif; }
+    .page-header-practicas {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border-radius: var(--dashboard-radius);
+        padding: 1.5rem 1.75rem;
+        margin-bottom: 1.75rem;
+        border: 1px solid rgba(0,0,0,0.04);
+    }
+    .page-header-practicas .title-page { font-weight: 700; font-size: 1.5rem; color: #0f172a; letter-spacing: -0.02em; }
+    .metric-card-practicas {
+        border: none;
+        border-radius: var(--dashboard-radius);
+        box-shadow: var(--dashboard-shadow);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        overflow: hidden;
+    }
+    .metric-card-practicas:hover {
+        transform: translateY(-4px);
+        box-shadow: var(--dashboard-shadow-hover);
+    }
+    .metric-card-practicas .card-body { padding: 1.35rem 1.25rem; }
+    .metric-card-practicas .metric-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.35rem;
+        color: #fff;
+        opacity: 0.95;
+        margin: 0 auto 0.5rem;
+    }
+    .metric-card-practicas h3 { font-weight: 700; font-size: 1.75rem; margin-bottom: 0.2rem; }
+    .metric-card-practicas .metric-label { font-weight: 600; font-size: 0.9rem; opacity: 0.95; white-space: nowrap; }
+    .metric-card-practicas .metric-sub { font-size: 0.8rem; opacity: 0.85; }
+    .card-dash {
+        border: none;
+        border-radius: var(--dashboard-radius);
+        box-shadow: var(--dashboard-shadow);
+    }
+    .card-dash .card-header {
+        background: #fff;
+        border-bottom: 1px solid #f1f5f9;
+        padding: 1rem 1.35rem;
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 1.05rem;
+    }
+    .action-card-practicas {
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1.25rem;
+        transition: box-shadow 0.2s ease, border-color 0.2s ease;
+        height: 100%;
+        text-align: center;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+    .action-card-practicas:hover {
+        box-shadow: var(--dashboard-shadow);
+        border-color: #cbd5e1;
+        color: inherit;
+    }
+    .action-card-practicas .action-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        margin: 0 auto 0.75rem;
+    }
+    .action-card-practicas .action-label { font-weight: 600; font-size: 0.95rem; color: #0f172a; }
     .practica-card {
         border: none;
-        border-radius: 15px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-        transition: all 0.3s ease;
+        border-radius: var(--dashboard-radius);
+        box-shadow: var(--dashboard-shadow);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
         margin-bottom: 1.5rem;
+        overflow: hidden;
     }
-    
     .practica-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        transform: translateY(-4px);
+        box-shadow: var(--dashboard-shadow-hover);
     }
-    
     .practica-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background: var(--gradient-actividades);
         color: white;
-        border-radius: 15px 15px 0 0;
-        padding: 1.5rem;
+        border-radius: 0;
+        padding: 1.25rem 1.5rem;
     }
-    
-    .practica-body {
-        padding: 1.5rem;
-    }
-    
+    .practica-body { padding: 1.5rem; }
     .estado-badge {
-        border-radius: 20px;
-        padding: 0.5rem 1rem;
+        border-radius: 999px;
+        padding: 0.35rem 0.75rem;
         font-weight: 600;
-        font-size: 0.85rem;
+        font-size: 0.8rem;
     }
-    
-    .progreso-circular {
-        width: 80px;
-        height: 80px;
-        position: relative;
-        margin: 0 auto;
-    }
-    
+    .progreso-circular { width: 80px; height: 80px; position: relative; margin: 0 auto; }
     .progreso-texto {
         position: absolute;
         top: 50%;
@@ -50,25 +122,9 @@
         font-weight: bold;
         font-size: 0.9rem;
     }
-    
-    .accion-btn {
-        border-radius: 10px;
-        padding: 0.5rem 1rem;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
-    
-    .accion-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    }
-    
-    .timeline-item {
-        position: relative;
-        padding-left: 2rem;
-        margin-bottom: 1.5rem;
-    }
-    
+    .accion-btn { border-radius: 10px; padding: 0.5rem 1rem; font-weight: 500; transition: all 0.2s ease; }
+    .accion-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.15); }
+    .timeline-item { position: relative; padding-left: 2rem; margin-bottom: 1.5rem; }
     .timeline-marker {
         position: absolute;
         left: 0;
@@ -76,9 +132,8 @@
         width: 12px;
         height: 12px;
         border-radius: 50%;
-        background: #667eea;
+        background: #6366f1;
     }
-    
     .timeline-item:not(:last-child)::before {
         content: '';
         position: absolute;
@@ -86,123 +141,121 @@
         top: 1rem;
         width: 2px;
         height: calc(100% - 0.5rem);
-        background: #dee2e6;
+        background: #e2e8f0;
     }
-    
     .documento-item {
-        background: #f8f9fa;
-        border-radius: 10px;
+        background: #f8fafc;
+        border-radius: 12px;
         padding: 1rem;
         margin-bottom: 0.5rem;
-        transition: all 0.3s ease;
+        border: 1px solid #e2e8f0;
+        transition: all 0.2s ease;
     }
-    
-    .documento-item:hover {
-        background: #e9ecef;
-        transform: translateX(5px);
-    }
-    
-    .stats-card {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        color: white;
-        border: none;
-        border-radius: 15px;
-        transition: transform 0.3s ease;
-    }
-    
-    .stats-card:hover {
-        transform: translateY(-5px);
-    }
+    .documento-item:hover { background: #f1f5f9; border-color: #cbd5e1; }
 </style>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<div class="body-wrapper">
-    <div class="container-fluid">
-        <!-- Header -->
-        <div class="row">
-            <div class="col-12">
-                <h3 class="text-center my-3">
-                    <i class="fas fa-user-graduate me-2"></i>
-                    Prácticas Preprofesionales
-                </h3>
+<div class="body-wrapper practicas-page">
+    <div class="container-fluid px-3 px-md-4 pb-4">
+        <!-- Header (mismo estilo que dashboard) -->
+        <div class="page-header-practicas">
+            <h1 class="title-page mb-0">
+                <i class="fas fa-user-graduate me-2 text-primary"></i>
+                Prácticas Preprofesionales
+            </h1>
+            <p class="text-muted mb-0 mt-1" style="font-size: 0.95rem;">Gestiona tu documentación y progreso de prácticas</p>
+        </div>
+
+        <!-- Métricas (mismo diseño que dashboard: icono arriba, número, etiqueta) -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3 col-sm-6">
+                <div class="card metric-card-practicas text-white" style="background: var(--gradient-actividades);">
+                    <div class="card-body text-center">
+                        <div class="metric-icon" style="background: rgba(255,255,255,0.25);">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <h3 class="mb-0"><?= $estadisticas['totalPracticas'] ?? 0 ?></h3>
+                        <p class="metric-label mb-0">Total</p>
+                        <small class="metric-sub">Prácticas</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card metric-card-practicas text-white" style="background: var(--gradient-active);">
+                    <div class="card-body text-center">
+                        <div class="metric-icon" style="background: rgba(255,255,255,0.25);">
+                            <i class="fas fa-play-circle"></i>
+                        </div>
+                        <h3 class="mb-0"><?= $estadisticas['practicasActivas'] ?? 0 ?></h3>
+                        <p class="metric-label mb-0">En progreso</p>
+                        <small class="metric-sub">Activas</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card metric-card-practicas text-white" style="background: var(--gradient-pre);">
+                    <div class="card-body text-center">
+                        <div class="metric-icon" style="background: rgba(255,255,255,0.25);">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h3 class="mb-0"><?= $estadisticas['practicasFinalizadas'] ?? 0 ?></h3>
+                        <p class="metric-label mb-0">Finalizadas</p>
+                        <small class="metric-sub">Completadas</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card metric-card-practicas text-white" style="background: var(--gradient-serv);">
+                    <div class="card-body text-center">
+                        <div class="metric-icon" style="background: rgba(255,255,255,0.25);">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <h3 class="mb-0"><?= $estadisticas['horasCompletadas'] ?? 0 ?></h3>
+                        <p class="metric-label mb-0">Horas</p>
+                        <small class="metric-sub">Completadas</small>
+                    </div>
+                </div>
             </div>
         </div>
 
-        <!-- Estadísticas del Estudiante -->
-        <div class="row mb-4">
-            <div class="col-md-3 col-sm-6">
-                <div class="card stats-card text-center shadow-sm">
-                    <div class="card-body">
-                        <h2 class="card-title mb-2" style="font-size:2.5rem;"><?= $estadisticas['totalPracticas'] ?? 0 ?></h2>
-                        <p class="card-text fw-bold" style="color: #e0e0e0;">Total Prácticas</p>
-                    </div>
-                </div>
+        <!-- Acciones rápidas (mismo estilo que dashboard) -->
+        <div class="card card-dash mb-4">
+            <div class="card-header">
+                <i class="fas fa-bolt me-2 text-warning"></i>Acciones rápidas
             </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card stats-card text-center shadow-sm" style="background: linear-gradient(135deg, #28a745 80%, #155724 100%);">
-                    <div class="card-body">
-                        <h2 class="card-title mb-2" style="font-size:2.5rem;"><?= $estadisticas['practicasActivas'] ?? 0 ?></h2>
-                        <p class="card-text fw-bold" style="color: #e0e0e0;">En Progreso</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card stats-card text-center shadow-sm" style="background: linear-gradient(135deg, #17a2b8 80%, #0c5460 100%);">
-                    <div class="card-body">
-                        <h2 class="card-title mb-2" style="font-size:2.5rem;"><?= $estadisticas['practicasFinalizadas'] ?? 0 ?></h2>
-                        <p class="card-text fw-bold" style="color: #e0e0e0;">Finalizadas</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card stats-card text-center shadow-sm" style="background: linear-gradient(135deg, #ffc107 80%, #b38600 100%);">
-                    <div class="card-body">
-                        <h2 class="card-title mb-2" style="font-size:2.5rem;"><?= $estadisticas['horasCompletadas'] ?? 0 ?></h2>
-                        <p class="card-text fw-bold" style="color: #fffbe6;">Horas Completadas</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Acciones Rápidas -->
-        <div class="row mb-4">
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm h-100" style="border: none;">
-                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="#" onclick="registrarActividad()" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-plus-circle fa-2x mb-2" style="color: #28a745; text-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);"></i>
-                            <div class="fw-bold">Registrar Actividad</div>
+            <div class="card-body p-3 p-md-4">
+                <div class="row g-3">
+                    <div class="col-md-3 col-6">
+                        <a href="#" onclick="registrarActividad(); return false;" class="action-card-practicas">
+                            <div class="action-icon bg-success bg-opacity-10 text-success mx-auto">
+                                <i class="fas fa-plus-circle"></i>
+                            </div>
+                            <span class="action-label">Registrar Actividad</span>
                         </a>
                     </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm h-100" style="border: none;">
-                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="#" onclick="subirDocumento()" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-upload fa-2x mb-2" style="color: #007bff; text-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);"></i>
-                            <div class="fw-bold">Subir Documento</div>
+                    <div class="col-md-3 col-6">
+                        <a href="#" onclick="subirDocumento(); return false;" class="action-card-practicas">
+                            <div class="action-icon bg-primary bg-opacity-10 text-primary mx-auto">
+                                <i class="fas fa-upload"></i>
+                            </div>
+                            <span class="action-label">Subir Documento</span>
                         </a>
                     </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm h-100" style="border: none;">
-                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="#" onclick="verProgreso()" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-chart-line fa-2x mb-2" style="color: #ffc107; text-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);"></i>
-                            <div class="fw-bold">Ver Progreso</div>
+                    <div class="col-md-3 col-6">
+                        <a href="#" onclick="verProgreso(); return false;" class="action-card-practicas">
+                            <div class="action-icon bg-warning bg-opacity-10 text-warning mx-auto">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <span class="action-label">Ver Progreso</span>
                         </a>
                     </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm h-100" style="border: none;">
-                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="https://wa.me/593995298537" target="_blank" rel="noopener noreferrer" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-comments fa-2x mb-2" style="color: #dc3545; text-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);"></i>
-                            <div class="fw-bold">Contactar Supervisor</div>
+                    <div class="col-md-3 col-6">
+                        <a href="https://wa.me/593995298537" target="_blank" rel="noopener noreferrer" class="action-card-practicas">
+                            <div class="action-icon bg-danger bg-opacity-10 text-danger mx-auto">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <span class="action-label">Contactar Supervisor</span>
                         </a>
                     </div>
                 </div>
@@ -210,14 +263,11 @@
         </div>
 
         <!-- Listado de Prácticas Preprofesionales -->
-        <div class="row">
-            <div class="col-12">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="mb-4">
-                            <i class="fas fa-building me-2"></i>
-                            Mis prácticas preprofesionales
-                        </h5>
+        <div class="card card-dash">
+            <div class="card-header">
+                <i class="fas fa-building me-2 text-primary"></i>Mis prácticas preprofesionales
+            </div>
+            <div class="card-body">
                         <?php if (!empty($practicasPreprofesionales)): ?>
                                     <?php foreach ($practicasPreprofesionales as $practica): ?>
                                         <div class="practica-card">
@@ -314,8 +364,6 @@
                                         <p class="text-muted">Contacta con tu coordinador para más información</p>
                                     </div>
                                 <?php endif; ?>
-                    </div>
-                </div>
             </div>
         </div>
 

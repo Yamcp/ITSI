@@ -1,4 +1,3 @@
-<!-- app/Views/dashboard/dashboard.php -->
 <?= $this->extend('admin/layouts/mainAdmin') ?>
 
 <?php
@@ -32,306 +31,355 @@ if (!$periodoNombreDashboard) {
 ?>
 
 <?= $this->section('styles') ?>
-<!-- CSS personalizado para el dashboard -->
-<style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>:root {
+        --dashboard-radius: 16px;
+        --dashboard-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        --dashboard-shadow-hover: 0 12px 32px rgba(0,0,0,0.12);
+        --gradient-pre: linear-gradient(145deg, #0ea5e9 0%, #06b6d4 100%);
+        --gradient-serv: linear-gradient(145deg, #ec4899 0%, #f59e0b 100%);
+        --gradient-active: linear-gradient(145deg, #10b981 0%, #14b8a6 100%);
+        --gradient-actividades: linear-gradient(145deg, #6366f1 0%, #8b5cf6 100%);
+    }
+    .dashboard-page { font-family: 'Segoe UI', system-ui, sans-serif; }
+
+    .dashboard-header {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border-radius: var(--dashboard-radius);
+        padding: 1.5rem 1.75rem;
+        margin-bottom: 1.75rem;
+        border: 1px solid rgba(0,0,0,0.04);
+    }
+    .dashboard-header .title-dash { font-weight: 700; font-size: 1.6rem; color: #0f172a; letter-spacing: -0.02em; }
+    .dashboard-header .subtitle-dash { color: #64748b; font-size: 0.95rem; }
+    .dashboard-header .badge-rol {
+        background: #e0f2fe;
+        color: #0369a1;
+        font-weight: 600;
+        padding: 0.4rem 0.75rem;
+        border-radius: 999px;
+    }
+    .dashboard-header .date-time-box {
+        background: #fff;
+        border-radius: 12px;
+        padding: 0.6rem 1rem;
+        border: 1px solid #e2e8f0;
+        font-size: 0.9rem;
+        color: #475569;
+    }
+
     .metric-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
         border: none;
-        border-radius: 15px;
+        border-radius: var(--dashboard-radius);
+        box-shadow: var(--dashboard-shadow);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        overflow: hidden;
     }
-    
     .metric-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        transform: translateY(-4px);
+        box-shadow: var(--dashboard-shadow-hover);
     }
-    
-    .metric-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
+    .metric-card .card-body {
+        padding: 1.35rem 1.25rem;
+        position: relative;
+    }
+    .metric-card .metric-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 24px;
-        color: white;
+        font-size: 1.35rem;
+        color: #fff;
+        opacity: 0.95;
     }
-    
-    .chart-container {
-        position: relative;
-        height: 350px;
-        margin: 20px 0;
-        padding: 10px;
-    }
-    
-    .chart-container canvas {
-        max-height: 100%;
-    }
-    
-    /* Mejoras específicas para la gráfica de carreras */
-    #carrerasChart {
-        max-width: 100%;
-        height: auto !important;
-    }
-    
-    /* Ajustes para el layout de dos columnas en la gráfica de carreras */
-    .carreras-container .chart-container {
-        height: 300px;
-    }
-    
-    .carreras-container .legend-table {
-        margin-top: 0;
-    }
-    
-    /* Responsive para la gráfica de carreras */
-    @media (max-width: 768px) {
-        .chart-container {
-            height: 300px;
-        }
-        
-        .chart-container canvas {
-            max-height: 250px;
-        }
-        
-        .carreras-container .chart-container {
-            height: 250px;
-        }
-    }
-    
-    @media (max-width: 576px) {
-        .chart-container {
-            height: 250px;
-        }
-        
-        .chart-container canvas {
-            max-height: 200px;
-        }
-        
-        .carreras-container .chart-container {
-            height: 200px;
-        }
-        
-        .carreras-container .legend-table {
-            margin-top: 20px;
-        }
-    }
-    
-    /* Estilos para la tabla de leyenda */
-    .legend-table {
-        font-size: 0.9rem;
-    }
-    
-    .legend-table tbody tr:hover {
-        background-color: rgba(0, 0, 0, 0.02);
-        border-radius: 4px;
-    }
-    
-    .legend-table .color-indicator {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        display: inline-block;
-        border: 1px solid rgba(0, 0, 0, 0.1);
-    }
-    
-    .legend-table .carrera-name {
-        font-weight: 500;
-        color: #495057;
-    }
-    
-    .legend-table .estudiantes-count {
-        color: #6c757d;
-        font-size: 0.85rem;
-    }
-    
-    .legend-table .percentage-badge {
-        font-size: 0.75rem;
-        padding: 0.25rem 0.5rem;
-    }
-    
-    .activity-timeline {
-        max-height: 400px;
-        overflow-y: auto;
-    }
-    
-    .timeline-item {
-        position: relative;
-        padding: 15px 0 15px 30px;
-        border-left: 2px solid #e9ecef;
-    }
-    
-    .timeline-item::before {
-        content: '';
-        position: absolute;
-        left: -6px;
-        top: 20px;
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        background: #007bff;
-    }
-    
-    .timeline-item.success::before {
-        background: #28a745;
-    }
-    
-    .timeline-item.warning::before {
-        background: #ffc107;
-    }
-    
-    .timeline-item.info::before {
-        background: #17a2b8;
-    }
-    
-    .quick-action-card {
-        cursor: pointer;
-        transition: all 0.3s ease;
+    .metric-card h3 { font-weight: 700; font-size: 1.75rem; margin-bottom: 0.2rem; }
+    .metric-card .metric-label { font-weight: 600; font-size: 0.9rem; opacity: 0.95; }
+    .metric-card .metric-sub { font-size: 0.8rem; opacity: 0.85; }
+
+    .card-dash {
         border: none;
-        border-radius: 15px;
+        border-radius: var(--dashboard-radius);
+        box-shadow: var(--dashboard-shadow);
     }
-    
-    .quick-action-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    .card-dash .card-header {
+        background: #fff;
+        border-bottom: 1px solid #f1f5f9;
+        padding: 1rem 1.35rem;
+        font-weight: 600;
+        color: #0f172a;
+        font-size: 1.05rem;
     }
-    
-    .progress-ring {
-        transform: rotate(-90deg);
+    .quick-action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        border-radius: 12px;
+        padding: 0.85rem 1.25rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: none;
+        text-decoration: none;
     }
-    
-    .progress-ring-circle {
-        stroke-linecap: round;
-        transition: stroke-dasharray 0.5s ease;
+    .quick-action-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        color: inherit;
     }
+
+    /* Progress cards*/
+    .progress-card-dash {
+        border-radius: var(--dashboard-radius);
+        padding: 1.35rem 1.5rem;
+        border: none;
+        box-shadow: var(--dashboard-shadow);
+        color: #fff;
+    }
+    .progress-card-dash .progress {
+        height: 10px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.25);
+    }
+    .progress-card-dash .progress-bar { border-radius: 999px; }
+    .progress-card-dash h5 { font-weight: 600; font-size: 1rem; margin-bottom: 0.75rem; opacity: 0.98; }
+    .progress-card-dash small { font-size: 0.8rem; opacity: 0.9; }
+
+    /* Activity cards */
+    .activity-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1.25rem;
+        transition: box-shadow 0.2s ease, border-color 0.2s ease;
+        height: 100%;
+    }
+    .activity-card:hover {
+        box-shadow: var(--dashboard-shadow);
+        border-color: #cbd5e1;
+    }
+    .activity-card .activity-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        margin-bottom: 0.75rem;
+    }
+    .activity-card h6 { font-weight: 600; color: #0f172a; margin-bottom: 0.35rem; }
+    .activity-card p { font-size: 0.85rem; color: #64748b; margin-bottom: 0.5rem; }
+
+    .chart-container { position: relative; height: 280px; margin: 1rem 0; }
+    .carreras-container .chart-container { height: 300px; }
+    #carrerasChart { max-width: 100%; height: auto !important; }
+    @media (max-width: 768px) { .chart-container { height: 300px; } .carreras-container .chart-container { height: 250px; } }
+    @media (max-width: 576px) { .chart-container { height: 250px; } .carreras-container .chart-container { height: 200px; } }
+
+    .table-dash { margin-bottom: 0; }
+    .table-dash thead th {
+        font-weight: 600;
+        color: #475569;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 1rem 1rem;
+    }
+    .table-dash tbody td { padding: 1rem; vertical-align: middle; }
+    .table-dash tbody tr { transition: background 0.15s ease; }
+    .table-dash tbody tr:hover { background: #f8fafc; }
+    .table-dash .badge { font-weight: 600; padding: 0.35rem 0.65rem; font-size: 0.75rem; }
+    .table-dash .btn-sm { border-radius: 8px; font-weight: 600; padding: 0.35rem 0.75rem; }
+    .empty-state { padding: 3rem 1rem; color: #94a3b8; }
+    .empty-state i { font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.6; }
+
+    .legend-table { font-size: 0.9rem; }
+    .legend-table tbody tr:hover { background-color: rgba(0,0,0,0.02); border-radius: 4px; }
+    .legend-table .color-indicator {
+        width: 12px; height: 12px; border-radius: 50%;
+        display: inline-block;
+        border: 1px solid rgba(0,0,0,0.1);
+    }
+    .legend-table .carrera-name { font-weight: 500; color: #495057; }
+    .legend-table .estudiantes-count { color: #6c757d; font-size: 0.85rem; }
+    .legend-table .percentage-badge { font-size: 0.75rem; padding: 0.25rem 0.5rem; }
+    .carreras-container .legend-table { margin-top: 0; }
+    @media (max-width: 576px) { .carreras-container .legend-table { margin-top: 20px; } }
 </style>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<div class="body-wrapper">
-    <div class="container-fluid">
+<div class="body-wrapper dashboard-page">
+    <div class="container-fluid px-3 px-md-4 pb-4">
         <!-- Header del Dashboard -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h2 class="mb-1">
-                            <i class="fas fa-tachometer-alt me-2 text-primary"></i>
-                            Panel de Control
-                        </h2>
-                        <p class="text-muted mb-0">Bienvenido al Sistema del Departamento de Vinculación</p>
-                        <div class="mt-2">
-                            <h5 class="mb-0 text-primary">
-                                <i class="fas fa-calendar-check me-2"></i>
-                                Período académico actual:
-                                <?php if (!empty($periodoNombreDashboard)): ?>
-                                    <strong><?= esc($periodoNombreDashboard) ?></strong>
-                                    <?php if (!empty($periodoRangoDashboard)): ?>
-                                        <span class="text-muted fw-normal fs-6">(<?= esc($periodoRangoDashboard) ?>)</span>
-                                    <?php endif; ?>
-                                <?php else: ?>
-                                    <span class="text-muted fw-normal">No hay período configurado</span>
-                                <?php endif; ?>
-                            </h5>
+        <div class="dashboard-header d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h1 class="title-dash mb-1">
+                    <i class="fas fa-compass me-2 text-primary"></i>Panel de Control
+                </h1>
+                <p class="subtitle-dash mb-0">Bienvenido al Sistema del Departamento de Vinculación</p>
+                <div class="dashboard-period-box mt-2">
+                    <h5 class="mb-0" style="color: var(--primary); font-weight: 600;">
+                        <i class="fas fa-calendar-check me-2 text-primary"></i>
+                        Período académico actual:
+                        <?php if (!empty($periodoNombreDashboard)): ?>
+                            <span class="ms-1 fw-bold" style="color: #0f172a;">
+                                <?= esc($periodoNombreDashboard) ?>
+                            </span>
+                            <?php if (!empty($periodoRangoDashboard)): ?>
+                                <span class="text-muted fs-6 fw-normal ms-1" style="font-weight: 500;">
+                                    (<?= esc($periodoRangoDashboard) ?>)
+                                </span>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <span class="text-muted fw-normal ms-1" style="font-weight: 500;">
+                                No hay período configurado
+                            </span>
+                        <?php endif; ?>
+                    </h5>
+                </div>
+            </div>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <span class="badge badge-rol">Administrador</span>
+                <div class="date-time-box d-flex flex-column align-items-end">
+                    <span><i class="fas fa-calendar-alt me-1"></i><?= date('d/m/Y') ?></span>
+                    <span><i class="fas fa-clock me-1"></i><span id="currentTime"></span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Métricas -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3 col-sm-6">
+                <a href="<?= base_url('admin/estudiantes') ?>" style="text-decoration: none;">
+                    <div class="card metric-card text-white" style="background: var(--gradient-actividades);">
+                        <div class="card-body">
+                            <div class="metric-icon mx-auto mb-2" style="background: rgba(255,255,255,0.25);">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h3 class="mb-0" id="totalEstudiantes"><?= number_format($metricas['totalEstudiantes'] ?? 0) ?></h3>
+                            <p class="metric-label mb-0">Total Estudiantes</p>
+                            <small class="metric-sub">Registrados</small>
                         </div>
                     </div>
-                    <div class="text-end">
-                    <span class="badge bg-light text-dark fs-6 mb-2">Administrador</span>
-                        <p class="mb-0 text-muted">
-                            <i class="fas fa-calendar-alt me-1"></i>
-                            <?= date('d/m/Y') ?>
-                        </p>
-                        <p class="mb-0 text-muted">
-                            <i class="fas fa-clock me-1"></i>
-                            <span id="currentTime"></span>
-                        </p>
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <a href="<?= base_url('admin/instructores') ?>" style="text-decoration: none;">
+                    <div class="card metric-card text-white" style="background: var(--gradient-serv);">
+                        <div class="card-body">
+                            <div class="metric-icon mx-auto mb-2" style="background: rgba(255,255,255,0.25);">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                            </div>
+                            <h3 class="mb-0" id="totalInstructores"><?= number_format($metricas['totalInstructores'] ?? 0) ?></h3>
+                            <p class="metric-label mb-0">Instructores</p>
+                            <small class="metric-sub">Docentes</small>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <a href="<?= base_url('admin/educacion') ?>" style="text-decoration: none;">
+                    <div class="card metric-card text-white" style="background: var(--gradient-pre);">
+                        <div class="card-body">
+                            <div class="metric-icon mx-auto mb-2" style="background: rgba(255,255,255,0.25);">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <h3 class="mb-0" id="actividadesActivas"><?= number_format($metricas['actividadesActivas'] ?? 0) ?></h3>
+                            <p class="metric-label mb-0">Actividades Activas</p>
+                            <small class="metric-sub">En curso</small>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <a href="<?= base_url('admin/convenios') ?>" style="text-decoration: none;">
+                    <div class="card metric-card text-white" style="background: var(--gradient-active);">
+                        <div class="card-body">
+                            <div class="metric-icon mx-auto mb-2" style="background: rgba(255,255,255,0.25);">
+                                <i class="fas fa-handshake"></i>
+                            </div>
+                            <h3 class="mb-0" id="conveniosVigentes"><?= number_format($metricas['conveniosVigentes'] ?? 0) ?></h3>
+                            <p class="metric-label mb-0">Convenios Vigentes</p>
+                            <small class="metric-sub">Activos</small>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <!-- Progreso por tipo -->
+        <?php
+        $totalEst = (int)($metricas['totalEstudiantes'] ?? 0);
+        $totalConv = (int)($metricas['conveniosVigentes'] ?? 0);
+        $pctEst = min(100, $totalEst > 0 ? 50 + min(50, (int)($totalEst / 20)) : 0);
+        $pctConv = min(100, $totalConv > 0 ? 40 + min(60, (int)($totalConv * 6)) : 0);
+        ?>
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="progress-card-dash" style="background: var(--gradient-pre);">
+                    <h5><i class="fas fa-users me-2"></i>Estudiantes registrados</h5>
+                    <div class="progress mb-2">
+                        <div class="progress-bar bg-white" role="progressbar" style="width: <?= $pctEst ?>%" aria-valuenow="<?= $pctEst ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <small><?= number_format($totalEst) ?> estudiantes en el sistema</small>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="progress-card-dash" style="background: var(--gradient-active);">
+                    <h5><i class="fas fa-handshake me-2"></i>Convenios vigentes</h5>
+                    <div class="progress mb-2">
+                        <div class="progress-bar bg-white" role="progressbar" style="width: <?= $pctConv ?>%" aria-valuenow="<?= $pctConv ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <small><?= number_format($totalConv) ?> convenios activos</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Acciones rápidas -->
+        <div class="card card-dash mb-4">
+            <div class="card-header">
+                <i class="fas fa-bolt me-2 text-warning"></i>Acciones rápidas
+            </div>
+            <div class="card-body p-3 p-md-4">
+                <div class="row g-3">
+                    <div class="col-md-3 col-6">
+                        <a href="<?= base_url('admin/estudiantes') ?>" class="btn btn-primary quick-action-btn w-100">
+                            <i class="fas fa-users"></i>
+                            <span>Estudiantes</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <a href="<?= base_url('admin/convenios') ?>" class="quick-action-btn w-100 text-white" style="background: var(--gradient-serv);">
+                            <i class="fas fa-handshake"></i>
+                            <span>Convenios</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <a href="<?= base_url('admin/educacion') ?>" class="btn btn-info quick-action-btn w-100 text-white">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>Educación</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <a href="<?= base_url('admin/instructores') ?>" class="btn btn-warning quick-action-btn w-100 text-dark">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <span>Instructores</span>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Métricas Principales -->
-        <div class="row mb-4">
-            <div class="col-xl-3 col-md-6 mb-4">
-                <a href="<?= base_url('admin/estudiantes') ?>" style="text-decoration: none;">
-                    <div class="card metric-card shadow-sm" style="background: linear-gradient(135deg, #667eea 80%, #764ba2 100%); color: #fff; border: none;">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="metric-icon me-3" style="background: rgba(255,255,255,0.15); color: #fff;">
-                                    <i class="fas fa-users"></i>
-                                </div>
-                                <div>
-                                    <h3 class="mb-1" id="totalEstudiantes"><?= number_format($metricas['totalEstudiantes'] ?? 0) ?></h3>
-                                    <p class="mb-0" style="color: #e0e0e0;">Total Estudiantes</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            
-            <div class="col-xl-3 col-md-6 mb-4">
-                <a href="<?= base_url('admin/instructores') ?>" style="text-decoration: none;">
-                    <div class="card metric-card shadow-sm" style="background: linear-gradient(135deg, #f093fb 80%, #f5576c 100%); color: #fff; border: none;">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="metric-icon me-3" style="background: rgba(255,255,255,0.15); color: #fff;">
-                                    <i class="fas fa-chalkboard-teacher"></i>
-                                </div>
-                                <div>
-                                    <h3 class="mb-1" id="totalInstructores"><?= number_format($metricas['totalInstructores'] ?? 0) ?></h3>
-                                    <p class="mb-0" style="color: #ffe6e6;">Instructores</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            
-            <div class="col-xl-3 col-md-6 mb-4">
-                <a href="<?= base_url('admin/educacion') ?>" style="text-decoration: none;">
-                    <div class="card metric-card shadow-sm" style="background: linear-gradient(135deg, #4facfe 80%, #00f2fe 100%); color: #fff; border: none;">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="metric-icon me-3" style="background: rgba(255,255,255,0.15); color: #fff;">
-                                    <i class="fas fa-graduation-cap"></i>
-                                </div>
-                                <div>
-                                    <h3 class="mb-1" id="actividadesActivas"><?= number_format($metricas['actividadesActivas'] ?? 0) ?></h3>
-                                    <p class="mb-0" style="color: #e0e0e0;">Actividades Activas</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-            
-            <div class="col-xl-3 col-md-6 mb-4">
-                <a href="<?= base_url('admin/convenios') ?>" style="text-decoration: none;">
-                    <div class="card metric-card shadow-sm" style="background: linear-gradient(135deg, #43e97b 80%, #38f9d7 100%); color: #fff; border: none;">
-                        <div class="card-body">
-                            <div class="d-flex align-items-center">
-                                <div class="metric-icon me-3" style="background: rgba(255,255,255,0.15); color: #fff;">
-                                    <i class="fas fa-handshake"></i>
-                                </div>
-                                <div>
-                                    <h3 class="mb-1" id="conveniosVigentes"><?= number_format($metricas['conveniosVigentes'] ?? 0) ?></h3>
-                                    <p class="mb-0" style="color: #e0e0e0;">Convenios Vigentes</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </div>
-
-        <!-- Gráfica de Actividades por Mes -->
-        <div class="row mb-4">
-            <div class="col-12 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-chart-line me-2 text-primary"></i>
-                            Actividades Educativas por Mes
-                        </h5>
+        <!-- Gráficas -->
+        <div class="row g-3 mb-4">
+            <div class="col-lg-8">
+                <div class="card card-dash">
+                    <div class="card-header">
+                        <i class="fas fa-chart-line me-2 text-primary"></i>Actividades Educativas por Mes
                     </div>
                     <div class="card-body">
                         <div class="chart-container">
@@ -340,175 +388,168 @@ if (!$periodoNombreDashboard) {
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <!-- Gráfica de Distribución por Carrera -->
-        <div class="row mb-4">
-            <div class="col-12 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-chart-pie me-2 text-success"></i>
-                            Distribución por Carrera
-                        </h5>
+            <div class="col-lg-4">
+                <div class="card card-dash">
+                    <div class="card-header">
+                        <i class="fas fa-chart-pie me-2 text-primary"></i>Distribución por Carrera
                     </div>
                     <div class="card-body carreras-container">
-                        <div class="row">
-                            <!-- Gráfica -->
-                            <div class="col-lg-6 col-md-6">
-                                <div class="chart-container">
-                                    <canvas id="carrerasChart"></canvas>
-                                </div>
-                            </div>
-                            
-                            <!-- Tabla de leyenda -->
-                            <div class="col-lg-6 col-md-6">
-                                <?php if (!empty($distribucionCarreras)): ?>
-                                <div class="table-responsive">
-                                    <table class="table table-sm table-borderless legend-table">
-                                        <tbody>
-                                            <?php 
-                                            $colores = ['#667eea', '#f093fb', '#4facfe', '#43e97b', '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd'];
-                                            $totalEstudiantes = array_sum(array_column($distribucionCarreras, 'TOTAL'));
-                                            foreach ($distribucionCarreras as $index => $carrera): 
-                                                $porcentaje = $totalEstudiantes > 0 ? round(($carrera['TOTAL'] / $totalEstudiantes) * 100, 1) : 0;
-                                            ?>
-                                            <tr>
-                                                <td class="text-center" style="width: 20px;">
-                                                    <div class="color-indicator" style="background-color: <?= $colores[$index % count($colores)] ?>;"></div>
-                                                </td>
-                                                <td class="carrera-name">
-                                                    <?= esc($carrera['CARRERA']) ?>
-                                                </td>
-                                                <td class="text-end estudiantes-count">
-                                                    <?= number_format($carrera['TOTAL']) ?> estudiantes
-                                                </td>
-                                                <td class="text-end">
-                                                    <span class="badge bg-light text-dark percentage-badge"><?= $porcentaje ?>%</span>
-                                                </td>
-                                            </tr>
-                                            <?php endforeach; ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                                <?php endif; ?>
-                            </div>
+                        <div class="chart-container">
+                            <canvas id="carrerasChart"></canvas>
                         </div>
+                        <?php if (!empty($distribucionCarreras)): ?>
+                        <div class="table-responsive mt-3">
+                            <table class="table table-sm table-borderless legend-table mb-0">
+                                <tbody>
+                                    <?php
+                                    $colores = ['#667eea', '#f093fb', '#4facfe', '#43e97b', '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd'];
+                                    $totalEstudiantesLeg = array_sum(array_column($distribucionCarreras, 'TOTAL'));
+                                    foreach (array_slice($distribucionCarreras, 0, 6) as $index => $carrera):
+                                        $porcentaje = $totalEstudiantesLeg > 0 ? round(($carrera['TOTAL'] / $totalEstudiantesLeg) * 100, 1) : 0;
+                                    ?>
+                                    <tr>
+                                        <td class="text-center pe-2" style="width: 20px;">
+                                            <div class="color-indicator" style="background-color: <?= $colores[$index % count($colores)] ?>;"></div>
+                                        </td>
+                                        <td class="carrera-name small"><?= esc($carrera['CARRERA']) ?></td>
+                                        <td class="text-end estudiantes-count small"><?= number_format($carrera['TOTAL']) ?></td>
+                                        <td class="text-end"><span class="badge bg-light text-dark percentage-badge"><?= $porcentaje ?>%</span></td>
+                                    </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Estadísticas Detalladas -->
-        <div class="row mb-4">
-            <!-- Próximos Vencimientos -->
-            <div class="col-xl-6 col-lg-6 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-exclamation-triangle me-2 text-warning"></i>
-                            Próximos Vencimientos
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-sm">
-                                <thead>
+        <!-- Próximos Vencimientos -->
+        <div class="card card-dash mb-4">
+            <div class="card-header">
+                <i class="fas fa-list-check me-2 text-primary"></i>Próximos Vencimientos
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-dash table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Elemento</th>
+                                <th>Fecha vencimiento</th>
+                                <th>Días restantes</th>
+                                <th>Estado</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if (!empty($vencimientos['convenios'] ?? [])): ?>
+                                <?php foreach ($vencimientos['convenios'] as $convenio): ?>
+                                    <?php
+                                    $fechaVencimiento = new DateTime($convenio['FECHA_FIN']);
+                                    $fechaActual = new DateTime();
+                                    $diasRestantes = $fechaActual->diff($fechaVencimiento)->days;
+                                    $badgeClass = 'bg-success';
+                                    $estadoClass = 'bg-success';
+                                    $estado = 'Seguro';
+                                    if ($diasRestantes <= 7) {
+                                        $badgeClass = 'bg-danger';
+                                        $estadoClass = 'bg-danger';
+                                        $estado = 'Crítico';
+                                    } elseif ($diasRestantes <= 15) {
+                                        $badgeClass = 'bg-warning text-dark';
+                                        $estadoClass = 'bg-warning text-dark';
+                                        $estado = 'Pendiente';
+                                    } elseif ($diasRestantes <= 30) {
+                                        $badgeClass = 'bg-info';
+                                        $estadoClass = 'bg-info';
+                                        $estado = 'Normal';
+                                    }
+                                    ?>
                                     <tr>
-                                        <th>Elemento</th>
-                                        <th>Fecha Vencimiento</th>
-                                        <th>Días Restantes</th>
-                                        <th>Estado</th>
+                                        <td><?= esc($convenio['INSTITUCION']) ?></td>
+                                        <td><?= date('d/m/Y', strtotime($convenio['FECHA_FIN'])) ?></td>
+                                        <td><span class="badge <?= $badgeClass ?>"><?= $diasRestantes ?> días</span></td>
+                                        <td><span class="badge <?= $estadoClass ?>"><?= $estado ?></span></td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    <?php if (!empty($vencimientos['convenios'] ?? [])): ?>
-                                        <?php foreach ($vencimientos['convenios'] as $convenio): ?>
-                                            <?php 
-                                            $fechaVencimiento = new DateTime($convenio['FECHA_FIN']);
-                                            $fechaActual = new DateTime();
-                                            $diasRestantes = $fechaActual->diff($fechaVencimiento)->days;
-                                            
-                                            $badgeClass = 'bg-success';
-                                            $estadoClass = 'bg-success';
-                                            $estado = 'Seguro';
-                                            
-                                            if ($diasRestantes <= 7) {
-                                                $badgeClass = 'bg-danger';
-                                                $estadoClass = 'bg-danger';
-                                                $estado = 'Crítico';
-                                            } elseif ($diasRestantes <= 15) {
-                                                $badgeClass = 'bg-warning text-dark';
-                                                $estadoClass = 'bg-warning text-dark';
-                                                $estado = 'Pendiente';
-                                            } elseif ($diasRestantes <= 30) {
-                                                $badgeClass = 'bg-info';
-                                                $estadoClass = 'bg-info';
-                                                $estado = 'Normal';
-                                            }
-                                            ?>
-                                            <tr>
-                                                <td><?= esc($convenio['INSTITUCION']) ?></td>
-                                                <td><?= date('d/m/Y', strtotime($convenio['FECHA_FIN'])) ?></td>
-                                                <td><span class="badge <?= $badgeClass ?>"><?= $diasRestantes ?> días</span></td>
-                                                <td><span class="badge <?= $estadoClass ?>"><?= $estado ?></span></td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <tr>
-                                            <td colspan="4" class="text-center text-muted">No hay convenios próximos a vencer</td>
-                                        </tr>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <tr>
+                                    <td colspan="4" class="empty-state text-center">
+                                        <div><i class="fas fa-folder-open d-block"></i></div>
+                                        <span>No hay convenios próximos a vencer</span>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            
-            <!-- Resumen de Actividades -->
-            <div class="col-xl-6 col-lg-6 mb-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-white">
-                        <h5 class="mb-0">
-                            <i class="fas fa-chart-bar me-2 text-primary"></i>
-                            Resumen de Actividades
-                        </h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row text-center">
-                            <div class="col-6 mb-3">
-                                <div class="border-end">
-                                    <h4 class="text-primary mb-1"><?= number_format($metricas['totalEstudiantes'] ?? 0) ?></h4>
-                                    <p class="text-muted mb-0">Total Estudiantes</p>
+        </div>
+
+        <!-- Resumen rápido -->
+        <div class="card card-dash">
+            <div class="card-header">
+                <i class="fas fa-chart-bar me-2 text-primary"></i>Resumen rápido
+            </div>
+            <div class="card-body p-3 p-md-4">
+                <div class="row g-3">
+                    <div class="col-md-3 col-6">
+                        <a href="<?= base_url('admin/estudiantes') ?>" class="text-decoration-none">
+                            <div class="activity-card">
+                                <div class="activity-icon bg-primary bg-opacity-10 text-primary">
+                                    <i class="fas fa-users"></i>
                                 </div>
+                                <h6 class="mb-0">Estudiantes</h6>
+                                <p class="mb-1"><?= number_format($metricas['totalEstudiantes'] ?? 0) ?> registrados</p>
+                                <span class="badge bg-primary">Ver</span>
                             </div>
-                            <div class="col-6 mb-3">
-                                <h4 class="text-success mb-1"><?= number_format($metricas['actividadesActivas'] ?? 0) ?></h4>
-                                <p class="text-muted mb-0">Actividades Activas</p>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <a href="<?= base_url('admin/educacion') ?>" class="text-decoration-none">
+                            <div class="activity-card">
+                                <div class="activity-icon bg-success bg-opacity-10 text-success">
+                                    <i class="fas fa-graduation-cap"></i>
+                                </div>
+                                <h6 class="mb-0">Actividades</h6>
+                                <p class="mb-1"><?= number_format($metricas['actividadesActivas'] ?? 0) ?> activas</p>
+                                <span class="badge bg-success">Ver</span>
                             </div>
-                            <div class="col-6">
-                                <h4 class="text-info mb-1"><?= number_format($metricas['conveniosVigentes'] ?? 0) ?></h4>
-                                <p class="text-muted mb-0">Convenios Vigentes</p>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <a href="<?= base_url('admin/convenios') ?>" class="text-decoration-none">
+                            <div class="activity-card">
+                                <div class="activity-icon bg-info bg-opacity-10 text-info">
+                                    <i class="fas fa-handshake"></i>
+                                </div>
+                                <h6 class="mb-0">Convenios</h6>
+                                <p class="mb-1"><?= number_format($metricas['conveniosVigentes'] ?? 0) ?> vigentes</p>
+                                <span class="badge bg-info">Ver</span>
                             </div>
-                            <div class="col-6">
-                                <h4 class="text-warning mb-1"><?= number_format($metricas['totalInstructores'] ?? 0) ?></h4>
-                                <p class="text-muted mb-0">Instructores</p>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <a href="<?= base_url('admin/instructores') ?>" class="text-decoration-none">
+                            <div class="activity-card">
+                                <div class="activity-icon bg-warning bg-opacity-10 text-warning">
+                                    <i class="fas fa-chalkboard-teacher"></i>
+                                </div>
+                                <h6 class="mb-0">Instructores</h6>
+                                <p class="mb-1"><?= number_format($metricas['totalInstructores'] ?? 0) ?> docentes</p>
+                                <span class="badge bg-warning text-dark">Ver</span>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<?= $this->endSection() ?>
 
-
-
-<!-- Cargar Chart.js y crear gráficos -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<?= $this->section('scripts') ?>
 <script>
-    // Esperar a que Chart.js se cargue antes de crear los gráficos
     document.addEventListener('DOMContentLoaded', function() {
         if (typeof Chart === 'undefined') {
             console.error('Chart.js no se pudo cargar');

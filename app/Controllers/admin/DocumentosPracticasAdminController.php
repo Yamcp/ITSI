@@ -37,7 +37,8 @@ class DocumentosPracticasAdminController extends BaseController
             'tipos_documentos' => $tiposDocumentos,
             'tiposDocumentos' => $tiposDocumentos, // Duplicado para compatibilidad
             'estados_revision' => $this->estadosRevisionesModel->getAllEstados(),
-            'estudiantes' => $this->getEstudiantes()
+            'estudiantes' => $this->getEstudiantes(),
+            'qr_practicas_url' => $this->getQrPracticasUrl(),
         ];
 
         // Log para depuración
@@ -468,6 +469,53 @@ class DocumentosPracticasAdminController extends BaseController
         return $this->response->setJSON([
             'success' => false,
             'message' => 'Exportación a PDF no implementada aún'
+        ]);
+    }
+
+    /**
+     * Obtener URL del QR de prácticas preprofesionales (para admin y estudiante).
+     * Si hay imagen subida en writable/uploads/qr/, se sirve por ruta; si no, imagen por defecto.
+     */
+    private function getQrPracticasUrl()
+    {
+        $qrDir = WRITEPATH . 'uploads/qr/';
+        $qrFile = $qrDir . 'practicas_preprofesionales.png';
+        if (file_exists($qrFile) && is_readable($qrFile)) {
+            return base_url('qr/practicas');
+        }
+        return base_url('sistema/assets/images/practicas/formatos-practicas-laborales-qr.png');
+    }
+
+    /**
+     * Subir / actualizar imagen QR de formatos de prácticas preprofesionales.
+     * Se refleja en el perfil del estudiante (Formatos - Prácticas Laborales).
+     */
+    public function subirQr()
+    {
+        $file = $this->request->getFile('qr_imagen');
+        if (!$file || !$file->isValid()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Seleccione una imagen válida (PNG o JPG).'
+            ]);
+        }
+        $ext = strtolower($file->getClientExtension());
+        if (!in_array($ext, ['png', 'jpg', 'jpeg'], true)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Solo se permiten imágenes PNG o JPG.'
+            ]);
+        }
+        $qrDir = WRITEPATH . 'uploads/qr/';
+        if (!is_dir($qrDir)) {
+            mkdir($qrDir, 0755, true);
+        }
+        $destPath = $qrDir . 'practicas_preprofesionales.png';
+        $file->move($qrDir, 'practicas_preprofesionales.png');
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => 'Código QR actualizado. Se verá en el perfil del estudiante.',
+            'url' => $this->getQrPracticasUrl()
         ]);
     }
 

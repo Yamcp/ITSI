@@ -1,220 +1,343 @@
 <?= $this->extend('estudiante/layouts/mainEstudiante') ?>
 
 <?= $this->section('styles') ?>
-<!-- Chart.js para gráficas -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- CSS personalizado para el dashboard -->
 <style>
+    :root {
+        --dashboard-radius: 16px;
+        --dashboard-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        --dashboard-shadow-hover: 0 12px 32px rgba(0,0,0,0.12);
+        --gradient-pre: linear-gradient(145deg, #0ea5e9 0%, #06b6d4 100%);
+        --gradient-serv: linear-gradient(145deg, #ec4899 0%, #f59e0b 100%);
+        --gradient-active: linear-gradient(145deg, #10b981 0%, #14b8a6 100%);
+        --gradient-actividades: linear-gradient(145deg, #6366f1 0%, #8b5cf6 100%);
+    }
+
+    .dashboard-page { font-family: 'Segoe UI', system-ui, sans-serif; }
+
+    /* Header */
+    .dashboard-header {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border-radius: var(--dashboard-radius);
+        padding: 1.5rem 1.75rem;
+        margin-bottom: 1.75rem;
+        border: 1px solid rgba(0,0,0,0.04);
+    }
+    .dashboard-header .title-dash { font-weight: 700; font-size: 1.6rem; color: #0f172a; letter-spacing: -0.02em; }
+    .dashboard-header .subtitle-dash { color: #64748b; font-size: 0.95rem; }
+    .dashboard-header .badge-rol {
+        background: #e0f2fe;
+        color: #0369a1;
+        font-weight: 600;
+        padding: 0.4rem 0.75rem;
+        border-radius: 999px;
+    }
+    .dashboard-header .date-time-box {
+        background: #fff;
+        border-radius: 12px;
+        padding: 0.6rem 1rem;
+        border: 1px solid #e2e8f0;
+        font-size: 0.9rem;
+        color: #475569;
+    }
+
+    /* Metric cards */
     .metric-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
         border: none;
-        border-radius: 15px;
+        border-radius: var(--dashboard-radius);
+        box-shadow: var(--dashboard-shadow);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        overflow: hidden;
     }
-    
     .metric-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        transform: translateY(-4px);
+        box-shadow: var(--dashboard-shadow-hover);
     }
-    
-    .metric-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
+    .metric-card .card-body {
+        padding: 1.35rem 1.25rem;
+        position: relative;
+    }
+    .metric-card .metric-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 24px;
-        color: white;
+        font-size: 1.35rem;
+        color: #fff;
+        opacity: 0.95;
     }
-    
-    .chart-container {
-        position: relative;
-        height: 300px;
-        margin: 20px 0;
+    .metric-card h3 { font-weight: 700; font-size: 1.75rem; margin-bottom: 0.2rem; }
+    .metric-card .metric-label { font-weight: 600; font-size: 0.9rem; opacity: 0.95; }
+    .metric-card .metric-sub { font-size: 0.8rem; opacity: 0.85; }
+
+    /* Progress cards */
+    .progress-card-dash {
+        border-radius: var(--dashboard-radius);
+        padding: 1.35rem 1.5rem;
+        border: none;
+        box-shadow: var(--dashboard-shadow);
+        color: #fff;
     }
-    
-    .welcome-card {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
-        color: white;
-        border-radius: 15px;
-        padding: 2rem;
-        margin-bottom: 2rem;
+    .progress-card-dash .progress {
+        height: 10px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.25);
     }
-    
-    .quick-action-btn {
-        border-radius: 10px;
-        padding: 12px 20px;
+    .progress-card-dash .progress-bar { border-radius: 999px; }
+    .progress-card-dash h5 { font-weight: 600; font-size: 1rem; margin-bottom: 0.75rem; opacity: 0.98; }
+    .progress-card-dash small { font-size: 0.8rem; opacity: 0.9; }
+
+    /* Quick actions */
+    .card-dash {
+        border: none;
+        border-radius: var(--dashboard-radius);
+        box-shadow: var(--dashboard-shadow);
+    }
+    .card-dash .card-header {
+        background: #fff;
+        border-bottom: 1px solid #f1f5f9;
+        padding: 1rem 1.35rem;
         font-weight: 600;
-        transition: all 0.3s ease;
+        color: #0f172a;
+        font-size: 1.05rem;
     }
-    
+    .quick-action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        border-radius: 12px;
+        padding: 0.85rem 1.25rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: none;
+        text-decoration: none;
+    }
     .quick-action-btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        color: inherit;
     }
-    
-    .progress-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-radius: 15px;
-        padding: 1.5rem;
+
+    /* Charts */
+    .chart-container { position: relative; height: 280px; margin: 1rem 0; }
+
+    /* Table */
+    .table-dash {
+        margin-bottom: 0;
     }
+    .table-dash thead th {
+        font-weight: 600;
+        color: #475569;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 1rem 1rem;
+    }
+    .table-dash tbody td { padding: 1rem; vertical-align: middle; }
+    .table-dash tbody tr { transition: background 0.15s ease; }
+    .table-dash tbody tr:hover { background: #f8fafc; }
+    .table-dash .badge { font-weight: 600; padding: 0.35rem 0.65rem; font-size: 0.75rem; }
+    .table-dash .btn-sm { border-radius: 8px; font-weight: 600; padding: 0.35rem 0.75rem; }
+    .empty-state { padding: 3rem 1rem; color: #94a3b8; }
+    .empty-state i { font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.6; }
+
+    /* Activity cards */
+    .activity-card {
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 1.25rem;
+        transition: box-shadow 0.2s ease, border-color 0.2s ease;
+        height: 100%;
+    }
+    .activity-card:hover {
+        box-shadow: var(--dashboard-shadow);
+        border-color: #cbd5e1;
+    }
+    .activity-card .activity-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        margin-bottom: 0.75rem;
+    }
+    .activity-card h6 { font-weight: 600; color: #0f172a; margin-bottom: 0.35rem; }
+    .activity-card p { font-size: 0.85rem; color: #64748b; margin-bottom: 0.5rem; }
 </style>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<div class="body-wrapper">
-    <div class="container-fluid">
-        <!-- Header del Dashboard -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h2 class="mb-1">
-                            <i class="fas fa-tachometer-alt me-2 text-primary"></i>
-                            Panel de Control
-                        </h2>
-                        <p class="text-muted mb-0">Bienvenido al Sistema del Departamento de Vinculación</p>
-                    </div>
-                    <div class="text-end">
-                    <span class="badge bg-light text-dark fs-6 mb-2">Estudiante</span>
-                        <p class="mb-0 text-muted">
-                            <i class="fas fa-calendar-alt me-1"></i>
-                            <?= date('d/m/Y') ?>
-                        </p>
-                        <p class="mb-0 text-muted">
-                            <i class="fas fa-clock me-1"></i>
-                            <span id="currentTime"></span>
-                        </p>
-                    </div>
+<div class="body-wrapper dashboard-page">
+    <div class="container-fluid px-3 px-md-4 pb-4">
+        <!-- Header -->
+        <div class="dashboard-header d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h1 class="title-dash mb-1">
+                    <i class="fas fa-compass me-2 text-primary"></i>Panel de Control
+                </h1>
+                <p class="subtitle-dash mb-0">Bienvenido al Sistema del Departamento de Vinculación</p>
+                <div class="dashboard-period-box mt-2">
+                    <h5 class="mb-0" style="color: var(--primary); font-weight: 600;">
+                        <i class="fas fa-calendar-check me-2 text-primary"></i>
+                        Período académico actual:
+                        <?php if (!empty($periodoNombreDashboard)): ?>
+                            <span class="ms-1 fw-bold" style="color: #0f172a;">
+                                <?= esc($periodoNombreDashboard) ?>
+                            </span>
+                            <?php if (!empty($periodoRangoDashboard)): ?>
+                                <span class="text-muted fs-6 fw-normal ms-1" style="font-weight: 500;">
+                                    (<?= esc($periodoRangoDashboard) ?>)
+                                </span>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <span class="text-muted fw-normal ms-1" style="font-weight: 500;">
+                                No hay período configurado
+                            </span>
+                        <?php endif; ?>
+                    </h5>
+                </div>
+            </div>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <span class="badge badge-rol">Estudiante</span>
+                <div class="date-time-box d-flex flex-column align-items-end">
+                    <span><i class="fas fa-calendar-alt me-1"></i><?= date('d/m/Y') ?></span>
+                    <span><i class="fas fa-clock me-1"></i><span id="currentTime"></span></span>
                 </div>
             </div>
         </div>
 
-        <!-- Métricas Principales -->
-        <div class="row mb-4">
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card metric-card text-center" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+        <!-- Métricas -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3 col-sm-6">
+                <div class="card metric-card text-white" style="background: var(--gradient-pre);">
                     <div class="card-body">
-                        <div class="metric-icon mx-auto mb-3" style="background: rgba(255,255,255,0.2);">
-                            <i class="fas fa-briefcase"></i>
+                        <div class="metric-icon mx-auto mb-2" style="background: rgba(255,255,255,0.25);">
+                            <i class="fas fa-user-graduate"></i>
                         </div>
-                        <h3 class="mb-1"><?= $total_practicas ?? 0 ?></h3>
-                        <p class="mb-0">Prácticas</p>
-                        <small class="opacity-75">Asignadas</small>
+                        <h3 class="mb-0"><?= $total_preprofesionales ?? 0 ?></h3>
+                        <p class="metric-label mb-0">Preprofesionales</p>
+                        <small class="metric-sub"><?= $preprofesionales_activas ?? 0 ?> en progreso</small>
                     </div>
                 </div>
             </div>
-            
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card metric-card text-center" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;">
+            <div class="col-md-3 col-sm-6">
+                <div class="card metric-card text-white" style="background: var(--gradient-serv);">
                     <div class="card-body">
-                        <div class="metric-icon mx-auto mb-3" style="background: rgba(255,255,255,0.2);">
+                        <div class="metric-icon mx-auto mb-2" style="background: rgba(255,255,255,0.25);">
+                            <i class="fas fa-hands-helping"></i>
+                        </div>
+                        <h3 class="mb-0"><?= $total_servicio_comunitario ?? 0 ?></h3>
+                        <p class="metric-label mb-0">Servicio comunitario</p>
+                        <small class="metric-sub"><?= $servicio_comunitario_activos ?? 0 ?> en progreso</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card metric-card text-white" style="background: var(--gradient-active);">
+                    <div class="card-body">
+                        <div class="metric-icon mx-auto mb-2" style="background: rgba(255,255,255,0.25);">
                             <i class="fas fa-play-circle"></i>
                         </div>
-                        <h3 class="mb-1"><?= $practicas_activas ?? 0 ?></h3>
-                        <p class="mb-0">Activas</p>
-                        <small class="opacity-75">En progreso</small>
+                        <h3 class="mb-0"><?= $practicas_activas ?? 0 ?></h3>
+                        <p class="metric-label mb-0">Total activas</p>
+                        <small class="metric-sub">En progreso</small>
                     </div>
                 </div>
             </div>
-            
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card metric-card text-center" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+            <div class="col-md-3 col-sm-6">
+                <div class="card metric-card text-white" style="background: var(--gradient-actividades);">
                     <div class="card-body">
-                        <div class="metric-icon mx-auto mb-3" style="background: rgba(255,255,255,0.2);">
+                        <div class="metric-icon mx-auto mb-2" style="background: rgba(255,255,255,0.25);">
                             <i class="fas fa-graduation-cap"></i>
                         </div>
-                        <h3 class="mb-1"><?= $total_actividades ?? 0 ?></h3>
-                        <p class="mb-0">Actividades</p>
-                        <small class="opacity-75">Disponibles</small>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card metric-card text-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                    <div class="card-body">
-                        <div class="metric-icon mx-auto mb-3" style="background: rgba(255,255,255,0.2);">
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <h3 class="mb-1">85%</h3>
-                        <p class="mb-0">Progreso</p>
-                        <small class="opacity-75">Académico</small>
+                        <h3 class="mb-0"><?= $total_actividades ?? 0 ?></h3>
+                        <p class="metric-label mb-0">Actividades</p>
+                        <small class="metric-sub">Disponibles</small>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Progreso de Prácticas -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="progress-card">
-                    <div class="row align-items-center">
-                        <div class="col-md-8">
-                            <h5 class="mb-2">
-                                <i class="fas fa-chart-line me-2"></i>
-                                Progreso de Prácticas Preprofesionales
-                            </h5>
-                            <div class="progress mb-2" style="height: 8px; background: rgba(255,255,255,0.2);">
-                                <div class="progress-bar bg-light" role="progressbar" style="width: 75%" aria-valuenow="75" aria-valuemin="0" aria-valuemax="100"></div>
-                            </div>
-                            <small class="opacity-75">75% completado - 3 de 4 módulos</small>
-                        </div>
-                        <div class="col-md-4 text-end">
-                            <h3 class="mb-0">75%</h3>
-                            <small class="opacity-75">Completado</small>
-                        </div>
+        <!-- Progreso por tipo -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-6">
+                <div class="progress-card-dash" style="background: var(--gradient-pre);">
+                    <h5><i class="fas fa-user-graduate me-2"></i>Prácticas preprofesionales</h5>
+                    <div class="progress mb-2">
+                        <?php
+                        $totPre = (int)($total_preprofesionales ?? 0);
+                        $actPre = (int)($preprofesionales_activas ?? 0);
+                        $pctPre = $totPre > 0 ? round((($totPre - $actPre) / $totPre) * 100) : 0;
+                        ?>
+                        <div class="progress-bar bg-white" role="progressbar" style="width: <?= $pctPre ?>%" aria-valuenow="<?= $pctPre ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <small><?= $totPre - $actPre ?> finalizadas · <?= $actPre ?> en progreso</small>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="progress-card-dash" style="background: var(--gradient-serv);">
+                    <h5><i class="fas fa-hands-helping me-2"></i>Servicio comunitario</h5>
+                    <div class="progress mb-2">
+                        <?php
+                        $totSc = (int)($total_servicio_comunitario ?? 0);
+                        $actSc = (int)($servicio_comunitario_activos ?? 0);
+                        $pctSc = $totSc > 0 ? round((($totSc - $actSc) / $totSc) * 100) : 0;
+                        ?>
+                        <div class="progress-bar bg-white" role="progressbar" style="width: <?= $pctSc ?>%" aria-valuenow="<?= $pctSc ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                    </div>
+                    <small><?= $totSc - $actSc ?> finalizadas · <?= $actSc ?> en progreso</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Acciones rápidas -->
+        <div class="card card-dash mb-4">
+            <div class="card-header">
+                <i class="fas fa-bolt me-2 text-warning"></i>Acciones rápidas
+            </div>
+            <div class="card-body p-3 p-md-4">
+                <div class="row g-3">
+                    <div class="col-md-3 col-6">
+                        <a href="<?= site_url('estudiante/practicas') ?>" class="btn btn-primary quick-action-btn w-100">
+                            <i class="fas fa-user-graduate"></i>
+                            <span>Preprofesionales</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <a href="<?= site_url('estudiante/practicas/servicio-comunitario') ?>" class="quick-action-btn w-100 text-white" style="background: var(--gradient-serv);">
+                            <i class="fas fa-hands-helping"></i>
+                            <span>Servicio comunitario</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <a href="<?= site_url('estudiante/documentos') ?>" class="btn btn-info quick-action-btn w-100 text-white">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Documentos</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <a href="<?= site_url('estudiante/perfil') ?>" class="btn btn-warning quick-action-btn w-100 text-dark">
+                            <i class="fas fa-user-edit"></i>
+                            <span>Mi Perfil</span>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Acciones Rápidas -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card">
+        <!-- Gráficas -->
+        <div class="row g-3 mb-4">
+            <div class="col-lg-8">
+                <div class="card card-dash">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Acciones Rápidas</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-3 col-sm-6 mb-3">
-                                <a href="<?= site_url('estudiante/practicas') ?>" class="btn btn-primary quick-action-btn w-100">
-                                    <i class="fas fa-briefcase me-2"></i>
-                                    Mis Prácticas
-                                </a>
-                            </div>
-                            <div class="col-md-3 col-sm-6 mb-3">
-                                <a href="<?= site_url('estudiante/actividades') ?>" class="btn btn-success quick-action-btn w-100">
-                                    <i class="fas fa-graduation-cap me-2"></i>
-                                    Actividades
-                                </a>
-                            </div>
-                            <div class="col-md-3 col-sm-6 mb-3">
-                                <a href="<?= site_url('estudiante/documentos') ?>" class="btn btn-info quick-action-btn w-100">
-                                    <i class="fas fa-file-alt me-2"></i>
-                                    Documentos
-                                </a>
-                            </div>
-                            <div class="col-md-3 col-sm-6 mb-3">
-                                <a href="<?= site_url('estudiante/perfil') ?>" class="btn btn-warning quick-action-btn w-100">
-                                    <i class="fas fa-user-edit me-2"></i>
-                                    Mi Perfil
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Gráficas y Estadísticas -->
-        <div class="row">
-            <div class="col-md-8">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Progreso de Prácticas</h5>
+                        <i class="fas fa-chart-bar me-2 text-primary"></i>Resumen de prácticas
                     </div>
                     <div class="card-body">
                         <div class="chart-container">
@@ -223,11 +346,10 @@
                     </div>
                 </div>
             </div>
-            
-            <div class="col-md-4">
-                <div class="card">
+            <div class="col-lg-4">
+                <div class="card card-dash">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Estado de Prácticas</h5>
+                        <i class="fas fa-chart-pie me-2 text-primary"></i>Por tipo de práctica
                     </div>
                     <div class="card-body">
                         <div class="chart-container">
@@ -238,80 +360,101 @@
             </div>
         </div>
 
-        <!-- Prácticas Recientes -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Mis Prácticas</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Institución</th>
-                                        <th>Tipo</th>
-                                        <th>Fecha Inicio</th>
-                                        <th>Estado</th>
-                                        <th>Progreso</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td colspan="6" class="text-center text-muted py-4">
-                                            <i class="fas fa-info-circle me-2"></i>
-                                            No tienes prácticas asignadas aún
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+        <!-- Mis prácticas -->
+        <div class="card card-dash mb-4">
+            <div class="card-header">
+                <i class="fas fa-list-check me-2 text-primary"></i>Mis prácticas
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-dash table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Institución</th>
+                                <th>Fecha inicio</th>
+                                <th>Estado</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $hayPracticas = false;
+                            if (!empty($practicas_preprofesionales)):
+                                foreach ($practicas_preprofesionales as $p):
+                                    $hayPracticas = true;
+                                    $fechaInicio = !empty($p['FECHA_INICIO']) ? date('d/m/Y', strtotime($p['FECHA_INICIO'])) : '—';
+                            ?>
+                            <tr>
+                                <td><span class="badge bg-primary"><i class="fas fa-user-graduate me-1"></i>Preprofesional</span></td>
+                                <td><?= esc($p['INSTITUCION_NOMBRE'] ?? '—') ?></td>
+                                <td><?= $fechaInicio ?></td>
+                                <td><span class="badge bg-<?= (isset($p['ESTADO_PRACTICA']) && $p['ESTADO_PRACTICA'] === 'En Progreso') ? 'success' : 'secondary' ?>"><?= esc($p['ESTADO_PRACTICA'] ?? '—') ?></span></td>
+                                <td><a href="<?= site_url('estudiante/practicas') ?>" class="btn btn-sm btn-outline-primary">Ver</a></td>
+                            </tr>
+                            <?php endforeach; endif;
+                            if (!empty($servicios_comunitarios)):
+                                foreach ($servicios_comunitarios as $s):
+                                    $hayPracticas = true;
+                                    $fechaInicio = !empty($s['FECHA_INICIO']) ? date('d/m/Y', strtotime($s['FECHA_INICIO'])) : '—';
+                            ?>
+                            <tr>
+                                <td><span class="badge bg-warning text-dark"><i class="fas fa-hands-helping me-1"></i>Servicio comunitario</span></td>
+                                <td><?= esc($s['INSTITUCION_NOMBRE'] ?? '—') ?></td>
+                                <td><?= $fechaInicio ?></td>
+                                <td><span class="badge bg-<?= (isset($s['ESTADO_SERVICIO']) && $s['ESTADO_SERVICIO'] === 'En Progreso') ? 'success' : 'secondary' ?>"><?= esc($s['ESTADO_SERVICIO'] ?? '—') ?></span></td>
+                                <td><a href="<?= site_url('estudiante/practicas/servicio-comunitario') ?>" class="btn btn-sm btn-outline-warning text-dark">Ver</a></td>
+                            </tr>
+                            <?php endforeach; endif;
+                            if (!$hayPracticas): ?>
+                            <tr>
+                                <td colspan="5" class="empty-state text-center">
+                                    <div><i class="fas fa-folder-open d-block"></i></div>
+                                    <span>No tienes prácticas preprofesionales ni de servicio comunitario asignadas aún.</span>
+                                </td>
+                            </tr>
+                            <?php endif; ?>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
 
-        <!-- Actividades Disponibles -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-graduation-cap me-2"></i>Actividades Disponibles</h5>
+        <!-- Actividades disponibles -->
+        <div class="card card-dash">
+            <div class="card-header">
+                <i class="fas fa-graduation-cap me-2 text-primary"></i>Actividades disponibles
+            </div>
+            <div class="card-body p-3 p-md-4">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="activity-card">
+                            <div class="activity-icon bg-primary bg-opacity-10 text-primary">
+                                <i class="fas fa-laptop-code"></i>
+                            </div>
+                            <h6>Curso de Programación</h6>
+                            <p class="mb-0">Desarrollo web con PHP</p>
+                            <span class="badge bg-primary">Disponible</span>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <div class="card border-primary">
-                                    <div class="card-body text-center">
-                                        <i class="fas fa-laptop-code fa-3x text-primary mb-3"></i>
-                                        <h5>Curso de Programación</h5>
-                                        <p class="text-muted">Desarrollo web con PHP</p>
-                                        <span class="badge bg-primary">Disponible</span>
-                                    </div>
-                                </div>
+                    <div class="col-md-4">
+                        <div class="activity-card">
+                            <div class="activity-icon bg-success bg-opacity-10 text-success">
+                                <i class="fas fa-database"></i>
                             </div>
-                            <div class="col-md-4 mb-3">
-                                <div class="card border-success">
-                                    <div class="card-body text-center">
-                                        <i class="fas fa-database fa-3x text-success mb-3"></i>
-                                        <h5>Taller de Bases de Datos</h5>
-                                        <p class="text-muted">MySQL y PostgreSQL</p>
-                                        <span class="badge bg-success">Inscrito</span>
-                                    </div>
-                                </div>
+                            <h6>Taller de Bases de Datos</h6>
+                            <p class="mb-0">MySQL y PostgreSQL</p>
+                            <span class="badge bg-success">Inscrito</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="activity-card">
+                            <div class="activity-icon bg-info bg-opacity-10 text-info">
+                                <i class="fas fa-chart-bar"></i>
                             </div>
-                            <div class="col-md-4 mb-3">
-                                <div class="card border-info">
-                                    <div class="card-body text-center">
-                                        <i class="fas fa-chart-bar fa-3x text-info mb-3"></i>
-                                        <h5>Seminario de Análisis</h5>
-                                        <p class="text-muted">Estadística aplicada</p>
-                                        <span class="badge bg-info">Próximamente</span>
-                                    </div>
-                                </div>
-                            </div>
+                            <h6>Seminario de Análisis</h6>
+                            <p class="mb-0">Estadística aplicada</p>
+                            <span class="badge bg-info">Próximamente</span>
                         </div>
                     </div>
                 </div>
@@ -323,85 +466,77 @@
 
 <?= $this->section('scripts') ?>
 <script>
-    // Actualizar fecha y hora en tiempo real
-    function actualizarFechaHora() {
-        const ahora = new Date();
-        const opcionesFecha = { 
-            weekday: 'long', 
-            year: 'numeric', 
-            month: 'long', 
-            day: 'numeric' 
-        };
-        const opcionesHora = { 
-            hour: '2-digit', 
-            minute: '2-digit', 
-            second: '2-digit' 
-        };
-        
-        document.getElementById('fechaActual').textContent = 
-            ahora.toLocaleDateString('es-ES', opcionesFecha);
-        document.getElementById('horaActual').textContent = 
-            ahora.toLocaleTimeString('es-ES', opcionesHora);
-    }
-    
-    // Actualizar cada segundo
-    setInterval(actualizarFechaHora, 1000);
-    actualizarFechaHora(); // Llamar inmediatamente
+    // Datos desde el controlador para prácticas preprofesionales y servicio comunitario
+    const totalPreprofesionales = <?= (int)($total_preprofesionales ?? 0) ?>;
+    const totalServicioComunitario = <?= (int)($total_servicio_comunitario ?? 0) ?>;
+    const preprofesionalesActivas = <?= (int)($preprofesionales_activas ?? 0) ?>;
+    const servicioComunitarioActivos = <?= (int)($servicio_comunitario_activos ?? 0) ?>;
 
-    // Gráfica de progreso
+    // Actualizar hora en tiempo real (el elemento currentTime existe en la vista)
+    function actualizarHora() {
+        const span = document.getElementById('currentTime');
+        if (span) {
+            const ahora = new Date();
+            span.textContent = ahora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+    }
+    setInterval(actualizarHora, 1000);
+    actualizarHora();
+
+    // Gráfica de barras: Preprofesionales vs Servicio comunitario
     const ctxProgreso = document.getElementById('progresoChart').getContext('2d');
     new Chart(ctxProgreso, {
-        type: 'line',
+        type: 'bar',
         data: {
-            labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-            datasets: [{
-                label: 'Progreso (%)',
-                data: [10, 25, 35, 45, 55, 65, 70, 75, 80, 85, 90, 95],
-                borderColor: '#4facfe',
-                backgroundColor: 'rgba(79, 172, 254, 0.1)',
-                borderWidth: 3,
-                fill: true,
-                tension: 0.4
-            }]
+            labels: ['Prácticas preprofesionales', 'Servicio comunitario'],
+            datasets: [
+                {
+                    label: 'Total',
+                    data: [totalPreprofesionales, totalServicioComunitario],
+                    backgroundColor: ['rgba(14, 165, 233, 0.75)', 'rgba(236, 72, 153, 0.75)'],
+                    borderColor: ['#0ea5e9', '#ec4899'],
+                    borderWidth: 2
+                },
+                {
+                    label: 'En progreso',
+                    data: [preprofesionalesActivas, servicioComunitarioActivos],
+                    backgroundColor: ['rgba(16, 185, 129, 0.75)', 'rgba(245, 158, 11, 0.75)'],
+                    borderColor: ['#10b981', '#f59e0b'],
+                    borderWidth: 2
+                }
+            ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    display: false
+                    position: 'top',
+                    labels: { padding: 15, usePointStyle: true }
                 }
             },
             scales: {
                 y: {
                     beginAtZero: true,
-                    max: 100,
-                    grid: {
-                        color: 'rgba(0,0,0,0.1)'
-                    }
+                    ticks: { stepSize: 1 },
+                    grid: { color: 'rgba(0,0,0,0.08)' }
                 },
                 x: {
-                    grid: {
-                        display: false
-                    }
+                    grid: { display: false }
                 }
             }
         }
     });
 
-    // Gráfica de estado
+    // Gráfica circular: distribución por tipo de práctica
     const ctxEstado = document.getElementById('estadoChart').getContext('2d');
     new Chart(ctxEstado, {
         type: 'doughnut',
         data: {
-            labels: ['Completadas', 'En Progreso', 'Pendientes'],
+            labels: ['Preprofesionales', 'Servicio comunitario'],
             datasets: [{
-                data: [60, 25, 15],
-                backgroundColor: [
-                    '#43e97b',
-                    '#4facfe',
-                    '#f093fb'
-                ],
+                data: [Math.max(0, totalPreprofesionales), Math.max(0, totalServicioComunitario)],
+                backgroundColor: ['#0ea5e9', '#ec4899'],
                 borderWidth: 0
             }]
         },
@@ -411,10 +546,7 @@
             plugins: {
                 legend: {
                     position: 'bottom',
-                    labels: {
-                        padding: 20,
-                        usePointStyle: true
-                    }
+                    labels: { padding: 20, usePointStyle: true }
                 }
             }
         }

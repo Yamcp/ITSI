@@ -1,190 +1,282 @@
 <?= $this->extend('docente/layouts/mainDocente') ?>
 
+<?php
+use Config\Database;
+$periodoNombreDashboard = $periodoAcademicoNombre ?? session('periodo_academico_nombre');
+$periodoRangoDashboard  = $periodoAcademicoRango ?? session('periodo_academico_rango');
+if (!$periodoNombreDashboard) {
+    try {
+        $db = Database::connect();
+        $row = $db->query("SELECT * FROM V_PERIODO_ACADEMICO_ACTUAL LIMIT 1")->getRowArray();
+        if ($row) {
+            $periodoNombreDashboard = $row['NOMBRE_PERIODO'] ?? null;
+            $periodoRangoDashboard  = ($row['FECHA_INICIO'] ?? '') . ' - ' . ($row['FECHA_FIN'] ?? '');
+            if ($periodoNombreDashboard) session()->set('periodo_academico_nombre', $periodoNombreDashboard);
+            if ($periodoRangoDashboard) session()->set('periodo_academico_rango', $periodoRangoDashboard);
+        }
+    } catch (\Throwable $e) {
+        log_message('error', 'Dashboard docente - error obteniendo período: ' . $e->getMessage());
+    }
+}
+?>
+
 <?= $this->section('styles') ?>
-<!-- Chart.js para gráficas -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<!-- CSS personalizado para el dashboard -->
 <style>
+    /* Diseño igual que dashboard Estudiante */
+    :root {
+        --dashboard-radius: 16px;
+        --dashboard-shadow: 0 4px 20px rgba(0,0,0,0.06);
+        --dashboard-shadow-hover: 0 12px 32px rgba(0,0,0,0.12);
+        --gradient-pre: linear-gradient(145deg, #0ea5e9 0%, #06b6d4 100%);
+        --gradient-serv: linear-gradient(145deg, #ec4899 0%, #f59e0b 100%);
+        --gradient-active: linear-gradient(145deg, #10b981 0%, #14b8a6 100%);
+        --gradient-actividades: linear-gradient(145deg, #6366f1 0%, #8b5cf6 100%);
+    }
+    .dashboard-page { font-family: 'Segoe UI', system-ui, sans-serif; }
+
+    .dashboard-header {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border-radius: var(--dashboard-radius);
+        padding: 1.5rem 1.75rem;
+        margin-bottom: 1.75rem;
+        border: 1px solid rgba(0,0,0,0.04);
+    }
+    .dashboard-header .title-dash { font-weight: 700; font-size: 1.6rem; color: #0f172a; letter-spacing: -0.02em; }
+    .dashboard-header .subtitle-dash { color: #64748b; font-size: 0.95rem; }
+    .dashboard-header .badge-rol {
+        background: #e0f2fe;
+        color: #0369a1;
+        font-weight: 600;
+        padding: 0.4rem 0.75rem;
+        border-radius: 999px;
+    }
+    .dashboard-header .date-time-box {
+        background: #fff;
+        border-radius: 12px;
+        padding: 0.6rem 1rem;
+        border: 1px solid #e2e8f0;
+        font-size: 0.9rem;
+        color: #475569;
+    }
+
     .metric-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
         border: none;
-        border-radius: 15px;
+        border-radius: var(--dashboard-radius);
+        box-shadow: var(--dashboard-shadow);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        overflow: hidden;
     }
-    
     .metric-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        transform: translateY(-4px);
+        box-shadow: var(--dashboard-shadow-hover);
     }
-    
-    .metric-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
+    .metric-card .card-body {
+        padding: 1.35rem 1.25rem;
+        position: relative;
+    }
+    .metric-card .metric-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 24px;
-        color: white;
+        font-size: 1.35rem;
+        color: #fff;
+        opacity: 0.95;
     }
-    
-    .chart-container {
-        position: relative;
-        height: 300px;
-        margin: 20px 0;
+    .metric-card h3 { font-weight: 700; font-size: 1.75rem; margin-bottom: 0.2rem; }
+    .metric-card .metric-label { font-weight: 600; font-size: 0.9rem; opacity: 0.95; }
+    .metric-card .metric-sub { font-size: 0.8rem; opacity: 0.85; }
+
+    .card-dash {
+        border: none;
+        border-radius: var(--dashboard-radius);
+        box-shadow: var(--dashboard-shadow);
     }
-    
-    .welcome-card {
-        background: #f8f9fa;
-        color: #333;
-        border-radius: 15px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-        border: 1px solid #e9ecef;
-    }
-    
-    .quick-action-btn {
-        border-radius: 10px;
-        padding: 12px 20px;
+    .card-dash .card-header {
+        background: #fff;
+        border-bottom: 1px solid #f1f5f9;
+        padding: 1rem 1.35rem;
         font-weight: 600;
-        transition: all 0.3s ease;
+        color: #0f172a;
+        font-size: 1.05rem;
     }
-    
+    .quick-action-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        border-radius: 12px;
+        padding: 0.85rem 1.25rem;
+        font-weight: 600;
+        font-size: 0.95rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        border: none;
+        text-decoration: none;
+    }
     .quick-action-btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        color: inherit;
     }
+
+    .chart-container { position: relative; height: 280px; margin: 1rem 0; }
+
+    .table-dash { margin-bottom: 0; }
+    .table-dash thead th {
+        font-weight: 600;
+        color: #475569;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        border-bottom: 1px solid #e2e8f0;
+        padding: 1rem 1rem;
+    }
+    .table-dash tbody td { padding: 1rem; vertical-align: middle; }
+    .table-dash tbody tr { transition: background 0.15s ease; }
+    .table-dash tbody tr:hover { background: #f8fafc; }
+    .table-dash .badge { font-weight: 600; padding: 0.35rem 0.65rem; font-size: 0.75rem; }
+    .table-dash .btn-sm { border-radius: 8px; font-weight: 600; padding: 0.35rem 0.75rem; }
+    .empty-state { padding: 3rem 1rem; color: #94a3b8; }
+    .empty-state i { font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.6; }
 </style>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
-<div class="body-wrapper">
-    <div class="container-fluid">
-        <!-- Header del Dashboard -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h2 class="mb-1">
-                            <i class="fas fa-tachometer-alt me-2 text-primary"></i>
-                            Panel de Control
-                        </h2>
-                        <p class="text-muted mb-0">Bienvenido al Sistema del Departamento de Vinculación</p>
-                    </div>                    
-                    <div class="text-end">
-                    <span class="badge bg-light text-dark fs-6 mb-2">Docente</span>
-                        <p class="mb-0 text-muted">
-                            <i class="fas fa-calendar-alt me-1"></i>
-                            <?= date('d/m/Y') ?>
-                        </p>
-                        <p class="mb-0 text-muted">
-                            <i class="fas fa-clock me-1"></i>
-                            <span id="currentTime"></span>
-                        </p>
-                    </div>
+<div class="body-wrapper dashboard-page">
+    <div class="container-fluid px-3 px-md-4 pb-4">
+        <!-- Header del Dashboard (igual que Estudiante) -->
+        <div class="dashboard-header d-flex flex-wrap justify-content-between align-items-center gap-3">
+            <div>
+                <h1 class="title-dash mb-1">
+                    <i class="fas fa-compass me-2 text-primary"></i>Panel de Control
+                </h1>
+                <p class="subtitle-dash mb-0">Bienvenido al Sistema del Departamento de Vinculación</p>
+                <div class="dashboard-period-box mt-2">
+                    <h5 class="mb-0" style="color: var(--primary); font-weight: 600;">
+                        <i class="fas fa-calendar-check me-2 text-primary"></i>
+                        Período académico actual:
+                        <?php if (!empty($periodoNombreDashboard)): ?>
+                            <span class="ms-1 fw-bold" style="color: #0f172a;">
+                                <?= esc($periodoNombreDashboard) ?>
+                            </span>
+                            <?php if (!empty($periodoRangoDashboard)): ?>
+                                <span class="text-muted fs-6 fw-normal ms-1" style="font-weight: 500;">
+                                    (<?= esc($periodoRangoDashboard) ?>)
+                                </span>
+                            <?php endif; ?>
+                        <?php else: ?>
+                            <span class="text-muted fw-normal ms-1" style="font-weight: 500;">
+                                No hay período configurado
+                            </span>
+                        <?php endif; ?>
+                    </h5>
+                </div>
+            </div>
+            <div class="d-flex flex-wrap align-items-center gap-2">
+                <span class="badge badge-rol">Docente</span>
+                <div class="date-time-box d-flex flex-column align-items-end">
+                    <span><i class="fas fa-calendar-alt me-1"></i><?= date('d/m/Y') ?></span>
+                    <span><i class="fas fa-clock me-1"></i><span id="currentTime"></span></span>
                 </div>
             </div>
         </div>
 
-        <!-- Métricas Principales -->
-        <div class="row mb-4">
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card metric-card text-center" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+        <!-- Métricas (diseño igual que Estudiante) -->
+        <div class="row g-3 mb-4">
+            <div class="col-md-3 col-sm-6">
+                <div class="card metric-card text-white" style="background: var(--gradient-actividades);">
                     <div class="card-body">
-                        <div class="metric-icon mx-auto mb-3" style="background: rgba(255,255,255,0.2);">
+                        <div class="metric-icon mx-auto mb-2" style="background: rgba(255,255,255,0.25);">
                             <i class="fas fa-graduation-cap"></i>
                         </div>
-                        <h3 class="mb-1"><?= $total_actividades ?? 0 ?></h3>
-                        <p class="mb-0">Total Actividades</p>
-                        <small class="opacity-75">Cursos y talleres</small>
+                        <h3 class="mb-0"><?= $total_actividades ?? 0 ?></h3>
+                        <p class="metric-label mb-0">Total Actividades</p>
+                        <small class="metric-sub">Cursos y talleres</small>
                     </div>
                 </div>
             </div>
-            
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card metric-card text-center" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white;">
+            <div class="col-md-3 col-sm-6">
+                <div class="card metric-card text-white" style="background: var(--gradient-serv);">
                     <div class="card-body">
-                        <div class="metric-icon mx-auto mb-3" style="background: rgba(255,255,255,0.2);">
+                        <div class="metric-icon mx-auto mb-2" style="background: rgba(255,255,255,0.25);">
                             <i class="fas fa-play-circle"></i>
                         </div>
-                        <h3 class="mb-1"><?= $actividades_activas ?? 0 ?></h3>
-                        <p class="mb-0">Actividades Activas</p>
-                        <small class="opacity-75">En progreso</small>
+                        <h3 class="mb-0"><?= $actividades_activas ?? 0 ?></h3>
+                        <p class="metric-label mb-0">Actividades Activas</p>
+                        <small class="metric-sub">En progreso</small>
                     </div>
                 </div>
             </div>
-            
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card metric-card text-center" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white;">
+            <div class="col-md-3 col-sm-6">
+                <div class="card metric-card text-white" style="background: var(--gradient-pre);">
                     <div class="card-body">
-                        <div class="metric-icon mx-auto mb-3" style="background: rgba(255,255,255,0.2);">
+                        <div class="metric-icon mx-auto mb-2" style="background: rgba(255,255,255,0.25);">
                             <i class="fas fa-users"></i>
                         </div>
-                        <h3 class="mb-1"><?= $total_estudiantes ?? 0 ?></h3>
-                        <p class="mb-0">Total Estudiantes</p>
-                        <small class="opacity-75">Registrados</small>
+                        <h3 class="mb-0"><?= $total_estudiantes ?? 0 ?></h3>
+                        <p class="metric-label mb-0">Total Estudiantes</p>
+                        <small class="metric-sub">Registrados</small>
                     </div>
                 </div>
             </div>
-            
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card metric-card text-center" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); color: white;">
+            <div class="col-md-3 col-sm-6">
+                <div class="card metric-card text-white" style="background: var(--gradient-active);">
                     <div class="card-body">
-                        <div class="metric-icon mx-auto mb-3" style="background: rgba(255,255,255,0.2);">
+                        <div class="metric-icon mx-auto mb-2" style="background: rgba(255,255,255,0.25);">
                             <i class="fas fa-star"></i>
                         </div>
-                        <h3 class="mb-1">4.8</h3>
-                        <p class="mb-0">Calificación</p>
-                        <small class="opacity-75">Promedio</small>
+                        <h3 class="mb-0">4.8</h3>
+                        <p class="metric-label mb-0">Calificación</p>
+                        <small class="metric-sub">Promedio</small>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Acciones Rápidas -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-bolt me-2"></i>Acciones Rápidas</h5>
+        <!-- Acciones rápidas (diseño igual que Estudiante) -->
+        <div class="card card-dash mb-4">
+            <div class="card-header">
+                <i class="fas fa-bolt me-2 text-warning"></i>Acciones rápidas
+            </div>
+            <div class="card-body p-3 p-md-4">
+                <div class="row g-3">
+                    <div class="col-md-3 col-6">
+                        <a href="<?= base_url('docente/educacion') ?>" class="btn btn-primary quick-action-btn w-100">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>Nueva Actividad</span>
+                        </a>
                     </div>
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-md-3 col-sm-6 mb-3">
-                                <a href="<?= base_url('docente/educacion') ?>" class="btn btn-primary quick-action-btn w-100">
-                                    <i class="fas fa-plus-circle me-2"></i>
-                                    Nueva Actividad
-                                </a>
-                            </div>
-                            <div class="col-md-3 col-sm-6 mb-3">
-                                <a href="<?= base_url('docente/actividades') ?>" class="btn btn-success quick-action-btn w-100">
-                                    <i class="fas fa-list me-2"></i>
-                                    Mis Actividades
-                                </a>
-                            </div>
-                            <div class="col-md-3 col-sm-6 mb-3">
-                                <a href="<?= base_url('docente/estudiantes') ?>" class="btn btn-info quick-action-btn w-100">
-                                    <i class="fas fa-users me-2"></i>
-                                    Ver Estudiantes
-                                </a>
-                            </div>
-                            <div class="col-md-3 col-sm-6 mb-3">
-                                <a href="<?= base_url('docente/perfil') ?>" class="btn btn-warning quick-action-btn w-100">
-                                    <i class="fas fa-user-edit me-2"></i>
-                                    Mi Perfil
-                                </a>
-                            </div>
-                        </div>
+                    <div class="col-md-3 col-6">
+                        <a href="<?= base_url('docente/actividades') ?>" class="quick-action-btn w-100 text-white" style="background: var(--gradient-active);">
+                            <i class="fas fa-list"></i>
+                            <span>Mis Actividades</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <a href="<?= base_url('docente/estudiantes') ?>" class="btn btn-info quick-action-btn w-100 text-white">
+                            <i class="fas fa-users"></i>
+                            <span>Ver Estudiantes</span>
+                        </a>
+                    </div>
+                    <div class="col-md-3 col-6">
+                        <a href="<?= base_url('docente/perfil') ?>" class="btn btn-warning quick-action-btn w-100 text-dark">
+                            <i class="fas fa-user-edit"></i>
+                            <span>Mi Perfil</span>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Gráficas y Estadísticas -->
-        <div class="row">
-            <div class="col-md-8">
-                <div class="card">
+        <!-- Gráficas (diseño igual que Estudiante) -->
+        <div class="row g-3 mb-4">
+            <div class="col-lg-8">
+                <div class="card card-dash">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Actividades por Mes</h5>
+                        <i class="fas fa-chart-bar me-2 text-primary"></i>Actividades por Mes
                     </div>
                     <div class="card-body">
                         <div class="chart-container">
@@ -193,11 +285,10 @@
                     </div>
                 </div>
             </div>
-            
-            <div class="col-md-4">
-                <div class="card">
+            <div class="col-lg-4">
+                <div class="card card-dash">
                     <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-chart-pie me-2"></i>Distribución de Actividades</h5>
+                        <i class="fas fa-chart-pie me-2 text-primary"></i>Distribución de Actividades
                     </div>
                     <div class="card-body">
                         <div class="chart-container">
@@ -209,36 +300,32 @@
         </div>
 
         <!-- Actividades Recientes -->
-        <div class="row mt-4">
-            <div class="col-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="mb-0"><i class="fas fa-clock me-2"></i>Actividades Recientes</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-responsive">
-                            <table class="table table-hover">
-                                <thead>
-                                    <tr>
-                                        <th>Actividad</th>
-                                        <th>Tipo</th>
-                                        <th>Fecha Inicio</th>
-                                        <th>Estado</th>
-                                        <th>Estudiantes</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td colspan="6" class="text-center text-muted py-4">
-                                            <i class="fas fa-info-circle me-2"></i>
-                                            No hay actividades registradas aún
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+        <div class="card card-dash mb-4">
+            <div class="card-header">
+                <i class="fas fa-list-check me-2 text-primary"></i>Actividades Recientes
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-dash table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Actividad</th>
+                                <th>Tipo</th>
+                                <th>Fecha Inicio</th>
+                                <th>Estado</th>
+                                <th>Estudiantes</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="6" class="empty-state text-center">
+                                    <div><i class="fas fa-folder-open d-block"></i></div>
+                                    <span>No hay actividades registradas aún</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -248,39 +335,16 @@
 
 <?= $this->section('scripts') ?>
 <script>
-    // Actualizar fecha y hora en tiempo real
-    function actualizarFechaHora() {
-        try {
+    // Actualizar hora en tiempo real (igual que Estudiante)
+    function actualizarHora() {
+        const span = document.getElementById('currentTime');
+        if (span) {
             const ahora = new Date();
-            const opcionesFecha = { 
-                day: '2-digit',
-                month: '2-digit', 
-                year: 'numeric'
-            };
-            const opcionesHora = { 
-                hour: '2-digit', 
-                minute: '2-digit', 
-                second: '2-digit',
-                hour12: true
-            };
-            
-            const fechaElement = document.getElementById('fechaActual');
-            const horaElement = document.getElementById('horaActual');
-            
-            if (fechaElement && horaElement) {
-                fechaElement.textContent = ahora.toLocaleDateString('es-ES', opcionesFecha);
-                horaElement.textContent = ahora.toLocaleTimeString('es-ES', opcionesHora);
-            }
-        } catch (error) {
-            console.error('Error al actualizar fecha y hora:', error);
+            span.textContent = ahora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
         }
     }
-    
-    // Esperar a que el DOM esté completamente cargado
-    document.addEventListener('DOMContentLoaded', function() {
-        actualizarFechaHora(); // Llamar inmediatamente
-        setInterval(actualizarFechaHora, 1000); // Actualizar cada segundo
-    });
+    setInterval(actualizarHora, 1000);
+    actualizarHora();
 
     // Gráfica de actividades por mes
     const ctxActividades = document.getElementById('actividadesChart').getContext('2d');

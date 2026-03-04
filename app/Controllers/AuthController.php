@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\UsuariosModel;
+use App\Models\RecuperacionContrasenaModel;
 use Config\Database;
 
 class AuthController extends BaseController 
@@ -27,6 +28,222 @@ class AuthController extends BaseController
         }
         
         return view('auth/login');
+    }
+
+    /**
+     * Muestra el formulario para recuperar contraseña
+     */
+    public function recuperarContrasena()
+    {
+        if (session()->get('logged_in')) {
+            return $this->redirigirSegunRol(session()->get('rol'));
+        }
+        return view('auth/recuperar_contrasena');
+    }
+
+    /**
+     * Procesa la solicitud de recuperación de contraseña.
+     * Disponible para cualquier usuario del sistema (administrador, docente, estudiante).
+     */
+    public function solicitarRecuperacion()
+    {
+        $session = session();
+        $emailOUsuario = $this->request->getPost('email_o_usuario');
+
+        if (empty(trim($emailOUsuario ?? ''))) {
+            $session->setFlashdata('error', 'Ingrese su correo electrónico o usuario.');
+            return redirect()->to('auth/recuperar-contrasena')->withInput();
+        }
+
+        $usuarioModel = new UsuariosModel();
+        $usuario = $usuarioModel->buscarPorEmailOUsuario($emailOUsuario);
+
+        if ($usuario && !empty($usuario['EMAIL'])) {
+            $recuperacionModel = new RecuperacionContrasenaModel();
+            $token = $recuperacionModel->crearToken((int) $usuario['ID_USUARIO']);
+            if ($token) {
+                $enlace = site_url('auth/restablecer-contrasena?token=' . $token);
+                $enviado = $this->enviarCorreoRecuperacion($usuario, $token);
+                if (!$enviado) {
+                    log_message('error', 'No se pudo enviar el correo de recuperación a: ' . $usuario['EMAIL']);
+                    $session->setFlashdata('enlace_recuperacion', $enlace);
+                    $session->setFlashdata('error_email', true);
+                }
+            }
+        } elseif ($usuario && empty(trim($usuario['EMAIL'] ?? ''))) {
+            $session->setFlashdata('error', 'Este usuario no tiene correo registrado. Contacte al administrador para que agregue su email en el sistema.');
+            return redirect()->to('auth/recuperar-contrasena')->withInput();
+        }
+
+        $session->setFlashdata('success', 'Si el correo o usuario está registrado, recibirás instrucciones para restablecer tu contraseña. Revisa tu bandeja de entrada y la carpeta de spam.');
+        return redirect()->to('auth/recuperar-contrasena');
+    }
+
+    /**
+     * Envía el correo con el enlace para restablecer la contraseña
+     */
+    private function enviarCorreoRecuperacion(array $usuario, string $token): bool
+    {
+        $config = $this->obtenerConfigEmail();
+        if (empty(trim($config['fromEmail'] ?? ''))) {
+            log_message('error', 'Recuperación de contraseña: configure fromEmail en app/Config/Email.php');
+            return false;
+        }
+
+        $enlace = site_url('auth/restablecer-contrasena?token=' . $token);
+        $nombre = trim(($usuario['NOMBRE'] ?? '') . ' ' . ($usuario['APELLIDO'] ?? ''));
+        if ($nombre === '') {
+            $nombre = $usuario['USUARIO'] ?? 'Usuario';
+        }
+
+        $mensaje = $this->generarMensajeRecuperacion($nombre, $enlace);
+
+        try {
+            $email = \Config\Services::email();
+            $email->setFrom($config['fromEmail'], $config['fromName'] ?: 'Sistema de Vinculación');
+            $email->setTo($usuario['EMAIL']);
+            $email->setSubject('Recuperar contraseña - Sistema de Vinculación');
+            $email->setMailType('html');
+            $email->setMessage($mensaje);
+
+            if (!$email->send()) {
+                $this->logErrorEmail($email, $usuario['EMAIL']);
+                return false;
+            }
+            return true;
+        } catch (\Throwable $e) {
+            log_message('error', 'Error enviando correo recuperación: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Obtiene la configuración de correo (desde Config o .env)
+     */
+    private function obtenerConfigEmail(): array
+    {
+        $config = config('Email');
+        $fromEmail = $this->getEnvOrConfig('email.fromEmail', $config->fromEmail ?? '');
+        $fromName  = $this->getEnvOrConfig('email.fromName', $config->fromName ?? 'Sistema de Vinculación');
+        return [
+            'fromEmail' => is_string($fromEmail) ? trim($fromEmail) : '',
+            'fromName'  => is_string($fromName) ? trim($fromName) : 'Sistema de Vinculación',
+        ];
+    }
+
+    private function getEnvOrConfig(string $key, string $fallback): string
+    {
+        $v = getenv($key);
+        if ($v !== false && $v !== '') {
+            return $v;
+        }
+        $v = getenv(strtoupper(str_replace('.', '_', $key)));
+        if ($v !== false && $v !== '') {
+            return $v;
+        }
+        return $fallback;
+    }
+
+    /**
+     * Registra en el log el motivo del fallo del envío de correo
+     */
+    private function logErrorEmail($email, string $destinatario): void
+    {
+        $debug = 'send() devolvió false';
+        if (method_exists($email, 'printDebugger')) {
+            ob_start();
+            $email->printDebugger();
+            $debug = ob_get_clean() ?: $debug;
+        }
+        log_message('error', 'Email recuperación a ' . $destinatario . ': ' . $debug);
+    }
+
+    private function generarMensajeRecuperacion(string $nombre, string $enlace): string
+    {
+        return '<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
+            body{font-family:Arial,sans-serif;line-height:1.6;color:#333;margin:0;padding:0;}
+            .container{max-width:600px;margin:0 auto;padding:20px;}
+            .header{background:linear-gradient(135deg,#2196F3,#BBDEFB);color:#fff;padding:25px;text-align:center;border-radius:10px 10px 0 0;}
+            .content{background:#f8f9fa;padding:25px;border-radius:0 0 10px 10px;}
+            .btn{display:inline-block;background:#2196F3;color:#fff!important;padding:12px 24px;text-decoration:none;border-radius:6px;margin:15px 0;}
+            .footer{text-align:center;margin-top:20px;color:#666;font-size:13px;}
+            .aviso{color:#856404;background:#fff3cd;padding:10px;border-radius:5px;margin-top:15px;font-size:13px;}
+        </style></head><body><div class="container">
+            <div class="header"><h1>Sistema de Vinculación</h1><h2>Recuperar contraseña</h2></div>
+            <div class="content">
+                <p>Hola <strong>' . htmlspecialchars($nombre) . '</strong>,</p>
+                <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta. Haz clic en el siguiente enlace (válido por 1 hora):</p>
+                <p style="text-align:center;"><a href="' . htmlspecialchars($enlace) . '" class="btn">Restablecer mi contraseña</a></p>
+                <p>Si el botón no funciona, copia y pega esta URL en tu navegador:</p>
+                <p style="word-break:break-all;font-size:12px;">' . htmlspecialchars($enlace) . '</p>
+                <div class="aviso">Si no solicitaste este correo, ignóralo. Tu contraseña no cambiará.</div>
+            </div>
+            <div class="footer">&copy; ' . date('Y') . ' Departamento de Vinculación</div>
+        </div></body></html>';
+    }
+
+    /**
+     * Muestra el formulario para restablecer contraseña (con token en URL).
+     * Válido para cualquier rol (admin, docente, estudiante).
+     */
+    public function restablecerContrasena()
+    {
+        if (session()->get('logged_in')) {
+            return $this->redirigirSegunRol(session()->get('rol'));
+        }
+
+        $token = $this->request->getGet('token');
+        if (empty($token)) {
+            return redirect()->to('auth/recuperar-contrasena')->with('error', 'Enlace inválido o expirado.');
+        }
+
+        $recuperacionModel = new RecuperacionContrasenaModel();
+        $idUsuario = $recuperacionModel->validarToken($token);
+        if (!$idUsuario) {
+            return redirect()->to('auth/recuperar-contrasena')->with('error', 'El enlace ha expirado o ya fue utilizado. Solicita uno nuevo.');
+        }
+
+        return view('auth/restablecer_contrasena', ['token' => $token]);
+    }
+
+    /**
+     * Procesa el cambio de contraseña con el token (cualquier rol).
+     */
+    public function restablecerContrasenaPost()
+    {
+        $session = session();
+        $token = $this->request->getPost('token');
+        $password = $this->request->getPost('password');
+        $passwordConfirmar = $this->request->getPost('password_confirmar');
+
+        if (empty($token)) {
+            $session->setFlashdata('error', 'Enlace inválido.');
+            return redirect()->to('auth/recuperar-contrasena');
+        }
+
+        $recuperacionModel = new RecuperacionContrasenaModel();
+        $idUsuario = $recuperacionModel->validarToken($token);
+        if (!$idUsuario) {
+            $session->setFlashdata('error', 'El enlace ha expirado o ya fue utilizado.');
+            return redirect()->to('auth/recuperar-contrasena');
+        }
+
+        if (strlen($password) < 8) {
+            $session->setFlashdata('error', 'La contraseña debe tener al menos 8 caracteres.');
+            return redirect()->to('auth/restablecer-contrasena?token=' . urlencode($token))->withInput();
+        }
+
+        if ($password !== $passwordConfirmar) {
+            $session->setFlashdata('error', 'Las contraseñas no coinciden.');
+            return redirect()->to('auth/restablecer-contrasena?token=' . urlencode($token))->withInput();
+        }
+
+        $usuarioModel = new UsuariosModel();
+        $usuarioModel->actualizarPasswordHash($idUsuario, $password);
+        $recuperacionModel->marcarUsado($token);
+
+        $session->setFlashdata('success', 'Tu contraseña se ha actualizado correctamente. Ya puedes iniciar sesión.');
+        return redirect()->to('/');
     }
 
     public function autenticar()

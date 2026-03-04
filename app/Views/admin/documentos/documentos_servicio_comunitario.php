@@ -197,6 +197,41 @@
             </div>
         </div>
 
+        <!-- Código QR - Servicio Comunitario -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header tipo-documento-header">
+                        <h5 class="mb-0">
+                            <i class="fas fa-qrcode me-2"></i>
+                            Código QR – Servicio Comunitario
+                        </h5>
+                        <small class="opacity-75">Esta imagen se muestra en el perfil del estudiante (Prácticas de Servicio Comunitario).</small>
+                    </div>
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-4 text-center">
+                                <p class="text-muted small mb-2">Vista previa actual</p>
+                                <img id="previewQrServicio" src="<?= esc($qr_servicio_url ?? base_url('sistema/assets/images/practicas/formatos-servicio-comunitario-qr.png')) ?>" alt="QR Servicio Comunitario" class="img-fluid rounded border" style="max-height: 200px;" />
+                            </div>
+                            <div class="col-md-8">
+                                <form id="formQrServicio" enctype="multipart/form-data">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Subir nueva imagen del código QR</label>
+                                        <input type="file" class="form-control" name="qr_imagen" id="qrImagenServicio" accept="image/png,image/jpeg,image/jpg" />
+                                        <div class="form-text">PNG o JPG. Se mostrará en la sección Servicio Comunitario del estudiante.</div>
+                                    </div>
+                                    <button type="submit" class="btn btn-success" id="btnSubirQrServicio">
+                                        <i class="fas fa-upload me-1"></i> Actualizar QR
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Tablas de Documentos por Tipo -->
         <div id="vistaGrid">
             <?php if (!empty($tiposDocumentos)): ?>
@@ -835,6 +870,38 @@
             }
         }, 5000);
     }
+
+    // Formulario QR Servicio Comunitario
+    document.getElementById('formQrServicio')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const input = document.getElementById('qrImagenServicio');
+        if (!input?.files?.length) {
+            showNotification('Seleccione una imagen', 'error');
+            return;
+        }
+        const formData = new FormData();
+        formData.append('qr_imagen', input.files[0]);
+        const btn = document.getElementById('btnSubirQrServicio');
+        btn.disabled = true;
+        fetch('<?= base_url('admin/documentos/servicio/subir-qr') ?>', {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            btn.disabled = false;
+            if (data.success) {
+                showNotification(data.message, 'success');
+                const preview = document.getElementById('previewQrServicio');
+                if (preview) preview.src = data.url + '?t=' + Date.now();
+                input.value = '';
+            } else {
+                showNotification(data.message || 'Error al subir', 'error');
+            }
+        })
+        .catch(() => { btn.disabled = false; showNotification('Error de conexión', 'error'); });
+    });
 
     // Inicialización al cargar la página
     document.addEventListener('DOMContentLoaded', function() {

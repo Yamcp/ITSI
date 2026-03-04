@@ -4,10 +4,35 @@ namespace Config;
 
 use CodeIgniter\Config\BaseConfig;
 
+/**
+ * Configuración de correo para el sistema.
+ *
+ * Para recuperación de contraseña (y notificaciones) debes configurar:
+ *
+ * 1) Correo remitente (obligatorio):
+ *    - fromEmail: correo desde el que se envía (ej: tu_cuenta@gmail.com)
+ *    - fromName: nombre que verá el destinatario
+ *
+ * 2) Envío por SMTP (recomendado en XAMPP/Windows; mail() suele no funcionar):
+ *    - protocol = 'smtp'
+ *    - SMTPHost, SMTPUser, SMTPPass, SMTPPort, SMTPCrypto
+ *
+ * Ejemplo Gmail:
+ *    protocol = 'smtp'
+ *    SMTPHost = 'smtp.gmail.com'
+ *    SMTPUser = 'tu_cuenta@gmail.com'
+ *    SMTPPass = 'contraseña_de_aplicacion'  (crear en Cuenta Google > Seguridad > Contraseñas de app)
+ *    SMTPPort = 587
+ *    SMTPCrypto = 'tls'
+ */
 class Email extends BaseConfig
 {
+    /** Correo desde el que se envían los mensajes (obligatorio para recuperación de contraseña) */
     public string $fromEmail  = '';
-    public string $fromName   = '';
+
+    /** Nombre del remitente */
+    public string $fromName   = 'Sistema de Vinculación';
+
     public string $recipients = '';
 
     /**
@@ -16,9 +41,9 @@ class Email extends BaseConfig
     public string $userAgent = 'CodeIgniter';
 
     /**
-     * The mail sending protocol: mail, sendmail, smtp
+     * Protocolo: 'mail', 'sendmail' o 'smtp'. En Windows/XAMPP usa 'smtp'.
      */
-    public string $protocol = 'mail';
+    public string $protocol = 'smtp';
 
     /**
      * The server path to Sendmail.
@@ -26,29 +51,29 @@ class Email extends BaseConfig
     public string $mailPath = '/usr/sbin/sendmail';
 
     /**
-     * SMTP Server Hostname
+     * SMTP Server (ej: smtp.gmail.com, smtp.office365.com)
      */
-    public string $SMTPHost = '';
+    public string $SMTPHost = 'smtp.gmail.com';
 
     /**
-     * SMTP Username
+     * Usuario SMTP (normalmente tu correo)
      */
     public string $SMTPUser = '';
 
     /**
-     * SMTP Password
+     * Contraseña SMTP (en Gmail: contraseña de aplicación)
      */
     public string $SMTPPass = '';
 
     /**
-     * SMTP Port
+     * Puerto: 587 (TLS), 465 (SSL), 25 (sin cifrado)
      */
-    public int $SMTPPort = 25;
+    public int $SMTPPort = 587;
 
     /**
      * SMTP Timeout (in seconds)
      */
-    public int $SMTPTimeout = 5;
+    public int $SMTPTimeout = 10;
 
     /**
      * Enable persistent SMTP connections

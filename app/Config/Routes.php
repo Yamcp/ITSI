@@ -8,8 +8,16 @@ use CodeIgniter\Router\RouteCollection;
 
 $routes->get('/', 'AuthController::index');                           // Página principal de login
 $routes->post('/auth/autenticar', 'AuthController::autenticar');     // Acción de autenticar al usuario
+$routes->get('/auth/recuperar-contrasena', 'AuthController::recuperarContrasena');   // Formulario recuperar contraseña
+$routes->post('/auth/solicitar-recuperacion', 'AuthController::solicitarRecuperacion'); // Solicitar recuperación
+$routes->get('/auth/restablecer-contrasena', 'AuthController::restablecerContrasena'); // Formulario nueva contraseña (token en URL)
+$routes->post('/auth/restablecer-contrasena', 'AuthController::restablecerContrasenaPost'); // Guardar nueva contraseña
 $routes->get('/auth/cerrar-sesion', 'AuthController::cerrarSesion'); // Acción para cerrar sesión
 $routes->post('/auth/cerrar-sesion', 'AuthController::cerrarSesion'); // Acción para cerrar sesión (POST)
+
+// Imágenes QR (prácticas y servicio comunitario) — visibles en perfil estudiante
+$routes->get('qr/practicas', 'QrController::practicas');
+$routes->get('qr/servicio', 'QrController::servicio');
 
 // Redirección para URL antigua de convenios
 $routes->get('vinculacion/convenios', function() {
@@ -118,6 +126,7 @@ $routes->group('admin', ['namespace' => 'App\Controllers\admin'], function ($rou
     $routes->post('documentos/practicas/eliminar/(:num)', 'DocumentosPracticasAdminController::eliminar/$1'); // Eliminar documento
     $routes->post('documentos/practicas/cambiar-estado/(:num)', 'DocumentosPracticasAdminController::cambiarEstado/$1'); // Cambiar estado
     $routes->get('documentos/practicas/reportes', 'DocumentosPracticasAdminController::reportes'); // Reportes de prácticas
+    $routes->post('documentos/practicas/subir-qr', 'DocumentosPracticasAdminController::subirQr'); // Subir QR formatos prácticas
     
     // Rutas específicas para documentos de servicio comunitario
     $routes->get('documentos/servicio', 'DocumentosServicioComunitarioAdminController::index'); // Ver documentos de servicio
@@ -128,6 +137,7 @@ $routes->group('admin', ['namespace' => 'App\Controllers\admin'], function ($rou
     $routes->post('documentos/servicio/eliminar/(:num)', 'DocumentosServicioComunitarioAdminController::eliminar/$1'); // Eliminar documento
     $routes->post('documentos/servicio/cambiar-estado/(:num)', 'DocumentosServicioComunitarioAdminController::cambiarEstado/$1'); // Cambiar estado
     $routes->get('documentos/servicio/reportes', 'DocumentosServicioComunitarioAdminController::reportes'); // Reportes de servicio
+    $routes->post('documentos/servicio/subir-qr', 'DocumentosServicioComunitarioAdminController::subirQr'); // Subir QR servicio comunitario
     $routes->post('documentos/crear-carpeta', 'DocumentosAdminController::crearCarpeta'); // Crear carpeta
 
     
@@ -237,9 +247,14 @@ $routes->group('estudiante', ['namespace' => 'App\Controllers\estudiante'], func
     $routes->post('cuenta/cambiar-password', 'CuentaEstudianteController::cambiarPassword'); // Cambiar contraseña
     
     $routes->get('educacion', 'ActividadesEducacionEstudianteController::index');    // Ver la sección de educación
+    $routes->get('evaluaciones', 'EvaluacionesEstudianteController::index');        // Ver evaluaciones
+    $routes->get('evaluaciones/obtener', 'EvaluacionesEstudianteController::obtenerEvaluaciones'); // Obtener evaluaciones
+    $routes->get('evaluaciones/estadisticas', 'EvaluacionesEstudianteController::obtenerEstadisticas'); // Estadísticas
     $routes->get('convenios', 'InstitucionesConveniosController::index');        // Ver la sección de convenios
     
-    // Rutas para prácticas
+    // Rutas para prácticas (más específicas primero)
+    $routes->get('practicas/servicio-comunitario/formatos', 'PracticasEstudianteController::servicioComunitario'); // Formatos servicio comunitario
+    $routes->get('practicas/formatos', 'PracticasEstudianteController::formatos'); // Vista solo formatos prácticas laborales
     $routes->get('practicas', 'PracticasEstudianteController::index'); // Prácticas preprofesionales
     $routes->get('practicas/servicio-comunitario', 'PracticasEstudianteController::servicioComunitario'); // Prácticas de servicio comunitario
     $routes->get('practicas/detalle/(:num)/(:alpha)', 'PracticasEstudianteController::detalle/$1/$2'); // Detalle de práctica

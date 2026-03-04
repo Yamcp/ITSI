@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar Sesión | Departamento de Vinculación</title>
+    <link rel="shortcut icon" type="image/png" href="<?= base_url('sistema/assets/images/logos/logo.png') ?>" />
     <link href="<?= base_url('login/assets/css/bootstrap.min.css') ?>" rel="stylesheet">
     <!-- Bootstrap Icons CDN -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
@@ -195,6 +196,9 @@
                                 Recordarme
                             </label>
                         </div>
+                        <a href="<?= site_url('auth/recuperar-contrasena') ?>" class="text-decoration-none small text-muted">
+                            <i class="bi bi-key me-1"></i>¿Olvidaste tu contraseña?
+                        </a>
                     </div>
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary btn-login text-uppercase fw-bold" id="btnLogin">

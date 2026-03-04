@@ -37,6 +37,14 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
+                    <a class="sidebar-link" href="<?= base_url('estudiante/evaluaciones') ?>" aria-expanded="false">
+                        <span>
+                            <i class="fa-solid fa-clipboard-check fs-6"></i>
+                        </span>
+                        <span class="hide-menu">Evaluaciones</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
                     <a class="sidebar-link" href="<?= base_url('estudiante/convenios') ?>" aria-expanded="false">
                         <span>
                             <i class="fa-solid fa-handshake fs-6"></i>
@@ -46,22 +54,42 @@
                 </li>
                 <li class="nav-small-cap">
                     <i class="fa-solid fa-briefcase nav-small-cap-icon fs-6"></i>
-                    <span class="hide-menu">PRÁCTICAS</span>
+                    <span class="hide-menu">PRÁCTICAS PROFESIONALES</span>
                 </li>
                 <li class="sidebar-item">
                     <a class="sidebar-link" href="<?= base_url('estudiante/practicas') ?>" aria-expanded="false">
                         <span>
                             <i class="fa-solid fa-user-graduate fs-6"></i>
                         </span>
-                        <span class="hide-menu">Prácticas Preprofesionales</span>
+                        <span class="hide-menu">Documentación</span>
                     </a>
+                </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link" href="<?= base_url('estudiante/practicas/formatos') ?>" aria-expanded="false">
+                        <span>
+                            <i class="fa-solid fa-file-lines fs-6"></i>
+                        </span>
+                        <span class="hide-menu">Formatos</span>
+                    </a>
+                </li>
+                <li class="nav-small-cap">
+                    <i class="fa-solid fa-briefcase nav-small-cap-icon fs-6"></i>
+                    <span class="hide-menu">PRÁCTICAS DE SERVICIO COMUNITARIO</span>
                 </li>
                 <li class="sidebar-item">
                     <a class="sidebar-link" href="<?= base_url('estudiante/practicas/servicio-comunitario') ?>" aria-expanded="false">
                         <span>
                             <i class="fa-solid fa-hands-helping fs-6"></i>
                         </span>
-                        <span class="hide-menu">Prácticas de servicio comunitario</span>
+                        <span class="hide-menu">Documentación</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link" href="<?= base_url('estudiante/practicas/servicio-comunitario/formatos') ?>" aria-expanded="false">
+                        <span>
+                            <i class="fa-solid fa-file-lines fs-6"></i>
+                        </span>
+                        <span class="hide-menu">Formatos</span>
                     </a>
                 </li>
             </ul>

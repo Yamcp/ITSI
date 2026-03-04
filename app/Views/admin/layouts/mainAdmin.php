@@ -5,12 +5,12 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>ITSI - Vinculación</title>
+    <title>Departamento de Vinculación</title>
     <link rel="shortcut icon" type="image/png" href="<?= base_url('sistema/assets/images/logos/logo.png') ?>" />
 
     <!-- ESTILOS -->
     <link rel="stylesheet" href="<?= base_url('sistema/assets/css/styles.min.css') ?>" />
-    
+    <?= $this->renderSection('styles') ?>
 </head>
 
 <body>

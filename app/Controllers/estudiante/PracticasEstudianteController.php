@@ -72,6 +72,29 @@ class PracticasEstudianteController extends BaseController
     }
 
     /**
+     * Vista exclusiva solo con los formatos de Prácticas Laborales (QR y aviso SharePoint).
+     * El QR se configura en Admin > Documentos - Preprofesionales.
+     */
+    public function formatos()
+    {
+        if (!session()->get('logged_in')) {
+            return redirect()->to(base_url('/'));
+        }
+
+        $qrPath = WRITEPATH . 'uploads/qr/practicas_preprofesionales.png';
+        $qr_url = (file_exists($qrPath) && is_readable($qrPath))
+            ? base_url('qr/practicas')
+            : base_url('sistema/assets/images/practicas/formatos-practicas-laborales-qr.png');
+
+        $data = [
+            'title' => 'Formatos de las prácticas - ITSI',
+            'qr_url' => $qr_url,
+        ];
+
+        return view('estudiante/practicas/practicas_formatos_estudiante', $data);
+    }
+
+    /**
      * Vista exclusiva de Prácticas de Servicio Comunitario (mismo lineamiento que Preprofesionales).
      */
     public function servicioComunitario()
@@ -88,11 +111,17 @@ class PracticasEstudianteController extends BaseController
             $progresoServicios[$s['ID_SERVICIO_COMUNITARIO']] = (int) $this->calcularProgreso($s['ID_SERVICIO_COMUNITARIO'], 'servicio');
         }
 
+        $qrPath = WRITEPATH . 'uploads/qr/servicio_comunitario.png';
+        $qr_url = (file_exists($qrPath) && is_readable($qrPath))
+            ? base_url('qr/servicio')
+            : base_url('sistema/assets/images/practicas/formatos-servicio-comunitario-qr.png');
+
         $data = [
             'title' => 'Prácticas de Servicio Comunitario - ITSI',
             'estadisticas' => $estadisticas,
             'serviciosComunitarios' => $serviciosComunitarios,
-            'progresoServicios' => $progresoServicios
+            'progresoServicios' => $progresoServicios,
+            'qr_url' => $qr_url,
         ];
 
         return view('estudiante/practicas/practicas_servicio_comunitario_estudiante', $data);
