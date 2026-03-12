@@ -68,18 +68,18 @@ class DashboardEstudianteController extends BaseController
         $preprofesionalesActivas = 0;
         $practicasPreprofesionales = [];
         try {
-            $totalPreprofesionales = $this->db->table('practicas_preprofesionales pp')
+            $totalPreprofesionales = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
                 ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = pp.ID_ESTUDIANTE')
                 ->where('e.ID_DATO_PERSONA', $idDatoPersona)
                 ->countAllResults();
 
-            $preprofesionalesActivas = $this->db->table('practicas_preprofesionales pp')
+            $preprofesionalesActivas = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
                 ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = pp.ID_ESTUDIANTE')
                 ->where('e.ID_DATO_PERSONA', $idDatoPersona)
                 ->where('pp.ESTADO_PRACTICA', 'En Progreso')
                 ->countAllResults();
 
-            $practicasPreprofesionales = $this->db->table('practicas_preprofesionales pp')
+            $practicasPreprofesionales = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
                 ->select('pp.*, ic.NOMBRE as INSTITUCION_NOMBRE')
                 ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = pp.ID_ESTUDIANTE')
                 ->join($tblInstituciones . ' ic', 'ic.ID_INSTITUCION_CONVENIO = pp.ID_INSTITUCION_CONVENIO', 'left')
@@ -97,16 +97,16 @@ class DashboardEstudianteController extends BaseController
         $servicioComunitarioActivos = 0;
         $serviciosComunitarios = [];
         try {
-            $totalServicioComunitario = $this->db->table('servicios_comunitarios sc')
+            $totalServicioComunitario = $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
                 ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE')
                 ->where('e.ID_DATO_PERSONA', $idDatoPersona)
                 ->countAllResults();
-            $servicioComunitarioActivos = $this->db->table('servicios_comunitarios sc')
+            $servicioComunitarioActivos = $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
                 ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE')
                 ->where('e.ID_DATO_PERSONA', $idDatoPersona)
                 ->where('sc.ESTADO_SERVICIO', 'En Progreso')
                 ->countAllResults();
-            $serviciosComunitarios = $this->db->table('servicios_comunitarios sc')
+            $serviciosComunitarios = $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
                 ->select('sc.*, ic.NOMBRE as INSTITUCION_NOMBRE')
                 ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE')
                 ->join($tblInstituciones . ' ic', 'ic.ID_INSTITUCION_CONVENIO = sc.ID_INSTITUCION_CONVENIO', 'left')

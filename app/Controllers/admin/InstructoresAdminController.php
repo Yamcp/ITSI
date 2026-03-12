@@ -113,8 +113,7 @@ class InstructoresAdminController extends BaseController
                 'genero' => 'required|in_list[Masculino,Femenino]',
                 'direccion' => 'required|min_length[5]',
                 'especialidad' => 'required|min_length[3]',
-                'nacionalidad' => 'required|min_length[3]|max_length[50]',
-                'estado_civil' => 'required|in_list[Soltero,Casado,Divorciado,Viudo]'
+                'nacionalidad' => 'required|min_length[3]|max_length[50]'
             ]);
 
             if (!$validation->withRequest($this->request)->run()) {
@@ -136,7 +135,6 @@ class InstructoresAdminController extends BaseController
                 'CELULAR' => $this->request->getPost('celular'),
                 'DIRECCION' => $this->request->getPost('direccion'),
                 'GENERO' => $this->request->getPost('genero'),
-                'ESTADO_CIVIL' => $this->request->getPost('estado_civil'),
                 'NACIONALIDAD' => $this->request->getPost('nacionalidad'),
                 'FECHA_INGRESO' => date('Y-m-d'),
                 'ACTIVO' => 1,
@@ -204,8 +202,7 @@ class InstructoresAdminController extends BaseController
                 'genero' => 'required|in_list[Masculino,Femenino]',
                 'direccion' => 'required|min_length[5]',
                 'especialidad' => 'required|min_length[3]',
-                'nacionalidad' => 'required|min_length[3]|max_length[50]',
-                'estado_civil' => 'required|in_list[Soltero,Casado,Divorciado,Viudo]'
+                'nacionalidad' => 'required|min_length[3]|max_length[50]'
             ]);
 
             if (!$validation->withRequest($this->request)->run()) {
@@ -227,7 +224,6 @@ class InstructoresAdminController extends BaseController
                 'CELULAR' => $this->request->getPost('celular'),
                 'DIRECCION' => $this->request->getPost('direccion'),
                 'GENERO' => $this->request->getPost('genero'),
-                'ESTADO_CIVIL' => $this->request->getPost('estado_civil'),
                 'NACIONALIDAD' => $this->request->getPost('nacionalidad')
             ];
 

@@ -6,11 +6,12 @@ use CodeIgniter\Model;
 
 class ServiciosComunitariosModel extends Model
 {
-    protected $table = 'servicios_comunitarios';
+    protected $table = 'TAB_SERVICIO_COMUNITARIO';
     protected $primaryKey = 'ID_SERVICIO_COMUNITARIO';
     protected $allowedFields = [
+        'ID_ASIGNACION_PRACTICA',
         'ID_ESTUDIANTE',
-        'ID_DOCENTE_SUPERVISOR',
+        'ID_INSTRUCTOR',
         'ID_INSTITUCION_CONVENIO',
         'PROYECTO_SOCIAL',
         'COMUNIDAD_BENEFICIADA',
@@ -19,14 +20,10 @@ class ServiciosComunitariosModel extends Model
         'FECHA_FIN',
         'ESTADO_SERVICIO',
         'IMPACTO_SOCIAL',
-        'OBSERVACIONES',
-        'CRONOGRAMA',
-        'DESCRIPCION_ACTIVIDADES'
+        'OBSERVACIONES'
     ];
     protected $returnType = 'array';
-    protected $useTimestamps = true;
-    protected $createdField = 'FECHA_CREACION';
-    protected $updatedField = 'FECHA_ACTUALIZACION';
+    protected $useTimestamps = false;
 
     protected $validationRules = [
         'ID_ESTUDIANTE' => 'required|integer',
@@ -172,15 +169,14 @@ class ServiciosComunitariosModel extends Model
             return 0;
         }
         
-        // Obtener horas cumplidas de actividades
-        $horasCumplidas = $this->db->table('actividades_practicas')
-            ->selectSum('TIMESTAMPDIFF(HOUR, CONCAT(FECHA_ACTIVIDAD, " ", HORA_ENTRADA), CONCAT(FECHA_ACTIVIDAD, " ", HORA_SALIDA))', 'total_horas')
-            ->where('ID_ESTUDIANTE', $servicio['ID_ESTUDIANTE'])
-            ->where('TIPO_PRACTICA', 'servicio')
+        // Obtener horas cumplidas desde seguimiento (TAB_SEGUIMIENTO_* tiene HORAS_CUMPLIDAS)
+        $horasCumplidas = $this->db->table('TAB_SEGUIMIENTO_SERVICIO_COMUNITARIO')
+            ->selectSum('HORAS_CUMPLIDAS', 'total_horas')
+            ->where('ID_SERVICIO_COMUNITARIO', $servicioId)
             ->get()
             ->getRow();
         
-        $totalHoras = $horasCumplidas->total_horas ?? 0;
+        $totalHoras = (int) ($horasCumplidas->total_horas ?? 0);
         $horasRequeridas = $servicio['HORAS_SERVICIO'];
         
         if ($horasRequeridas > 0) {

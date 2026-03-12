@@ -511,18 +511,6 @@
                                 <input type="text" class="form-control" name="nacionalidad" value="Ecuatoriana" required>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Estado Civil<span class="text-danger">*</span></label>
-                                <select class="form-select" name="estado_civil" required>
-                                    <option value="">Seleccionar...</option>
-                                    <option value="Soltero">Soltero</option>
-                                    <option value="Casado">Casado</option>
-                                    <option value="Divorciado">Divorciado</option>
-                                    <option value="Viudo">Viudo</option>
-                                </select>
-                            </div>
-                        </div>
                     </div>
                 </form>
             </div>
@@ -565,7 +553,6 @@
                                         <p><strong>Cédula:</strong> <span id="detalleCedula">-</span></p>
                                         <p><strong>Celular:</strong> <span id="detalleCelular">-</span></p>
                                         <p><strong>Género:</strong> <span id="detalleGenero">-</span></p>
-                                        <p><strong>Estado Civil:</strong> <span id="detalleEstadoCivil">-</span></p>
                                     </div>
                                 </div>
                                 <div class="row">
@@ -899,7 +886,6 @@
                 document.getElementById('detalleCedula').textContent = instructor.CEDULA;
                 document.getElementById('detalleCelular').textContent = instructor.CELULAR;
                 document.getElementById('detalleGenero').textContent = instructor.GENERO;
-                document.getElementById('detalleEstadoCivil').textContent = instructor.ESTADO_CIVIL;
                 document.getElementById('detalleDireccion').textContent = instructor.DIRECCION;
                 document.getElementById('detalleEspecialidad').textContent = instructor.ESPECIALIDAD;
                 document.getElementById('totalActividadesInstructor').textContent = instructor.actividades ? instructor.actividades.length : 0;
@@ -971,8 +957,7 @@
             'genero', 
             'direccion', 
             'especialidad', 
-            'nacionalidad', 
-            'estado_civil'
+            'nacionalidad'
         ];
         
         let hayErrores = false;
@@ -1195,6 +1180,13 @@
         
         // Agregar validación en tiempo real
         agregarValidacionTiempoReal();
+
+        // Si se llegó desde "agregar instructor" (ej. desde actividades), abrir modal de nuevo instructor
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('crear') === '1') {
+            setTimeout(function() { showModal('modalNuevoInstructor'); }, 400);
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
     });
 
     // Agregar validación en tiempo real a los campos

@@ -33,21 +33,19 @@ class PracticasDocenteController extends BaseController
 
     public function index()
     {
-        // Verificar autenticación
         if (!session()->get('logged_in')) {
             return redirect()->to(base_url('/'));
         }
 
-        $docenteId = session()->get('id_usuario');
-        
-        // Obtener estadísticas del docente
-        $estadisticas = $this->obtenerEstadisticasDocente($docenteId);
-        
-        // Obtener estudiantes asignados al docente
-        $estudiantesAsignados = $this->obtenerEstudiantesAsignados($docenteId);
-        
-        // Obtener evaluaciones pendientes
-        $evaluacionesPendientes = $this->obtenerEvaluacionesPendientes($docenteId);
+        $idUsuario = session()->get('id_usuario');
+        $idInstructor = $this->obtenerIdInstructorPorUsuario($idUsuario);
+        if ($idInstructor === null) {
+            $idInstructor = 0;
+        }
+
+        $estadisticas = $this->obtenerEstadisticasDocente($idInstructor, $idUsuario);
+        $estudiantesAsignados = $this->obtenerEstudiantesAsignados($idInstructor);
+        $evaluacionesPendientes = $this->obtenerEvaluacionesPendientes($idUsuario);
 
         $data = [
             'title' => 'Supervisión de Prácticas - ITSI',
@@ -66,21 +64,37 @@ class PracticasDocenteController extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'No autorizado']);
         }
 
-        $docenteId = session()->get('id_usuario');
-        
+        $idInstructor = $this->obtenerIdInstructorPorUsuario(session()->get('id_usuario'));
+        if ($idInstructor === null) {
+            $idInstructor = 0;
+        }
         try {
-            // Verificar que el estudiante esté asignado al docente
-            $estudiante = $this->obtenerEstudianteAsignado($estudianteId, $docenteId);
-            
+            $estudiante = $this->obtenerEstudianteAsignado($estudianteId, $idInstructor);
             if (!$estudiante) {
                 return $this->response->setJSON(['success' => false, 'message' => 'Estudiante no encontrado']);
             }
-
-            // Obtener actividades recientes del estudiante
-            $actividadesRecientes = $this->obtenerActividadesRecientes($estudianteId);
-            
-            // Calcular progreso general
-            $progreso = $this->calcularProgresoEstudiante($estudianteId);
+            $actividadesRecientes = [];
+            $pp = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES')->where('ID_ESTUDIANTE', $estudianteId)->where('ID_INSTRUCTOR', $idInstructor)->get()->getRowArray();
+            if ($pp) {
+                $actividadesRecientes = array_merge($actividadesRecientes, $this->obtenerActividadesRecientesPractica($pp['ID_PRACTICA_PREPROFESIONAL'], 'preprofesional'));
+            }
+            $sc = $this->db->table('TAB_SERVICIO_COMUNITARIO')->where('ID_ESTUDIANTE', $estudianteId)->where('ID_INSTRUCTOR', $idInstructor)->get()->getRowArray();
+            if ($sc) {
+                $actividadesRecientes = array_merge($actividadesRecientes, $this->obtenerActividadesRecientesPractica($sc['ID_SERVICIO_COMUNITARIO'], 'servicio'));
+            }
+            usort($actividadesRecientes, function ($a, $b) {
+                $f1 = $a['FECHA_ASISTENCIA'] ?? '';
+                $f2 = $b['FECHA_ASISTENCIA'] ?? '';
+                return strcmp($f2, $f1);
+            });
+            $actividadesRecientes = array_slice($actividadesRecientes, 0, 5);
+            $progreso = 0;
+            if ($pp) {
+                $progreso = $this->calcularProgresoPractica($pp['ID_PRACTICA_PREPROFESIONAL'], $pp['HORAS_PRACTICAS'] ?? 0, 'preprofesional');
+            }
+            if ($sc && $progreso === 0) {
+                $progreso = $this->calcularProgresoPractica($sc['ID_SERVICIO_COMUNITARIO'], $sc['HORAS_SERVICIO'] ?? 0, 'servicio');
+            }
 
             return $this->response->setJSON([
                 'success' => true,
@@ -179,15 +193,25 @@ class PracticasDocenteController extends BaseController
             $fechaHasta = $this->request->getPost('fecha_hasta');
             $formato = $this->request->getPost('formato');
 
-            // Generar reporte según el tipo
-            $datosReporte = $this->generarDatosReporte($tipoReporte, $fechaDesde, $fechaHasta, $docenteId);
-            
-            // Aquí se implementaría la generación del archivo según el formato
-            // Por ahora solo retornamos los datos
+            $idInstructor = $this->obtenerIdInstructorPorUsuario($docenteId);
+            if ($idInstructor === null) {
+                $idInstructor = 0;
+            }
+
+            $datosReporte = $this->generarDatosReporte($tipoReporte, $fechaDesde, $fechaHasta, $idInstructor);
+
+            $csv = null;
+            if ($formato === 'excel') {
+                $csv = $this->generarCsvReporte($datosReporte);
+            }
+
             return $this->response->setJSON([
                 'success' => true,
                 'message' => 'Reporte generado exitosamente',
-                'data' => $datosReporte
+                'data' => $datosReporte,
+                'formato' => $formato,
+                'csv' => $csv,
+                'nombre_archivo' => 'reporte_practicas_' . date('Y-m-d_His') . ($formato === 'excel' ? '.csv' : '')
             ]);
 
         } catch (\Exception $e) {
@@ -196,17 +220,106 @@ class PracticasDocenteController extends BaseController
         }
     }
 
+    /**
+     * Devuelve eventos para el calendario (asistencias de prácticas y servicio comunitario).
+     */
+    public function calendario()
+    {
+        if (!session()->get('logged_in')) {
+            return $this->response->setJSON([]);
+        }
+        $idInstructor = $this->obtenerIdInstructorPorUsuario(session()->get('id_usuario'));
+        if ($idInstructor === null || $idInstructor <= 0) {
+            return $this->response->setJSON([]);
+        }
+        $eventos = [];
+        try {
+            $pp = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
+                ->select('pp.ID_PRACTICA_PREPROFESIONAL, CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as ESTUDIANTE')
+                ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = pp.ID_ESTUDIANTE')
+                ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+                ->where('pp.ID_INSTRUCTOR', $idInstructor)
+                ->get()
+                ->getResultArray();
+            $idsPp = array_column($pp, 'ID_PRACTICA_PREPROFESIONAL');
+            $nombresPp = [];
+            foreach ($pp as $r) {
+                $nombresPp[$r['ID_PRACTICA_PREPROFESIONAL']] = $r['ESTUDIANTE'];
+            }
+            if (!empty($idsPp)) {
+                $asistPp = $this->db->table('TAB_ASISTENCIAS_PRACTICAS_PREPROFESIONALES')
+                    ->whereIn('ID_PRACTICA_PREPROFESIONAL', $idsPp)
+                    ->get()
+                    ->getResultArray();
+                foreach ($asistPp as $a) {
+                    $titulo = 'Práctica: ' . ($nombresPp[$a['ID_PRACTICA_PREPROFESIONAL']] ?? '');
+                    $act = $a['ACTIVIDADES_DIA'] ?? '';
+                    if (strlen($act) > 50) {
+                        $act = substr($act, 0, 47) . '...';
+                    }
+                    if ($act) {
+                        $titulo .= ' - ' . $act;
+                    }
+                    $eventos[] = [
+                        'title' => $titulo,
+                        'start' => ($a['FECHA_ASISTENCIA'] ?? '') . 'T' . ($a['HORA_ENTRADA'] ?? '08:00:00'),
+                        'end'   => ($a['FECHA_ASISTENCIA'] ?? '') . 'T' . ($a['HORA_SALIDA'] ?? '17:00:00'),
+                        'color' => '#0d6efd'
+                    ];
+                }
+            }
+            $sc = $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
+                ->select('sc.ID_SERVICIO_COMUNITARIO, CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as ESTUDIANTE')
+                ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE')
+                ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+                ->where('sc.ID_INSTRUCTOR', $idInstructor)
+                ->get()
+                ->getResultArray();
+            $idsSc = array_column($sc, 'ID_SERVICIO_COMUNITARIO');
+            $nombresSc = [];
+            foreach ($sc as $r) {
+                $nombresSc[$r['ID_SERVICIO_COMUNITARIO']] = $r['ESTUDIANTE'];
+            }
+            if (!empty($idsSc)) {
+                $asistSc = $this->db->table('TAB_ASISTENCIAS_SERVICIO_COMUNITARIO')
+                    ->whereIn('ID_SERVICIO_COMUNITARIO', $idsSc)
+                    ->get()
+                    ->getResultArray();
+                foreach ($asistSc as $a) {
+                    $titulo = 'Servicio: ' . ($nombresSc[$a['ID_SERVICIO_COMUNITARIO']] ?? '');
+                    $act = $a['ACTIVIDADES_DIA'] ?? '';
+                    if (strlen($act) > 50) {
+                        $act = substr($act, 0, 47) . '...';
+                    }
+                    if ($act) {
+                        $titulo .= ' - ' . $act;
+                    }
+                    $eventos[] = [
+                        'title' => $titulo,
+                        'start' => ($a['FECHA_ASISTENCIA'] ?? '') . 'T' . ($a['HORA_ENTRADA'] ?? '08:00:00'),
+                        'end'   => ($a['FECHA_ASISTENCIA'] ?? '') . 'T' . ($a['HORA_SALIDA'] ?? '16:00:00'),
+                        'color' => '#198754'
+                    ];
+                }
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Error calendario prácticas: ' . $e->getMessage());
+        }
+        return $this->response->setJSON($eventos);
+    }
+
     public function obtenerAlertas()
     {
-        // Verificar autenticación
         if (!session()->get('logged_in')) {
             return $this->response->setJSON(['success' => false, 'message' => 'No autorizado']);
         }
 
-        $docenteId = session()->get('id_usuario');
-        
+        $idInstructor = $this->obtenerIdInstructorPorUsuario(session()->get('id_usuario'));
+        if ($idInstructor === null) {
+            $idInstructor = 0;
+        }
         try {
-            $alertas = $this->generarAlertas($docenteId);
+            $alertas = $this->generarAlertas($idInstructor);
 
             return $this->response->setJSON([
                 'success' => true,
@@ -219,51 +332,63 @@ class PracticasDocenteController extends BaseController
         }
     }
 
-    private function obtenerEstadisticasDocente($docenteId)
+    /**
+     * Obtiene ID_INSTRUCTOR del usuario logueado (docente) vía TAB_INSTRUCTORES + TAB_USUARIOS.
+     */
+    private function obtenerIdInstructorPorUsuario($idUsuario)
+    {
+        $row = $this->db->table('TAB_USUARIOS u')
+            ->select('i.ID_INSTRUCTOR')
+            ->join('TAB_INSTRUCTORES i', 'i.ID_DATO_PERSONA = u.ID_DATO_PERSONA')
+            ->where('u.ID_USUARIO', $idUsuario)
+            ->get()
+            ->getRowArray();
+        return $row ? (int) $row['ID_INSTRUCTOR'] : null;
+    }
+
+    private function obtenerEstadisticasDocente($idInstructor, $idUsuario)
     {
         try {
-            // Obtener estudiantes asignados
-            $estudiantesAsignados = $this->db->table('estudiantes e')
-                ->join('practicas_preprofesionales pp', 'pp.ID_ESTUDIANTE = e.ID_ESTUDIANTE')
-                ->where('pp.ID_DOCENTE_SUPERVISOR', $docenteId)
+            $estudiantesPp = 0;
+            $estudiantesSc = 0;
+            $practicasActivas = 0;
+            $serviciosActivos = 0;
+            if ($idInstructor > 0) {
+                $estudiantesPp = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
+                    ->where('pp.ID_INSTRUCTOR', $idInstructor)
+                    ->countAllResults();
+                $estudiantesSc = $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
+                    ->where('sc.ID_INSTRUCTOR', $idInstructor)
+                    ->countAllResults();
+                $practicasActivas = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
+                    ->where('pp.ID_INSTRUCTOR', $idInstructor)
+                    ->where('pp.ESTADO_PRACTICA', 'En Progreso')
+                    ->countAllResults();
+                $serviciosActivos = $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
+                    ->where('sc.ID_INSTRUCTOR', $idInstructor)
+                    ->where('sc.ESTADO_SERVICIO', 'En Progreso')
+                    ->countAllResults();
+            }
+            $evalPend = $this->db->table('TAB_EVALUACIONES_PRACTICAS_PREPROFESIONALES ep')
+                ->where('ep.ID_EVALUADOR', $idUsuario)
                 ->countAllResults();
-
-            $estudiantesServicio = $this->db->table('estudiantes e')
-                ->join('servicios_comunitarios sc', 'sc.ID_ESTUDIANTE = e.ID_ESTUDIANTE')
-                ->where('sc.ID_DOCENTE_SUPERVISOR', $docenteId)
+            $evalPend += $this->db->table('TAB_EVALUACIONES_SERVICIO_COMUNITARIO es')
+                ->where('es.ID_EVALUADOR', $idUsuario)
                 ->countAllResults();
-
-            // Obtener prácticas activas
-            $practicasActivas = $this->db->table('practicas_preprofesionales pp')
-                ->where('pp.ID_DOCENTE_SUPERVISOR', $docenteId)
-                ->where('pp.ESTADO_PRACTICA', 'En Progreso')
+            $evalCompl = $this->db->table('TAB_EVALUACIONES_PRACTICAS_PREPROFESIONALES ep')
+                ->where('ep.ID_EVALUADOR', $idUsuario)
                 ->countAllResults();
-
-            $serviciosActivos = $this->db->table('servicios_comunitarios sc')
-                ->where('sc.ID_DOCENTE_SUPERVISOR', $docenteId)
-                ->where('sc.ESTADO_SERVICIO', 'En Progreso')
+            $evalCompl += $this->db->table('TAB_EVALUACIONES_SERVICIO_COMUNITARIO es')
+                ->where('es.ID_EVALUADOR', $idUsuario)
                 ->countAllResults();
-
-            // Obtener evaluaciones pendientes
-            $evaluacionesPendientes = $this->db->table('evaluaciones_practicas ep')
-                ->where('ep.ID_DOCENTE', $docenteId)
-                ->where('ep.ESTADO', 'Pendiente')
-                ->countAllResults();
-
-            // Obtener alertas
-            $alertas = $this->contarAlertas($docenteId);
 
             return [
-                'estudiantesAsignados' => $estudiantesAsignados + $estudiantesServicio,
+                'estudiantesAsignados' => $estudiantesPp + $estudiantesSc,
                 'practicasActivas' => $practicasActivas + $serviciosActivos,
-                'evaluacionesPendientes' => $evaluacionesPendientes,
-                'evaluacionesCompletadas' => $this->db->table('evaluaciones_practicas')
-                    ->where('ID_DOCENTE', $docenteId)
-                    ->where('ESTADO', 'Completada')
-                    ->countAllResults(),
-                'alertas' => $alertas
+                'evaluacionesPendientes' => $evalPend,
+                'evaluacionesCompletadas' => $evalCompl,
+                'alertas' => $idInstructor > 0 ? $this->contarAlertas($idInstructor) : 0
             ];
-
         } catch (\Exception $e) {
             log_message('error', 'Error al obtener estadísticas del docente: ' . $e->getMessage());
             return [
@@ -276,319 +401,469 @@ class PracticasDocenteController extends BaseController
         }
     }
 
-    private function obtenerEstudiantesAsignados($docenteId)
+    private function obtenerEstudiantesAsignados($idInstructor)
     {
+        if ($idInstructor <= 0) {
+            return [];
+        }
         try {
-            // Obtener estudiantes de prácticas preprofesionales
-            $practicasPreprofesionales = $this->db->table('practicas_preprofesionales pp')
-                ->select('pp.*, e.NOMBRE_COMPLETO as ESTUDIANTE_NOMBRE, c.NOMBRE as CARRERA, ic.NOMBRE as INSTITUCION_NOMBRE, ic.TIPO_INSTITUCION')
-                ->join('estudiantes e', 'e.ID_ESTUDIANTE = pp.ID_ESTUDIANTE')
-                ->join('carreras c', 'c.ID_CARRERA = e.ID_CARRERA')
-                ->join('instituciones_convenios ic', 'ic.ID_INSTITUCION_CONVENIO = pp.ID_INSTITUCION_CONVENIO')
-                ->where('pp.ID_DOCENTE_SUPERVISOR', $docenteId)
+            $practicasPp = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
+                ->select('pp.*, CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as ESTUDIANTE_NOMBRE, c.NOMBRE as CARRERA, ic.NOMBRE as INSTITUCION_NOMBRE')
+                ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = pp.ID_ESTUDIANTE')
+                ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+                ->join('TAB_CARRERAS c', 'c.ID_CARRERA = e.ID_CARRERA')
+                ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = pp.ID_INSTITUCION_CONVENIO')
+                ->where('pp.ID_INSTRUCTOR', $idInstructor)
                 ->get()
                 ->getResultArray();
 
-            // Obtener estudiantes de servicios comunitarios
-            $serviciosComunitarios = $this->db->table('servicios_comunitarios sc')
-                ->select('sc.*, e.NOMBRE_COMPLETO as ESTUDIANTE_NOMBRE, c.NOMBRE as CARRERA, ic.NOMBRE as INSTITUCION_NOMBRE, ic.TIPO_INSTITUCION')
-                ->join('estudiantes e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE')
-                ->join('carreras c', 'c.ID_CARRERA = e.ID_CARRERA')
-                ->join('instituciones_convenios ic', 'ic.ID_INSTITUCION_CONVENIO = sc.ID_INSTITUCION_CONVENIO')
-                ->where('sc.ID_DOCENTE_SUPERVISOR', $docenteId)
+            $serviciosSc = $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
+                ->select('sc.*, CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as ESTUDIANTE_NOMBRE, c.NOMBRE as CARRERA, ic.NOMBRE as INSTITUCION_NOMBRE')
+                ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE')
+                ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+                ->join('TAB_CARRERAS c', 'c.ID_CARRERA = e.ID_CARRERA')
+                ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = sc.ID_INSTITUCION_CONVENIO')
+                ->where('sc.ID_INSTRUCTOR', $idInstructor)
                 ->get()
                 ->getResultArray();
 
-            // Combinar y procesar datos
             $estudiantes = [];
-            
-            foreach ($practicasPreprofesionales as $practica) {
+            foreach ($practicasPp as $p) {
                 $estudiantes[] = [
-                    'ID_ESTUDIANTE' => $practica['ID_ESTUDIANTE'],
-                    'NOMBRE_COMPLETO' => $practica['ESTUDIANTE_NOMBRE'],
-                    'CARRERA' => $practica['CARRERA'],
-                    'INSTITUCION_NOMBRE' => $practica['INSTITUCION_NOMBRE'],
-                    'TIPO_INSTITUCION' => $practica['TIPO_INSTITUCION'],
-                    'FECHA_INICIO' => $practica['FECHA_INICIO'],
-                    'FECHA_FIN' => $practica['FECHA_FIN'],
-                    'HORAS_TOTALES' => $practica['HORAS_PRACTICAS'],
-                    'ESTADO_PRACTICA' => $practica['ESTADO_PRACTICA'],
+                    'ID_ESTUDIANTE' => $p['ID_ESTUDIANTE'],
+                    'NOMBRE_COMPLETO' => $p['ESTUDIANTE_NOMBRE'],
+                    'CARRERA' => $p['CARRERA'],
+                    'INSTITUCION_NOMBRE' => $p['INSTITUCION_NOMBRE'],
+                    'FECHA_INICIO' => $p['FECHA_INICIO'],
+                    'FECHA_FIN' => $p['FECHA_FIN'],
+                    'HORAS_TOTALES' => $p['HORAS_PRACTICAS'] ?? 0,
+                    'ESTADO_PRACTICA' => $p['ESTADO_PRACTICA'],
                     'TIPO' => 'Preprofesional',
-                    'HORAS_CUMPLIDAS' => $this->calcularHorasCumplidas($practica['ID_ESTUDIANTE'], 'preprofesional'),
-                    'PORCENTAJE_PROGRESO' => $this->calcularProgresoEstudiante($practica['ID_ESTUDIANTE']),
-                    'ULTIMA_ACTIVIDAD' => $this->obtenerUltimaActividad($practica['ID_ESTUDIANTE'])
+                    'HORAS_CUMPLIDAS' => $this->calcularHorasCumplidasPractica($p['ID_PRACTICA_PREPROFESIONAL'], 'preprofesional'),
+                    'PORCENTAJE_PROGRESO' => $this->calcularProgresoPractica($p['ID_PRACTICA_PREPROFESIONAL'], $p['HORAS_PRACTICAS'] ?? 0, 'preprofesional'),
+                    'ULTIMA_ACTIVIDAD' => $this->obtenerUltimaActividadPractica($p['ID_PRACTICA_PREPROFESIONAL'], 'preprofesional')
                 ];
             }
-
-            foreach ($serviciosComunitarios as $servicio) {
+            foreach ($serviciosSc as $s) {
                 $estudiantes[] = [
-                    'ID_ESTUDIANTE' => $servicio['ID_ESTUDIANTE'],
-                    'NOMBRE_COMPLETO' => $servicio['ESTUDIANTE_NOMBRE'],
-                    'CARRERA' => $servicio['CARRERA'],
-                    'INSTITUCION_NOMBRE' => $servicio['INSTITUCION_NOMBRE'],
-                    'TIPO_INSTITUCION' => $servicio['TIPO_INSTITUCION'],
-                    'FECHA_INICIO' => $servicio['FECHA_INICIO'],
-                    'FECHA_FIN' => $servicio['FECHA_FIN'],
-                    'HORAS_TOTALES' => $servicio['HORAS_SERVICIO'],
-                    'ESTADO_PRACTICA' => $servicio['ESTADO_SERVICIO'],
+                    'ID_ESTUDIANTE' => $s['ID_ESTUDIANTE'],
+                    'NOMBRE_COMPLETO' => $s['ESTUDIANTE_NOMBRE'],
+                    'CARRERA' => $s['CARRERA'],
+                    'INSTITUCION_NOMBRE' => $s['INSTITUCION_NOMBRE'],
+                    'FECHA_INICIO' => $s['FECHA_INICIO'],
+                    'FECHA_FIN' => $s['FECHA_FIN'],
+                    'HORAS_TOTALES' => $s['HORAS_SERVICIO'] ?? 0,
+                    'ESTADO_PRACTICA' => $s['ESTADO_SERVICIO'],
                     'TIPO' => 'Servicio Comunitario',
-                    'HORAS_CUMPLIDAS' => $this->calcularHorasCumplidas($servicio['ID_ESTUDIANTE'], 'servicio'),
-                    'PORCENTAJE_PROGRESO' => $this->calcularProgresoEstudiante($servicio['ID_ESTUDIANTE']),
-                    'ULTIMA_ACTIVIDAD' => $this->obtenerUltimaActividad($servicio['ID_ESTUDIANTE'])
+                    'HORAS_CUMPLIDAS' => $this->calcularHorasCumplidasPractica($s['ID_SERVICIO_COMUNITARIO'], 'servicio'),
+                    'PORCENTAJE_PROGRESO' => $this->calcularProgresoPractica($s['ID_SERVICIO_COMUNITARIO'], $s['HORAS_SERVICIO'] ?? 0, 'servicio'),
+                    'ULTIMA_ACTIVIDAD' => $this->obtenerUltimaActividadPractica($s['ID_SERVICIO_COMUNITARIO'], 'servicio')
                 ];
             }
-
             return $estudiantes;
-
         } catch (\Exception $e) {
             log_message('error', 'Error al obtener estudiantes asignados: ' . $e->getMessage());
             return [];
         }
     }
 
-    private function obtenerEvaluacionesPendientes($docenteId)
+    private function obtenerEvaluacionesPendientes($idUsuario)
     {
         try {
-            return $this->db->table('evaluaciones_practicas ep')
-                ->select('ep.*, e.NOMBRE_COMPLETO as ESTUDIANTE_NOMBRE, ic.NOMBRE as INSTITUCION_NOMBRE')
-                ->join('estudiantes e', 'e.ID_ESTUDIANTE = ep.ID_ESTUDIANTE')
-                ->join('practicas_preprofesionales pp', 'pp.ID_ESTUDIANTE = e.ID_ESTUDIANTE', 'left')
-                ->join('servicios_comunitarios sc', 'sc.ID_ESTUDIANTE = e.ID_ESTUDIANTE', 'left')
-                ->join('instituciones_convenios ic', 'ic.ID_INSTITUCION_CONVENIO = COALESCE(pp.ID_INSTITUCION_CONVENIO, sc.ID_INSTITUCION_CONVENIO)')
-                ->where('ep.ID_DOCENTE', $docenteId)
-                ->where('ep.ESTADO', 'Pendiente')
-                ->orderBy('ep.FECHA_CREACION', 'DESC')
+            $lista = [];
+            $pp = $this->db->table('TAB_EVALUACIONES_PRACTICAS_PREPROFESIONALES ep')
+                ->select('ep.ID_EVALUACION_PREPROFESIONAL as ID_EVALUACION, ep.TIPO_EVALUACION, CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as ESTUDIANTE_NOMBRE, ic.NOMBRE as INSTITUCION_NOMBRE')
+                ->join('TAB_PRACTICAS_PREPROFESIONALES pp', 'pp.ID_PRACTICA_PREPROFESIONAL = ep.ID_PRACTICA_PREPROFESIONAL')
+                ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = pp.ID_ESTUDIANTE')
+                ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+                ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = pp.ID_INSTITUCION_CONVENIO')
+                ->where('ep.ID_EVALUADOR', $idUsuario)
+                ->orderBy('ep.FECHA_EVALUACION', 'DESC')
                 ->get()
                 ->getResultArray();
-
+            foreach ($pp as $r) {
+                $r['TIPO'] = 'Preprofesional';
+                $lista[] = $r;
+            }
+            $sc = $this->db->table('TAB_EVALUACIONES_SERVICIO_COMUNITARIO es')
+                ->select('es.ID_EVALUACION_SERVICIO as ID_EVALUACION, es.TIPO_EVALUACION, CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as ESTUDIANTE_NOMBRE, ic.NOMBRE as INSTITUCION_NOMBRE')
+                ->join('TAB_SERVICIO_COMUNITARIO sc', 'sc.ID_SERVICIO_COMUNITARIO = es.ID_SERVICIO_COMUNITARIO')
+                ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE')
+                ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+                ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = sc.ID_INSTITUCION_CONVENIO')
+                ->where('es.ID_EVALUADOR', $idUsuario)
+                ->orderBy('es.FECHA_EVALUACION', 'DESC')
+                ->get()
+                ->getResultArray();
+            foreach ($sc as $r) {
+                $r['TIPO'] = 'Servicio Comunitario';
+                $lista[] = $r;
+            }
+            return $lista;
         } catch (\Exception $e) {
             log_message('error', 'Error al obtener evaluaciones pendientes: ' . $e->getMessage());
             return [];
         }
     }
 
-    private function obtenerEstudianteAsignado($estudianteId, $docenteId)
+    private function obtenerEstudianteAsignado($estudianteId, $idInstructor)
     {
+        if ($idInstructor <= 0) {
+            return null;
+        }
         try {
-            // Verificar que el estudiante esté asignado al docente
-            $estudiante = $this->db->table('estudiantes e')
-                ->select('e.*, c.NOMBRE as CARRERA_NOMBRE')
-                ->join('carreras c', 'c.ID_CARRERA = e.ID_CARRERA')
+            $estudiante = $this->db->table('TAB_ESTUDIANTES e')
+                ->select('e.*, c.NOMBRE as CARRERA_NOMBRE, CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as NOMBRE_COMPLETO')
+                ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+                ->join('TAB_CARRERAS c', 'c.ID_CARRERA = e.ID_CARRERA')
                 ->where('e.ID_ESTUDIANTE', $estudianteId)
                 ->get()
                 ->getRowArray();
-
             if (!$estudiante) {
                 return null;
             }
-
-            // Verificar asignación en prácticas o servicios
-            $asignado = $this->db->table('practicas_preprofesionales pp')
+            $asignado = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
                 ->where('pp.ID_ESTUDIANTE', $estudianteId)
-                ->where('pp.ID_DOCENTE_SUPERVISOR', $docenteId)
+                ->where('pp.ID_INSTRUCTOR', $idInstructor)
                 ->countAllResults() > 0;
-
             if (!$asignado) {
-                $asignado = $this->db->table('servicios_comunitarios sc')
+                $asignado = $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
                     ->where('sc.ID_ESTUDIANTE', $estudianteId)
-                    ->where('sc.ID_DOCENTE_SUPERVISOR', $docenteId)
+                    ->where('sc.ID_INSTRUCTOR', $idInstructor)
                     ->countAllResults() > 0;
             }
-
             return $asignado ? $estudiante : null;
-
         } catch (\Exception $e) {
             log_message('error', 'Error al verificar estudiante asignado: ' . $e->getMessage());
             return null;
         }
     }
 
-    private function obtenerActividadesRecientes($estudianteId)
+    private function obtenerActividadesRecientesPractica($idPractica, $tipo)
     {
         try {
-            return $this->db->table('actividades_practicas ap')
-                ->where('ap.ID_ESTUDIANTE', $estudianteId)
-                ->orderBy('ap.FECHA_ACTIVIDAD', 'DESC')
+            if ($tipo === 'preprofesional') {
+                return $this->db->table('TAB_ASISTENCIAS_PRACTICAS_PREPROFESIONALES ap')
+                    ->where('ap.ID_PRACTICA_PREPROFESIONAL', $idPractica)
+                    ->orderBy('ap.FECHA_ASISTENCIA', 'DESC')
+                    ->limit(5)
+                    ->get()
+                    ->getResultArray();
+            }
+            return $this->db->table('TAB_ASISTENCIAS_SERVICIO_COMUNITARIO as_')
+                ->where('as_.ID_SERVICIO_COMUNITARIO', $idPractica)
+                ->orderBy('as_.FECHA_ASISTENCIA', 'DESC')
                 ->limit(5)
                 ->get()
                 ->getResultArray();
-
         } catch (\Exception $e) {
             log_message('error', 'Error al obtener actividades recientes: ' . $e->getMessage());
             return [];
         }
     }
 
-    private function calcularProgresoEstudiante($estudianteId)
+    private function calcularHorasCumplidasPractica($idPractica, $tipo)
     {
         try {
-            $actividades = $this->db->table('actividades_practicas')
-                ->where('ID_ESTUDIANTE', $estudianteId)
-                ->get()
-                ->getResultArray();
-
-            $totalHoras = 0;
-            foreach ($actividades as $actividad) {
-                $entrada = strtotime($actividad['FECHA_ACTIVIDAD'] . ' ' . $actividad['HORA_ENTRADA']);
-                $salida = strtotime($actividad['FECHA_ACTIVIDAD'] . ' ' . $actividad['HORA_SALIDA']);
-                $totalHoras += ($salida - $entrada) / 3600; // Convertir a horas
+            if ($tipo === 'preprofesional') {
+                $rows = $this->db->table('TAB_ASISTENCIAS_PRACTICAS_PREPROFESIONALES')
+                    ->select('HORA_ENTRADA, HORA_SALIDA')
+                    ->where('ID_PRACTICA_PREPROFESIONAL', $idPractica)
+                    ->get()
+                    ->getResultArray();
+            } else {
+                $rows = $this->db->table('TAB_ASISTENCIAS_SERVICIO_COMUNITARIO')
+                    ->select('HORA_ENTRADA, HORA_SALIDA')
+                    ->where('ID_SERVICIO_COMUNITARIO', $idPractica)
+                    ->get()
+                    ->getResultArray();
             }
+            $total = 0;
+            foreach ($rows as $r) {
+                $entrada = strtotime($r['HORA_ENTRADA'] ?? '00:00:00');
+                $salida = strtotime($r['HORA_SALIDA'] ?? '00:00:00');
+                $total += max(0, ($salida - $entrada) / 3600);
+            }
+            return round($total, 1);
+        } catch (\Exception $e) {
+            return 0;
+        }
+    }
 
-            // Obtener horas totales requeridas
-            $practica = $this->db->table('practicas_preprofesionales pp')
-                ->where('pp.ID_ESTUDIANTE', $estudianteId)
-                ->get()
-                ->getRowArray();
-
-            if (!$practica) {
-                $servicio = $this->db->table('servicios_comunitarios sc')
-                    ->where('sc.ID_ESTUDIANTE', $estudianteId)
+    private function obtenerUltimaActividadPractica($idPractica, $tipo)
+    {
+        try {
+            if ($tipo === 'preprofesional') {
+                $row = $this->db->table('TAB_ASISTENCIAS_PRACTICAS_PREPROFESIONALES')
+                    ->select('FECHA_ASISTENCIA, ACTIVIDADES_DIA')
+                    ->where('ID_PRACTICA_PREPROFESIONAL', $idPractica)
+                    ->orderBy('FECHA_ASISTENCIA', 'DESC')
+                    ->limit(1)
                     ->get()
                     ->getRowArray();
-                $horasRequeridas = $servicio['HORAS_SERVICIO'] ?? 0;
             } else {
-                $horasRequeridas = $practica['HORAS_PRACTICAS'] ?? 0;
+                $row = $this->db->table('TAB_ASISTENCIAS_SERVICIO_COMUNITARIO')
+                    ->select('FECHA_ASISTENCIA, ACTIVIDADES_DIA')
+                    ->where('ID_SERVICIO_COMUNITARIO', $idPractica)
+                    ->orderBy('FECHA_ASISTENCIA', 'DESC')
+                    ->limit(1)
+                    ->get()
+                    ->getRowArray();
             }
-
-            if ($horasRequeridas > 0) {
-                return round(($totalHoras / $horasRequeridas) * 100, 2);
+            if (!$row) {
+                return 'Sin registro';
             }
-
-            return 0;
-
+            $fecha = $row['FECHA_ASISTENCIA'] ?? '';
+            $act = $row['ACTIVIDADES_DIA'] ?? '';
+            return $fecha . ($act ? ': ' . (strlen($act) > 40 ? substr($act, 0, 40) . '...' : $act) : '');
         } catch (\Exception $e) {
-            log_message('error', 'Error al calcular progreso del estudiante: ' . $e->getMessage());
-            return 0;
+            return 'Sin registro';
         }
     }
 
-    private function calcularHorasCumplidas($estudianteId, $tipo)
+    private function calcularProgresoPractica($idPractica, $horasTotales, $tipo)
     {
+        if ($horasTotales <= 0) {
+            return 0;
+        }
+        $horas = $this->calcularHorasCumplidasPractica($idPractica, $tipo);
+        return min(100, round(($horas / $horasTotales) * 100, 1));
+    }
+
+    private function generarDatosReporte($tipo, $fechaDesde, $fechaHasta, $idInstructor)
+    {
+        $titulo = 'Reporte de prácticas';
+        $columnas = [];
+        $filas = [];
+
+        if ($idInstructor <= 0) {
+            return [
+                'tipo' => $tipo,
+                'fecha_desde' => $fechaDesde,
+                'fecha_hasta' => $fechaHasta,
+                'titulo' => $titulo,
+                'columnas' => ['Mensaje'],
+                'filas' => [['No tiene estudiantes asignados en el período.']]
+            ];
+        }
+
         try {
-            $result = $this->db->table('actividades_practicas')
-                ->selectSum('TIMESTAMPDIFF(HOUR, CONCAT(FECHA_ACTIVIDAD, " ", HORA_ENTRADA), CONCAT(FECHA_ACTIVIDAD, " ", HORA_SALIDA))', 'total_horas')
-                ->where('ID_ESTUDIANTE', $estudianteId)
-                ->where('TIPO_PRACTICA', $tipo)
-                ->get()
-                ->getRow();
-
-            return $result->total_horas ?? 0;
-
+            if ($tipo === 'progreso_estudiantes') {
+                $titulo = 'Progreso de estudiantes';
+                $columnas = ['Estudiante', 'Carrera', 'Institución', 'Tipo', 'Horas cumplidas', 'Horas totales', 'Progreso %', 'Estado'];
+                $estudiantes = $this->obtenerEstudiantesAsignados($idInstructor);
+                foreach ($estudiantes as $e) {
+                    $filas[] = [
+                        $e['NOMBRE_COMPLETO'] ?? '',
+                        $e['CARRERA'] ?? '',
+                        $e['INSTITUCION_NOMBRE'] ?? '',
+                        $e['TIPO'] ?? '',
+                        $e['HORAS_CUMPLIDAS'] ?? 0,
+                        $e['HORAS_TOTALES'] ?? 0,
+                        ($e['PORCENTAJE_PROGRESO'] ?? 0) . '%',
+                        $e['ESTADO_PRACTICA'] ?? ''
+                    ];
+                }
+            } elseif ($tipo === 'actividades_realizadas') {
+                $titulo = 'Actividades realizadas';
+                $columnas = ['Fecha', 'Estudiante', 'Tipo', 'Actividad', 'Hora entrada', 'Hora salida'];
+                $pp = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
+                    ->select('a.FECHA_ASISTENCIA as FECHA, CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as ESTUDIANTE, a.HORA_ENTRADA, a.HORA_SALIDA, a.ACTIVIDADES_DIA')
+                    ->join('TAB_ASISTENCIAS_PRACTICAS_PREPROFESIONALES a', 'a.ID_PRACTICA_PREPROFESIONAL = pp.ID_PRACTICA_PREPROFESIONAL')
+                    ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = pp.ID_ESTUDIANTE')
+                    ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+                    ->where('pp.ID_INSTRUCTOR', $idInstructor)
+                    ->where('a.FECHA_ASISTENCIA >=', $fechaDesde)
+                    ->where('a.FECHA_ASISTENCIA <=', $fechaHasta)
+                    ->orderBy('a.FECHA_ASISTENCIA', 'DESC')
+                    ->get()
+                    ->getResultArray();
+                foreach ($pp as $r) {
+                    $filas[] = [
+                        $r['FECHA'] ?? '',
+                        $r['ESTUDIANTE'] ?? '',
+                        'Práctica preprofesional',
+                        isset($r['ACTIVIDADES_DIA']) ? (strlen($r['ACTIVIDADES_DIA']) > 80 ? substr($r['ACTIVIDADES_DIA'], 0, 77) . '...' : $r['ACTIVIDADES_DIA']) : '',
+                        $r['HORA_ENTRADA'] ?? '',
+                        $r['HORA_SALIDA'] ?? ''
+                    ];
+                }
+                $sc = $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
+                    ->select('a.FECHA_ASISTENCIA as FECHA, CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as ESTUDIANTE, a.HORA_ENTRADA, a.HORA_SALIDA, a.ACTIVIDADES_DIA')
+                    ->join('TAB_ASISTENCIAS_SERVICIO_COMUNITARIO a', 'a.ID_SERVICIO_COMUNITARIO = sc.ID_SERVICIO_COMUNITARIO')
+                    ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE')
+                    ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+                    ->where('sc.ID_INSTRUCTOR', $idInstructor)
+                    ->where('a.FECHA_ASISTENCIA >=', $fechaDesde)
+                    ->where('a.FECHA_ASISTENCIA <=', $fechaHasta)
+                    ->orderBy('a.FECHA_ASISTENCIA', 'DESC')
+                    ->get()
+                    ->getResultArray();
+                foreach ($sc as $r) {
+                    $filas[] = [
+                        $r['FECHA'] ?? '',
+                        $r['ESTUDIANTE'] ?? '',
+                        'Servicio comunitario',
+                        isset($r['ACTIVIDADES_DIA']) ? (strlen($r['ACTIVIDADES_DIA']) > 80 ? substr($r['ACTIVIDADES_DIA'], 0, 77) . '...' : $r['ACTIVIDADES_DIA']) : '',
+                        $r['HORA_ENTRADA'] ?? '',
+                        $r['HORA_SALIDA'] ?? ''
+                    ];
+                }
+            } elseif ($tipo === 'evaluaciones_periodo') {
+                $titulo = 'Evaluaciones por período';
+                $columnas = ['Fecha', 'Estudiante', 'Tipo', 'Evaluación'];
+                $evalPp = $this->db->table('TAB_EVALUACIONES_PRACTICAS_PREPROFESIONALES ep')
+                    ->select('ep.FECHA_EVALUACION, ep.TIPO_EVALUACION, ep.NOTA_FINAL, CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as ESTUDIANTE')
+                    ->join('TAB_PRACTICAS_PREPROFESIONALES pp', 'pp.ID_PRACTICA_PREPROFESIONAL = ep.ID_PRACTICA_PREPROFESIONAL')
+                    ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = pp.ID_ESTUDIANTE')
+                    ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+                    ->where('ep.ID_EVALUADOR', session()->get('id_usuario'))
+                    ->where('DATE(ep.FECHA_EVALUACION) >=', $fechaDesde)
+                    ->where('DATE(ep.FECHA_EVALUACION) <=', $fechaHasta)
+                    ->get()
+                    ->getResultArray();
+                foreach ($evalPp as $r) {
+                    $filas[] = [
+                        $r['FECHA_EVALUACION'] ?? '',
+                        $r['ESTUDIANTE'] ?? '',
+                        'Práctica preprofesional',
+                        ($r['TIPO_EVALUACION'] ?? '') . ' - Nota: ' . ($r['NOTA_FINAL'] ?? '')
+                    ];
+                }
+                $evalSc = $this->db->table('TAB_EVALUACIONES_SERVICIO_COMUNITARIO es')
+                    ->select('es.FECHA_EVALUACION, es.TIPO_EVALUACION, es.NOTA_FINAL, CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as ESTUDIANTE')
+                    ->join('TAB_SERVICIO_COMUNITARIO sc', 'sc.ID_SERVICIO_COMUNITARIO = es.ID_SERVICIO_COMUNITARIO')
+                    ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE')
+                    ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+                    ->where('es.ID_EVALUADOR', session()->get('id_usuario'))
+                    ->where('DATE(es.FECHA_EVALUACION) >=', $fechaDesde)
+                    ->where('DATE(es.FECHA_EVALUACION) <=', $fechaHasta)
+                    ->get()
+                    ->getResultArray();
+                foreach ($evalSc as $r) {
+                    $filas[] = [
+                        $r['FECHA_EVALUACION'] ?? '',
+                        $r['ESTUDIANTE'] ?? '',
+                        'Servicio comunitario',
+                        ($r['TIPO_EVALUACION'] ?? '') . ' - Nota: ' . ($r['NOTA_FINAL'] ?? '')
+                    ];
+                }
+            } else {
+                $titulo = 'Reporte de prácticas';
+                $columnas = ['Estudiante', 'Carrera', 'Tipo', 'Progreso %', 'Estado'];
+                $estudiantes = $this->obtenerEstudiantesAsignados($idInstructor);
+                foreach ($estudiantes as $e) {
+                    $filas[] = [
+                        $e['NOMBRE_COMPLETO'] ?? '',
+                        $e['CARRERA'] ?? '',
+                        $e['TIPO'] ?? '',
+                        ($e['PORCENTAJE_PROGRESO'] ?? 0) . '%',
+                        $e['ESTADO_PRACTICA'] ?? ''
+                    ];
+                }
+            }
         } catch (\Exception $e) {
-            log_message('error', 'Error al calcular horas cumplidas: ' . $e->getMessage());
-            return 0;
+            log_message('error', 'generarDatosReporte: ' . $e->getMessage());
+            $columnas = ['Error'];
+            $filas = [[$e->getMessage()]];
         }
-    }
 
-    private function obtenerUltimaActividad($estudianteId)
-    {
-        try {
-            $actividad = $this->db->table('actividades_practicas')
-                ->where('ID_ESTUDIANTE', $estudianteId)
-                ->orderBy('FECHA_ACTIVIDAD', 'DESC')
-                ->limit(1)
-                ->get()
-                ->getRowArray();
-
-            return $actividad ? $actividad['ACTIVIDADES_REALIZADAS'] : 'Sin actividades';
-
-        } catch (\Exception $e) {
-            log_message('error', 'Error al obtener última actividad: ' . $e->getMessage());
-            return 'Sin actividades';
-        }
-    }
-
-    private function generarDatosReporte($tipo, $fechaDesde, $fechaHasta, $docenteId)
-    {
-        // Implementar generación de datos según el tipo de reporte
-        // Por ahora retornamos datos de ejemplo
         return [
             'tipo' => $tipo,
             'fecha_desde' => $fechaDesde,
             'fecha_hasta' => $fechaHasta,
-            'docente_id' => $docenteId,
-            'datos' => []
+            'titulo' => $titulo,
+            'columnas' => $columnas,
+            'filas' => $filas
         ];
     }
 
-    private function generarAlertas($docenteId)
+    private function generarCsvReporte(array $datosReporte)
+    {
+        $out = fopen('php://temp', 'r+');
+        fputcsv($out, array_merge(['Período: ' . ($datosReporte['fecha_desde'] ?? '') . ' a ' . ($datosReporte['fecha_hasta'] ?? '')], []));
+        fputcsv($out, []);
+        fputcsv($out, $datosReporte['columnas'] ?? []);
+        foreach ($datosReporte['filas'] ?? [] as $fila) {
+            fputcsv($out, $fila);
+        }
+        rewind($out);
+        $csv = stream_get_contents($out);
+        fclose($out);
+        return $csv;
+    }
+
+    private function generarAlertas($idInstructor)
     {
         $alertas = [];
-        
+        if ($idInstructor <= 0) {
+            return $alertas;
+        }
         try {
-            // Alertas de estudiantes con retraso en actividades
-            $estudiantesRetraso = $this->db->table('estudiantes e')
-                ->select('e.NOMBRE_COMPLETO, DATEDIFF(NOW(), MAX(ap.FECHA_ACTIVIDAD)) as dias_sin_actividad')
-                ->join('practicas_preprofesionales pp', 'pp.ID_ESTUDIANTE = e.ID_ESTUDIANTE')
-                ->join('actividades_practicas ap', 'ap.ID_ESTUDIANTE = e.ID_ESTUDIANTE', 'left')
-                ->where('pp.ID_DOCENTE_SUPERVISOR', $docenteId)
+            $pp = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
+                ->select('pp.ID_PRACTICA_PREPROFESIONAL, CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as NOMBRE_COMPLETO')
+                ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = pp.ID_ESTUDIANTE')
+                ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+                ->where('pp.ID_INSTRUCTOR', $idInstructor)
                 ->where('pp.ESTADO_PRACTICA', 'En Progreso')
-                ->groupBy('e.ID_ESTUDIANTE')
-                ->having('dias_sin_actividad > 3 OR dias_sin_actividad IS NULL')
                 ->get()
                 ->getResultArray();
-
-            foreach ($estudiantesRetraso as $estudiante) {
-                $alertas[] = [
-                    'tipo' => 'warning',
-                    'titulo' => 'Estudiante con retraso',
-                    'mensaje' => $estudiante['NOMBRE_COMPLETO'] . ' no ha registrado actividades en ' . ($estudiante['dias_sin_actividad'] ?? 'muchos') . ' días',
-                    'fecha' => date('Y-m-d H:i:s')
-                ];
+            foreach ($pp as $r) {
+                $ultima = $this->db->table('TAB_ASISTENCIAS_PRACTICAS_PREPROFESIONALES')
+                    ->selectMax('FECHA_ASISTENCIA')
+                    ->where('ID_PRACTICA_PREPROFESIONAL', $r['ID_PRACTICA_PREPROFESIONAL'])
+                    ->get()
+                    ->getRow();
+                $ultimaStr = $ultima && !empty($ultima->FECHA_ASISTENCIA) ? $ultima->FECHA_ASISTENCIA : null;
+                $dias = $ultimaStr ? (new \DateTime($ultimaStr))->diff(new \DateTime())->days : 999;
+                if ($dias > 3) {
+                    $alertas[] = [
+                        'tipo' => 'warning',
+                        'titulo' => 'Estudiante con retraso',
+                        'mensaje' => ($r['NOMBRE_COMPLETO'] ?? 'Estudiante') . ' no ha registrado actividades en ' . $dias . ' días',
+                        'fecha' => date('Y-m-d H:i:s')
+                    ];
+                }
             }
-
-            // Alertas de evaluaciones próximas a vencer
-            $evaluacionesVencimiento = $this->db->table('evaluaciones_practicas ep')
-                ->select('ep.*, e.NOMBRE_COMPLETO')
-                ->join('estudiantes e', 'e.ID_ESTUDIANTE = ep.ID_ESTUDIANTE')
-                ->where('ep.ID_DOCENTE', $docenteId)
-                ->where('ep.ESTADO', 'Pendiente')
-                ->where('ep.FECHA_LIMITE <= DATE_ADD(NOW(), INTERVAL 3 DAY)')
+            $sc = $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
+                ->select('sc.ID_SERVICIO_COMUNITARIO, CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as NOMBRE_COMPLETO')
+                ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE')
+                ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+                ->where('sc.ID_INSTRUCTOR', $idInstructor)
+                ->where('sc.ESTADO_SERVICIO', 'En Progreso')
                 ->get()
                 ->getResultArray();
-
-            foreach ($evaluacionesVencimiento as $evaluacion) {
-                $alertas[] = [
-                    'tipo' => 'warning',
-                    'titulo' => 'Evaluación próxima a vencer',
-                    'mensaje' => 'Evaluación de ' . $evaluacion['NOMBRE_COMPLETO'] . ' vence en ' . $evaluacion['FECHA_LIMITE'],
-                    'fecha' => date('Y-m-d H:i:s')
-                ];
+            foreach ($sc as $r) {
+                $ultima = $this->db->table('TAB_ASISTENCIAS_SERVICIO_COMUNITARIO')
+                    ->selectMax('FECHA_ASISTENCIA')
+                    ->where('ID_SERVICIO_COMUNITARIO', $r['ID_SERVICIO_COMUNITARIO'])
+                    ->get()
+                    ->getRow();
+                $ultimaStr = $ultima && !empty($ultima->FECHA_ASISTENCIA) ? $ultima->FECHA_ASISTENCIA : null;
+                $dias = $ultimaStr ? (new \DateTime($ultimaStr))->diff(new \DateTime())->days : 999;
+                if ($dias > 3) {
+                    $alertas[] = [
+                        'tipo' => 'warning',
+                        'titulo' => 'Estudiante con retraso',
+                        'mensaje' => ($r['NOMBRE_COMPLETO'] ?? 'Estudiante') . ' no ha registrado actividades en ' . $dias . ' días',
+                        'fecha' => date('Y-m-d H:i:s')
+                    ];
+                }
             }
-
         } catch (\Exception $e) {
             log_message('error', 'Error al generar alertas: ' . $e->getMessage());
         }
-
         return $alertas;
     }
 
-    private function contarAlertas($docenteId)
+    private function contarAlertas($idInstructor)
     {
+        if ($idInstructor <= 0) {
+            return 0;
+        }
         try {
-            $count = 0;
-            
-            // Contar estudiantes con retraso
-            $count += $this->db->table('estudiantes e')
-                ->join('practicas_preprofesionales pp', 'pp.ID_ESTUDIANTE = e.ID_ESTUDIANTE')
-                ->join('actividades_practicas ap', 'ap.ID_ESTUDIANTE = e.ID_ESTUDIANTE', 'left')
-                ->where('pp.ID_DOCENTE_SUPERVISOR', $docenteId)
-                ->where('pp.ESTADO_PRACTICA', 'En Progreso')
-                ->groupBy('e.ID_ESTUDIANTE')
-                ->having('DATEDIFF(NOW(), MAX(ap.FECHA_ACTIVIDAD)) > 3 OR MAX(ap.FECHA_ACTIVIDAD) IS NULL')
-                ->countAllResults();
-
-            // Contar evaluaciones próximas a vencer
-            $count += $this->db->table('evaluaciones_practicas ep')
-                ->where('ep.ID_DOCENTE', $docenteId)
-                ->where('ep.ESTADO', 'Pendiente')
-                ->where('ep.FECHA_LIMITE <= DATE_ADD(NOW(), INTERVAL 3 DAY)')
-                ->countAllResults();
-
-            return $count;
-
+            return count($this->generarAlertas($idInstructor));
         } catch (\Exception $e) {
-            log_message('error', 'Error al contar alertas: ' . $e->getMessage());
             return 0;
         }
     }

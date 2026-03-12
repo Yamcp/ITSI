@@ -7,6 +7,8 @@ use App\Models\InstructoresModel;
 use App\Models\LineasInvestigacionModel;
 use App\Models\TiposModalidadesModel;
 use App\Models\TiposActividadesModel;
+use App\Models\InscripcionesActividadesModel;
+use App\Models\EstudiantesModel;
 use App\Controllers\BaseController;
 
 class ActividadesEducacionDocenteController extends BaseController
@@ -16,14 +18,18 @@ class ActividadesEducacionDocenteController extends BaseController
     protected $lineasInvestigacionModel;
     protected $tiposModalidadesModel;
     protected $tiposActividadesModel;
+    protected $inscripcionesModel;
+    protected $estudiantesModel;
 
     public function __construct()
     {
         $this->actividadesModel = new ActividadesEducacionModel();
         $this->instructoresModel = new InstructoresModel();
-        $this->lineasInvestigacionModel = new LineasInvestigacionModel(); // Corregido: sin tilde
+        $this->lineasInvestigacionModel = new LineasInvestigacionModel();
         $this->tiposModalidadesModel = new TiposModalidadesModel();
         $this->tiposActividadesModel = new TiposActividadesModel();
+        $this->inscripcionesModel = new InscripcionesActividadesModel();
+        $this->estudiantesModel = new EstudiantesModel();
     }
 
     public function index()
@@ -298,6 +304,75 @@ class ActividadesEducacionDocenteController extends BaseController
         }
 
         return redirect()->back()->with('error', 'Error al eliminar la actividad');
+    }
+
+    /**
+     * Vista de gestión de participantes de una actividad
+     */
+    public function participantes($id)
+    {
+        $actividad = $this->actividadesModel->getActividadCompleta($id);
+        if (!$actividad) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Actividad no encontrada');
+        }
+
+        $participantes = $this->inscripcionesModel->getParticipantesPorActividad($id);
+        $estudiantes = $this->estudiantesModel->getEstudiantesParaInscripcion();
+
+        $data = [
+            'title' => 'Participantes - ' . $actividad['NOMBRE_ACTIVIDAD'],
+            'actividad' => $actividad,
+            'participantes' => $participantes,
+            'estudiantes' => $estudiantes,
+        ];
+
+        return view('docente/educacion/participantes', $data);
+    }
+
+    /**
+     * Agregar participante (estudiante) a una actividad
+     */
+    public function agregarParticipante()
+    {
+        if ($this->request->getMethod() !== 'post') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Método no permitido']);
+        }
+
+        $idActividad = (int) $this->request->getPost('id_actividad');
+        $idEstudiante = (int) $this->request->getPost('id_estudiante');
+
+        if (!$idActividad || !$idEstudiante) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Datos incompletos']);
+        }
+
+        if ($this->inscripcionesModel->inscribir($idActividad, $idEstudiante)) {
+            return $this->response->setJSON(['success' => true, 'message' => 'Participante agregado correctamente']);
+        }
+
+        return $this->response->setJSON(['success' => false, 'message' => 'El estudiante ya está inscrito o no se pudo inscribir']);
+    }
+
+    /**
+     * Quitar participante de una actividad
+     */
+    public function quitarParticipante()
+    {
+        if ($this->request->getMethod() !== 'post') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Método no permitido']);
+        }
+
+        $idActividad = (int) $this->request->getPost('id_actividad');
+        $idEstudiante = (int) $this->request->getPost('id_estudiante');
+
+        if (!$idActividad || !$idEstudiante) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Datos incompletos']);
+        }
+
+        if ($this->inscripcionesModel->quitarInscripcion($idActividad, $idEstudiante)) {
+            return $this->response->setJSON(['success' => true, 'message' => 'Participante dado de baja']);
+        }
+
+        return $this->response->setJSON(['success' => false, 'message' => 'No se pudo quitar la inscripción']);
     }
 
     // Método de prueba temporal para debug

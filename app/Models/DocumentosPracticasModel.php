@@ -209,7 +209,7 @@ class DocumentosPracticasModel extends Model
             ->get()
             ->getRowArray();
         if ($estudiante) {
-            $idsPracticas = $this->db->table('practicas_preprofesionales')
+            $idsPracticas = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES')
                 ->select('ID_PRACTICA_PREPROFESIONAL')
                 ->where('ID_ESTUDIANTE', $estudiante['ID_ESTUDIANTE'])
                 ->get()
@@ -369,7 +369,7 @@ class DocumentosPracticasModel extends Model
         if (!$estudiante) {
             return null;
         }
-        $idsPracticas = $this->db->table('practicas_preprofesionales')
+        $idsPracticas = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES')
             ->select('ID_PRACTICA_PREPROFESIONAL')
             ->where('ID_ESTUDIANTE', $estudiante['ID_ESTUDIANTE'])
             ->get()
@@ -398,7 +398,7 @@ class DocumentosPracticasModel extends Model
         if (!$row) {
             return null;
         }
-        $practica = $this->db->table('practicas_preprofesionales')
+        $practica = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES')
             ->select('ID_PRACTICA_PREPROFESIONAL')
             ->where('ID_ESTUDIANTE', $row['ID_ESTUDIANTE'])
             ->orderBy('ID_PRACTICA_PREPROFESIONAL', 'ASC')
@@ -426,7 +426,7 @@ class DocumentosPracticasModel extends Model
             return [];
         }
 
-        $idsPracticas = $this->db->table('practicas_preprofesionales')
+        $idsPracticas = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES')
             ->select('ID_PRACTICA_PREPROFESIONAL')
             ->where('ID_ESTUDIANTE', $estudiante['ID_ESTUDIANTE'])
             ->get()

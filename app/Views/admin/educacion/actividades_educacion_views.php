@@ -488,12 +488,13 @@
                                                 <option value="<?= $instructor['ID_INSTRUCTOR'] ?>"><?= $instructor['NOMBRE'] ?> <?= $instructor['APELLIDO'] ?> - <?= $instructor['ESPECIALIDAD'] ?></option>
                                             <?php endforeach; ?>
                                         <?php endif; ?>
+                                        <option value="__agregar_instructor__">➕ No está en la lista — Ir a agregar instructor</option>
                                     </select>
-                                    <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#modalNuevoInstructor" title="Crear nuevo instructor">
+                                    <a href="<?= base_url('admin/instructores') ?>?crear=1" class="btn btn-outline-primary" type="button" title="Ir a agregar nuevo instructor" target="_self">
                                         <i class="fas fa-plus"></i>
-                                    </button>
+                                    </a>
                                 </div>
-                                <small class="text-muted">Selecciona un instructor existente o crea uno nuevo</small>
+                                <small class="text-muted">Selecciona un instructor existente o use el botón + para ir a agregar uno nuevo</small>
                             </div>
                         </div>
                         <div class="col-md-6">
@@ -1301,6 +1302,16 @@
         const fechaInicioInput = document.querySelector('input[name="fecha_inicio"]');
         if (fechaInicioInput) {
             fechaInicioInput.value = today;
+        }
+
+        // Redirigir a instructores cuando el usuario elige "agregar instructor" en el select
+        const selectInstructor = document.getElementById('selectInstructor');
+        if (selectInstructor) {
+            selectInstructor.addEventListener('change', function() {
+                if (this.value === '__agregar_instructor__') {
+                    window.location.href = '<?= base_url('admin/instructores') ?>?crear=1';
+                }
+            });
         }
         
         // Cargar estadísticas al cargar la página

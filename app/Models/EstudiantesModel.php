@@ -48,4 +48,18 @@ class EstudiantesModel extends Model
             
         return $builder->get()->getRowArray();
     }
+
+    /**
+     * Lista de estudiantes para selector (inscripciones a actividades, etc.)
+     */
+    public function getEstudiantesParaInscripcion()
+    {
+        return $this->db->table('TAB_ESTUDIANTES e')
+            ->select('e.ID_ESTUDIANTE, dp.NOMBRE, dp.APELLIDO, dp.CEDULA, c.NOMBRE as CARRERA')
+            ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+            ->join('TAB_CARRERAS c', 'c.ID_CARRERA = e.ID_CARRERA', 'left')
+            ->orderBy('dp.APELLIDO', 'ASC')
+            ->get()
+            ->getResultArray();
+    }
 }

@@ -171,11 +171,8 @@
                             <!-- Cursos -->
                             <div class="tab-pane fade show active" id="cursos" role="tabpanel">
                                 <div class="card shadow-sm border-0">
-                                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                    <div class="card-header bg-primary text-white">
                                         <span><i class="fas fa-book me-2"></i>Mis Cursos</span>
-                                        <button class="btn btn-light btn-sm" onclick="showModal('modalFiltros')">
-                                            <i class="fas fa-filter me-1"></i>Filtros
-                                        </button>
                                     </div>
                                     <div class="card-body p-0">
                                         <div class="table-responsive">
@@ -262,11 +259,8 @@
                             <!-- Talleres -->
                             <div class="tab-pane fade" id="talleres" role="tabpanel">
                                 <div class="card shadow-sm border-0">
-                                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                                    <div class="card-header bg-success text-white">
                                         <span><i class="fas fa-tools me-2"></i>Mis Talleres</span>
-                                        <button class="btn btn-light btn-sm" onclick="showModal('modalFiltros')">
-                                            <i class="fas fa-filter me-1"></i>Filtros
-                                        </button>
                                     </div>
                                     <div class="card-body p-0">
                                         <div class="table-responsive">
@@ -353,11 +347,8 @@
                             <!-- Seminarios -->
                             <div class="tab-pane fade" id="seminarios" role="tabpanel">
                                 <div class="card shadow-sm border-0">
-                                    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                                    <div class="card-header bg-info text-white">
                                         <span><i class="fas fa-users me-2"></i>Mis Seminarios</span>
-                                        <button class="btn btn-light btn-sm" onclick="showModal('modalFiltros')">
-                                            <i class="fas fa-filter me-1"></i>Filtros
-                                        </button>
                                     </div>
                                     <div class="card-body p-0">
                                         <div class="table-responsive">
@@ -585,7 +576,7 @@
     }
 
     function gestionarParticipantes(id) {
-        showNotification('Función de gestión de participantes en desarrollo', 'info');
+        window.location.href = '<?= base_url('docente/actividades-educacion/participantes/') ?>' + id;
     }
 
     function generarReporteEvaluaciones() {
@@ -594,8 +585,7 @@
     }
 
     function exportarMisActividades() {
-        showNotification('Exportando mis actividades...', 'info');
-        // Implementar exportación específica del docente
+        window.location.href = '<?= base_url('docente/actividades-educacion/reportes') ?>';
     }
 
     function showNotification(message, type = 'info') {

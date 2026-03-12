@@ -303,44 +303,69 @@ class PracticasEstudianteController extends BaseController
     private function obtenerEstadisticasEstudiante($userId)
     {
         try {
-            // Obtener total de prácticas preprofesionales
-            $totalPreprofesionales = $this->db->table('practicas_preprofesionales pp')
-                ->join('estudiantes e', 'e.ID_ESTUDIANTE = pp.ID_ESTUDIANTE')
-                ->where('e.ID_USUARIO', $userId)
+            // Estudiante por ID_USUARIO (TAB_ESTUDIANTES se relaciona con TAB_USUARIOS por ID_DATO_PERSONA)
+            $estudiante = $this->db->table('TAB_ESTUDIANTES e')
+                ->select('e.ID_ESTUDIANTE')
+                ->join('TAB_USUARIOS u', 'u.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+                ->where('u.ID_USUARIO', $userId)
+                ->get()
+                ->getRowArray();
+            if (!$estudiante) {
+                return ['totalPracticas' => 0, 'practicasActivas' => 0, 'practicasFinalizadas' => 0, 'horasCompletadas' => 0];
+            }
+            $idEstudiante = (int) $estudiante['ID_ESTUDIANTE'];
+
+            $totalPreprofesionales = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
+                ->where('pp.ID_ESTUDIANTE', $idEstudiante)
                 ->countAllResults();
 
-            // Obtener total de servicios comunitarios
-            $totalServicios = $this->db->table('servicios_comunitarios sc')
-                ->join('estudiantes e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE')
-                ->where('e.ID_USUARIO', $userId)
+            $totalServicios = $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
+                ->where('sc.ID_ESTUDIANTE', $idEstudiante)
                 ->countAllResults();
 
-            // Obtener prácticas activas
-            $practicasActivas = $this->db->table('practicas_preprofesionales pp')
-                ->join('estudiantes e', 'e.ID_ESTUDIANTE = pp.ID_ESTUDIANTE')
-                ->where('e.ID_USUARIO', $userId)
+            $practicasActivas = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
+                ->where('pp.ID_ESTUDIANTE', $idEstudiante)
                 ->where('pp.ESTADO_PRACTICA', 'En Progreso')
                 ->countAllResults();
 
-            $serviciosActivos = $this->db->table('servicios_comunitarios sc')
-                ->join('estudiantes e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE')
-                ->where('e.ID_USUARIO', $userId)
+            $serviciosActivos = $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
+                ->where('sc.ID_ESTUDIANTE', $idEstudiante)
                 ->where('sc.ESTADO_SERVICIO', 'En Progreso')
                 ->countAllResults();
 
-            // Obtener horas completadas
-            $horasCompletadas = $this->db->table('actividades_practicas ap')
-                ->join('estudiantes e', 'e.ID_ESTUDIANTE = ap.ID_ESTUDIANTE')
-                ->where('e.ID_USUARIO', $userId)
-                ->selectSum('TIMESTAMPDIFF(HOUR, CONCAT(ap.FECHA_ACTIVIDAD, " ", ap.HORA_ENTRADA), CONCAT(ap.FECHA_ACTIVIDAD, " ", ap.HORA_SALIDA))', 'total_horas')
+            // Horas completadas: TAB_ASISTENCIAS_* (HORA_ENTRADA/HORA_SALIDA) + TAB_SEGUIMIENTO_* (HORAS_CUMPLIDAS)
+            $horasPp = $this->db->table('TAB_ASISTENCIAS_PRACTICAS_PREPROFESIONALES ap')
+                ->selectSum('TIMESTAMPDIFF(HOUR, ap.HORA_ENTRADA, ap.HORA_SALIDA)', 'total_horas')
+                ->join('TAB_PRACTICAS_PREPROFESIONALES pp', 'pp.ID_PRACTICA_PREPROFESIONAL = ap.ID_PRACTICA_PREPROFESIONAL')
+                ->where('pp.ID_ESTUDIANTE', $idEstudiante)
                 ->get()
                 ->getRow();
+            $horasSc = $this->db->table('TAB_ASISTENCIAS_SERVICIO_COMUNITARIO as_')
+                ->selectSum('TIMESTAMPDIFF(HOUR, as_.HORA_ENTRADA, as_.HORA_SALIDA)', 'total_horas')
+                ->join('TAB_SERVICIO_COMUNITARIO sc', 'sc.ID_SERVICIO_COMUNITARIO = as_.ID_SERVICIO_COMUNITARIO')
+                ->where('sc.ID_ESTUDIANTE', $idEstudiante)
+                ->get()
+                ->getRow();
+            $segPp = $this->db->table('TAB_SEGUIMIENTO_PRACTICAS_PREPROFESIONALES sp')
+                ->selectSum('sp.HORAS_CUMPLIDAS', 'total_horas')
+                ->join('TAB_PRACTICAS_PREPROFESIONALES pp', 'pp.ID_PRACTICA_PREPROFESIONAL = sp.ID_PRACTICA_PREPROFESIONAL')
+                ->where('pp.ID_ESTUDIANTE', $idEstudiante)
+                ->get()
+                ->getRow();
+            $segSc = $this->db->table('TAB_SEGUIMIENTO_SERVICIO_COMUNITARIO ss')
+                ->selectSum('ss.HORAS_CUMPLIDAS', 'total_horas')
+                ->join('TAB_SERVICIO_COMUNITARIO sc', 'sc.ID_SERVICIO_COMUNITARIO = ss.ID_SERVICIO_COMUNITARIO')
+                ->where('sc.ID_ESTUDIANTE', $idEstudiante)
+                ->get()
+                ->getRow();
+            $horasCompletadas = (int)($horasPp->total_horas ?? 0) + (int)($horasSc->total_horas ?? 0)
+                + (int)($segPp->total_horas ?? 0) + (int)($segSc->total_horas ?? 0);
 
             return [
                 'totalPracticas' => $totalPreprofesionales + $totalServicios,
                 'practicasActivas' => $practicasActivas + $serviciosActivos,
                 'practicasFinalizadas' => ($totalPreprofesionales + $totalServicios) - ($practicasActivas + $serviciosActivos),
-                'horasCompletadas' => $horasCompletadas->total_horas ?? 0
+                'horasCompletadas' => $horasCompletadas
             ];
 
         } catch (\Exception $e) {
@@ -357,30 +382,45 @@ class PracticasEstudianteController extends BaseController
     private function obtenerEstadisticasServicioComunitario($userId)
     {
         try {
-            $totalServicios = $this->db->table('servicios_comunitarios sc')
-                ->join('estudiantes e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE')
-                ->where('e.ID_USUARIO', $userId)
+            $estudiante = $this->db->table('TAB_ESTUDIANTES e')
+                ->select('e.ID_ESTUDIANTE')
+                ->join('TAB_USUARIOS u', 'u.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+                ->where('u.ID_USUARIO', $userId)
+                ->get()
+                ->getRowArray();
+            if (!$estudiante) {
+                return ['totalPracticas' => 0, 'practicasActivas' => 0, 'practicasFinalizadas' => 0, 'horasCompletadas' => 0];
+            }
+            $idEstudiante = (int) $estudiante['ID_ESTUDIANTE'];
+
+            $totalServicios = $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
+                ->where('sc.ID_ESTUDIANTE', $idEstudiante)
                 ->countAllResults();
 
-            $serviciosActivos = $this->db->table('servicios_comunitarios sc')
-                ->join('estudiantes e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE')
-                ->where('e.ID_USUARIO', $userId)
+            $serviciosActivos = $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
+                ->where('sc.ID_ESTUDIANTE', $idEstudiante)
                 ->where('sc.ESTADO_SERVICIO', 'En Progreso')
                 ->countAllResults();
 
-            $horasCompletadas = $this->db->table('actividades_practicas ap')
-                ->join('estudiantes e', 'e.ID_ESTUDIANTE = ap.ID_ESTUDIANTE')
-                ->where('e.ID_USUARIO', $userId)
-                ->where('ap.TIPO_PRACTICA', 'servicio')
-                ->selectSum('TIMESTAMPDIFF(HOUR, CONCAT(ap.FECHA_ACTIVIDAD, " ", ap.HORA_ENTRADA), CONCAT(ap.FECHA_ACTIVIDAD, " ", ap.HORA_SALIDA))', 'total_horas')
+            $horasAsist = $this->db->table('TAB_ASISTENCIAS_SERVICIO_COMUNITARIO as_')
+                ->selectSum('TIMESTAMPDIFF(HOUR, as_.HORA_ENTRADA, as_.HORA_SALIDA)', 'total_horas')
+                ->join('TAB_SERVICIO_COMUNITARIO sc', 'sc.ID_SERVICIO_COMUNITARIO = as_.ID_SERVICIO_COMUNITARIO')
+                ->where('sc.ID_ESTUDIANTE', $idEstudiante)
                 ->get()
                 ->getRow();
+            $horasSeg = $this->db->table('TAB_SEGUIMIENTO_SERVICIO_COMUNITARIO ss')
+                ->selectSum('ss.HORAS_CUMPLIDAS', 'total_horas')
+                ->join('TAB_SERVICIO_COMUNITARIO sc', 'sc.ID_SERVICIO_COMUNITARIO = ss.ID_SERVICIO_COMUNITARIO')
+                ->where('sc.ID_ESTUDIANTE', $idEstudiante)
+                ->get()
+                ->getRow();
+            $horasCompletadas = (int)($horasAsist->total_horas ?? 0) + (int)($horasSeg->total_horas ?? 0);
 
             return [
                 'totalPracticas' => $totalServicios,
                 'practicasActivas' => $serviciosActivos,
                 'practicasFinalizadas' => $totalServicios - $serviciosActivos,
-                'horasCompletadas' => $horasCompletadas->total_horas ?? 0
+                'horasCompletadas' => $horasCompletadas
             ];
         } catch (\Exception $e) {
             log_message('error', 'Error al obtener estadísticas servicio comunitario: ' . $e->getMessage());
@@ -434,11 +474,30 @@ class PracticasEstudianteController extends BaseController
     private function obtenerWhatsappSupervisor(array $practicasPreprofesionales, array $serviciosComunitarios)
     {
         $idUsuarioSupervisor = null;
-        if (!empty($practicasPreprofesionales) && !empty($practicasPreprofesionales[0]['ID_DOCENTE_SUPERVISOR'])) {
-            $idUsuarioSupervisor = (int) $practicasPreprofesionales[0]['ID_DOCENTE_SUPERVISOR'];
+        // TAB_PRACTICAS_PREPROFESIONALES y TAB_SERVICIO_COMUNITARIO usan ID_INSTRUCTOR; obtener ID_USUARIO del instructor vía TAB_EMPLEADOS_INSTRUCTORES/TAB_EMPLEADOS/TAB_USUARIOS o por ID_DATO_PERSONA
+        if (!empty($practicasPreprofesionales) && !empty($practicasPreprofesionales[0]['ID_INSTRUCTOR'])) {
+            $idInstructor = (int) $practicasPreprofesionales[0]['ID_INSTRUCTOR'];
+            $u = $this->db->table('TAB_EMPLEADOS_INSTRUCTORES ei')->select('e.ID_DATO_PERSONA')
+                ->join('TAB_EMPLEADOS e', 'e.ID_EMPLEADO = ei.ID_EMPLEADO')
+                ->where('ei.ID_INSTRUCTOR', $idInstructor)->get()->getRowArray();
+            if ($u) {
+                $usuario = $this->db->table('TAB_USUARIOS')->where('ID_DATO_PERSONA', $u['ID_DATO_PERSONA'])->get()->getRowArray();
+                if ($usuario) {
+                    $idUsuarioSupervisor = (int) $usuario['ID_USUARIO'];
+                }
+            }
         }
-        if ($idUsuarioSupervisor === null && !empty($serviciosComunitarios) && !empty($serviciosComunitarios[0]['ID_DOCENTE_SUPERVISOR'])) {
-            $idUsuarioSupervisor = (int) $serviciosComunitarios[0]['ID_DOCENTE_SUPERVISOR'];
+        if ($idUsuarioSupervisor === null && !empty($serviciosComunitarios) && !empty($serviciosComunitarios[0]['ID_INSTRUCTOR'])) {
+            $idInstructor = (int) $serviciosComunitarios[0]['ID_INSTRUCTOR'];
+            $u = $this->db->table('TAB_EMPLEADOS_INSTRUCTORES ei')->select('e.ID_DATO_PERSONA')
+                ->join('TAB_EMPLEADOS e', 'e.ID_EMPLEADO = ei.ID_EMPLEADO')
+                ->where('ei.ID_INSTRUCTOR', $idInstructor)->get()->getRowArray();
+            if ($u) {
+                $usuario = $this->db->table('TAB_USUARIOS')->where('ID_DATO_PERSONA', $u['ID_DATO_PERSONA'])->get()->getRowArray();
+                if ($usuario) {
+                    $idUsuarioSupervisor = (int) $usuario['ID_USUARIO'];
+                }
+            }
         }
         if ($idUsuarioSupervisor === null) {
             return null;
@@ -472,15 +531,18 @@ class PracticasEstudianteController extends BaseController
     private function obtenerPracticasPreprofesionales($userId)
     {
         try {
-            return $this->db->table('practicas_preprofesionales pp')
-                ->select('pp.*, e.NOMBRE_COMPLETO as ESTUDIANTE_NOMBRE, c.NOMBRE as CARRERA_NOMBRE, ic.NOMBRE as INSTITUCION_NOMBRE, ic.TIPO_INSTITUCION,
+            return $this->db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
+                ->select('pp.*, CONCAT(COALESCE(dp.NOMBRE,\'\'), \' \', COALESCE(dp.APELLIDO,\'\')) as ESTUDIANTE_NOMBRE, c.NOMBRE as CARRERA_NOMBRE, ic.NOMBRE as INSTITUCION_NOMBRE, ic.ID_TIPO_INSTITUCION as TIPO_INSTITUCION,
                     CONCAT(COALESCE(dsup.NOMBRE,\'\'), \' \', COALESCE(dsup.APELLIDO,\'\')) as SUPERVISOR_NOMBRE')
-                ->join('estudiantes e', 'e.ID_ESTUDIANTE = pp.ID_ESTUDIANTE')
-                ->join('carreras c', 'c.ID_CARRERA = e.ID_CARRERA')
-                ->join('instituciones_convenios ic', 'ic.ID_INSTITUCION_CONVENIO = pp.ID_INSTITUCION_CONVENIO')
-                ->join('TAB_USUARIOS sup', 'sup.ID_USUARIO = pp.ID_DOCENTE_SUPERVISOR', 'left')
-                ->join('TAB_DATOS_PERSONAS dsup', 'dsup.ID_DATO_PERSONA = sup.ID_DATO_PERSONA', 'left')
-                ->where('e.ID_USUARIO', $userId)
+                ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = pp.ID_ESTUDIANTE')
+                ->join('TAB_USUARIOS u', 'u.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+                ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+                ->join('TAB_CARRERAS c', 'c.ID_CARRERA = e.ID_CARRERA', 'left')
+                ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = pp.ID_INSTITUCION_CONVENIO', 'left')
+                ->join('TAB_EMPLEADOS_INSTRUCTORES ei', 'ei.ID_INSTRUCTOR = pp.ID_INSTRUCTOR', 'left')
+                ->join('TAB_EMPLEADOS em', 'em.ID_EMPLEADO = ei.ID_EMPLEADO', 'left')
+                ->join('TAB_DATOS_PERSONAS dsup', 'dsup.ID_DATO_PERSONA = em.ID_DATO_PERSONA', 'left')
+                ->where('u.ID_USUARIO', $userId)
                 ->orderBy('pp.FECHA_INICIO', 'DESC')
                 ->get()
                 ->getResultArray();
@@ -494,12 +556,14 @@ class PracticasEstudianteController extends BaseController
     private function obtenerServiciosComunitarios($userId)
     {
         try {
-            return $this->db->table('servicios_comunitarios sc')
-                ->select('sc.*, e.NOMBRE_COMPLETO as ESTUDIANTE_NOMBRE, c.NOMBRE as CARRERA_NOMBRE, ic.NOMBRE as INSTITUCION_NOMBRE, ic.TIPO_INSTITUCION')
-                ->join('estudiantes e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE')
-                ->join('carreras c', 'c.ID_CARRERA = e.ID_CARRERA')
-                ->join('instituciones_convenios ic', 'ic.ID_INSTITUCION_CONVENIO = sc.ID_INSTITUCION_CONVENIO')
-                ->where('e.ID_USUARIO', $userId)
+            return $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
+                ->select('sc.*, CONCAT(COALESCE(dp.NOMBRE,\'\'), \' \', COALESCE(dp.APELLIDO,\'\')) as ESTUDIANTE_NOMBRE, c.NOMBRE as CARRERA_NOMBRE, ic.NOMBRE as INSTITUCION_NOMBRE, ic.ID_TIPO_INSTITUCION as TIPO_INSTITUCION')
+                ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE')
+                ->join('TAB_USUARIOS u', 'u.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+                ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+                ->join('TAB_CARRERAS c', 'c.ID_CARRERA = e.ID_CARRERA', 'left')
+                ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = sc.ID_INSTITUCION_CONVENIO', 'left')
+                ->where('u.ID_USUARIO', $userId)
                 ->orderBy('sc.FECHA_INICIO', 'DESC')
                 ->get()
                 ->getResultArray();
@@ -538,15 +602,30 @@ class PracticasEstudianteController extends BaseController
     private function calcularHorasCumplidas($practicaId, $tipo)
     {
         try {
-            $result = $this->db->table('actividades_practicas')
-                ->selectSum('TIMESTAMPDIFF(HOUR, CONCAT(FECHA_ACTIVIDAD, " ", HORA_ENTRADA), CONCAT(FECHA_ACTIVIDAD, " ", HORA_SALIDA))', 'total_horas')
-                ->where('ID_PRACTICA', $practicaId)
-                ->where('TIPO_PRACTICA', $tipo)
+            if ($tipo === 'preprofesional') {
+                $asist = $this->db->table('TAB_ASISTENCIAS_PRACTICAS_PREPROFESIONALES')
+                    ->selectSum('TIMESTAMPDIFF(HOUR, HORA_ENTRADA, HORA_SALIDA)', 'total_horas')
+                    ->where('ID_PRACTICA_PREPROFESIONAL', $practicaId)
+                    ->get()
+                    ->getRow();
+                $seg = $this->db->table('TAB_SEGUIMIENTO_PRACTICAS_PREPROFESIONALES')
+                    ->selectSum('HORAS_CUMPLIDAS', 'total_horas')
+                    ->where('ID_PRACTICA_PREPROFESIONAL', $practicaId)
+                    ->get()
+                    ->getRow();
+                return (int)($asist->total_horas ?? 0) + (int)($seg->total_horas ?? 0);
+            }
+            $asist = $this->db->table('TAB_ASISTENCIAS_SERVICIO_COMUNITARIO')
+                ->selectSum('TIMESTAMPDIFF(HOUR, HORA_ENTRADA, HORA_SALIDA)', 'total_horas')
+                ->where('ID_SERVICIO_COMUNITARIO', $practicaId)
                 ->get()
                 ->getRow();
-
-            return $result->total_horas ?? 0;
-
+            $seg = $this->db->table('TAB_SEGUIMIENTO_SERVICIO_COMUNITARIO')
+                ->selectSum('HORAS_CUMPLIDAS', 'total_horas')
+                ->where('ID_SERVICIO_COMUNITARIO', $practicaId)
+                ->get()
+                ->getRow();
+            return (int)($asist->total_horas ?? 0) + (int)($seg->total_horas ?? 0);
         } catch (\Exception $e) {
             log_message('error', 'Error al calcular horas cumplidas: ' . $e->getMessage());
             return 0;

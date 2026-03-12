@@ -211,6 +211,12 @@ $routes->group('docente', ['namespace' => 'App\Controllers\docente'], function (
     $routes->get('actividades-educacion/api/actividades', 'ActividadesEducacionDocenteController::getActividades');    // API actividades
     $routes->get('actividades-educacion/api/estadisticas', 'ActividadesEducacionDocenteController::getEstadisticas');    // API estadísticas
     $routes->get('actividades-educacion/reportes', 'ActividadesEducacionDocenteController::reportes');    // Vista de reportes
+    $routes->get('actividades-educacion/exportar/pdf', 'ActividadesEducacionDocenteController::exportarPDF');
+    $routes->get('actividades-educacion/exportar/excel', 'ActividadesEducacionDocenteController::exportarExcel');
+    $routes->get('actividades-educacion/exportar/csv', 'ActividadesEducacionDocenteController::exportarCSV');
+    $routes->get('actividades-educacion/participantes/(:num)', 'ActividadesEducacionDocenteController::participantes/$1');    // Gestionar participantes
+    $routes->post('actividades-educacion/participantes/agregar', 'ActividadesEducacionDocenteController::agregarParticipante');
+    $routes->post('actividades-educacion/participantes/quitar', 'ActividadesEducacionDocenteController::quitarParticipante');
     $routes->get('actividades-educacion/test-insert', 'ActividadesEducacionDocenteController::testInsert');    // Prueba de inserción
     
     $routes->get('convenios', 'InstitucionesConveniosController::index');        // Ver la sección de convenios
@@ -229,6 +235,7 @@ $routes->group('docente', ['namespace' => 'App\Controllers\docente'], function (
     $routes->post('practicas/evaluar-estudiante', 'PracticasDocenteController::evaluarEstudiante'); // Evaluar estudiante
     $routes->post('practicas/generar-reporte', 'PracticasDocenteController::generarReporte'); // Generar reporte
     $routes->get('practicas/alertas', 'PracticasDocenteController::obtenerAlertas'); // Obtener alertas
+    $routes->get('practicas/calendario', 'PracticasDocenteController::calendario'); // Calendario de prácticas
     $routes->get('actividades', 'ActividadesDocenteController::index');          // Ver actividades del docente
     $routes->get('estudiantes', 'EstudiantesDocenteController::index');          // Ver estudiantes del docente
 });

@@ -339,41 +339,6 @@ if (!$periodoNombreDashboard) {
             </div>
         </div>
 
-        <!-- Acciones rápidas -->
-        <div class="card card-dash mb-4">
-            <div class="card-header">
-                <i class="fas fa-bolt me-2 text-warning"></i>Acciones rápidas
-            </div>
-            <div class="card-body p-3 p-md-4">
-                <div class="row g-3">
-                    <div class="col-md-3 col-6">
-                        <a href="<?= base_url('admin/estudiantes') ?>" class="btn btn-primary quick-action-btn w-100">
-                            <i class="fas fa-users"></i>
-                            <span>Estudiantes</span>
-                        </a>
-                    </div>
-                    <div class="col-md-3 col-6">
-                        <a href="<?= base_url('admin/convenios') ?>" class="quick-action-btn w-100 text-white" style="background: var(--gradient-serv);">
-                            <i class="fas fa-handshake"></i>
-                            <span>Convenios</span>
-                        </a>
-                    </div>
-                    <div class="col-md-3 col-6">
-                        <a href="<?= base_url('admin/educacion') ?>" class="btn btn-info quick-action-btn w-100 text-white">
-                            <i class="fas fa-graduation-cap"></i>
-                            <span>Educación</span>
-                        </a>
-                    </div>
-                    <div class="col-md-3 col-6">
-                        <a href="<?= base_url('admin/instructores') ?>" class="btn btn-warning quick-action-btn w-100 text-dark">
-                            <i class="fas fa-chalkboard-teacher"></i>
-                            <span>Instructores</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Gráficas -->
         <div class="row g-3 mb-4">
             <div class="col-lg-8">
@@ -482,65 +447,6 @@ if (!$periodoNombreDashboard) {
                             <?php endif; ?>
                         </tbody>
                     </table>
-                </div>
-            </div>
-        </div>
-
-        <!-- Resumen rápido -->
-        <div class="card card-dash">
-            <div class="card-header">
-                <i class="fas fa-chart-bar me-2 text-primary"></i>Resumen rápido
-            </div>
-            <div class="card-body p-3 p-md-4">
-                <div class="row g-3">
-                    <div class="col-md-3 col-6">
-                        <a href="<?= base_url('admin/estudiantes') ?>" class="text-decoration-none">
-                            <div class="activity-card">
-                                <div class="activity-icon bg-primary bg-opacity-10 text-primary">
-                                    <i class="fas fa-users"></i>
-                                </div>
-                                <h6 class="mb-0">Estudiantes</h6>
-                                <p class="mb-1"><?= number_format($metricas['totalEstudiantes'] ?? 0) ?> registrados</p>
-                                <span class="badge bg-primary">Ver</span>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-md-3 col-6">
-                        <a href="<?= base_url('admin/educacion') ?>" class="text-decoration-none">
-                            <div class="activity-card">
-                                <div class="activity-icon bg-success bg-opacity-10 text-success">
-                                    <i class="fas fa-graduation-cap"></i>
-                                </div>
-                                <h6 class="mb-0">Actividades</h6>
-                                <p class="mb-1"><?= number_format($metricas['actividadesActivas'] ?? 0) ?> activas</p>
-                                <span class="badge bg-success">Ver</span>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-md-3 col-6">
-                        <a href="<?= base_url('admin/convenios') ?>" class="text-decoration-none">
-                            <div class="activity-card">
-                                <div class="activity-icon bg-info bg-opacity-10 text-info">
-                                    <i class="fas fa-handshake"></i>
-                                </div>
-                                <h6 class="mb-0">Convenios</h6>
-                                <p class="mb-1"><?= number_format($metricas['conveniosVigentes'] ?? 0) ?> vigentes</p>
-                                <span class="badge bg-info">Ver</span>
-                            </div>
-                        </a>
-                    </div>
-                    <div class="col-md-3 col-6">
-                        <a href="<?= base_url('admin/instructores') ?>" class="text-decoration-none">
-                            <div class="activity-card">
-                                <div class="activity-icon bg-warning bg-opacity-10 text-warning">
-                                    <i class="fas fa-chalkboard-teacher"></i>
-                                </div>
-                                <h6 class="mb-0">Instructores</h6>
-                                <p class="mb-1"><?= number_format($metricas['totalInstructores'] ?? 0) ?> docentes</p>
-                                <span class="badge bg-warning text-dark">Ver</span>
-                            </div>
-                        </a>
-                    </div>
                 </div>
             </div>
         </div>

@@ -146,6 +146,7 @@
         border-color: #c3e6cb;
     }
 </style>
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
@@ -456,49 +457,8 @@
                                     <i class="fas fa-exclamation-triangle me-2"></i>
                                     Alertas y Notificaciones
                                 </h6>
-                                
-                                <div class="alert-item warning">
-                                    <div class="d-flex align-items-start">
-                                        <i class="fas fa-exclamation-triangle text-warning me-3 mt-1"></i>
-                                        <div>
-                                            <strong>Estudiante con retraso</strong>
-                                            <p class="mb-1">Ana Yandun no ha registrado actividades en 3 días</p>
-                                            <small class="text-muted">Hace 2 horas</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="alert-item danger">
-                                    <div class="d-flex align-items-start">
-                                        <i class="fas fa-exclamation-circle text-danger me-3 mt-1"></i>
-                                        <div>
-                                            <strong>Documento faltante</strong>
-                                            <p class="mb-1">Pedro Aguirre debe entregar informe semanal</p>
-                                            <small class="text-muted">Hace 1 día</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="alert-item success">
-                                    <div class="d-flex align-items-start">
-                                        <i class="fas fa-check-circle text-success me-3 mt-1"></i>
-                                        <div>
-                                            <strong>Práctica completada</strong>
-                                            <p class="mb-1">Yamilex Campues finalizó su práctica preprofesional</p>
-                                            <small class="text-muted">Hace 3 horas</small>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="alert-item warning">
-                                    <div class="d-flex align-items-start">
-                                        <i class="fas fa-clock text-warning me-3 mt-1"></i>
-                                        <div>
-                                            <strong>Evaluación próxima a vencer</strong>
-                                            <p class="mb-1">Evaluación de María González vence en 2 días</p>
-                                            <small class="text-muted">Hace 4 horas</small>
-                                        </div>
-                                    </div>
+                                <div id="alertasContenido">
+                                    <p class="text-muted">Cargando alertas...</p>
                                 </div>
                             </div>
 
@@ -676,6 +636,26 @@
     </div>
 </div>
 
+<!-- Modal Calendario de Prácticas -->
+<div class="modal fade" id="modalCalendario" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-calendar-alt me-2"></i>Calendario de Prácticas y Servicio Comunitario
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="calendario" style="background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); min-height: 400px;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Evaluar Estudiante -->
 <div class="modal fade" id="modalEvaluarEstudiante" tabindex="-1">
     <div class="modal-dialog modal-lg">
@@ -731,30 +711,71 @@
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/locales/es.global.min.js"></script>
 <script>
-    // Variables globales
     let estudianteActual = null;
+    const baseUrlPracticas = '<?= base_url("docente/practicas") ?>';
 
-    // Funciones principales
+    function cargarAlertas() {
+        const cont = document.getElementById('alertasContenido');
+        if (!cont) return;
+        fetch(baseUrlPracticas + '/alertas')
+            .then(r => r.json())
+            .then(data => {
+                if (data.success && data.data && data.data.length) {
+                    cont.innerHTML = data.data.map(a => {
+                        const cls = a.tipo === 'danger' ? 'danger' : a.tipo === 'success' ? 'success' : 'warning';
+                        return '<div class="alert-item ' + cls + '"><div class="d-flex align-items-start">' +
+                            '<i class="fas fa-exclamation-triangle text-' + cls + ' me-3 mt-1"></i>' +
+                            '<div><strong>' + (a.titulo || 'Alerta') + '</strong>' +
+                            '<p class="mb-1">' + (a.mensaje || '') + '</p>' +
+                            '<small class="text-muted">' + (a.fecha || '') + '</small></div></div></div>';
+                    }).join('');
+                } else {
+                    cont.innerHTML = '<p class="text-muted mb-0">No hay alertas en este momento.</p>';
+                }
+            })
+            .catch(() => {
+                cont.innerHTML = '<p class="text-muted mb-0">No se pudieron cargar las alertas.</p>';
+            });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        cargarAlertas();
+    });
+
     function verDetalleEstudiante(id) {
         estudianteActual = id;
-        
-        // Simular carga de datos
-        document.getElementById('detalleNombre').textContent = 'Ana Yandun';
-        document.getElementById('detalleCarrera').textContent = 'Desarrollo de Software';
-        document.getElementById('detalleInstitucion').textContent = 'Hospital San Vicente de Paúl';
-        document.getElementById('detallePeriodo').textContent = '01/08/2025 - 30/11/2025';
-        document.getElementById('detalleEstado').textContent = 'En Progreso';
-        document.getElementById('detalleProgreso').textContent = '75% (180 de 240 horas)';
-        
-        // Mostrar modal
-        const modal = new bootstrap.Modal(document.getElementById('modalDetalleEstudiante'));
+        const modalEl = document.getElementById('modalDetalleEstudiante');
+        const modal = new bootstrap.Modal(modalEl);
         modal.show();
-        
-        // Dibujar gráfico de progreso
-        setTimeout(() => {
-            drawProgressChart(75);
-        }, 100);
+        document.getElementById('detalleNombre').textContent = 'Cargando...';
+        document.getElementById('detalleCarrera').textContent = '';
+        document.getElementById('detalleInstitucion').textContent = '';
+        document.getElementById('detallePeriodo').textContent = '';
+        document.getElementById('detalleEstado').textContent = '';
+        document.getElementById('detalleProgreso').textContent = '';
+        fetch(baseUrlPracticas + '/detalle-estudiante/' + id)
+            .then(r => r.json())
+            .then(data => {
+                if (data.success && data.data) {
+                    const e = data.data.estudiante || {};
+                    const prog = data.data.progreso || 0;
+                    document.getElementById('detalleNombre').textContent = e.NOMBRE_COMPLETO || e.NOMBRE || '—';
+                    document.getElementById('detalleCarrera').textContent = e.CARRERA_NOMBRE || '—';
+                    document.getElementById('detalleInstitucion').textContent = '—';
+                    document.getElementById('detallePeriodo').textContent = '—';
+                    document.getElementById('detalleEstado').textContent = 'En Progreso';
+                    document.getElementById('detalleProgreso').textContent = prog + '%';
+                    setTimeout(() => drawProgressChart(prog), 100);
+                } else {
+                    document.getElementById('detalleNombre').textContent = 'Error al cargar';
+                }
+            })
+            .catch(() => {
+                document.getElementById('detalleNombre').textContent = 'Error al cargar';
+            });
     }
 
     function evaluarEstudiante(id = null) {
@@ -765,15 +786,78 @@
     }
 
     function generarReporte() {
-        showNotification('Generando reporte...', 'info');
+        var reportesTab = document.querySelector('#reportes-tab');
+        if (reportesTab) {
+            reportesTab.click();
+        }
+        showNotification('Complete el formulario y pulse Generar Reporte', 'info');
+    }
+
+    function showModal(modalId) {
+        const el = document.getElementById(modalId);
+        if (el) {
+            const modal = new bootstrap.Modal(el);
+            modal.show();
+        }
     }
 
     function verCalendario() {
-        showNotification('Abriendo calendario de actividades...', 'info');
+        showModal('modalCalendario');
+        setTimeout(function() {
+            cargarDatosCalendario();
+        }, 300);
+    }
+
+    async function cargarDatosCalendario() {
+        try {
+            const response = await fetch(baseUrlPracticas + '/calendario');
+            const eventos = await response.json();
+            inicializarCalendario(Array.isArray(eventos) ? eventos : []);
+        } catch (e) {
+            console.error('Error al cargar calendario:', e);
+            showNotification('Error al cargar el calendario', 'error');
+            inicializarCalendario([]);
+        }
+    }
+
+    function inicializarCalendario(eventos) {
+        const calendarEl = document.getElementById('calendario');
+        if (!calendarEl) return;
+        calendarEl.innerHTML = '';
+        if (typeof FullCalendar === 'undefined') {
+            calendarEl.innerHTML = '<p class="text-muted">Cargando calendario...</p>';
+            return;
+        }
+        try {
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'es',
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+                },
+                events: eventos || [],
+                height: 'auto',
+                dayMaxEvents: true,
+                eventTimeFormat: { hour: '2-digit', minute: '2-digit', meridiem: false },
+                buttonText: { today: 'Hoy', month: 'Mes', week: 'Semana', day: 'Día', list: 'Lista' }
+            });
+            calendar.render();
+            window.calendario = calendar;
+        } catch (err) {
+            console.error(err);
+            calendarEl.innerHTML = '<p class="text-danger">Error al mostrar el calendario.</p>';
+        }
     }
 
     function configurarAlertas() {
-        showNotification('Abriendo configuración de alertas...', 'info');
+        const tab = document.querySelector('#alertas-tab');
+        if (tab) {
+            tab.click();
+        } else {
+            showNotification('Ver pestaña Alertas para notificaciones.', 'info');
+        }
     }
 
     function enviarMensaje(id) {
@@ -892,7 +976,72 @@
     // Manejo de formulario de reportes
     document.getElementById('formGenerarReporte').addEventListener('submit', function(e) {
         e.preventDefault();
-        showNotification('Generando reporte...', 'info');
+        var form = this;
+        if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            return;
+        }
+        var btn = form.querySelector('button[type="submit"]');
+        var txt = btn ? btn.innerHTML : '';
+        if (btn) {
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Generando...';
+        }
+        var fd = new FormData(form);
+        fetch(baseUrlPracticas + '/generar-reporte', {
+            method: 'POST',
+            body: fd,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(res) {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = txt;
+            }
+            if (res.success) {
+                if (res.csv && res.formato === 'excel') {
+                    var blob = new Blob(["\ufeff" + res.csv], { type: 'text/csv;charset=utf-8' });
+                    var a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = res.nombre_archivo || 'reporte_practicas.csv';
+                    a.click();
+                    URL.revokeObjectURL(a.href);
+                    showNotification('Reporte descargado correctamente', 'success');
+                } else if (res.data && (res.formato === 'pdf' || res.formato === 'word')) {
+                    mostrarReporteEnModal(res.data);
+                    showNotification('Reporte generado. Puede imprimir desde la ventana.', 'success');
+                } else {
+                    showNotification(res.message || 'Reporte generado', 'success');
+                }
+            } else {
+                showNotification(res.message || 'Error al generar el reporte', 'error');
+            }
+        })
+        .catch(function() {
+            if (btn) {
+                btn.disabled = false;
+                btn.innerHTML = txt;
+            }
+            showNotification('Error de conexión al generar el reporte', 'error');
+        });
     });
+
+    function mostrarReporteEnModal(data) {
+        var col = data.columnas || [];
+        var filas = data.filas || [];
+        var html = '<div class="table-responsive"><table class="table table-sm table-bordered"><thead><tr>';
+        col.forEach(function(c) { html += '<th>' + c + '</th>'; });
+        html += '</tr></thead><tbody>';
+        filas.forEach(function(fila) {
+            html += '<tr>';
+            (Array.isArray(fila) ? fila : []).forEach(function(celda) { html += '<td>' + (celda !== undefined && celda !== null ? celda : '') + '</td>'; });
+            html += '</tr>';
+        });
+        html += '</tbody></table></div>';
+        var ventana = window.open('', '_blank', 'width=800,height=600,scrollbars=yes');
+        ventana.document.write('<html><head><title>' + (data.titulo || 'Reporte') + '</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"></head><body class="p-4"><h4>' + (data.titulo || 'Reporte') + '</h4><p>Período: ' + (data.fecha_desde || '') + ' a ' + (data.fecha_hasta || '') + '</p>' + html + '<p class="mt-3"><button onclick="window.print()" class="btn btn-primary">Imprimir / Guardar como PDF</button></p></body></html>');
+        ventana.document.close();
+    }
 </script>
 <?= $this->endSection() ?>

@@ -54,6 +54,30 @@
     <script src="<?= base_url('sistema/assets/js/dashboard.js') ?>"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+    <script>
+        // Cierre de sesión automático por inactividad (10 minutos)
+        (function() {
+            var INACTIVIDAD_MS = 10 * 60 * 1000; // 10 minutos
+            var urlCerrarSesion = '<?= base_url('auth/cerrar-sesion') ?>';
+            var timerInactividad;
+
+            function redirigirALogin() {
+                window.location.href = urlCerrarSesion;
+            }
+
+            function reiniciarTimer() {
+                clearTimeout(timerInactividad);
+                timerInactividad = setTimeout(redirigirALogin, INACTIVIDAD_MS);
+            }
+
+            var eventos = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart', 'click'];
+            eventos.forEach(function(ev) {
+                document.addEventListener(ev, reiniciarTimer);
+            });
+
+            reiniciarTimer();
+        })();
+    </script>
     <?= $this->renderSection('scripts') ?>
 </body>
 
