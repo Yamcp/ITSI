@@ -123,6 +123,16 @@
             <div class="col-md-3 col-sm-6 mb-3">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                        <a href="<?= base_url('admin/evaluaciones') ?>" style="text-decoration: none; color: inherit;">
+                            <i class="fas fa-clipboard-check fa-2x mb-2" style="color: #6f42c1; text-shadow: 0 2px 4px rgba(111, 66, 193, 0.3);"></i>
+                            <div class="fw-bold">Ver encuestas / evaluaciones</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card text-center shadow-sm h-100" style="border: none;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="generarReporteEvaluaciones()" style="text-decoration: none; color: inherit;">
                             <i class="fas fa-chart-bar fa-2x mb-2" style="color: #ffc107; text-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);"></i>
                             <div class="fw-bold">Generar Reporte</div>
@@ -189,13 +199,21 @@
                                                         <th>Período</th>
                                                         <th>Duración</th>
                                                         <th>Estado</th>
+                                                        <th>Encuesta</th>
                                                         <th>Acciones</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody id="tablaCursos">
-                                                    <?php if (!empty($actividades)): ?>
+                                                    <?php
+                                                    $encuestasPorActividad = $encuestasPorActividad ?? [];
+                                                    if (!empty($actividades)): ?>
                                                         <?php foreach ($actividades as $actividad): ?>
                                                             <?php if ($actividad['ACTIVIDAD'] === 'Curso'): ?>
+                                                                <?php
+                                                                $fechaFinC = new DateTime($actividad['FECHA_FIN']);
+                                                                $finalizadoC = $fechaFinC < new DateTime();
+                                                                $encuestaC = $encuestasPorActividad[$actividad['ID_ACTIVIDAD_EDUCACION']] ?? null;
+                                                                ?>
                                                                 <tr>
                                                                     <td><?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?></td>
                                                                     <td>
@@ -218,15 +236,22 @@
                                                                     </td>
                                                                     <td><span class="badge bg-secondary"><?= $actividad['DURACION_HORAS'] ?>h</span></td>
                                                                     <td>
-                                                                        <?php 
-                                                                        $fechaFin = new DateTime($actividad['FECHA_FIN']);
-                                                                        $hoy = new DateTime();
-                                                                        if ($fechaFin >= $hoy) {
-                                                                            echo '<span class="badge bg-success">Activo</span>';
-                                                                        } else {
-                                                                            echo '<span class="badge bg-secondary">Finalizado</span>';
-                                                                        }
-                                                                        ?>
+                                                                        <?php if ($finalizadoC): ?>
+                                                                            <span class="badge bg-secondary">Finalizado</span>
+                                                                        <?php else: ?>
+                                                                            <span class="badge bg-success">Activo</span>
+                                                                        <?php endif; ?>
+                                                                    </td>
+                                                                    <td>
+                                                                        <?php if ($finalizadoC): ?>
+                                                                            <?php if ($encuestaC): ?>
+                                                                                <a href="<?= esc($encuestaC['ENLACE_FORMULARIO']) ?>" target="_blank" rel="noopener" class="btn btn-success btn-sm" title="Abrir encuesta"><i class="fas fa-external-link-alt"></i></a>
+                                                                            <?php else: ?>
+                                                                                <a href="<?= base_url('admin/actividades-educacion/ver/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-success btn-sm" title="Agregar encuesta de satisfacción"><i class="fas fa-plus"></i></a>
+                                                                            <?php endif; ?>
+                                                                        <?php else: ?>
+                                                                            <span class="text-muted small">—</span>
+                                                                        <?php endif; ?>
                                                                     </td>
                                                                     <td>
                                                                         <div class="btn-group btn-group-sm">
@@ -235,7 +260,7 @@
                                                                             </a>
                                                                             <a href="<?= base_url('admin/actividades-educacion/editar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-warning" title="Editar">
                                                                                 <i class="fas fa-edit"></i>
-                                                                            </a>                                                                    
+                                                                            </a>
                                                                         </div>
                                                                     </td>
                                                                 </tr>
@@ -243,7 +268,7 @@
                                                         <?php endforeach; ?>
                                                     <?php else: ?>
                                                         <tr>
-                                                            <td colspan="8" class="text-center text-muted py-4">
+                                                            <td colspan="9" class="text-center text-muted py-4">
                                                                 <i class="fas fa-inbox fa-3x mb-3"></i>
                                                                 <p>No hay cursos registrados</p>
                                                             </td>
@@ -277,6 +302,7 @@
                                                         <th>Período</th>
                                                         <th>Duración</th>
                                                         <th>Estado</th>
+                                                        <th>Encuesta</th>
                                                         <th>Acciones</th>
                                                     </tr>
                                                 </thead>
@@ -284,6 +310,11 @@
                                                     <?php if (!empty($actividades)): ?>
                                                         <?php foreach ($actividades as $actividad): ?>
                                                             <?php if ($actividad['ACTIVIDAD'] === 'Taller'): ?>
+                                                                <?php
+                                                                $fechaFinT = new DateTime($actividad['FECHA_FIN']);
+                                                                $finalizadoT = $fechaFinT < new DateTime();
+                                                                $encuestaT = $encuestasPorActividad[$actividad['ID_ACTIVIDAD_EDUCACION']] ?? null;
+                                                                ?>
                                                                 <tr>
                                                                     <td><?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?></td>
                                                                     <td>
@@ -306,15 +337,22 @@
                                                                     </td>
                                                                     <td><span class="badge bg-secondary"><?= $actividad['DURACION_HORAS'] ?>h</span></td>
                                                                     <td>
-                                                                        <?php 
-                                                                        $fechaFin = new DateTime($actividad['FECHA_FIN']);
-                                                                        $hoy = new DateTime();
-                                                                        if ($fechaFin >= $hoy) {
-                                                                            echo '<span class="badge bg-warning text-dark">Activo</span>';
-                                                                        } else {
-                                                                            echo '<span class="badge bg-secondary">Finalizado</span>';
-                                                                        }
-                                                                        ?>
+                                                                        <?php if ($finalizadoT): ?>
+                                                                            <span class="badge bg-secondary">Finalizado</span>
+                                                                        <?php else: ?>
+                                                                            <span class="badge bg-warning text-dark">Activo</span>
+                                                                        <?php endif; ?>
+                                                                    </td>
+                                                                    <td>
+                                                                        <?php if ($finalizadoT): ?>
+                                                                            <?php if ($encuestaT): ?>
+                                                                                <a href="<?= esc($encuestaT['ENLACE_FORMULARIO']) ?>" target="_blank" rel="noopener" class="btn btn-success btn-sm" title="Abrir encuesta"><i class="fas fa-external-link-alt"></i></a>
+                                                                            <?php else: ?>
+                                                                                <a href="<?= base_url('admin/actividades-educacion/ver/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-success btn-sm" title="Agregar encuesta de satisfacción"><i class="fas fa-plus"></i></a>
+                                                                            <?php endif; ?>
+                                                                        <?php else: ?>
+                                                                            <span class="text-muted small">—</span>
+                                                                        <?php endif; ?>
                                                                     </td>
                                                                     <td>
                                                                         <div class="btn-group btn-group-sm">
@@ -331,7 +369,7 @@
                                                         <?php endforeach; ?>
                                                     <?php else: ?>
                                                         <tr>
-                                                            <td colspan="8" class="text-center text-muted py-4">
+                                                            <td colspan="9" class="text-center text-muted py-4">
                                                                 <i class="fas fa-inbox fa-3x mb-3"></i>
                                                                 <p>No hay talleres registrados</p>
                                                             </td>
@@ -365,6 +403,7 @@
                                                         <th>Período</th>
                                                         <th>Duración</th>
                                                         <th>Estado</th>
+                                                        <th>Encuesta</th>
                                                         <th>Acciones</th>
                                                     </tr>
                                                 </thead>
@@ -372,6 +411,11 @@
                                                     <?php if (!empty($actividades)): ?>
                                                         <?php foreach ($actividades as $actividad): ?>
                                                             <?php if ($actividad['ACTIVIDAD'] === 'Seminario'): ?>
+                                                                <?php
+                                                                $fechaFinS = new DateTime($actividad['FECHA_FIN']);
+                                                                $finalizadoS = $fechaFinS < new DateTime();
+                                                                $encuestaS = $encuestasPorActividad[$actividad['ID_ACTIVIDAD_EDUCACION']] ?? null;
+                                                                ?>
                                                                 <tr>
                                                                     <td><?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?></td>
                                                                     <td>
@@ -394,15 +438,22 @@
                                                                     </td>
                                                                     <td><span class="badge bg-secondary"><?= $actividad['DURACION_HORAS'] ?>h</span></td>
                                                                     <td>
-                                                                        <?php 
-                                                                        $fechaFin = new DateTime($actividad['FECHA_FIN']);
-                                                                        $hoy = new DateTime();
-                                                                        if ($fechaFin >= $hoy) {
-                                                                            echo '<span class="badge bg-secondary">Programado</span>';
-                                                                        } else {
-                                                                            echo '<span class="badge bg-secondary">Finalizado</span>';
-                                                                        }
-                                                                        ?>
+                                                                        <?php if ($finalizadoS): ?>
+                                                                            <span class="badge bg-secondary">Finalizado</span>
+                                                                        <?php else: ?>
+                                                                            <span class="badge bg-secondary">Programado</span>
+                                                                        <?php endif; ?>
+                                                                    </td>
+                                                                    <td>
+                                                                        <?php if ($finalizadoS): ?>
+                                                                            <?php if ($encuestaS): ?>
+                                                                                <a href="<?= esc($encuestaS['ENLACE_FORMULARIO']) ?>" target="_blank" rel="noopener" class="btn btn-success btn-sm" title="Abrir encuesta"><i class="fas fa-external-link-alt"></i></a>
+                                                                            <?php else: ?>
+                                                                                <a href="<?= base_url('admin/actividades-educacion/ver/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-success btn-sm" title="Agregar encuesta de satisfacción"><i class="fas fa-plus"></i></a>
+                                                                            <?php endif; ?>
+                                                                        <?php else: ?>
+                                                                            <span class="text-muted small">—</span>
+                                                                        <?php endif; ?>
                                                                     </td>
                                                                     <td>
                                                                         <div class="btn-group btn-group-sm">
@@ -419,7 +470,7 @@
                                                         <?php endforeach; ?>
                                                     <?php else: ?>
                                                         <tr>
-                                                            <td colspan="8" class="text-center text-muted py-4">
+                                                            <td colspan="9" class="text-center text-muted py-4">
                                                                 <i class="fas fa-inbox fa-3x mb-3"></i>
                                                                 <p>No hay seminarios registrados</p>
                                                             </td>

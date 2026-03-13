@@ -1,5 +1,15 @@
 <?= $this->extend('admin/layouts/mainAdmin') ?>
-
+<?php
+$estadisticas = $estadisticas ?? [
+    'totalPracticas' => 0,
+    'practicasActivas' => 0,
+    'practicasFinalizadas' => 0,
+    'practicasPendientes' => 0
+];
+$practicasPreprofesionales = $practicasPreprofesionales ?? [];
+$serviciosComunitarios = $serviciosComunitarios ?? [];
+$seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
+?>
 <?= $this->section('styles') ?>
 <!-- CSS personalizado para prácticas -->
 <link rel="stylesheet" href="<?= base_url('sistema/assets/css/practicas.css') ?>" />

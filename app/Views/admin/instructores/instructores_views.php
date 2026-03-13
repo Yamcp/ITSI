@@ -35,22 +35,6 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #ffc107 80%, #b38600 100%); color: #fff; border: none;">
-                    <div class="card-body">
-                        <h2 class="card-title mb-2" id="actividadesActivas" style="font-size:2.5rem;">15</h2>
-                        <p class="card-text fw-bold" style="color: #e0e0e0;">Actividades Activas</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #dc3545 80%, #a71e2a 100%); color: #fff; border: none;">
-                    <div class="card-body">
-                        <h2 class="card-title mb-2" id="promedioEvaluacion" style="font-size:2.5rem;">4.8</h2>
-                        <p class="card-text fw-bold" style="color: #e0e0e0;">Promedio Evaluación</p>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- Acciones Rápidas -->

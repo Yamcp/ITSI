@@ -1,3 +1,18 @@
+<?php
+// Alerta: convenios por caducar (próximos 3 meses) - solo en área admin
+$conveniosPorCaducarAlerta = 0;
+if (session()->get('logged_in') && (int) session()->get('rol') === 1) {
+    try {
+        $db = \Config\Database::connect();
+        $hoy = date('Y-m-d');
+        $en3Meses = date('Y-m-d', strtotime('+3 months'));
+        $builder = $db->table('TAB_DETALLES_CONVENIOS');
+        $conveniosPorCaducarAlerta = $builder->where('FECHA_FIN >=', $hoy)->where('FECHA_FIN <=', $en3Meses)->countAllResults();
+    } catch (\Throwable $e) {
+        log_message('error', 'Layout admin - alerta convenios por caducar: ' . $e->getMessage());
+    }
+}
+?>
 <!-- app/Views/admin/layouts/mainAdmin.php -->
 <!DOCTYPE html>
 <html lang="es">
@@ -30,6 +45,20 @@
             <!-- Main Content -->
             <div id="layoutSidenav_content">
                 <main>
+                    <?php if ($conveniosPorCaducarAlerta > 0): ?>
+                    <div class="container-fluid px-3 px-md-4 pt-2">
+                        <div class="alert alert-warning alert-dismissible fade show mb-0 rounded-0 border-0 shadow-sm" role="alert" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #fff;">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+                                <div class="flex-grow-1">
+                                    <strong>Convenios por caducar:</strong> <?= $conveniosPorCaducarAlerta === 1 ? '1 convenio vence' : $conveniosPorCaducarAlerta . ' convenios vencen' ?> en los próximos 3 meses.
+                                    <a href="<?= base_url('admin/convenios') ?>" class="alert-link text-white text-decoration-underline fw-semibold ms-1">Ver convenios</a>
+                                </div>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                            </div>
+                        </div>
+                    </div>
+                    <?php endif; ?>
                     <div class="container-fluid">
                         <?= $this->renderSection('content') ?>
                     </div>

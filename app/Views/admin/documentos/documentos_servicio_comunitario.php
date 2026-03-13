@@ -389,7 +389,7 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Comentarios del Administrador</label>
+                        <label class="form-label">Comentarios del Coordinador</label>
                         <textarea class="form-control" name="comentarios_estado" rows="3" placeholder="Comentarios sobre el cambio de estado, correcciones necesarias, etc..."></textarea>
                     </div>
                 </form>

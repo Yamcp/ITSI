@@ -163,4 +163,31 @@ class PracticasPreprofesionalesModel extends Model
         
         return 0;
     }
+
+    /**
+     * Lista para vista admin "Prácticas Asignadas" con estudiante, carrera, institución e instructor.
+     * Conexión directa con TAB_PRACTICAS_PREPROFESIONALES y tablas relacionadas.
+     */
+    public function getListaParaAdmin()
+    {
+        $builder = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
+            ->select('
+                pp.*,
+                CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as ESTUDIANTE_NOMBRE,
+                c.NOMBRE as CARRERA_NOMBRE,
+                ic.NOMBRE as INSTITUCION_NOMBRE,
+                ti.INSTITUCION as TIPO_INSTITUCION,
+                CONCAT(dpi.NOMBRE, " ", dpi.APELLIDO) as INSTRUCTOR_NOMBRE
+            ')
+            ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = pp.ID_ESTUDIANTE')
+            ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+            ->join('TAB_CARRERAS c', 'c.ID_CARRERA = e.ID_CARRERA')
+            ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = pp.ID_INSTITUCION_CONVENIO')
+            ->join('TAB_TIPOS_INSTITUCION ti', 'ti.ID_TIPO_INSTITUCION = ic.ID_TIPO_INSTITUCION')
+            ->join('TAB_INSTRUCTORES i', 'i.ID_INSTRUCTOR = pp.ID_INSTRUCTOR', 'left')
+            ->join('TAB_DATOS_PERSONAS dpi', 'dpi.ID_DATO_PERSONA = i.ID_DATO_PERSONA', 'left')
+            ->orderBy('pp.ID_PRACTICA_PREPROFESIONAL', 'DESC');
+
+        return $builder->get()->getResultArray();
+    }
 }

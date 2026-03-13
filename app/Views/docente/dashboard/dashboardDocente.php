@@ -147,7 +147,7 @@ if (!$periodoNombreDashboard) {
 <?= $this->section('content') ?>
 <div class="body-wrapper dashboard-page">
     <div class="container-fluid px-3 px-md-4 pb-4">
-        <!-- Header del Dashboard (igual que Estudiante) -->
+        <!-- Header del Dashboard -->
         <div class="dashboard-header d-flex flex-wrap justify-content-between align-items-center gap-3">
             <div>
                 <h1 class="title-dash mb-1">
@@ -184,7 +184,7 @@ if (!$periodoNombreDashboard) {
             </div>
         </div>
 
-        <!-- Métricas (diseño igual que Estudiante) -->
+        <!-- Métricas -->
         <div class="row g-3 mb-4">
             <div class="col-md-3 col-sm-6">
                 <div class="card metric-card text-white" style="background: var(--gradient-actividades);">
@@ -217,61 +217,14 @@ if (!$periodoNombreDashboard) {
                             <i class="fas fa-users"></i>
                         </div>
                         <h3 class="mb-0"><?= $total_estudiantes ?? 0 ?></h3>
-                        <p class="metric-label mb-0">Total Estudiantes</p>
-                        <small class="metric-sub">Registrados</small>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card metric-card text-white" style="background: var(--gradient-active);">
-                    <div class="card-body">
-                        <div class="metric-icon mx-auto mb-2" style="background: rgba(255,255,255,0.25);">
-                            <i class="fas fa-star"></i>
-                        </div>
-                        <h3 class="mb-0">4.8</h3>
-                        <p class="metric-label mb-0">Calificación</p>
-                        <small class="metric-sub">Promedio</small>
+                        <p class="metric-label mb-0">Estudiantes Asignados</p>
+                        <small class="metric-sub">En prácticas</small>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Acciones rápidas (diseño igual que Estudiante) -->
-        <div class="card card-dash mb-4">
-            <div class="card-header">
-                <i class="fas fa-bolt me-2 text-warning"></i>Acciones rápidas
-            </div>
-            <div class="card-body p-3 p-md-4">
-                <div class="row g-3">
-                    <div class="col-md-3 col-6">
-                        <a href="<?= base_url('docente/educacion') ?>" class="btn btn-primary quick-action-btn w-100">
-                            <i class="fas fa-plus-circle"></i>
-                            <span>Nueva Actividad</span>
-                        </a>
-                    </div>
-                    <div class="col-md-3 col-6">
-                        <a href="<?= base_url('docente/actividades') ?>" class="quick-action-btn w-100 text-white" style="background: var(--gradient-active);">
-                            <i class="fas fa-list"></i>
-                            <span>Mis Actividades</span>
-                        </a>
-                    </div>
-                    <div class="col-md-3 col-6">
-                        <a href="<?= base_url('docente/estudiantes') ?>" class="btn btn-info quick-action-btn w-100 text-white">
-                            <i class="fas fa-users"></i>
-                            <span>Ver Estudiantes</span>
-                        </a>
-                    </div>
-                    <div class="col-md-3 col-6">
-                        <a href="<?= base_url('docente/perfil') ?>" class="btn btn-warning quick-action-btn w-100 text-dark">
-                            <i class="fas fa-user-edit"></i>
-                            <span>Mi Perfil</span>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Gráficas (diseño igual que Estudiante) -->
+        <!-- Gráfica -->
         <div class="row g-3 mb-4">
             <div class="col-lg-8">
                 <div class="card card-dash">

@@ -42,6 +42,27 @@ class DashboardDocenteController extends BaseController
                 ->where('ID_DATO_PERSONA', $usuario['ID_DATO_PERSONA'])
                 ->get()->getRowArray();
         }
+
+        // Estudiantes asignados a este docente (prácticas preprofesionales + servicio comunitario)
+        $estudiantesAsignados = 0;
+        if ($instructor) {
+            $idInstructor = (int) $instructor['ID_INSTRUCTOR'];
+            $idsPp = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES')
+                ->select('ID_ESTUDIANTE')
+                ->where('ID_INSTRUCTOR', $idInstructor)
+                ->get()
+                ->getResultArray();
+            $idsSc = $this->db->table('TAB_SERVICIO_COMUNITARIO')
+                ->select('ID_ESTUDIANTE')
+                ->where('ID_INSTRUCTOR', $idInstructor)
+                ->get()
+                ->getResultArray();
+            $todosIds = array_merge(
+                array_column($idsPp, 'ID_ESTUDIANTE'),
+                array_column($idsSc, 'ID_ESTUDIANTE')
+            );
+            $estudiantesAsignados = count(array_unique(array_filter($todosIds)));
+        }
         
         // Obtener estadísticas
         $data = [
@@ -49,7 +70,7 @@ class DashboardDocenteController extends BaseController
             'instructor' => $instructor,
             'total_actividades' => $instructor ? $this->actividadesModel->where('ID_INSTRUCTOR', $instructor['ID_INSTRUCTOR'])->countAllResults() : 0,
             'actividades_activas' => $instructor ? $this->actividadesModel->where('ID_INSTRUCTOR', $instructor['ID_INSTRUCTOR'])->where('ESTADO', '1')->countAllResults() : 0,
-            'total_estudiantes' => $this->estudiantesModel->countAllResults(),
+            'total_estudiantes' => $estudiantesAsignados,
         ];
 
         return view('docente/dashboard/dashboardDocente', $data);

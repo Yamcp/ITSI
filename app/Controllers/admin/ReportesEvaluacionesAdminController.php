@@ -51,7 +51,7 @@ class ReportesEvaluacionesAdminController extends BaseController
             // Configurar PDF
             $pdf = new \TCPDF('P', 'mm', 'A4', true, 'UTF-8', false);
             $pdf->SetCreator('Sistema ITSI');
-            $pdf->SetAuthor('Administrador');
+            $pdf->SetAuthor('Coordinador');
             $pdf->SetTitle('Reporte de Evaluaciones');
             $pdf->SetSubject('Reporte de Evaluaciones del Sistema');
             

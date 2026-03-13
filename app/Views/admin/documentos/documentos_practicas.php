@@ -1,297 +1,238 @@
 <?= $this->extend('admin/layouts/mainAdmin') ?>
 
 <?= $this->section('styles') ?>
-<!-- CSS personalizado para documentos de prácticas -->
-<link rel="stylesheet" href="<?= base_url('sistema/assets/css/documentos.css') ?>" />
+<link rel="stylesheet" href="<?= base_url('sistema/assets/css/practicas.css') ?>" />
 <style>
-    .documento-card {
-        transition: all 0.3s ease;
-        border-left: 4px solid #28a745;
-    }
-    .documento-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-    .estado-badge {
-        font-size: 0.75rem;
-        padding: 0.25rem 0.5rem;
-    }
-    .tipo-documento-header {
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        color: white;
-        border-radius: 8px 8px 0 0;
-    }
-    .filtros-rapidos {
-        background: #f8f9fa;
-        border-radius: 8px;
-        padding: 1rem;
-        margin-bottom: 1rem;
-    }
-    .estadistica-card {
-        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-        color: white;
-        border-radius: 10px;
-        transition: transform 0.3s ease;
-    }
-    .estadistica-card:hover {
-        transform: scale(1.05);
-    }
-    .table-responsive {
-        font-size: 0.9rem;
-    }
-    .text-truncate {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    .file-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 8px;
-        color: white;
-    }
-    .badge {
-        font-size: 0.75rem;
-        padding: 0.35em 0.65em;
-    }
-    .form-select option {
-        padding: 8px 12px;
-    }
-    .form-select option.text-success {
-        background-color: #d4edda;
-        color: #155724;
-    }
-    .form-select option.text-danger {
-        background-color: #f8d7da;
-        color: #721c24;
-    }
-    .form-select option.text-info {
-        background-color: #d1ecf1;
-        color: #0c5460;
-    }
-    .form-select option.text-warning {
-        background-color: #fff3cd;
-        color: #856404;
-    }
-    .form-select option.text-secondary {
-        background-color: #e2e3e5;
-        color: #383d41;
-    }
+    .text-truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .estado-badge { font-size: 0.75rem; padding: 0.25rem 0.5rem; }
 </style>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
 <div class="body-wrapper">
     <div class="container-fluid">
+        <!-- Volver a Prácticas Asignadas -->
+        <div class="row mb-2">
+            <div class="col-12">
+                <a href="<?= base_url('admin/practicas') ?>" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Volver a Prácticas Asignadas
+                </a>
+            </div>
+        </div>
         <!-- Header -->
         <div class="row">
             <div class="col-12">
                 <h3 class="text-center my-3">
-                    <i class="fas fa-briefcase me-2"></i>
-                    Gestión de Documentos de Prácticas Preprofesionales
+                    <i class="fas fa-folder-open me-2"></i>
+                    Documentos - Prácticas Preprofesionales
                 </h3>
             </div>
         </div>
 
-        <!-- Estadísticas Generales -->
+        <!-- Estadísticas -->
         <div class="row mb-4">
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); border: none; border-radius: 10px;">
+            <div class="col-md-3 col-sm-6">
+                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #007bff 80%, #0056b3 100%); color: #fff; border: none;">
                     <div class="card-body">
-                        <h2 class="card-title mb-2" id="Aprobados" style="font-size:2.5rem; color: #fff; text-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);"><?= $estadisticas['Aprobados'] ?></h2>
-                        <p class="card-text fw-bold" style="color: #fff;">Aprobados</p>
+                        <h2 class="card-title mb-2" id="Pendientes" style="font-size:2.5rem;"><?= $estadisticas['pendientes'] ?? 0 ?></h2>
+                        <p class="card-text fw-bold" style="color: #e0e0e0;">Pendientes</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); border: none; border-radius: 10px;">
+            <div class="col-md-3 col-sm-6">
+                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #28a745 80%, #155724 100%); color: #fff; border: none;">
                     <div class="card-body">
-                        <h2 class="card-title mb-2" id="Pendientes" style="font-size:2.5rem; color: #fff; text-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);"><?= $estadisticas['pendientes'] ?? 0 ?></h2>
-                        <p class="card-text fw-bold" style="color: #fff;">Pendientes</p>
+                        <h2 class="card-title mb-2" id="Aprobados" style="font-size:2.5rem;"><?= $estadisticas['Aprobados'] ?? 0 ?></h2>
+                        <p class="card-text fw-bold" style="color: #e0e0e0;">Aprobados</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); border: none; border-radius: 10px;">
+            <div class="col-md-3 col-sm-6">
+                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #ffc107 80%, #b38600 100%); color: #fff; border: none;">
                     <div class="card-body">
-                        <h2 class="card-title mb-2" id="RequiereCorreccion" style="font-size:2.5rem; color: #fff; text-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);"><?= $estadisticas['requiere_correccion'] ?? 0 ?></h2>
-                        <p class="card-text fw-bold" style="color: #fff;">Requiere Corrección</p>
+                        <h2 class="card-title mb-2" id="RequiereCorreccion" style="font-size:2.5rem;"><?= $estadisticas['requiere_correccion'] ?? 0 ?></h2>
+                        <p class="card-text fw-bold" style="color: #fffbe6;">Requiere Corrección</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); border: none; border-radius: 10px;">
+            <div class="col-md-3 col-sm-6">
+                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #dc3545 80%, #c82333 100%); color: #fff; border: none;">
                     <div class="card-body">
-                        <h2 class="card-title mb-2" id="Rechazados" style="font-size:2.5rem; color: #fff; text-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);"><?= $estadisticas['rechazados'] ?? 0 ?></h2>
-                        <p class="card-text fw-bold" style="color: #fff;">Rechazados</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Filtros Rápidos -->
-        <div class="filtros-rapidos">
-            <div class="row align-items-center">
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Filtrar por Estado:</label>
-                    <select class="form-select" id="filtroEstado" onchange="aplicarFiltros()">
-                        <option value="">Todos los estados</option>
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="En Revisión">En Revisión</option>
-                        <option value="Aprobado">Aprobado</option>
-                        <option value="Rechazado">Rechazado</option>
-                        <option value="Requiere Corrección">Requiere Corrección</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Filtrar por Tipo:</label>
-                    <select class="form-select" id="filtroTipo" onchange="aplicarFiltros()">
-                        <option value="">Todos los tipos</option>
-                        <?php if (isset($tiposDocumentos)): ?>
-                            <?php foreach ($tiposDocumentos as $tipo): ?>
-                                <option value="<?= $tipo['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?>"><?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?></option>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Buscar Estudiante:</label>
-                    <input type="text" class="form-control" id="buscarEstudiante" placeholder="Nombre o cédula..." onkeyup="aplicarFiltros()">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">&nbsp;</label>
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-outline-secondary" onclick="limpiarFiltros()">
-                            <i class="fas fa-times me-1"></i>Limpiar
-                        </button>
-                        <button class="btn btn-primary" onclick="generarReportePracticas()">
-                            <i class="fas fa-download me-1"></i>Exportar
-                        </button>
+                        <h2 class="card-title mb-2" id="Rechazados" style="font-size:2.5rem;"><?= $estadisticas['rechazados'] ?? 0 ?></h2>
+                        <p class="card-text fw-bold" style="color: #ffe0e0;">Rechazados</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Acciones Rápidas -->
-        <div class="row mb-4 justify-content-center">
-            <div class="col-md-2 col-sm-6 mb-3">
+        <div class="row mb-4">
+            <div class="col-md-3 col-sm-6 mb-3">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="showModal('modalSubirDocumentoPractica')" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-cloud-upload-alt fa-2x mb-2" style="color: #28a745;"></i>
+                            <i class="fas fa-cloud-upload-alt fa-2x mb-2" style="color: #28a745; text-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);"></i>
                             <div class="fw-bold">Nuevo Documento</div>
                         </a>
                     </div>
                 </div>
             </div>
-            <div class="col-md-2 col-sm-6 mb-3">
+            <div class="col-md-3 col-sm-6 mb-3">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="revisionMasiva()" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-tasks fa-2x mb-2" style="color: #007bff;"></i>
+                            <i class="fas fa-tasks fa-2x mb-2" style="color: #007bff; text-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);"></i>
                             <div class="fw-bold">Revisión Masiva</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card text-center shadow-sm h-100" style="border: none;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                        <a href="#" onclick="generarReportePracticas()" style="text-decoration: none; color: inherit;">
+                            <i class="fas fa-chart-bar fa-2x mb-2" style="color: #ffc107; text-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);"></i>
+                            <div class="fw-bold">Generar Reporte</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card text-center shadow-sm h-100" style="border: none;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                        <a href="<?= base_url('admin/documentos/practicas/reportes') ?>" style="text-decoration: none; color: inherit;">
+                            <i class="fas fa-download fa-2x mb-2" style="color: #dc3545; text-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);"></i>
+                            <div class="fw-bold">Exportar Datos</div>
                         </a>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Código QR - Formatos Prácticas Preprofesionales -->
-        <div class="row mb-4">
+        <!-- Tabs -->
+        <div class="row">
             <div class="col-12">
-                <div class="card shadow-sm">
-                    <div class="card-header tipo-documento-header">
-                        <h5 class="mb-0">
-                            <i class="fas fa-qrcode me-2"></i>
-                            Código QR – Formatos Prácticas Preprofesionales
-                        </h5>
-                        <small class="opacity-75">Esta imagen se muestra en el perfil del estudiante (Formatos - Prácticas Laborales).</small>
-                    </div>
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-md-4 text-center">
-                                <p class="text-muted small mb-2">Vista previa actual</p>
-                                <img id="previewQrPracticas" src="<?= esc($qr_practicas_url ?? base_url('sistema/assets/images/practicas/formatos-practicas-laborales-qr.png')) ?>" alt="QR Prácticas" class="img-fluid rounded border" style="max-height: 200px;" />
-                            </div>
-                            <div class="col-md-8">
-                                <form id="formQrPracticas" enctype="multipart/form-data">
-                                    <div class="mb-3">
-                                        <label class="form-label fw-bold">Subir nueva imagen del código QR</label>
-                                        <input type="file" class="form-control" name="qr_imagen" id="qrImagenPracticas" accept="image/png,image/jpeg,image/jpg" />
-                                        <div class="form-text">PNG o JPG. Se mostrará en la sección Formatos del estudiante.</div>
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body pb-0">
+                        <ul class="nav nav-tabs nav-justified rounded-pill bg-light px-2 py-1" id="documentosTabs" role="tablist" style="gap: 0.5rem;">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active rounded-pill fw-semibold text-primary" id="documentos-tipo-tab" data-bs-toggle="tab" data-bs-target="#documentos-por-tipo" type="button" role="tab" aria-selected="true">
+                                    <i class="fas fa-folder-open me-2"></i>Documentos por tipo
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link rounded-pill fw-semibold text-success" id="formatos-qr-tab" data-bs-toggle="tab" data-bs-target="#formatos-qr" type="button" role="tab" aria-selected="false">
+                                    <i class="fas fa-qrcode me-2"></i>Formatos y QR
+                                </button>
+                            </li>
+                        </ul>
+                        <hr class="mt-0 mb-2" style="border-top: 2px solid #e3e6f0;">
+
+                        <div class="tab-content mt-3" id="documentosTabContent">
+                            <!-- Pestaña: Documentos por tipo -->
+                            <div class="tab-pane fade show active" id="documentos-por-tipo" role="tabpanel">
+                                <!-- Filtros rápidos (colapsables visualmente alineados con card) -->
+                                <div class="card shadow-sm border-0 mb-3">
+                                    <div class="card-header bg-light d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                        <span class="fw-semibold"><i class="fas fa-filter me-1"></i>Filtros</span>
+                                        <div class="d-flex flex-wrap gap-2 align-items-center">
+                                            <select class="form-select form-select-sm" id="filtroEstado" onchange="aplicarFiltros()" style="width: auto;">
+                                                <option value="">Todos los estados</option>
+                                                <option value="Pendiente">Pendiente</option>
+                                                <option value="En Revisión">En Revisión</option>
+                                                <option value="Aprobado">Aprobado</option>
+                                                <option value="Rechazado">Rechazado</option>
+                                                <option value="Requiere Corrección">Requiere Corrección</option>
+                                            </select>
+                                            <select class="form-select form-select-sm" id="filtroTipo" onchange="aplicarFiltros()" style="width: auto;">
+                                                <option value="">Todos los tipos</option>
+                                                <?php if (isset($tiposDocumentos)): ?>
+                                                    <?php foreach ($tiposDocumentos as $tipo): ?>
+                                                        <option value="<?= $tipo['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?>"><?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?></option>
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
+                                            </select>
+                                            <input type="text" class="form-control form-control-sm" id="buscarEstudiante" placeholder="Estudiante o cédula..." onkeyup="aplicarFiltros()" style="width: 180px;">
+                                            <button class="btn btn-outline-secondary btn-sm" onclick="limpiarFiltros()"><i class="fas fa-times me-1"></i>Limpiar</button>
+                                            <button class="btn btn-light btn-sm" onclick="showModal('modalFiltrosPracticas')"><i class="fas fa-sliders-h me-1"></i>Más filtros</button>
+                                        </div>
                                     </div>
-                                    <button type="submit" class="btn btn-success" id="btnSubirQrPracticas">
-                                        <i class="fas fa-upload me-1"></i> Actualizar QR
-                                    </button>
-                                </form>
+                                </div>
+                                <!-- Tablas por tipo -->
+                                <div id="vistaGrid">
+                                    <?php if (!empty($tiposDocumentos)): ?>
+                                        <?php foreach ($tiposDocumentos as $tipo): ?>
+                                            <div class="card shadow-sm border-0 mb-4">
+                                                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                                                    <span><i class="fas fa-file-alt me-2"></i><?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?></span>
+                                                    <span class="badge bg-light text-dark"><?= $tipo['OBLIGATORIO'] ? 'Obligatorio' : 'Opcional' ?></span>
+                                                </div>
+                                                <div class="card-body p-0">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-striped align-middle mb-0" id="tabla-<?= $tipo['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?>">
+                                                            <thead class="table-light">
+                                                                <tr>
+                                                                    <th>#</th>
+                                                                    <th>Estudiante</th>
+                                                                    <th>Cédula</th>
+                                                                    <th>Entidad Receptora</th>
+                                                                    <th>Archivo</th>
+                                                                    <th>Estado</th>
+                                                                    <th>Fecha</th>
+                                                                    <th>Acciones</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="documentos-<?= $tipo['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?>"></tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <div class="card shadow-sm border-0">
+                                            <div class="card-body text-center py-4">
+                                                <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
+                                                <p class="text-muted mb-0">No hay tipos de documentos configurados</p>
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <!-- Pestaña: Formatos y QR -->
+                            <div class="tab-pane fade" id="formatos-qr" role="tabpanel">
+                                <div class="card shadow-sm border-0">
+                                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                                        <span><i class="fas fa-qrcode me-2"></i>Código QR – Formatos Prácticas Preprofesionales</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="text-muted small mb-3">Esta imagen se muestra en el perfil del estudiante (Formatos - Prácticas Laborales).</p>
+                                        <div class="row align-items-center">
+                                            <div class="col-md-4 text-center">
+                                                <p class="text-muted small mb-2">Vista previa actual</p>
+                                                <img id="previewQrPracticas" src="<?= esc($qr_practicas_url ?? base_url('sistema/assets/images/practicas/formatos-practicas-laborales-qr.png')) ?>" alt="QR Prácticas" class="img-fluid rounded border" style="max-height: 200px;" />
+                                            </div>
+                                            <div class="col-md-8">
+                                                <form id="formQrPracticas" enctype="multipart/form-data">
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-bold">Subir nueva imagen del código QR</label>
+                                                        <input type="file" class="form-control" name="qr_imagen" id="qrImagenPracticas" accept="image/png,image/jpeg,image/jpg" />
+                                                        <div class="form-text">PNG o JPG. Se mostrará en la sección Formatos del estudiante.</div>
+                                                    </div>
+                                                    <button type="submit" class="btn btn-success" id="btnSubirQrPracticas">
+                                                        <i class="fas fa-upload me-1"></i> Actualizar QR
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-        <!-- Tablas de Documentos por Tipo -->
-        <div id="vistaGrid">
-            <?php if (!empty($tiposDocumentos)): ?>
-                <?php foreach ($tiposDocumentos as $tipo): ?>
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <div class="card shadow-sm">
-                                <div class="tipo-documento-header p-3">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h5 class="mb-1">
-                                                <i class="fas fa-table me-2"></i>
-                                                <?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?>
-                                            </h5>
-                                            <small class="opacity-75"><?= $tipo['DESCRIPCION'] ?></small>
-                                        </div>
-                                        <div class="text-end">
-                                            <span class="badge bg-light text-dark">
-                                                <?= $tipo['OBLIGATORIO'] ? 'Obligatorio' : 'Opcional' ?>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="card-body p-0">
-                                    <div class="table-responsive">
-                                        <table class="table table-hover mb-0" id="tabla-<?= $tipo['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?>">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th width="5%">#</th>
-                                                    <th width="20%">Estudiante</th>
-                                                    <th width="15%">Cédula</th>
-                                                    <th width="20%">Entidad Receptora</th>
-                                                    <th width="15%">Archivo</th>
-                                                    <th width="10%">Estado</th>
-                                                    <th width="10%">Fecha</th>
-                                                    <th width="15%">Acciones</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="documentos-<?= $tipo['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?>">
-                                                <!-- Los documentos de este tipo se cargarán aquí -->
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <div class="row">
-                    <div class="col-12 text-center">
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            No hay tipos de documentos configurados
-                        </div>
-                    </div>
-                </div>
-            <?php endif; ?>
-        </div>
-        
     </div>
 </div>
 
@@ -465,7 +406,7 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Comentarios del Administrador</label>
+                        <label class="form-label">Comentarios del Coordinador</label>
                         <textarea class="form-control" name="comentarios_estado" rows="3" placeholder="Comentarios sobre el cambio de estado, correcciones necesarias, etc..."></textarea>
                     </div>
                 </form>

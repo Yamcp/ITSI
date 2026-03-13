@@ -1,525 +1,30 @@
 <!-- app/Views/admin/backup/backup.php -->
 <?= $this->extend('admin/layouts/mainAdmin') ?>
 
+<?php
+$exportaciones = $exportaciones ?? [];
+$totalBackups = count($exportaciones);
+$hace30dias = date('Y-m-d', strtotime('-30 days'));
+$hace7dias = date('Y-m-d', strtotime('-7 days'));
+$esteMes = 0;
+$estaSemana = 0;
+foreach ($exportaciones as $exp) {
+    $f = $exp['FECHA_EXPORTACION'] ?? '';
+    if ($f >= $hace30dias) $esteMes++;
+    if ($f >= $hace7dias) $estaSemana++;
+}
+$estadisticas = [
+    'total' => $totalBackups,
+    'completados' => $totalBackups,
+    'este_mes' => $esteMes,
+    'esta_semana' => $estaSemana
+];
+?>
 <?= $this->section('styles') ?>
 <style>
-    /* Variables CSS para consistencia */
-    :root {
-        --primary-color: #2563eb;
-        --primary-hover: #1d4ed8;
-        --success-color: #059669;
-        --warning-color: #d97706;
-        --danger-color: #dc2626;
-        --info-color: #0891b2;
-        --gray-50: #f9fafb;
-        --gray-100: #f3f4f6;
-        --gray-200: #e5e7eb;
-        --gray-300: #d1d5db;
-        --gray-400: #9ca3af;
-        --gray-500: #6b7280;
-        --gray-600: #4b5563;
-        --gray-700: #374151;
-        --gray-800: #1f2937;
-        --gray-900: #111827;
-        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        --border-radius: 0.75rem;
-        --border-radius-lg: 1rem;
-        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
-
-    /* Mejoras de accesibilidad */
-    * {
-        box-sizing: border-box;
-    }
-
-    /* Focus visible para mejor accesibilidad */
-    .btn:focus-visible,
-    .form-control:focus-visible,
-    .form-select:focus-visible,
-    .action-card:focus-visible {
-        outline: 2px solid var(--primary-color);
-        outline-offset: 2px;
-        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
-    }
-
-    /* Header mejorado */
-    .backup-header {
-        background: linear-gradient(135deg, var(--primary-color) 0%, #1e40af 100%);
-        color: white;
-        border-radius: var(--border-radius-lg);
-        padding: 2.5rem;
-        margin-bottom: 2rem;
-        box-shadow: var(--shadow-xl);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .backup-header::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-        pointer-events: none;
-    }
-
-    .backup-header h1 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin: 0;
-        position: relative;
-        z-index: 1;
-    }
-
-    .backup-header p {
-        font-size: 1.125rem;
-        opacity: 0.9;
-        margin: 0.5rem 0 0 0;
-        position: relative;
-        z-index: 1;
-    }
-
-    /* Tarjetas de acción mejoradas */
-    .action-card {
-        border: none;
-        border-radius: var(--border-radius-lg);
-        box-shadow: var(--shadow-md);
-        transition: var(--transition);
-        cursor: pointer;
-        background: white;
-        position: relative;
-        overflow: hidden;
-        min-height: 140px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-        color: inherit;
-    }
-
-    .action-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.1) 100%);
-        opacity: 0;
-        transition: var(--transition);
-    }
-
-    .action-card:hover,
-    .action-card:focus {
-        box-shadow: var(--shadow-xl);
-        transform: translateY(-4px);
-        text-decoration: none;
-        color: inherit;
-    }
-
-    .action-card:hover::before,
-    .action-card:focus::before {
-        opacity: 1;
-    }
-
-    .action-card:active {
-        transform: translateY(-2px);
-    }
-
-    .action-card .card-body {
-        text-align: center;
-        padding: 1.5rem;
-        position: relative;
-        z-index: 1;
-    }
-
-    .action-card i {
-        font-size: 2.5rem;
-        margin-bottom: 1rem;
-        display: block;
-    }
-
-    .action-card .fw-bold {
-        font-size: 1.125rem;
-        margin-bottom: 0.5rem;
-    }
-
-    .action-card small {
-        font-size: 0.875rem;
-        opacity: 0.7;
-    }
-
-    /* Tabla mejorada */
-    .backup-table {
-        border-radius: var(--border-radius-lg);
-        overflow: hidden;
-        box-shadow: var(--shadow-lg);
-        background: white;
-    }
-
-    .backup-table .table {
-        margin-bottom: 0;
-        border-collapse: separate;
-        border-spacing: 0;
-    }
-
-    .backup-table .table thead th {
-        background: linear-gradient(135deg, var(--primary-color) 0%, #1e40af 100%);
-        color: white;
-        border: none;
-        font-weight: 600;
-        padding: 1.25rem 1rem;
-        font-size: 0.875rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        position: relative;
-    }
-
-    .backup-table .table thead th:first-child {
-        border-top-left-radius: var(--border-radius-lg);
-    }
-
-    .backup-table .table thead th:last-child {
-        border-top-right-radius: var(--border-radius-lg);
-    }
-
-    .backup-table .table tbody tr {
-        transition: var(--transition);
-        border-bottom: 1px solid var(--gray-100);
-    }
-
-    .backup-table .table tbody tr:hover {
-        background-color: var(--gray-50);
-        transform: none;
-    }
-
-    .backup-table .table tbody tr:last-child td:first-child {
-        border-bottom-left-radius: var(--border-radius-lg);
-    }
-
-    .backup-table .table tbody tr:last-child td:last-child {
-        border-bottom-right-radius: var(--border-radius-lg);
-    }
-
-    .backup-table .table td {
-        padding: 1rem;
-        vertical-align: middle;
-        border: none;
-    }
-
-    /* Botones mejorados */
-    .btn-modern {
-        border-radius: var(--border-radius);
-        padding: 0.75rem 1.5rem;
-        font-weight: 600;
-        transition: var(--transition);
-        border: none;
-        font-size: 0.875rem;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        text-decoration: none;
-    }
-
-    .btn-modern:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--shadow-lg);
-        text-decoration: none;
-    }
-
-    .btn-modern:active {
-        transform: translateY(0);
-    }
-
-    .btn-modern:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-        transform: none;
-    }
-
-    /* Badges mejorados */
-    .badge-modern {
-        border-radius: 9999px;
-        padding: 0.5rem 1rem;
-        font-weight: 500;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-    }
-
-    /* Estado vacío mejorado */
-    .empty-state {
-        text-align: center;
-        padding: 4rem 2rem;
-        color: var(--gray-500);
-    }
-
-    .empty-state i {
-        font-size: 4rem;
-        margin-bottom: 1.5rem;
-        color: var(--gray-300);
-        display: block;
-    }
-
-    .empty-state h5 {
-        font-size: 1.5rem;
-        font-weight: 600;
-        margin-bottom: 1rem;
-        color: var(--gray-700);
-    }
-
-    .empty-state p {
-        font-size: 1rem;
-        margin-bottom: 2rem;
-        max-width: 400px;
-        margin-left: auto;
-        margin-right: auto;
-    }
-
-    /* Modales mejorados */
-    .modal {
-        z-index: 1055;
-    }
-
-    .modal-backdrop {
-        z-index: 1050;
-        background-color: rgba(0, 0, 0, 0.6);
-    }
-
-    .modal.show {
-        display: block !important;
-    }
-
-    .modal.fade .modal-dialog {
-        transition: transform 0.3s ease-out, opacity 0.3s ease-out;
-        transform: translate(0, -50px);
-        opacity: 0;
-    }
-
-    .modal.show .modal-dialog {
-        transform: none;
-        opacity: 1;
-    }
-
-    .modal-content {
-        border: none;
-        border-radius: var(--border-radius-lg);
-        box-shadow: var(--shadow-xl);
-    }
-
-    .modal-header {
-        border-bottom: 1px solid var(--gray-200);
-        border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
-        padding: 1.5rem;
-    }
-
-    .modal-body {
-        padding: 2rem;
-    }
-
-    .modal-footer {
-        border-top: 1px solid var(--gray-200);
-        border-radius: 0 0 var(--border-radius-lg) var(--border-radius-lg);
-        padding: 1.5rem;
-    }
-
-    /* Formularios mejorados */
-    .form-control,
-    .form-select {
-        border: 2px solid var(--gray-200);
-        border-radius: var(--border-radius);
-        padding: 0.75rem 1rem;
-        transition: var(--transition);
-        font-size: 0.875rem;
-    }
-
-    .form-control:focus,
-    .form-select:focus {
-        border-color: var(--primary-color);
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        outline: none;
-    }
-
-    .form-label {
-        font-weight: 600;
-        color: var(--gray-700);
-        margin-bottom: 0.5rem;
-        font-size: 0.875rem;
-    }
-
-    /* Alertas mejoradas */
-    .alert {
-        border: none;
-        border-radius: var(--border-radius);
-        padding: 1rem 1.25rem;
-        border-left: 4px solid;
-    }
-
-    .alert-info {
-        background-color: #eff6ff;
-        border-left-color: var(--info-color);
-        color: #1e40af;
-    }
-
-    /* Progress bars mejoradas */
-    .progress {
-        height: 0.75rem;
-        border-radius: 9999px;
-        background-color: var(--gray-200);
-    }
-
-    .progress-bar {
-        border-radius: 9999px;
-        transition: width 0.6s ease;
-    }
-
-    /* Responsive design */
-    @media (max-width: 768px) {
-        .backup-header {
-            padding: 1.5rem;
-            text-align: center;
-        }
-
-        .backup-header h1 {
-            font-size: 2rem;
-        }
-
-        .action-card {
-            min-height: 120px;
-        }
-
-        .action-card i {
-            font-size: 2rem;
-        }
-
-        .backup-table .table thead th,
-        .backup-table .table td {
-            padding: 0.75rem 0.5rem;
-            font-size: 0.8rem;
-        }
-
-        .modal-body {
-            padding: 1.5rem;
-        }
-
-        .btn-group-sm .btn {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.75rem;
-        }
-    }
-
-    @media (max-width: 576px) {
-        .backup-header {
-            padding: 1rem;
-        }
-
-        .backup-header h1 {
-            font-size: 1.75rem;
-        }
-
-        .action-card {
-            min-height: 100px;
-        }
-
-        .action-card i {
-            font-size: 1.75rem;
-        }
-
-        .action-card .fw-bold {
-            font-size: 1rem;
-        }
-
-        .empty-state {
-            padding: 2rem 1rem;
-        }
-
-        .empty-state i {
-            font-size: 3rem;
-        }
-    }
-
-    /* Animaciones de carga */
-    .loading-spinner {
-        display: inline-block;
-        width: 1rem;
-        height: 1rem;
-        border: 2px solid transparent;
-        border-top: 2px solid currentColor;
-        border-radius: 50%;
-        animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-        0% {
-            transform: rotate(0deg);
-        }
-
-        100% {
-            transform: rotate(360deg);
-        }
-    }
-
-    /* Estados de accesibilidad */
-    .sr-only {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        white-space: nowrap;
-        border: 0;
-    }
-
-    .sr-only-focusable:focus {
-        position: static;
-        width: auto;
-        height: auto;
-        padding: 0.5rem 1rem;
-        margin: 0;
-        overflow: visible;
-        clip: auto;
-        white-space: normal;
-        background-color: var(--primary-color);
-        color: white;
-        text-decoration: none;
-        border-radius: var(--border-radius);
-        box-shadow: var(--shadow-lg);
-    }
-
-    /* Mejoras para usuarios con preferencias de movimiento reducido */
-    @media (prefers-reduced-motion: reduce) {
-
-        *,
-        *::before,
-        *::after {
-            animation-duration: 0.01ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: 0.01ms !important;
-        }
-    }
-
-    /* Mejoras para modo oscuro */
-    @media (prefers-color-scheme: dark) {
-        :root {
-            --gray-50: #1f2937;
-            --gray-100: #374151;
-            --gray-200: #4b5563;
-            --gray-300: #6b7280;
-            --gray-400: #9ca3af;
-            --gray-500: #d1d5db;
-            --gray-600: #e5e7eb;
-            --gray-700: #f3f4f6;
-            --gray-800: #f9fafb;
-            --gray-900: #ffffff;
-        }
-    }
+    .loading-spinner { display: inline-block; width: 1rem; height: 1rem; border: 2px solid transparent; border-top: 2px solid currentColor; border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 </style>
 <?= $this->endSection() ?>
 
@@ -750,111 +255,93 @@
 
 <div class="body-wrapper">
     <div class="container-fluid">
-        <!-- Header del Backup -->
-        <header class="backup-header" role="banner">
-            <div class="row">
-                <div class="col-12">
-                    <h1 class="text-center mb-0">
-                        <i class="fas fa-database me-2" aria-hidden="true"></i>
-                        Gestión de Backups
-                    </h1>
-                    <p class="text-center mt-2">
-                        Administra y protege la información del sistema con respaldos seguros
-                    </p>
-                </div>
-            </div>
-        </header>
-
-        <!-- Acciones Rápidas -->
-        <section class="mb-4" aria-labelledby="acciones-rapidas">
-            <h2 id="acciones-rapidas" class="sr-only">Acciones Rápidas</h2>
-            <div class="row justify-content-center">
-                <div class="col-md-3 col-sm-6 mb-3">
-                    <button class="card text-center shadow-sm action-card h-100 w-100"
-                        onclick="showModal('modalNuevoBackup')"
-                        aria-label="Generar nuevo backup del sistema"
-                        role="button"
-                        tabindex="0">
-                        <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                            <i class="fas fa-plus-circle fa-2x mb-3 text-primary" aria-hidden="true"></i>
-                            <div class="fw-bold text-primary">Generar Backup</div>
-                            <small class="text-muted">Crear nuevo respaldo del sistema</small>
-                        </div>
-                    </button>
-                </div>
-                <div class="col-md-3 col-sm-6 mb-3">
-                    <button class="card text-center shadow-sm action-card h-100 w-100"
-                        onclick="showModal('modalConfiguracion')"
-                        aria-label="Configurar parámetros de backup"
-                        role="button"
-                        tabindex="0">
-                        <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                            <i class="fas fa-cog fa-2x mb-3 text-warning" aria-hidden="true"></i>
-                            <div class="fw-bold text-warning">Configuración</div>
-                            <small class="text-muted">Ajustar parámetros de backup</small>
-                        </div>
-                    </button>
-                </div>
-                <div class="col-md-3 col-sm-6 mb-3">
-                    <button class="card text-center shadow-sm action-card h-100 w-100"
-                        onclick="exportarHistorial()"
-                        aria-label="Exportar historial de backups"
-                        role="button"
-                        tabindex="0">
-                        <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                            <i class="fas fa-download fa-2x mb-3 text-success" aria-hidden="true"></i>
-                            <div class="fw-bold text-success">Exportar Historial</div>
-                            <small class="text-muted">Descargar registro de backups</small>
-                        </div>
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Tabla de Backups -->
-        <section class="row" aria-labelledby="historial-backups">
+        <!-- Header de Backups (igual que Convenios) -->
+        <div class="row">
             <div class="col-12">
-                <div class="card backup-table">
+                <h3 class="text-center my-3">
+                    <i class="fas fa-database me-2"></i>
+                    Gestión de Backups
+                </h3>
+            </div>
+        </div>
+
+        <!-- Acciones Rápidas en Tarjetas -->
+        <div class="row mb-4">
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card text-center shadow-sm h-100" style="border: none;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                        <a href="#" onclick="showModal('modalNuevoBackup'); return false;" style="text-decoration: none; color: inherit;">
+                            <i class="fas fa-plus-circle fa-2x mb-2" style="color: #28a745; text-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);"></i>
+                            <div class="fw-bold">Generar Backup</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card text-center shadow-sm h-100" style="border: none;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                        <a href="#" onclick="showModal('modalConfiguracion'); return false;" style="text-decoration: none; color: inherit;">
+                            <i class="fas fa-cog fa-2x mb-2" style="color: #007bff; text-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);"></i>
+                            <div class="fw-bold">Configuración</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card text-center shadow-sm h-100" style="border: none;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                        <a href="#" onclick="exportarHistorial(); return false;" style="text-decoration: none; color: inherit;">
+                            <i class="fas fa-download fa-2x mb-2" style="color: #ffc107; text-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);"></i>
+                            <div class="fw-bold">Exportar Historial</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card text-center shadow-sm h-100" style="border: none;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                        <a href="#" onclick="showModal('modalFiltros'); return false;" style="text-decoration: none; color: inherit;">
+                            <i class="fas fa-filter fa-2x mb-2" style="color: #17a2b8; text-shadow: 0 2px 4px rgba(23, 162, 184, 0.3);"></i>
+                            <div class="fw-bold">Filtros</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <!-- Tabla de Backups -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow-sm border-0">
                     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                        <h2 id="historial-backups" class="mb-0">
-                            <i class="fas fa-history me-2" aria-hidden="true"></i>
+                        <span>
+                            <i class="fas fa-history me-2"></i>
                             Historial de Backups
-                        </h2>
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-light btn-sm btn-modern"
-                                onclick="limpiarFiltros()"
-                                aria-label="Limpiar filtros aplicados">
-                                <i class="fas fa-eraser me-1" aria-hidden="true"></i>Limpiar
-                            </button>
-                            <button class="btn btn-light btn-sm btn-modern"
-                                onclick="showModal('modalFiltros')"
-                                aria-label="Aplicar filtros de búsqueda">
-                                <i class="fas fa-filter me-1" aria-hidden="true"></i>Filtros
-                            </button>
-                        </div>
+                        </span>
+                        <button class="btn btn-light btn-sm" onclick="showModal('modalFiltros')">
+                            <i class="fas fa-filter me-1"></i>Filtros
+                        </button>
                     </div>
                     <div class="card-body p-0">
                         <?php if (isset($exportaciones) && !empty($exportaciones)): ?>
                             <div class="table-responsive">
-                                <table class="table table-striped align-middle mb-0"
-                                    role="table"
-                                    aria-label="Lista de backups del sistema">
-                                    <thead>
-                                        <tr role="row">
-                                            <th scope="col" role="columnheader">#</th>
-                                            <th scope="col" role="columnheader">Usuario</th>
-                                            <th scope="col" role="columnheader">Fecha y Hora</th>
-                                            <th scope="col" role="columnheader">Descripción</th>
-                                            <th scope="col" role="columnheader">Estado</th>
-                                            <th scope="col" role="columnheader">Tipo</th>
-                                            <th scope="col" role="columnheader">Acciones</th>
+                                <table class="table table-striped align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Usuario</th>
+                                            <th>Fecha y Hora</th>
+                                            <th>Descripción</th>
+                                            <th>Estado</th>
+                                            <th>Tipo</th>
+                                            <th>Acciones</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <?php foreach ($exportaciones as $index => $backup): ?>
                                             <tr role="row">
                                                 <td role="cell">
-                                                    <span class="badge bg-secondary badge-modern"><?= $backup['ID_EXPORTACION'] ?></span>
+                                                    <span class="badge bg-secondary"><?= $backup['ID_EXPORTACION'] ?></span>
                                                 </td>
                                                 <td role="cell">
                                                     <div class="d-flex align-items-center">
@@ -885,32 +372,32 @@
                                                     <small class="text-muted">Respaldo automático</small>
                                                 </td>
                                                 <td role="cell">
-                                                    <span class="badge badge-modern bg-success text-white"
+                                                    <span class="badge bg-success"
                                                         role="status"
                                                         aria-label="Estado: Completado">Completado</span>
                                                 </td>
                                                 <td role="cell">
-                                                    <span class="badge bg-info badge-modern">Sistema</span>
+                                                    <span class="badge bg-info">Sistema</span>
                                                 </td>
                                                 <td role="cell">
                                                     <div class="btn-group btn-group-sm" role="group" aria-label="Acciones para backup <?= $backup['ID_EXPORTACION'] ?>">
-                                                        <button class="btn btn-outline-success btn-modern"
+                                                        <button class="btn btn-outline-success btn-sm"
                                                             onclick="descargarBackup(<?= $backup['ID_EXPORTACION'] ?>)"
                                                             aria-label="Descargar backup <?= $backup['ID_EXPORTACION'] ?>"
                                                             title="Descargar backup">
-                                                            <i class="fas fa-download" aria-hidden="true"></i>
+                                                            <i class="fas fa-download"></i>
                                                         </button>
-                                                        <button class="btn btn-outline-info btn-modern"
+                                                        <button class="btn btn-outline-info btn-sm"
                                                             onclick="verDetalleBackup(<?= $backup['ID_EXPORTACION'] ?>)"
                                                             aria-label="Ver detalles del backup <?= $backup['ID_EXPORTACION'] ?>"
                                                             title="Ver Detalle">
-                                                            <i class="fas fa-eye" aria-hidden="true"></i>
+                                                            <i class="fas fa-eye"></i>
                                                         </button>
-                                                        <button class="btn btn-outline-danger btn-modern"
+                                                        <button class="btn btn-outline-danger btn-sm"
                                                             onclick="eliminarBackup(<?= $backup['ID_EXPORTACION'] ?>)"
                                                             aria-label="Eliminar backup <?= $backup['ID_EXPORTACION'] ?>"
                                                             title="Eliminar">
-                                                            <i class="fas fa-trash" aria-hidden="true"></i>
+                                                            <i class="fas fa-trash"></i>
                                                         </button>
                                                     </div>
                                                 </td>
@@ -920,21 +407,39 @@
                                 </table>
                             </div>
                         <?php else: ?>
-                            <div class="empty-state" role="status" aria-live="polite">
-                                <i class="fas fa-database" aria-hidden="true"></i>
-                                <h5>No hay backups registrados</h5>
-                                <p class="text-muted">Genera tu primer backup para comenzar a proteger la información del sistema.</p>
-                                <button class="btn btn-primary btn-modern"
-                                    onclick="showModal('modalNuevoBackup')"
-                                    aria-label="Generar el primer backup del sistema">
-                                    <i class="fas fa-plus me-2" aria-hidden="true"></i>Generar Primer Backup
-                                </button>
+                            <div class="table-responsive">
+                                <table class="table table-striped align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>#</th>
+                                            <th>Usuario</th>
+                                            <th>Fecha y Hora</th>
+                                            <th>Descripción</th>
+                                            <th>Estado</th>
+                                            <th>Tipo</th>
+                                            <th>Acciones</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td colspan="7" class="text-center text-muted py-4">
+                                                <i class="fas fa-database fa-2x mb-2"></i><br>
+                                                No hay backups registrados. Genera tu primer backup para proteger la información del sistema.
+                                                <div class="mt-2">
+                                                    <button class="btn btn-primary btn-sm" onclick="showModal('modalNuevoBackup')">
+                                                        <i class="fas fa-plus me-1"></i>Generar Primer Backup
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         <?php endif; ?>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
     </div>
 </div>
 
@@ -946,15 +451,11 @@
     aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
+            <div class="modal-header">
                 <h5 class="modal-title" id="modalNuevoBackupTitle">
-                    <i class="fas fa-plus-circle me-2" aria-hidden="true"></i>
-                    Generar Nuevo Backup
+                    <i class="fas fa-plus-circle me-2"></i>Generar Nuevo Backup
                 </h5>
-                <button type="button"
-                    class="btn-close btn-close-white"
-                    data-bs-dismiss="modal"
-                    aria-label="Cerrar modal de nuevo backup"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body" id="modalNuevoBackupDesc">
                 <form id="formNuevoBackup" role="form" aria-label="Formulario para generar nuevo backup">
@@ -1038,15 +539,9 @@
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button"
-                    class="btn btn-secondary btn-modern"
-                    data-bs-dismiss="modal"
-                    aria-label="Cancelar y cerrar modal">Cancelar</button>
-                <button type="button"
-                    class="btn btn-primary btn-modern"
-                    onclick="generarBackup()"
-                    aria-label="Generar backup con la configuración actual">
-                    <i class="fas fa-play me-1" aria-hidden="true"></i>Generar Backup
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="generarBackup()" aria-label="Generar backup">
+                    <i class="fas fa-play me-1"></i>Generar Backup
                 </button>
             </div>
         </div>
@@ -1057,11 +552,8 @@
 <div class="modal fade" id="modalConfiguracion" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <div class="modal-header bg-warning text-dark">
-                <h5 class="modal-title">
-                    <i class="fas fa-cog me-2"></i>
-                    Configuración de Backups
-                </h5>
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-cog me-2"></i>Configuración de Backups</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
@@ -1133,12 +625,9 @@
 <div class="modal fade" id="modalDetalleBackup" tabindex="-1">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
-            <div class="modal-header bg-info text-white">
-                <h5 class="modal-title">
-                    <i class="fas fa-info-circle me-2"></i>
-                    Detalle del Backup
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-info-circle me-2"></i>Detalle del Backup</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <div class="row">
@@ -1232,12 +721,9 @@
 <div class="modal fade" id="modalFiltros" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
-            <div class="modal-header bg-info text-white">
-                <h5 class="modal-title">
-                    <i class="fas fa-filter me-2"></i>
-                    Filtros de Búsqueda
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-filter me-2"></i>Filtros de Búsqueda</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="formFiltros">
@@ -1593,39 +1079,12 @@
         }
 
         // Enter y Space para activar botones de acción
-        if ((event.key === 'Enter' || event.key === ' ') && event.target.classList.contains('action-card')) {
-            event.preventDefault();
-            event.target.click();
-        }
+        // Enter/Space en botones ya manejado por navegación estándar
     };
 
     // Función para mejorar la accesibilidad de las tarjetas de acción
     window.enhanceActionCards = function() {
-        const actionCards = document.querySelectorAll('.action-card');
-        actionCards.forEach(card => {
-            // Hacer las tarjetas enfocables
-            card.setAttribute('tabindex', '0');
-            card.setAttribute('role', 'button');
-
-            // Agregar eventos de teclado
-            card.addEventListener('keydown', function(event) {
-                if (event.key === 'Enter' || event.key === ' ') {
-                    event.preventDefault();
-                    this.click();
-                }
-            });
-
-            // Mejorar el feedback visual
-            card.addEventListener('focus', function() {
-                this.style.outline = '2px solid var(--primary-color)';
-                this.style.outlineOffset = '2px';
-            });
-
-            card.addEventListener('blur', function() {
-                this.style.outline = '';
-                this.style.outlineOffset = '';
-            });
-        });
+        // Acciones rápidas son enlaces en tarjetas (estilo Convenios), no requieren enhance
     };
 
     // Verificar que las funciones estén disponibles inmediatamente

@@ -20,6 +20,7 @@ class ActividadesEducacionDocenteController extends BaseController
     protected $tiposActividadesModel;
     protected $inscripcionesModel;
     protected $estudiantesModel;
+    protected $db;
 
     public function __construct()
     {
@@ -30,18 +31,40 @@ class ActividadesEducacionDocenteController extends BaseController
         $this->tiposActividadesModel = new TiposActividadesModel();
         $this->inscripcionesModel = new InscripcionesActividadesModel();
         $this->estudiantesModel = new EstudiantesModel();
+        $this->db = \Config\Database::connect();
+    }
+
+    /**
+     * Obtiene ID_INSTRUCTOR del usuario logueado (docente) vía TAB_INSTRUCTORES + TAB_USUARIOS.
+     */
+    private function obtenerIdInstructorPorUsuario($idUsuario)
+    {
+        $row = $this->db->table('TAB_USUARIOS u')
+            ->select('i.ID_INSTRUCTOR')
+            ->join('TAB_INSTRUCTORES i', 'i.ID_DATO_PERSONA = u.ID_DATO_PERSONA')
+            ->where('u.ID_USUARIO', $idUsuario)
+            ->get()
+            ->getRowArray();
+        return $row ? (int) $row['ID_INSTRUCTOR'] : null;
     }
 
     public function index()
     {
-        $actividades = $this->actividadesModel->getActividadesConDatos();
-        
-        // Depuración temporal - remover en producción
-        log_message('debug', 'Actividades cargadas: ' . json_encode($actividades));
+        $idUsuario = session()->get('id_usuario');
+        $idInstructor = $this->obtenerIdInstructorPorUsuario($idUsuario);
+        $actividades = ($idInstructor !== null && $idInstructor > 0)
+            ? $this->actividadesModel->getActividadesConDatosPorInstructor($idInstructor)
+            : [];
+
+        $conteoParticipantes = [];
+        foreach ($actividades as $act) {
+            $conteoParticipantes[$act['ID_ACTIVIDAD_EDUCACION']] = $this->inscripcionesModel->contarPorActividad($act['ID_ACTIVIDAD_EDUCACION']);
+        }
 
         $data = [
             'title' => 'Gestión de Actividades Educativas',
             'actividades' => $actividades,
+            'conteoParticipantes' => $conteoParticipantes,
             'instructores' => $this->instructoresModel->getInstructoresConDatos(),
             'modalidades' => $this->tiposModalidadesModel->findAll(),
             'tipos_actividades' => $this->tiposActividadesModel->findAll()
@@ -134,7 +157,7 @@ class ActividadesEducacionDocenteController extends BaseController
             'ID_INSTRUCTOR' => $this->request->getPost('instructor'),
             'ID_TIPO_MODALIDAD' => $this->request->getPost('modalidad'),
             'ID_TIPO_ACTIVIDAD' => $this->request->getPost('tipo_actividad'),
-            'ID_USUARIO' => session()->get('usuario_id'),
+            'ID_USUARIO' => session()->get('id_usuario'),
             'NOMBRE_ACTIVIDAD' => $this->request->getPost('nombre_actividad'),
             'DESCRIPCION' => $this->request->getPost('descripcion'),
             'OBJETIVOS' => $this->request->getPost('objetivos'),
@@ -149,17 +172,17 @@ class ActividadesEducacionDocenteController extends BaseController
 
         // Debug: Verificar datos antes de insertar
         log_message('debug', 'Datos a insertar: ' . json_encode($datos));
-        log_message('debug', 'Usuario ID de sesión: ' . session()->get('usuario_id'));
+        log_message('debug', 'Usuario ID de sesión: ' . session()->get('id_usuario'));
         
         // Verificar si el usuario está logueado
-        if (!session()->get('usuario_id')) {
+        if (!session()->get('id_usuario')) {
             return redirect()->back()->withInput()->with('error', 'Error: No se encontró el ID de usuario en la sesión');
         }
         
         // Intentar insertar con manejo de errores más detallado
         try {
             if ($this->actividadesModel->insert($datos)) {
-                return redirect()->to('/docente/actividades-educacion')->with('success', 'Actividad creada exitosamente');
+                return redirect()->to(site_url('docente/actividades-educacion'))->with('success', 'Actividad creada exitosamente');
             } else {
                 $errors = $this->actividadesModel->errors();
                 log_message('error', 'Errores del modelo: ' . json_encode($errors));
@@ -174,27 +197,30 @@ class ActividadesEducacionDocenteController extends BaseController
     public function show($id)
     {
         $actividad = $this->actividadesModel->getActividadCompleta($id);
-
         if (!$actividad) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Actividad no encontrada');
         }
-
+        $idInstructor = $this->obtenerIdInstructorPorUsuario(session()->get('id_usuario'));
+        if ($idInstructor === null || (int)($actividad['ID_INSTRUCTOR'] ?? 0) !== $idInstructor) {
+            return redirect()->to(site_url('docente/actividades-educacion'))->with('error', 'No tiene permiso para ver esta actividad.');
+        }
         $data = [
             'title' => 'Detalles de la Actividad',
             'actividad' => $actividad
         ];
-
         return view('docente/educacion/show', $data);
     }
 
     public function edit($id)
     {
         $actividad = $this->actividadesModel->getActividadCompleta($id);
-
         if (!$actividad) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Actividad no encontrada');
         }
-
+        $idInstructor = $this->obtenerIdInstructorPorUsuario(session()->get('id_usuario'));
+        if ($idInstructor === null || (int)($actividad['ID_INSTRUCTOR'] ?? 0) !== $idInstructor) {
+            return redirect()->to(site_url('docente/actividades-educacion'))->with('error', 'No tiene permiso para editar esta actividad.');
+        }
         $data = [
             'title' => 'Editar Actividad Educativa',
             'actividad' => $actividad,
@@ -202,12 +228,16 @@ class ActividadesEducacionDocenteController extends BaseController
             'modalidades' => $this->tiposModalidadesModel->findAll(),
             'tipos_actividades' => $this->tiposActividadesModel->findAll()
         ];
-
         return view('docente/educacion/edit', $data);
     }
 
     public function update($id)
     {
+        $actividad = $this->actividadesModel->find($id);
+        $idInstructor = $this->obtenerIdInstructorPorUsuario(session()->get('id_usuario'));
+        if (!$actividad || $idInstructor === null || (int)($actividad['ID_INSTRUCTOR'] ?? 0) !== $idInstructor) {
+            return redirect()->to(site_url('docente/actividades-educacion'))->with('error', 'No tiene permiso para editar esta actividad.');
+        }
         $rules = [
             'tipo_actividad' => 'required|integer',
             'nombre_actividad' => 'required|max_length[200]',
@@ -291,7 +321,7 @@ class ActividadesEducacionDocenteController extends BaseController
         ];
 
         if ($this->actividadesModel->update($id, $datos)) {
-            return redirect()->to('/docente/actividades-educacion')->with('success', 'Actividad actualizada exitosamente');
+            return redirect()->to(site_url('docente/actividades-educacion'))->with('success', 'Actividad actualizada exitosamente');
         }
 
         return redirect()->back()->withInput()->with('error', 'Error al actualizar la actividad');
@@ -299,10 +329,15 @@ class ActividadesEducacionDocenteController extends BaseController
 
     public function delete($id)
     {
-        if ($this->actividadesModel->delete($id)) {
-            return redirect()->to('/docente/actividades-educacion')->with('success', 'Actividad eliminada exitosamente');
+        $idUsuario = session()->get('id_usuario');
+        $idInstructor = $this->obtenerIdInstructorPorUsuario($idUsuario);
+        $actividad = $this->actividadesModel->find($id);
+        if (!$actividad || (int) ($actividad['ID_INSTRUCTOR'] ?? 0) !== $idInstructor) {
+            return redirect()->to(site_url('docente/actividades-educacion'))->with('error', 'No tiene permiso para eliminar esta actividad.');
         }
-
+        if ($this->actividadesModel->delete($id)) {
+            return redirect()->to(site_url('docente/actividades-educacion'))->with('success', 'Actividad eliminada exitosamente');
+        }
         return redirect()->back()->with('error', 'Error al eliminar la actividad');
     }
 
@@ -315,7 +350,10 @@ class ActividadesEducacionDocenteController extends BaseController
         if (!$actividad) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Actividad no encontrada');
         }
-
+        $idInstructor = $this->obtenerIdInstructorPorUsuario(session()->get('id_usuario'));
+        if ($idInstructor === null || (int)($actividad['ID_INSTRUCTOR'] ?? 0) !== $idInstructor) {
+            return redirect()->to(site_url('docente/actividades-educacion'))->with('error', 'No tiene permiso para gestionar participantes de esta actividad.');
+        }
         $participantes = $this->inscripcionesModel->getParticipantesPorActividad($id);
         $estudiantes = $this->estudiantesModel->getEstudiantesParaInscripcion();
 
@@ -344,6 +382,11 @@ class ActividadesEducacionDocenteController extends BaseController
         if (!$idActividad || !$idEstudiante) {
             return $this->response->setJSON(['success' => false, 'message' => 'Datos incompletos']);
         }
+        $actividad = $this->actividadesModel->find($idActividad);
+        $idInstructor = $this->obtenerIdInstructorPorUsuario(session()->get('id_usuario'));
+        if (!$actividad || $idInstructor === null || (int)($actividad['ID_INSTRUCTOR'] ?? 0) !== $idInstructor) {
+            return $this->response->setJSON(['success' => false, 'message' => 'No tiene permiso para esta actividad']);
+        }
 
         if ($this->inscripcionesModel->inscribir($idActividad, $idEstudiante)) {
             return $this->response->setJSON(['success' => true, 'message' => 'Participante agregado correctamente']);
@@ -366,6 +409,11 @@ class ActividadesEducacionDocenteController extends BaseController
 
         if (!$idActividad || !$idEstudiante) {
             return $this->response->setJSON(['success' => false, 'message' => 'Datos incompletos']);
+        }
+        $actividad = $this->actividadesModel->find($idActividad);
+        $idInstructor = $this->obtenerIdInstructorPorUsuario(session()->get('id_usuario'));
+        if (!$actividad || $idInstructor === null || (int)($actividad['ID_INSTRUCTOR'] ?? 0) !== $idInstructor) {
+            return $this->response->setJSON(['success' => false, 'message' => 'No tiene permiso para esta actividad']);
         }
 
         if ($this->inscripcionesModel->quitarInscripcion($idActividad, $idEstudiante)) {
@@ -407,6 +455,12 @@ class ActividadesEducacionDocenteController extends BaseController
 
     public function calendario()
     {
+        $idUsuario = session()->get('id_usuario');
+        $idInstructor = $this->obtenerIdInstructorPorUsuario($idUsuario);
+        if ($idInstructor === null || $idInstructor <= 0) {
+            return $this->response->setJSON([]);
+        }
+
         $actividades = $this->actividadesModel
             ->select('ae.ID_ACTIVIDAD_EDUCACION, ae.NOMBRE_ACTIVIDAD, ae.FECHA_INICIO, ae.FECHA_FIN, ae.LUGAR, ae.HORARIO, ae.DURACION_HORAS, ae.DESCRIPCION, ta.ACTIVIDAD as TIPO_ACTIVIDAD, tm.MODALIDAD, dp.NOMBRE, dp.APELLIDO')
             ->from('TAB_ACTIVIDADES_EDUCACION ae')
@@ -414,6 +468,7 @@ class ActividadesEducacionDocenteController extends BaseController
             ->join('TAB_TIPOS_MODALIDADES tm', 'tm.ID_TIPO_MODALIDAD = ae.ID_TIPO_MODALIDAD')
             ->join('TAB_INSTRUCTORES i', 'i.ID_INSTRUCTOR = ae.ID_INSTRUCTOR')
             ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = i.ID_DATO_PERSONA')
+            ->where('ae.ID_INSTRUCTOR', $idInstructor)
             ->where('ae.FECHA_FIN >=', date('Y-m-d'))
             ->orderBy('ae.FECHA_INICIO', 'ASC')
             ->findAll();
@@ -454,33 +509,46 @@ class ActividadesEducacionDocenteController extends BaseController
     // Método para obtener datos para AJAX
     public function getActividades()
     {
-        $actividades = $this->actividadesModel->getActividadesConDatos();
+        $idUsuario = session()->get('id_usuario');
+        $idInstructor = $this->obtenerIdInstructorPorUsuario($idUsuario);
+        $actividades = ($idInstructor !== null && $idInstructor > 0)
+            ? $this->actividadesModel->getActividadesConDatosPorInstructor($idInstructor)
+            : [];
         return $this->response->setJSON($actividades);
     }
 
-    // Método para obtener estadísticas
+    // Método para obtener estadísticas (solo del docente logueado)
     public function getEstadisticas()
     {
-        $totalActividades = $this->actividadesModel->countAllResults();
-        
+        $idUsuario = session()->get('id_usuario');
+        $idInstructor = $this->obtenerIdInstructorPorUsuario($idUsuario);
+        if ($idInstructor === null || $idInstructor <= 0) {
+            return $this->response->setJSON([
+                'totalActividades' => 0,
+                'cursosActivos' => 0,
+                'talleresActivos' => 0,
+                'seminariosActivos' => 0
+            ]);
+        }
+        $totalActividades = $this->actividadesModel->where('ID_INSTRUCTOR', $idInstructor)->countAllResults();
         $cursosActivos = $this->actividadesModel
             ->join('TAB_TIPOS_ACTIVIDADES ta', 'ta.ID_TIPO_ACTIVIDAD = TAB_ACTIVIDADES_EDUCACION.ID_TIPO_ACTIVIDAD')
+            ->where('TAB_ACTIVIDADES_EDUCACION.ID_INSTRUCTOR', $idInstructor)
             ->where('ta.ACTIVIDAD', 'Curso')
-            ->where('FECHA_FIN >=', date('Y-m-d'))
+            ->where('TAB_ACTIVIDADES_EDUCACION.FECHA_FIN >=', date('Y-m-d'))
             ->countAllResults();
-
         $talleresActivos = $this->actividadesModel
             ->join('TAB_TIPOS_ACTIVIDADES ta', 'ta.ID_TIPO_ACTIVIDAD = TAB_ACTIVIDADES_EDUCACION.ID_TIPO_ACTIVIDAD')
+            ->where('TAB_ACTIVIDADES_EDUCACION.ID_INSTRUCTOR', $idInstructor)
             ->where('ta.ACTIVIDAD', 'Taller')
-            ->where('FECHA_FIN >=', date('Y-m-d'))
+            ->where('TAB_ACTIVIDADES_EDUCACION.FECHA_FIN >=', date('Y-m-d'))
             ->countAllResults();
-
         $seminariosActivos = $this->actividadesModel
             ->join('TAB_TIPOS_ACTIVIDADES ta', 'ta.ID_TIPO_ACTIVIDAD = TAB_ACTIVIDADES_EDUCACION.ID_TIPO_ACTIVIDAD')
+            ->where('TAB_ACTIVIDADES_EDUCACION.ID_INSTRUCTOR', $idInstructor)
             ->where('ta.ACTIVIDAD', 'Seminario')
-            ->where('FECHA_FIN >=', date('Y-m-d'))
+            ->where('TAB_ACTIVIDADES_EDUCACION.FECHA_FIN >=', date('Y-m-d'))
             ->countAllResults();
-
         return $this->response->setJSON([
             'totalActividades' => $totalActividades,
             'cursosActivos' => $cursosActivos,
@@ -515,16 +583,19 @@ class ActividadesEducacionDocenteController extends BaseController
             return view('docente/educacion/reportes', $data);
         } catch (\Exception $e) {
             log_message('error', 'Error en reportes: ' . $e->getMessage());
-            return redirect()->to('/docente/actividades-educacion')->with('error', 'Error al cargar los reportes: ' . $e->getMessage());
+            return redirect()->to(site_url('docente/actividades-educacion'))->with('error', 'Error al cargar los reportes: ' . $e->getMessage());
         }
     }
 
     private function aplicarFiltrosReporte($filtros)
     {
         try {
-            // Usar el método existente del modelo para obtener datos
-            $actividades = $this->actividadesModel->getActividadesConDatos();
-            
+            $idUsuario = session()->get('id_usuario');
+            $idInstructor = $this->obtenerIdInstructorPorUsuario($idUsuario);
+            $actividades = ($idInstructor !== null && $idInstructor > 0)
+                ? $this->actividadesModel->getActividadesConDatosPorInstructor($idInstructor)
+                : [];
+
             // Aplicar filtros manualmente si es necesario
             if (!empty($filtros['tipo_actividad'])) {
                 $actividades = array_filter($actividades, function($actividad) use ($filtros) {

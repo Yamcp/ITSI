@@ -92,4 +92,24 @@ class ActividadesEducacionModel extends Model
             
         return $builder->get()->getResultArray();
     }
+
+    /**
+     * Obtener solo las actividades del instructor dado (para "Mis Actividades" del docente).
+     */
+    public function getActividadesConDatosPorInstructor($idInstructor)
+    {
+        if (empty($idInstructor) || $idInstructor <= 0) {
+            return [];
+        }
+        $builder = $this->db->table('TAB_ACTIVIDADES_EDUCACION ae')
+            ->select('ae.*, ta.ACTIVIDAD as ACTIVIDAD, tm.MODALIDAD, i.ESPECIALIDAD, dp.NOMBRE, dp.APELLIDO')
+            ->join('TAB_TIPOS_ACTIVIDADES ta', 'ta.ID_TIPO_ACTIVIDAD = ae.ID_TIPO_ACTIVIDAD', 'left')
+            ->join('TAB_TIPOS_MODALIDADES tm', 'tm.ID_TIPO_MODALIDAD = ae.ID_TIPO_MODALIDAD', 'left')
+            ->join('TAB_INSTRUCTORES i', 'i.ID_INSTRUCTOR = ae.ID_INSTRUCTOR', 'left')
+            ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = i.ID_DATO_PERSONA', 'left')
+            ->where('ae.ID_INSTRUCTOR', $idInstructor)
+            ->orderBy('ae.FECHA_INICIO', 'DESC');
+            
+        return $builder->get()->getResultArray();
+    }
 }

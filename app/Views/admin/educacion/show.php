@@ -113,6 +113,38 @@
                     </div>
                 </div>
 
+                <!-- Encuesta de satisfacción (solo cuando el curso ha finalizado) -->
+                <?php
+                $fechaFin = new DateTime($actividad['FECHA_FIN']);
+                $hoy = new DateTime();
+                $estaFinalizada = $fechaFin < $hoy;
+                $encuestaSatisfaccion = $encuestaSatisfaccion ?? null;
+                ?>
+                <?php if ($estaFinalizada): ?>
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <h6 class="mb-0"><i class="fas fa-clipboard-check me-1"></i>Encuesta de satisfacción</h6>
+                    </div>
+                    <div class="card-body">
+                        <?php if (!empty($encuestaSatisfaccion)): ?>
+                            <p class="small text-muted mb-2">Enlace para que los participantes evalúen el curso.</p>
+                            <a href="<?= esc($encuestaSatisfaccion['ENLACE_FORMULARIO']) ?>" target="_blank" rel="noopener" class="btn btn-success btn-sm">
+                                <i class="fas fa-external-link-alt me-1"></i>Abrir encuesta
+                            </a>
+                            <span class="text-muted small ms-2"><?= (int)($encuestaSatisfaccion['NUMERO_RESPUESTAS'] ?? 0) ?> respuestas</span>
+                            <div class="mt-2">
+                                <a href="<?= base_url('admin/evaluaciones') ?>" class="btn btn-outline-secondary btn-sm">Gestionar evaluación</a>
+                            </div>
+                        <?php else: ?>
+                            <p class="small text-muted mb-2">Al finalizar el curso puedes publicar el enlace de la encuesta de satisfacción.</p>
+                            <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalEncuestaSatisfaccion">
+                                <i class="fas fa-plus me-1"></i>Agregar enlace de encuesta
+                            </button>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
+
                 <!-- Acciones Rápidas -->
                 <div class="card shadow-sm">
                     <div class="card-header">
@@ -123,13 +155,9 @@
                             <button class="btn btn-outline-primary btn-sm" onclick="gestionarParticipantes(<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>)">
                                 <i class="fas fa-users me-1"></i>Gestionar Participantes
                             </button>
-                            
-                            
-                            
                             <button class="btn btn-outline-info btn-sm" onclick="generarReporte(<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>)">
                                 <i class="fas fa-file-alt me-1"></i>Reporte de Asistencia
                             </button>
-                            
                             <a href="<?= base_url('admin/actividades-educacion/eliminar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" 
                                class="btn btn-outline-danger btn-sm" 
                                onclick="return confirm('¿Estás seguro de que deseas eliminar esta actividad?')">
@@ -143,12 +171,95 @@
     </div>
 </div>
 
+<!-- Modal: Agregar encuesta de satisfacción -->
+<div class="modal fade" id="modalEncuestaSatisfaccion" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fas fa-clipboard-check me-2"></i>Encuesta de satisfacción</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formEncuestaSatisfaccion">
+                    <?= csrf_field() ?>
+                    <input type="hidden" name="curso_id" value="<?= (int)$actividad['ID_ACTIVIDAD_EDUCACION'] ?>">
+                    <input type="hidden" name="tipo_evaluacion" value="satisfaccion">
+                    <div class="mb-3">
+                        <label class="form-label">Curso</label>
+                        <input type="text" class="form-control" value="<?= esc($actividad['NOMBRE_ACTIVIDAD']) ?>" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nombre de la evaluación <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="nombre_evaluacion" value="Encuesta de satisfacción - <?= esc($actividad['NOMBRE_ACTIVIDAD']) ?>" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Enlace del formulario <span class="text-danger">*</span></label>
+                        <input type="url" class="form-control" name="enlace_formulario" placeholder="https://forms.google.com/..." required>
+                        <small class="text-muted">Enlace de Google Forms, Microsoft Forms, etc.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea class="form-control" name="descripcion" rows="2" placeholder="Opcional"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Fecha de vencimiento <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" name="fecha_vencimiento" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Estado</label>
+                            <select class="form-select" name="estado">
+                                <option value="activo">Activo</option>
+                                <option value="inactivo">Inactivo</option>
+                                <option value="borrador">Borrador</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnGuardarEncuesta">
+                    <i class="fas fa-save me-1"></i>Guardar encuesta
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
+    document.getElementById('btnGuardarEncuesta')?.addEventListener('click', function() {
+        var form = document.getElementById('formEncuestaSatisfaccion');
+        if (!form.checkValidity()) { form.reportValidity(); return; }
+        var btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Guardando...';
+        var fd = new FormData(form);
+        fetch('<?= base_url('admin/evaluaciones/agregar') ?>', {
+            method: 'POST',
+            body: fd,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        }).then(function(r) { return r.json(); }).then(function(data) {
+            if (data.success) {
+                var modal = bootstrap.Modal.getInstance(document.getElementById('modalEncuestaSatisfaccion'));
+                if (modal) modal.hide();
+                showNotification(data.message || 'Encuesta guardada. Recargando...', 'success');
+                setTimeout(function() { window.location.reload(); }, 1200);
+            } else {
+                showNotification(data.message || 'Error al guardar', 'error');
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar encuesta';
+            }
+        }).catch(function() {
+            showNotification('Error de conexión', 'error');
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-save me-1"></i>Guardar encuesta';
+        });
+    });
+
     function gestionarParticipantes(id) {
         showNotification('Función de gestión de participantes en desarrollo', 'info');
     }
-
-    
 
     function generarReporte(id) {
         showNotification('Generando reporte...', 'info');

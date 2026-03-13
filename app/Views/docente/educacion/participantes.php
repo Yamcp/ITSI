@@ -42,6 +42,7 @@
                     </div>
                     <div class="card-body">
                         <form id="formAgregarParticipante">
+                            <?= csrf_field() ?>
                             <input type="hidden" name="id_actividad" value="<?= (int)$actividad['ID_ACTIVIDAD_EDUCACION'] ?>">
                             <div class="mb-3">
                                 <label class="form-label">Estudiante</label>
@@ -174,6 +175,7 @@
         const fd = new FormData();
         fd.append('id_actividad', idActividad);
         fd.append('id_estudiante', idEstudiante);
+        fd.append('<?= csrf_token() ?>', '<?= csrf_hash() ?>');
         fetch(urlQuitar, { method: 'POST', body: fd })
             .then(r => r.json())
             .then(function(res) {

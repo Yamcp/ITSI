@@ -11,6 +11,8 @@ use App\Models\EstadosPracticasModel;
 use App\Models\CarrerasModel;
 use App\Models\NotificacionesModel;
 use App\Models\UsuariosModel;
+use App\Models\PracticasPreprofesionalesModel;
+use App\Models\ServiciosComunitariosModel;
 use App\Libraries\EmailNotificaciones;
 
 class PracticasAdminController extends BaseController
@@ -23,6 +25,8 @@ class PracticasAdminController extends BaseController
     protected $carrerasModel;
     protected $notificacionesModel;
     protected $usuariosModel;
+    protected $practicasPreprofesionalesModel;
+    protected $serviciosComunitariosModel;
     protected $emailNotificaciones;
 
     public function __construct()
@@ -35,25 +39,33 @@ class PracticasAdminController extends BaseController
         $this->carrerasModel = new CarrerasModel();
         $this->notificacionesModel = new NotificacionesModel();
         $this->usuariosModel = new UsuariosModel();
+        $this->practicasPreprofesionalesModel = new PracticasPreprofesionalesModel();
+        $this->serviciosComunitariosModel = new ServiciosComunitariosModel();
         $this->emailNotificaciones = new EmailNotificaciones();
     }
 
     public function index()
     {
-        // Cargar helper de tiempo
         helper('tiempo');
-        
-        // Obtener estadísticas
-        $estadisticas = $this->obtenerEstadisticas();
-        
-        // Obtener prácticas preprofesionales
-        $practicasPreprofesionales = $this->obtenerPracticasPreprofesionales();
-        
-        // Obtener servicios comunitarios
-        $serviciosComunitarios = $this->obtenerServiciosComunitarios();
-        
-        // Obtener seguimiento general
-        $seguimiento = $this->obtenerSeguimientoGeneral();
+
+        $estadisticas = [
+            'totalPracticas' => 0,
+            'practicasActivas' => 0,
+            'practicasFinalizadas' => 0,
+            'practicasPendientes' => 0
+        ];
+        $practicasPreprofesionales = [];
+        $serviciosComunitarios = [];
+        $seguimiento = ['actividadesRecientes' => []];
+
+        try {
+            $estadisticas = $this->obtenerEstadisticas();
+            $practicasPreprofesionales = $this->practicasPreprofesionalesModel->getListaParaAdmin();
+            $serviciosComunitarios = $this->serviciosComunitariosModel->getListaParaAdmin();
+            $seguimiento = $this->obtenerSeguimientoGeneral();
+        } catch (\Throwable $e) {
+            log_message('error', 'PracticasAdminController::index - Error BD: ' . $e->getMessage());
+        }
 
         $data = [
             'title' => 'Gestión de Prácticas',

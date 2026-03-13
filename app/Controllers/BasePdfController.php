@@ -35,7 +35,7 @@ class BasePdfController extends Controller
         
         // Configuración básica
         $pdf->SetCreator('Sistema ITSI');
-        $pdf->SetAuthor('Administrador');
+        $pdf->SetAuthor('Coordinador');
         $pdf->SetTitle($title);
         $pdf->SetSubject($subject);
         

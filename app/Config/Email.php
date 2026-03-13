@@ -7,21 +7,21 @@ use CodeIgniter\Config\BaseConfig;
 /**
  * Configuración de correo para el sistema.
  *
- * Para recuperación de contraseña (y notificaciones) debes configurar:
+ * Para que la recuperación de contraseña envíe el correo correctamente, configura en este archivo:
  *
  * 1) Correo remitente (obligatorio):
  *    - fromEmail: correo desde el que se envía (ej: tu_cuenta@gmail.com)
  *    - fromName: nombre que verá el destinatario
  *
- * 2) Envío por SMTP (recomendado en XAMPP/Windows; mail() suele no funcionar):
- *    - protocol = 'smtp'
- *    - SMTPHost, SMTPUser, SMTPPass, SMTPPort, SMTPCrypto
+ * 2) SMTP (recomendado en XAMPP/Windows; mail() suele no funcionar):
+ *    - SMTPUser: mismo correo que fromEmail en Gmail/Outlook
+ *    - SMTPPass: contraseña de aplicación (Gmail: Cuenta Google > Seguridad > Contraseñas de app)
  *
  * Ejemplo Gmail:
  *    protocol = 'smtp'
  *    SMTPHost = 'smtp.gmail.com'
  *    SMTPUser = 'tu_cuenta@gmail.com'
- *    SMTPPass = 'contraseña_de_aplicacion'  (crear en Cuenta Google > Seguridad > Contraseñas de app)
+ *    SMTPPass = 'contraseña_de_aplicacion'
  *    SMTPPort = 587
  *    SMTPCrypto = 'tls'
  */

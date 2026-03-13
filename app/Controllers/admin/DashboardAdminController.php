@@ -51,8 +51,8 @@ class DashboardAdminController extends BaseController
         // Obtener vencimientos próximos
         $vencimientos = $this->obtenerVencimientosProximos();
         
-        // Obtener distribución por carrera
-        $distribucionCarreras = $this->obtenerDistribucionCarreras();
+        // Prácticas preprofesionales y servicio comunitario por carrera
+        $practicasPorCarrera = $this->obtenerPracticasPorCarrera();
 
         // Obtener período académico actual (reutilizando lógica del navbar)
         $periodoNombre = session('periodo_academico_nombre');
@@ -80,7 +80,7 @@ class DashboardAdminController extends BaseController
             'datosGraficas' => $datosGraficas,
             'actividadesRecientes' => $actividadesRecientes,
             'vencimientos' => $vencimientos,
-            'distribucionCarreras' => $distribucionCarreras,
+            'practicasPorCarrera' => $practicasPorCarrera,
             'periodoAcademicoNombre' => $periodoNombre,
             'periodoAcademicoRango' => $periodoRango,
         ];
@@ -129,18 +129,23 @@ class DashboardAdminController extends BaseController
         }
         
         try {
-            // Convenios vigentes
-            $conveniosVigentes = $this->conveniosModel->where('FECHA_FIN >=', date('Y-m-d'))->countAllResults();
+            // Convenios por caducar (próximos 3 meses)
+            $hoy = date('Y-m-d');
+            $en3Meses = date('Y-m-d', strtotime('+3 months'));
+            $conveniosPorCaducar = $this->conveniosModel
+                ->where('FECHA_FIN >=', $hoy)
+                ->where('FECHA_FIN <=', $en3Meses)
+                ->countAllResults();
         } catch (\Exception $e) {
-            log_message('error', 'Error al obtener convenios vigentes: ' . $e->getMessage());
-            $conveniosVigentes = 0;
+            log_message('error', 'Error al obtener convenios por caducar: ' . $e->getMessage());
+            $conveniosPorCaducar = 0;
         }
         
         return [
             'totalEstudiantes' => $totalEstudiantes,
             'totalInstructores' => $totalInstructores,
             'actividadesActivas' => $actividadesActivas,
-            'conveniosVigentes' => $conveniosVigentes
+            'conveniosPorCaducar' => $conveniosPorCaducar
         ];
     }
     
@@ -218,52 +223,52 @@ class DashboardAdminController extends BaseController
     {
         $meses = [];
         $mesesNombres = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+        $db = $this->practicasModel->db;
         
-        // Obtener datos de los últimos 12 meses
+        // Obtener datos de los últimos 12 meses: estudiantes en prácticas preprofesionales y servicio comunitario
         for ($i = 11; $i >= 0; $i--) {
             $fecha = date('Y-m', strtotime("-$i months"));
             $mes = (int)date('m', strtotime("-$i months"));
             $año = (int)date('Y', strtotime("-$i months"));
             
             try {
-                // Contar actividades educativas en este mes (usando consulta SQL directa para mejor rendimiento)
-                $sql = "
+                // Estudiantes que ingresaron a prácticas preprofesionales en este mes
+                $sqlPre = "
                     SELECT COUNT(*) as total
-                    FROM TAB_ACTIVIDADES_EDUCACION 
+                    FROM TAB_PRACTICAS_PREPROFESIONALES
                     WHERE DATE_FORMAT(FECHA_INICIO, '%Y-%m') = ?
                 ";
-                $query = $this->actividadesModel->db->query($sql, [$fecha]);
-                $resultado = $query->getRow();
-                $actividades = $resultado ? $resultado->total : 0;
+                $queryPre = $db->query($sqlPre, [$fecha]);
+                $rowPre = $queryPre->getRow();
+                $preprofesionales = $rowPre ? (int)$rowPre->total : 0;
             } catch (\Exception $e) {
-                log_message('error', 'Error al obtener actividades mensuales: ' . $e->getMessage());
-                $actividades = 0;
+                log_message('error', 'Error al obtener prácticas preprofesionales mensuales: ' . $e->getMessage());
+                $preprofesionales = 0;
             }
             
             try {
-                // Contar prácticas en este mes
-                $sql = "
+                // Estudiantes que ingresaron a servicio comunitario en este mes
+                $sqlServ = "
                     SELECT COUNT(*) as total
-                    FROM TAB_ASIGNACIONES_PRACTICAS 
+                    FROM TAB_SERVICIO_COMUNITARIO
                     WHERE DATE_FORMAT(FECHA_INICIO, '%Y-%m') = ?
                 ";
-                $query = $this->practicasModel->db->query($sql, [$fecha]);
-                $resultado = $query->getRow();
-                $practicas = $resultado ? $resultado->total : 0;
+                $queryServ = $db->query($sqlServ, [$fecha]);
+                $rowServ = $queryServ->getRow();
+                $servicioComunitario = $rowServ ? (int)$rowServ->total : 0;
             } catch (\Exception $e) {
-                log_message('error', 'Error al obtener prácticas mensuales: ' . $e->getMessage());
-                $practicas = 0;
+                log_message('error', 'Error al obtener servicio comunitario mensual: ' . $e->getMessage());
+                $servicioComunitario = 0;
             }
             
             $meses[] = [
                 'mes' => $mesesNombres[$mes - 1] . ' ' . $año,
-                'actividades' => (int)$actividades,
-                'practicas' => (int)$practicas
+                'preprofesionales' => $preprofesionales,
+                'servicioComunitario' => $servicioComunitario
             ];
         }
         
-        // Debug: Log para verificar los datos
-        log_message('debug', 'Estadísticas mensuales: ' . json_encode($meses));
+        log_message('debug', 'Estadísticas mensuales prácticas: ' . json_encode($meses));
         
         return $meses;
     }
@@ -363,40 +368,60 @@ class DashboardAdminController extends BaseController
         ];
     }
     
-    private function obtenerDistribucionCarreras()
+    /**
+     * Prácticas preprofesionales y servicio comunitario agrupados por carrera.
+     * @return array [ ['CARRERA' => string, 'PREPROFESIONALES' => int, 'SERVICIO_COMUNITARIO' => int], ... ]
+     */
+    private function obtenerPracticasPorCarrera()
     {
-        // Verificar que los modelos estén inicializados
-        if (!$this->estudiantesModel) {
-            $this->estudiantesModel = new EstudiantesModel();
-        }
-        if (!$this->carrerasModel) {
-            $this->carrerasModel = new CarrerasModel();
-        }
-        
+        $db = $this->practicasModel->db;
+        $porCarrera = [];
+
         try {
-            // Usar consulta SQL directa para asegurar que funcione
-            $sql = "
-                SELECT 
-                    c.NOMBRE as CARRERA, 
-                    COUNT(e.ID_ESTUDIANTE) as TOTAL
-                FROM TAB_CARRERAS c
-                LEFT JOIN TAB_ESTUDIANTES e ON c.ID_CARRERA = e.ID_CARRERA
+            $sqlPre = "
+                SELECT c.NOMBRE as CARRERA, COUNT(*) as TOTAL
+                FROM TAB_PRACTICAS_PREPROFESIONALES pp
+                INNER JOIN TAB_ESTUDIANTES e ON e.ID_ESTUDIANTE = pp.ID_ESTUDIANTE
+                INNER JOIN TAB_CARRERAS c ON c.ID_CARRERA = e.ID_CARRERA
                 GROUP BY c.ID_CARRERA, c.NOMBRE
-                HAVING COUNT(e.ID_ESTUDIANTE) > 0
-                ORDER BY TOTAL DESC
+                ORDER BY c.NOMBRE
             ";
-            
-            $query = $this->estudiantesModel->db->query($sql);
-            $resultado = $query->getResultArray();
-            
-            // Debug: Log para ver qué datos se obtienen
-            log_message('debug', 'Distribución carreras: ' . json_encode($resultado));
-            
-            return $resultado;
+            $queryPre = $db->query($sqlPre);
+            foreach ($queryPre->getResultArray() as $row) {
+                $nombre = $row['CARRERA'];
+                if (!isset($porCarrera[$nombre])) {
+                    $porCarrera[$nombre] = ['CARRERA' => $nombre, 'PREPROFESIONALES' => 0, 'SERVICIO_COMUNITARIO' => 0];
+                }
+                $porCarrera[$nombre]['PREPROFESIONALES'] = (int) $row['TOTAL'];
+            }
         } catch (\Exception $e) {
-            log_message('error', 'Error en obtenerDistribucionCarreras: ' . $e->getMessage());
-            return [];
+            log_message('error', 'Error obtener prácticas preprofesionales por carrera: ' . $e->getMessage());
         }
+
+        try {
+            $sqlServ = "
+                SELECT c.NOMBRE as CARRERA, COUNT(*) as TOTAL
+                FROM TAB_SERVICIO_COMUNITARIO sc
+                INNER JOIN TAB_ESTUDIANTES e ON e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE
+                INNER JOIN TAB_CARRERAS c ON c.ID_CARRERA = e.ID_CARRERA
+                GROUP BY c.ID_CARRERA, c.NOMBRE
+                ORDER BY c.NOMBRE
+            ";
+            $queryServ = $db->query($sqlServ);
+            foreach ($queryServ->getResultArray() as $row) {
+                $nombre = $row['CARRERA'];
+                if (!isset($porCarrera[$nombre])) {
+                    $porCarrera[$nombre] = ['CARRERA' => $nombre, 'PREPROFESIONALES' => 0, 'SERVICIO_COMUNITARIO' => 0];
+                }
+                $porCarrera[$nombre]['SERVICIO_COMUNITARIO'] = (int) $row['TOTAL'];
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Error obtener servicio comunitario por carrera: ' . $e->getMessage());
+        }
+
+        // Ordenar por nombre de carrera y devolver valores indexados
+        ksort($porCarrera);
+        return array_values($porCarrera);
     }
     
     // Método para obtener estadísticas adicionales (opcional)

@@ -1,33 +1,8 @@
 <?= $this->extend('docente/layouts/mainDocente') ?>
 
 <?= $this->section('styles') ?>
-<!-- CSS personalizado para prácticas -->
-<link rel="stylesheet" href="<?= base_url('sistema/assets/css/practicas.css') ?>" />
+<link rel="stylesheet" href="<?= base_url('sistema/assets/css/actividades.css') ?>" />
 <style>
-    .supervision-card {
-        border: none;
-        border-radius: 15px;
-        box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-        transition: all 0.3s ease;
-        margin-bottom: 1.5rem;
-    }
-    
-    .supervision-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    }
-    
-    .supervision-header {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-radius: 15px 15px 0 0;
-        padding: 1.5rem;
-    }
-    
-    .supervision-body {
-        padding: 1.5rem;
-    }
-    
     .estudiante-avatar {
         width: 50px;
         height: 50px;
@@ -36,21 +11,18 @@
         border: 3px solid #fff;
         box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     }
-    
     .estado-badge {
         border-radius: 20px;
         padding: 0.5rem 1rem;
         font-weight: 600;
         font-size: 0.85rem;
     }
-    
     .progreso-circular {
         width: 80px;
         height: 80px;
         position: relative;
         margin: 0 auto;
     }
-    
     .progreso-texto {
         position: absolute;
         top: 50%;
@@ -59,19 +31,6 @@
         font-weight: bold;
         font-size: 0.9rem;
     }
-    
-    .accion-btn {
-        border-radius: 10px;
-        padding: 0.5rem 1rem;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
-    
-    .accion-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    }
-    
     .evaluacion-item {
         background: #f8f9fa;
         border-radius: 10px;
@@ -79,30 +38,14 @@
         margin-bottom: 0.5rem;
         transition: all 0.3s ease;
     }
-    
     .evaluacion-item:hover {
         background: #e9ecef;
-        transform: translateX(5px);
     }
-    
-    .stats-card {
-        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-        color: white;
-        border: none;
-        border-radius: 15px;
-        transition: transform 0.3s ease;
-    }
-    
-    .stats-card:hover {
-        transform: translateY(-5px);
-    }
-    
     .timeline-item {
         position: relative;
         padding-left: 2rem;
         margin-bottom: 1.5rem;
     }
-    
     .timeline-marker {
         position: absolute;
         left: 0;
@@ -110,9 +53,8 @@
         width: 12px;
         height: 12px;
         border-radius: 50%;
-        background: #667eea;
+        background: #007bff;
     }
-    
     .timeline-item:not(:last-child)::before {
         content: '';
         position: absolute;
@@ -121,29 +63,6 @@
         width: 2px;
         height: calc(100% - 0.5rem);
         background: #dee2e6;
-    }
-    
-    .alert-item {
-        background: #fff3cd;
-        border: 1px solid #ffeaa7;
-        border-radius: 10px;
-        padding: 1rem;
-        margin-bottom: 0.5rem;
-    }
-    
-    .alert-item.warning {
-        background: #fff3cd;
-        border-color: #ffeaa7;
-    }
-    
-    .alert-item.danger {
-        background: #f8d7da;
-        border-color: #f5c6cb;
-    }
-    
-    .alert-item.success {
-        background: #d4edda;
-        border-color: #c3e6cb;
     }
 </style>
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
@@ -156,16 +75,16 @@
         <div class="row">
             <div class="col-12">
                 <h3 class="text-center my-3">
-                    <i class="fas fa-chalkboard-teacher me-2"></i>
+                    <i class="fas fa-user-graduate me-2"></i>
                     Supervisión de Prácticas
                 </h3>
             </div>
         </div>
 
-        <!-- Estadísticas del Docente -->
+        <!-- Estadísticas Rápidas -->
         <div class="row mb-4">
             <div class="col-md-3 col-sm-6">
-                <div class="card stats-card text-center shadow-sm">
+                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #007bff 80%, #0056b3 100%); color: #fff; border: none;">
                     <div class="card-body">
                         <h2 class="card-title mb-2" style="font-size:2.5rem;"><?= $estadisticas['estudiantesAsignados'] ?? 0 ?></h2>
                         <p class="card-text fw-bold" style="color: #e0e0e0;">Estudiantes Asignados</p>
@@ -173,7 +92,7 @@
                 </div>
             </div>
             <div class="col-md-3 col-sm-6">
-                <div class="card stats-card text-center shadow-sm" style="background: linear-gradient(135deg, #28a745 80%, #155724 100%);">
+                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #28a745 80%, #155724 100%); color: #fff; border: none;">
                     <div class="card-body">
                         <h2 class="card-title mb-2" style="font-size:2.5rem;"><?= $estadisticas['practicasActivas'] ?? 0 ?></h2>
                         <p class="card-text fw-bold" style="color: #e0e0e0;">Prácticas Activas</p>
@@ -181,35 +100,17 @@
                 </div>
             </div>
             <div class="col-md-3 col-sm-6">
-                <div class="card stats-card text-center shadow-sm" style="background: linear-gradient(135deg, #17a2b8 80%, #0c5460 100%);">
+                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #17a2b8 80%, #0f6674 100%); color: #fff; border: none;">
                     <div class="card-body">
                         <h2 class="card-title mb-2" style="font-size:2.5rem;"><?= $estadisticas['evaluacionesPendientes'] ?? 0 ?></h2>
                         <p class="card-text fw-bold" style="color: #e0e0e0;">Evaluaciones Pendientes</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card stats-card text-center shadow-sm" style="background: linear-gradient(135deg, #ffc107 80%, #b38600 100%);">
-                    <div class="card-body">
-                        <h2 class="card-title mb-2" style="font-size:2.5rem;"><?= $estadisticas['alertas'] ?? 0 ?></h2>
-                        <p class="card-text fw-bold" style="color: #fffbe6;">Alertas</p>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- Acciones Rápidas -->
-        <div class="row mb-4">
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm h-100" style="border: none;">
-                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="#" onclick="evaluarEstudiante()" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-star fa-2x mb-2" style="color: #28a745; text-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);"></i>
-                            <div class="fw-bold">Evaluar Estudiante</div>
-                        </a>
-                    </div>
-                </div>
-            </div>
+        <div class="row mb-4 justify-content-center">
             <div class="col-md-3 col-sm-6 mb-3">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
@@ -230,16 +131,6 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm h-100" style="border: none;">
-                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="#" onclick="configurarAlertas()" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-bell fa-2x mb-2" style="color: #dc3545; text-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);"></i>
-                            <div class="fw-bold">Configurar Alertas</div>
-                        </a>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <!-- Tabs Navigation -->
@@ -249,27 +140,18 @@
                     <div class="card-body pb-0">
                         <ul class="nav nav-tabs nav-justified rounded-pill bg-light px-2 py-1" id="supervisionTabs" role="tablist" style="gap: 0.5rem;">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active rounded-pill fw-semibold text-primary" id="estudiantes-tab" data-bs-toggle="tab" data-bs-target="#estudiantes" type="button" role="tab" aria-selected="true" style="transition: background 0.2s;">
-                                    <i class="fas fa-users me-2"></i>
-                                    Mis Estudiantes
+                                <button class="nav-link active rounded-pill fw-semibold text-primary" id="estudiantes-tab" data-bs-toggle="tab" data-bs-target="#estudiantes" type="button" role="tab" aria-selected="true">
+                                    <i class="fas fa-users me-2"></i>Mis Estudiantes
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-pill fw-semibold text-success" id="evaluaciones-tab" data-bs-toggle="tab" data-bs-target="#evaluaciones" type="button" role="tab" aria-selected="false" style="transition: background 0.2s;">
-                                    <i class="fas fa-star me-2"></i>
-                                    Evaluaciones
+                                <button class="nav-link rounded-pill fw-semibold text-success" id="evaluaciones-tab" data-bs-toggle="tab" data-bs-target="#evaluaciones" type="button" role="tab" aria-selected="false">
+                                    <i class="fas fa-star me-2"></i>Evaluaciones
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-pill fw-semibold text-warning" id="alertas-tab" data-bs-toggle="tab" data-bs-target="#alertas" type="button" role="tab" aria-selected="false" style="transition: background 0.2s;">
-                                    <i class="fas fa-exclamation-triangle me-2"></i>
-                                    Alertas
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-pill fw-semibold text-info" id="reportes-tab" data-bs-toggle="tab" data-bs-target="#reportes" type="button" role="tab" aria-selected="false" style="transition: background 0.2s;">
-                                    <i class="fas fa-chart-line me-2"></i>
-                                    Reportes
+                                <button class="nav-link rounded-pill fw-semibold text-info" id="reportes-tab" data-bs-toggle="tab" data-bs-target="#reportes" type="button" role="tab" aria-selected="false">
+                                    <i class="fas fa-chart-line me-2"></i>Reportes
                                 </button>
                             </li>
                         </ul>
@@ -279,118 +161,124 @@
                         <div class="tab-content mt-3" id="supervisionTabContent">
                             <!-- Mis Estudiantes -->
                             <div class="tab-pane fade show active" id="estudiantes" role="tabpanel">
-                                <?php if (!empty($estudiantesAsignados)): ?>
-                                    <?php foreach ($estudiantesAsignados as $estudiante): ?>
-                                        <div class="supervision-card">
-                                            <div class="supervision-header">
-                                                <div class="row align-items-center">
-                                                    <div class="col-md-8">
-                                                        <div class="d-flex align-items-center">
-                                                            <img src="https://ui-avatars.com/api/?name=<?= urlencode($estudiante['NOMBRE_COMPLETO']) ?>&background=0d6efd&color=fff&size=50" class="estudiante-avatar me-3" alt="<?= substr($estudiante['NOMBRE_COMPLETO'], 0, 2) ?>">
-                                                            <div>
-                                                                <h5 class="mb-1"><?= $estudiante['NOMBRE_COMPLETO'] ?></h5>
-                                                                <p class="mb-0 opacity-75"><?= $estudiante['CARRERA'] ?> - <?= $estudiante['INSTITUCION_NOMBRE'] ?></p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-4 text-md-end">
-                                                        <?php
-                                                        $estadoClass = '';
-                                                        switch($estudiante['ESTADO_PRACTICA']) {
-                                                            case 'Completada':
-                                                                $estadoClass = 'bg-success text-white';
-                                                                break;
-                                                            case 'En Progreso':
-                                                                $estadoClass = 'bg-warning text-dark';
-                                                                break;
-                                                            case 'Pendiente':
-                                                                $estadoClass = 'bg-info text-dark';
-                                                                break;
-                                                            default:
-                                                                $estadoClass = 'bg-secondary text-white';
-                                                        }
-                                                        ?>
-                                                        <span class="estado-badge <?= $estadoClass ?>"><?= $estudiante['ESTADO_PRACTICA'] ?></span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="supervision-body">
-                                                <div class="row">
-                                                    <div class="col-md-8">
-                                                        <div class="row mb-3">
-                                                            <div class="col-md-6">
-                                                                <strong>Período:</strong><br>
-                                                                <small class="text-muted">
-                                                                    <?= date('d/m/Y', strtotime($estudiante['FECHA_INICIO'])) ?> - 
-                                                                    <?= date('d/m/Y', strtotime($estudiante['FECHA_FIN'])) ?>
-                                                                </small>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <strong>Horas:</strong><br>
-                                                                <span class="badge bg-info"><?= $estudiante['HORAS_CUMPLIDAS'] ?>/<?= $estudiante['HORAS_TOTALES'] ?>h</span>
-                                                            </div>
-                                                        </div>
-                                                        <div class="row">
-                                                            <div class="col-md-6">
-                                                                <strong>Última Actividad:</strong><br>
-                                                                <small class="text-muted"><?= $estudiante['ULTIMA_ACTIVIDAD'] ?? 'Sin actividades' ?></small>
-                                                            </div>
-                                                            <div class="col-md-6">
-                                                                <strong>Progreso:</strong><br>
-                                                                <div class="progress" style="height: 8px;">
-                                                                    <div class="progress-bar bg-success" style="width: <?= $estudiante['PORCENTAJE_PROGRESO'] ?>%"></div>
+                                <div class="card shadow-sm border-0">
+                                    <div class="card-header bg-primary text-white">
+                                        <span><i class="fas fa-users me-2"></i>Mis Estudiantes</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <?php if (!empty($estudiantesAsignados)): ?>
+                                            <?php foreach ($estudiantesAsignados as $estudiante): ?>
+                                                <div class="card border shadow-sm mb-3">
+                                                    <div class="card-header bg-primary text-white py-2">
+                                                        <div class="row align-items-center">
+                                                            <div class="col-md-8">
+                                                                <div class="d-flex align-items-center">
+                                                                    <img src="https://ui-avatars.com/api/?name=<?= urlencode($estudiante['NOMBRE_COMPLETO']) ?>&background=fff&color=0d6efd&size=50" class="estudiante-avatar me-3" alt="<?= substr($estudiante['NOMBRE_COMPLETO'], 0, 2) ?>">
+                                                                    <div>
+                                                                        <h6 class="mb-0"><?= $estudiante['NOMBRE_COMPLETO'] ?></h6>
+                                                                        <small class="opacity-75"><?= $estudiante['CARRERA'] ?> - <?= $estudiante['INSTITUCION_NOMBRE'] ?></small>
+                                                                    </div>
                                                                 </div>
-                                                                <small class="text-muted"><?= $estudiante['PORCENTAJE_PROGRESO'] ?>% completado</small>
+                                                            </div>
+                                                            <div class="col-md-4 text-md-end">
+                                                                <?php
+                                                                $estadoClass = '';
+                                                                switch($estudiante['ESTADO_PRACTICA']) {
+                                                                    case 'Completada':
+                                                                        $estadoClass = 'bg-success text-white';
+                                                                        break;
+                                                                    case 'En Progreso':
+                                                                        $estadoClass = 'bg-warning text-dark';
+                                                                        break;
+                                                                    case 'Pendiente':
+                                                                        $estadoClass = 'bg-info text-dark';
+                                                                        break;
+                                                                    default:
+                                                                        $estadoClass = 'bg-secondary text-white';
+                                                                }
+                                                                ?>
+                                                                <span class="estado-badge <?= $estadoClass ?>"><?= $estudiante['ESTADO_PRACTICA'] ?></span>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-4 text-center">
-                                                        <div class="progreso-circular">
-                                                            <canvas id="progresoEst<?= $estudiante['ID_ESTUDIANTE'] ?>" width="80" height="80"></canvas>
-                                                            <div class="progreso-texto"><?= $estudiante['PORCENTAJE_PROGRESO'] ?>%</div>
+                                                    <div class="card-body">
+                                                        <div class="row">
+                                                            <div class="col-md-8">
+                                                                <div class="row mb-3">
+                                                                    <div class="col-md-6">
+                                                                        <strong>Período:</strong><br>
+                                                                        <small class="text-muted">
+                                                                            <?= date('d/m/Y', strtotime($estudiante['FECHA_INICIO'])) ?> - <?= date('d/m/Y', strtotime($estudiante['FECHA_FIN'])) ?>
+                                                                        </small>
+                                                                    </div>
+                                                                    <div class="col-md-6">
+                                                                        <strong>Horas:</strong><br>
+                                                                        <span class="badge bg-info"><?= $estudiante['HORAS_CUMPLIDAS'] ?>/<?= $estudiante['HORAS_TOTALES'] ?>h</span>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="row">
+                                                                    <div class="col-md-6">
+                                                                        <strong>Última Actividad:</strong><br>
+                                                                        <small class="text-muted"><?= $estudiante['ULTIMA_ACTIVIDAD'] ?? 'Sin actividades' ?></small>
+                                                                    </div>
+                                                                    <div class="col-md-6">
+                                                                        <strong>Progreso:</strong><br>
+                                                                        <div class="progress" style="height: 8px;">
+                                                                            <div class="progress-bar bg-success" style="width: <?= $estudiante['PORCENTAJE_PROGRESO'] ?>%"></div>
+                                                                        </div>
+                                                                        <small class="text-muted"><?= $estudiante['PORCENTAJE_PROGRESO'] ?>% completado</small>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-md-4 text-center">
+                                                                <div class="progreso-circular">
+                                                                    <canvas id="progresoEst<?= $estudiante['ID_ESTUDIANTE'] ?>" width="80" height="80"></canvas>
+                                                                    <div class="progreso-texto"><?= $estudiante['PORCENTAJE_PROGRESO'] ?>%</div>
+                                                                </div>
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                </div>
-                                                <hr>
-                                                <div class="row">
-                                                    <div class="col-12">
-                                                        <div class="btn-group w-100" role="group">
-                                                            <button class="btn btn-outline-primary accion-btn" onclick="verDetalleEstudiante(<?= $estudiante['ID_ESTUDIANTE'] ?>)">
+                                                        <hr>
+                                                        <div class="btn-group w-100 btn-group-sm" role="group">
+                                                            <button class="btn btn-outline-primary" onclick="verDetalleEstudiante(<?= $estudiante['ID_ESTUDIANTE'] ?>)">
                                                                 <i class="fas fa-eye me-1"></i>Ver Detalle
                                                             </button>
-                                                            <button class="btn btn-outline-success accion-btn" onclick="evaluarEstudiante(<?= $estudiante['ID_ESTUDIANTE'] ?>)">
+                                                            <button class="btn btn-outline-success" onclick="evaluarEstudiante(<?= $estudiante['ID_ESTUDIANTE'] ?>)">
                                                                 <i class="fas fa-star me-1"></i>Evaluar
                                                             </button>
-                                                            <button class="btn btn-outline-info accion-btn" onclick="enviarMensaje(<?= $estudiante['ID_ESTUDIANTE'] ?>)">
+                                                            <button class="btn btn-outline-info" onclick="enviarMensaje(<?= $estudiante['ID_ESTUDIANTE'] ?>)">
                                                                 <i class="fas fa-comment me-1"></i>Mensaje
                                                             </button>
-                                                            <button class="btn btn-outline-warning accion-btn" onclick="verActividades(<?= $estudiante['ID_ESTUDIANTE'] ?>)">
+                                                            <button class="btn btn-outline-warning" onclick="verActividades(<?= $estudiante['ID_ESTUDIANTE'] ?>)">
                                                                 <i class="fas fa-list me-1"></i>Actividades
                                                             </button>
                                                         </div>
                                                     </div>
                                                 </div>
+                                            <?php endforeach; ?>
+                                        <?php else: ?>
+                                            <div class="text-center py-5">
+                                                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                                                <p class="text-muted mb-0">No tienes estudiantes asignados</p>
+                                                <small class="text-muted">Contacta con el administrador para asignaciones</small>
                                             </div>
-                                        </div>
-                                    <?php endforeach; ?>
-                                <?php else: ?>
-                                    <div class="text-center py-5">
-                                        <i class="fas fa-users fa-3x text-muted mb-3"></i>
-                                        <h5 class="text-muted">No tienes estudiantes asignados</h5>
-                                        <p class="text-muted">Contacta con el administrador para asignaciones</p>
+                                        <?php endif; ?>
                                     </div>
-                                <?php endif; ?>
+                                </div>
                             </div>
 
                             <!-- Evaluaciones -->
                             <div class="tab-pane fade" id="evaluaciones" role="tabpanel">
-                                <div class="row">
-                                    <div class="col-md-8">
-                                        <h6 class="mb-3">
-                                            <i class="fas fa-star me-2"></i>
-                                            Evaluaciones Pendientes
-                                        </h6>
-                                        <?php if (!empty($evaluacionesPendientes)): ?>
+                                <div class="card shadow-sm border-0">
+                                    <div class="card-header bg-success text-white">
+                                        <span><i class="fas fa-star me-2"></i>Evaluaciones</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-8">
+                                                <h6 class="mb-3">
+                                                    <i class="fas fa-star me-2"></i>Evaluaciones Pendientes
+                                                </h6>
+                                                <?php if (!empty($evaluacionesPendientes)): ?>
                                             <?php foreach ($evaluacionesPendientes as $evaluacion): ?>
                                                 <div class="evaluacion-item">
                                                     <div class="d-flex justify-content-between align-items-center">
@@ -449,77 +337,72 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-
-                            <!-- Alertas -->
-                            <div class="tab-pane fade" id="alertas" role="tabpanel">
-                                <h6 class="mb-3">
-                                    <i class="fas fa-exclamation-triangle me-2"></i>
-                                    Alertas y Notificaciones
-                                </h6>
-                                <div id="alertasContenido">
-                                    <p class="text-muted">Cargando alertas...</p>
                                 </div>
                             </div>
 
                             <!-- Reportes -->
                             <div class="tab-pane fade" id="reportes" role="tabpanel">
-                                <div class="row">
-                                    <div class="col-md-6">
-                                        <h6 class="mb-3">
-                                            <i class="fas fa-chart-bar me-2"></i>
-                                            Generar Reportes
-                                        </h6>
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <form id="formGenerarReporte">
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Tipo de Reporte</label>
-                                                        <select class="form-select" name="tipo_reporte" required>
-                                                            <option value="">Seleccionar...</option>
-                                                            <option value="progreso_estudiantes">Progreso de Estudiantes</option>
-                                                            <option value="evaluaciones_periodo">Evaluaciones por Período</option>
-                                                            <option value="actividades_realizadas">Actividades Realizadas</option>
-                                                            <option value="documentos_entregados">Documentos Entregados</option>
-                                                        </select>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-6">
-                                                            <div class="mb-3">
-                                                                <label class="form-label">Fecha Desde</label>
-                                                                <input type="date" class="form-control" name="fecha_desde" required>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <div class="mb-3">
-                                                                <label class="form-label">Fecha Hasta</label>
-                                                                <input type="date" class="form-control" name="fecha_hasta" required>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Formato</label>
-                                                        <select class="form-select" name="formato" required>
-                                                            <option value="pdf">PDF</option>
-                                                            <option value="excel">Excel</option>
-                                                            <option value="word">Word</option>
-                                                        </select>
-                                                    </div>
-                                                    <button type="submit" class="btn btn-primary w-100">
-                                                        <i class="fas fa-download me-1"></i>Generar Reporte
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </div>
+                                <div class="card shadow-sm border-0">
+                                    <div class="card-header bg-info text-white">
+                                        <span><i class="fas fa-chart-line me-2"></i>Reportes</span>
                                     </div>
-                                    <div class="col-md-6">
-                                        <h6 class="mb-3">
-                                            <i class="fas fa-chart-line me-2"></i>
-                                            Estadísticas Rápidas
-                                        </h6>
-                                        <div class="card">
-                                            <div class="card-body">
-                                                <canvas id="estadisticasChart" width="400" height="200"></canvas>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <h6 class="mb-3">
+                                                    <i class="fas fa-chart-bar me-2"></i>Generar Reportes
+                                                </h6>
+                                                <div class="card">
+                                                    <div class="card-body">
+                                                        <form id="formGenerarReporte">
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Tipo de Reporte</label>
+                                                                <select class="form-select" name="tipo_reporte" required>
+                                                                    <option value="">Seleccionar...</option>
+                                                                    <option value="progreso_estudiantes">Progreso de Estudiantes</option>
+                                                                    <option value="evaluaciones_periodo">Evaluaciones por Período</option>
+                                                                    <option value="actividades_realizadas">Actividades Realizadas</option>
+                                                                    <option value="documentos_entregados">Documentos Entregados</option>
+                                                                </select>
+                                                            </div>
+                                                            <div class="row">
+                                                                <div class="col-md-6">
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label">Fecha Desde</label>
+                                                                        <input type="date" class="form-control" name="fecha_desde" required>
+                                                                    </div>
+                                                                </div>
+                                                                <div class="col-md-6">
+                                                                    <div class="mb-3">
+                                                                        <label class="form-label">Fecha Hasta</label>
+                                                                        <input type="date" class="form-control" name="fecha_hasta" required>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="mb-3">
+                                                                <label class="form-label">Formato</label>
+                                                                <select class="form-select" name="formato" required>
+                                                                    <option value="pdf">PDF</option>
+                                                                    <option value="excel">Excel</option>
+                                                                    <option value="word">Word</option>
+                                                                </select>
+                                                            </div>
+                                                        <button type="submit" class="btn btn-primary w-100">
+                                                            <i class="fas fa-download me-1"></i>Generar Reporte
+                                                        </button>
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <h6 class="mb-3">
+                                                    <i class="fas fa-chart-line me-2"></i>Estadísticas Rápidas
+                                                </h6>
+                                                <div class="card">
+                                                    <div class="card-body">
+                                                        <canvas id="estadisticasChart" width="400" height="200"></canvas>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -717,34 +600,6 @@
     let estudianteActual = null;
     const baseUrlPracticas = '<?= base_url("docente/practicas") ?>';
 
-    function cargarAlertas() {
-        const cont = document.getElementById('alertasContenido');
-        if (!cont) return;
-        fetch(baseUrlPracticas + '/alertas')
-            .then(r => r.json())
-            .then(data => {
-                if (data.success && data.data && data.data.length) {
-                    cont.innerHTML = data.data.map(a => {
-                        const cls = a.tipo === 'danger' ? 'danger' : a.tipo === 'success' ? 'success' : 'warning';
-                        return '<div class="alert-item ' + cls + '"><div class="d-flex align-items-start">' +
-                            '<i class="fas fa-exclamation-triangle text-' + cls + ' me-3 mt-1"></i>' +
-                            '<div><strong>' + (a.titulo || 'Alerta') + '</strong>' +
-                            '<p class="mb-1">' + (a.mensaje || '') + '</p>' +
-                            '<small class="text-muted">' + (a.fecha || '') + '</small></div></div></div>';
-                    }).join('');
-                } else {
-                    cont.innerHTML = '<p class="text-muted mb-0">No hay alertas en este momento.</p>';
-                }
-            })
-            .catch(() => {
-                cont.innerHTML = '<p class="text-muted mb-0">No se pudieron cargar las alertas.</p>';
-            });
-    }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        cargarAlertas();
-    });
-
     function verDetalleEstudiante(id) {
         estudianteActual = id;
         const modalEl = document.getElementById('modalDetalleEstudiante');
@@ -848,15 +703,6 @@
         } catch (err) {
             console.error(err);
             calendarEl.innerHTML = '<p class="text-danger">Error al mostrar el calendario.</p>';
-        }
-    }
-
-    function configurarAlertas() {
-        const tab = document.querySelector('#alertas-tab');
-        if (tab) {
-            tab.click();
-        } else {
-            showNotification('Ver pestaña Alertas para notificaciones.', 'info');
         }
     }
 

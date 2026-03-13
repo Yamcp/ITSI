@@ -52,6 +52,18 @@
 <?= $this->section('content') ?>
 <div class="body-wrapper">
     <div class="container-fluid">
+        <?php if (session()->getFlashdata('success')): ?>
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="fas fa-check-circle me-2"></i><?= session()->getFlashdata('success') ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <?php endif; ?>
+        <?php if (session()->getFlashdata('error')): ?>
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i><?= session()->getFlashdata('error') ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <?php endif; ?>
         <!-- Header -->
         <div class="row">
             <div class="col-12">
@@ -236,6 +248,9 @@
                                                                             <button class="btn btn-outline-info" onclick="gestionarParticipantes(<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>)" title="Participantes">
                                                                                 <i class="fas fa-users"></i>
                                                                             </button>
+                                                                            <a href="<?= base_url('docente/actividades-educacion/eliminar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-danger" title="Eliminar" onclick="return confirm('¿Está seguro de eliminar esta actividad? Esta acción no se puede deshacer.');">
+                                                                                <i class="fas fa-trash-alt"></i>
+                                                                            </a>
                                                                         </div>
                                                                     </td>
                                                                 </tr>
@@ -310,7 +325,7 @@
                                                                         ?>
                                                                     </td>
                                                                     <td>
-                                                                        <span class="badge bg-success">8</span>
+                                                                        <span class="badge bg-success"><?= (int)($conteoParticipantes[$actividad['ID_ACTIVIDAD_EDUCACION']] ?? 0) ?></span>
                                                                         <small class="text-muted">inscritos</small>
                                                                     </td>
                                                                     <td>
@@ -324,6 +339,9 @@
                                                                             <button class="btn btn-outline-info" onclick="gestionarParticipantes(<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>)" title="Participantes">
                                                                                 <i class="fas fa-users"></i>
                                                                             </button>
+                                                                            <a href="<?= base_url('docente/actividades-educacion/eliminar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-danger" title="Eliminar" onclick="return confirm('¿Está seguro de eliminar esta actividad? Esta acción no se puede deshacer.');">
+                                                                                <i class="fas fa-trash-alt"></i>
+                                                                            </a>
                                                                         </div>
                                                                     </td>
                                                                 </tr>
@@ -398,7 +416,7 @@
                                                                         ?>
                                                                     </td>
                                                                     <td>
-                                                                        <span class="badge bg-info">25</span>
+                                                                        <span class="badge bg-info"><?= (int)($conteoParticipantes[$actividad['ID_ACTIVIDAD_EDUCACION']] ?? 0) ?></span>
                                                                         <small class="text-muted">inscritos</small>
                                                                     </td>
                                                                     <td>
@@ -412,6 +430,9 @@
                                                                             <button class="btn btn-outline-info" onclick="gestionarParticipantes(<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>)" title="Participantes">
                                                                                 <i class="fas fa-users"></i>
                                                                             </button>
+                                                                            <a href="<?= base_url('docente/actividades-educacion/eliminar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-danger" title="Eliminar" onclick="return confirm('¿Está seguro de eliminar esta actividad? Esta acción no se puede deshacer.');">
+                                                                                <i class="fas fa-trash-alt"></i>
+                                                                            </a>
                                                                         </div>
                                                                     </td>
                                                                 </tr>

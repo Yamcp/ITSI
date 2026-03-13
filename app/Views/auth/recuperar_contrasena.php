@@ -49,9 +49,32 @@
         .card-body { padding: 2rem 2rem 1.5rem 2rem; }
         .login-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
         .login-subtitle { font-size: 1rem; color: #6c757d; margin-bottom: 1.5rem; }
+        /* Alerta cuando no se pudo enviar el correo */
+        .alert-recuperacion {
+            background: #fffbf0;
+            border: 1px solid #f0e6c8;
+            border-radius: 0.5rem;
+            padding: 1rem 1.25rem;
+        }
+        .alert-recuperacion .alert-titulo {
+            color: #856404;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        .alert-recuperacion p {
+            color: #664d03;
+            font-size: 0.9375rem;
+            margin-bottom: 1rem;
+        }
+        .alert-recuperacion .btn-enlace-recuperar {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
         @media (max-width: 576px) {
             .login-card { max-width: 95vw; padding: 0.5rem; }
             .card-body { padding: 1rem; }
+            .alert-recuperacion .btn-enlace-recuperar { width: 100%; justify-content: center; }
         }
     </style>
 </head>
@@ -90,10 +113,11 @@
                 $enlaceRecup = session()->getFlashdata('enlace_recuperacion');
                 $errorEmail  = session()->getFlashdata('error_email');
                 if ($errorEmail && $enlaceRecup) : ?>
-                    <div class="alert alert-warning mb-3" role="alert">
-                        <p class="mb-2"><i class="bi bi-envelope-exclamation me-2"></i><strong>No se pudo enviar el correo.</strong> Configure <code>app/Config/Email.php</code> (fromEmail, SMTPUser, SMTPPass) o use el enlace siguiente (válido 1 hora):</p>
-                        <a href="<?= esc($enlaceRecup) ?>" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-link-45deg me-1"></i>Abrir enlace para restablecer contraseña
+                    <div class="alert-recuperacion mb-3" role="alert">
+                        <p class="alert-titulo mb-1"><i class="bi bi-envelope-exclamation me-2"></i>No se pudo enviar el correo.</p>
+                        <p class="mb-2">Configure <code>app/Config/Email.php</code> (fromEmail, SMTPUser, SMTPPass) o use el enlace siguiente (válido 1 hora):</p>
+                        <a href="<?= esc($enlaceRecup) ?>" class="btn btn-primary btn-enlace-recuperar" target="_blank" rel="noopener">
+                            <i class="bi bi-link-45deg"></i> Abrir enlace para restablecer contraseña
                         </a>
                     </div>
                 <?php endif; ?>
@@ -108,7 +132,7 @@
                         <div class="invalid-feedback">Este campo es obligatorio.</div>
                     </div>
                     <div class="d-grid mb-3">
-                        <button type="submit" class="btn btn-primary text-uppercase fw-bold">
+                        <button type="submit" class="btn btn-primary text-uppercase fw-bold py-2">
                             <i class="bi bi-send me-2"></i>Enviar instrucciones
                         </button>
                     </div>

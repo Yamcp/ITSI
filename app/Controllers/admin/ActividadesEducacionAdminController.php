@@ -7,6 +7,7 @@ use App\Models\InstructoresModel;
 use App\Models\LineasInvestigacionModel;
 use App\Models\TiposModalidadesModel;
 use App\Models\TiposActividadesModel;
+use App\Models\EvaluacionesEnlacesModel;
 use App\Controllers\BaseController;
 
 class ActividadesEducacionAdminController extends BaseController
@@ -16,32 +17,49 @@ class ActividadesEducacionAdminController extends BaseController
     protected $lineasInvestigacionModel;
     protected $tiposModalidadesModel;
     protected $tiposActividadesModel;
+    protected $evaluacionesEnlacesModel;
 
     public function __construct()
     {
         $this->actividadesModel = new ActividadesEducacionModel();
         $this->instructoresModel = new InstructoresModel();
-        $this->lineasInvestigacionModel = new LineasInvestigacionModel(); // Corregido: sin tilde
+        $this->lineasInvestigacionModel = new LineasInvestigacionModel();
         $this->tiposModalidadesModel = new TiposModalidadesModel();
         $this->tiposActividadesModel = new TiposActividadesModel();
+        $this->evaluacionesEnlacesModel = new EvaluacionesEnlacesModel();
     }
 
     public function index()
     {
         $actividades = $this->actividadesModel->getActividadesConDatos();
-        
-        // Depuración temporal - remover en producción
-        log_message('debug', 'Actividades cargadas: ' . json_encode($actividades));
+        $encuestasPorActividad = $this->obtenerEncuestasSatisfaccionPorActividad();
 
         $data = [
             'title' => 'Gestión de Actividades Educativas',
             'actividades' => $actividades,
+            'encuestasPorActividad' => $encuestasPorActividad,
             'instructores' => $this->instructoresModel->getInstructoresConDatos(),
             'modalidades' => $this->tiposModalidadesModel->findAll(),
             'tipos_actividades' => $this->tiposActividadesModel->findAll()
         ];
 
         return view('admin/educacion/actividades_educacion_views', $data);
+    }
+
+    /**
+     * Mapa ID_ACTIVIDAD_EDUCACION => evaluación de satisfacción (para listado).
+     */
+    private function obtenerEncuestasSatisfaccionPorActividad()
+    {
+        $lista = $this->evaluacionesEnlacesModel
+            ->where('TIPO_EVALUACION', 'satisfaccion')
+            ->where('ACTIVO', true)
+            ->findAll();
+        $mapa = [];
+        foreach ($lista as $ev) {
+            $mapa[(int) $ev['ID_ACTIVIDAD_EDUCACION']] = $ev;
+        }
+        return $mapa;
     }
 
     public function create()
@@ -156,9 +174,16 @@ class ActividadesEducacionAdminController extends BaseController
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Actividad no encontrada');
         }
 
+        $encuestaSatisfaccion = $this->evaluacionesEnlacesModel
+            ->where('ID_ACTIVIDAD_EDUCACION', $id)
+            ->where('TIPO_EVALUACION', 'satisfaccion')
+            ->where('ACTIVO', true)
+            ->first();
+
         $data = [
             'title' => 'Detalles de la Actividad',
-            'actividad' => $actividad
+            'actividad' => $actividad,
+            'encuestaSatisfaccion' => $encuestaSatisfaccion
         ];
 
         return view('admin/educacion/show', $data);

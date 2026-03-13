@@ -287,7 +287,7 @@ class ConveniosAdminController extends BaseController
             
             // Configurar información del documento
             $pdf->SetCreator('Sistema ITSI');
-            $pdf->SetAuthor('Administrador');
+            $pdf->SetAuthor('Coordinador');
             $pdf->SetTitle('Reporte de Convenios');
             $pdf->SetSubject('Reporte de Convenios del Sistema');
             

@@ -49,7 +49,7 @@ if (!$periodoNombre) {
                 <li class="nav-item me-3 d-flex flex-column align-items-end">
                     <span class="text-white fw-medium">
                         <i class="ti ti-user-circle me-1"></i>
-                        Bienvenido al sistema, <?= session('nombre') ?? 'Administrador' ?>
+                        Bienvenido al sistema, <?= session('nombre') ?? 'Coordinador' ?>
                     </span>
                 </li>
                 <li class="nav-item dropdown">

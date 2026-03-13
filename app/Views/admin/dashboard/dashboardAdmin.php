@@ -173,10 +173,8 @@ if (!$periodoNombreDashboard) {
     .activity-card p { font-size: 0.85rem; color: #64748b; margin-bottom: 0.5rem; }
 
     .chart-container { position: relative; height: 280px; margin: 1rem 0; }
-    .carreras-container .chart-container { height: 300px; }
-    #carrerasChart { max-width: 100%; height: auto !important; }
-    @media (max-width: 768px) { .chart-container { height: 300px; } .carreras-container .chart-container { height: 250px; } }
-    @media (max-width: 576px) { .chart-container { height: 250px; } .carreras-container .chart-container { height: 200px; } }
+    @media (max-width: 768px) { .chart-container { height: 300px; } }
+    @media (max-width: 576px) { .chart-container { height: 250px; } }
 
     .table-dash { margin-bottom: 0; }
     .table-dash thead th {
@@ -195,19 +193,6 @@ if (!$periodoNombreDashboard) {
     .table-dash .btn-sm { border-radius: 8px; font-weight: 600; padding: 0.35rem 0.75rem; }
     .empty-state { padding: 3rem 1rem; color: #94a3b8; }
     .empty-state i { font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.6; }
-
-    .legend-table { font-size: 0.9rem; }
-    .legend-table tbody tr:hover { background-color: rgba(0,0,0,0.02); border-radius: 4px; }
-    .legend-table .color-indicator {
-        width: 12px; height: 12px; border-radius: 50%;
-        display: inline-block;
-        border: 1px solid rgba(0,0,0,0.1);
-    }
-    .legend-table .carrera-name { font-weight: 500; color: #495057; }
-    .legend-table .estudiantes-count { color: #6c757d; font-size: 0.85rem; }
-    .legend-table .percentage-badge { font-size: 0.75rem; padding: 0.25rem 0.5rem; }
-    .carreras-container .legend-table { margin-top: 0; }
-    @media (max-width: 576px) { .carreras-container .legend-table { margin-top: 20px; } }
 </style>
 <?= $this->endSection() ?>
 
@@ -243,7 +228,7 @@ if (!$periodoNombreDashboard) {
                 </div>
             </div>
             <div class="d-flex flex-wrap align-items-center gap-2">
-                <span class="badge badge-rol">Administrador</span>
+                <span class="badge badge-rol">Coordinador</span>
                 <div class="date-time-box d-flex flex-column align-items-end">
                     <span><i class="fas fa-calendar-alt me-1"></i><?= date('d/m/Y') ?></span>
                     <span><i class="fas fa-clock me-1"></i><span id="currentTime"></span></span>
@@ -302,49 +287,21 @@ if (!$periodoNombreDashboard) {
                             <div class="metric-icon mx-auto mb-2" style="background: rgba(255,255,255,0.25);">
                                 <i class="fas fa-handshake"></i>
                             </div>
-                            <h3 class="mb-0" id="conveniosVigentes"><?= number_format($metricas['conveniosVigentes'] ?? 0) ?></h3>
-                            <p class="metric-label mb-0">Convenios Vigentes</p>
-                            <small class="metric-sub">Activos</small>
+                            <h3 class="mb-0" id="conveniosPorCaducar"><?= number_format($metricas['conveniosPorCaducar'] ?? 0) ?></h3>
+                            <p class="metric-label mb-0">Convenios por caducar</p>
+                            <small class="metric-sub">Próximos 3 meses</small>
                         </div>
                     </div>
                 </a>
             </div>
         </div>
 
-        <!-- Progreso por tipo -->
-        <?php
-        $totalEst = (int)($metricas['totalEstudiantes'] ?? 0);
-        $totalConv = (int)($metricas['conveniosVigentes'] ?? 0);
-        $pctEst = min(100, $totalEst > 0 ? 50 + min(50, (int)($totalEst / 20)) : 0);
-        $pctConv = min(100, $totalConv > 0 ? 40 + min(60, (int)($totalConv * 6)) : 0);
-        ?>
-        <div class="row g-3 mb-4">
-            <div class="col-md-6">
-                <div class="progress-card-dash" style="background: var(--gradient-pre);">
-                    <h5><i class="fas fa-users me-2"></i>Estudiantes registrados</h5>
-                    <div class="progress mb-2">
-                        <div class="progress-bar bg-white" role="progressbar" style="width: <?= $pctEst ?>%" aria-valuenow="<?= $pctEst ?>" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <small><?= number_format($totalEst) ?> estudiantes en el sistema</small>
-                </div>
-            </div>
-            <div class="col-md-6">
-                <div class="progress-card-dash" style="background: var(--gradient-active);">
-                    <h5><i class="fas fa-handshake me-2"></i>Convenios vigentes</h5>
-                    <div class="progress mb-2">
-                        <div class="progress-bar bg-white" role="progressbar" style="width: <?= $pctConv ?>%" aria-valuenow="<?= $pctConv ?>" aria-valuemin="0" aria-valuemax="100"></div>
-                    </div>
-                    <small><?= number_format($totalConv) ?> convenios activos</small>
-                </div>
-            </div>
-        </div>
-
         <!-- Gráficas -->
         <div class="row g-3 mb-4">
-            <div class="col-lg-8">
+            <div class="col-12">
                 <div class="card card-dash">
                     <div class="card-header">
-                        <i class="fas fa-chart-line me-2 text-primary"></i>Actividades Educativas por Mes
+                        <i class="fas fa-chart-line me-2 text-primary"></i>Estudiantes en prácticas por mes
                     </div>
                     <div class="card-body">
                         <div class="chart-container">
@@ -353,38 +310,19 @@ if (!$periodoNombreDashboard) {
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4">
+        </div>
+
+        <!-- Prácticas y servicio comunitario por carrera -->
+        <div class="row g-3 mb-4">
+            <div class="col-12">
                 <div class="card card-dash">
                     <div class="card-header">
-                        <i class="fas fa-chart-pie me-2 text-primary"></i>Distribución por Carrera
+                        <i class="fas fa-chart-bar me-2 text-primary"></i>Prácticas preprofesionales y servicio comunitario por carrera
                     </div>
-                    <div class="card-body carreras-container">
-                        <div class="chart-container">
-                            <canvas id="carrerasChart"></canvas>
+                    <div class="card-body">
+                        <div class="chart-container" style="height: 320px;">
+                            <canvas id="practicasPorCarreraChart"></canvas>
                         </div>
-                        <?php if (!empty($distribucionCarreras)): ?>
-                        <div class="table-responsive mt-3">
-                            <table class="table table-sm table-borderless legend-table mb-0">
-                                <tbody>
-                                    <?php
-                                    $colores = ['#667eea', '#f093fb', '#4facfe', '#43e97b', '#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff', '#5f27cd'];
-                                    $totalEstudiantesLeg = array_sum(array_column($distribucionCarreras, 'TOTAL'));
-                                    foreach (array_slice($distribucionCarreras, 0, 6) as $index => $carrera):
-                                        $porcentaje = $totalEstudiantesLeg > 0 ? round(($carrera['TOTAL'] / $totalEstudiantesLeg) * 100, 1) : 0;
-                                    ?>
-                                    <tr>
-                                        <td class="text-center pe-2" style="width: 20px;">
-                                            <div class="color-indicator" style="background-color: <?= $colores[$index % count($colores)] ?>;"></div>
-                                        </td>
-                                        <td class="carrera-name small"><?= esc($carrera['CARRERA']) ?></td>
-                                        <td class="text-end estudiantes-count small"><?= number_format($carrera['TOTAL']) ?></td>
-                                        <td class="text-end"><span class="badge bg-light text-dark percentage-badge"><?= $porcentaje ?>%</span></td>
-                                    </tr>
-                                    <?php endforeach; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -483,39 +421,31 @@ if (!$periodoNombreDashboard) {
         setInterval(updateTime, 1000);
         updateTime();
 
-        // Gráfica de Actividades por Mes
+        // Gráfica: Estudiantes en prácticas preprofesionales y servicio comunitario por mes
         const actividadesCtx = document.getElementById('actividadesChart').getContext('2d');
         
-        // Preparar datos mensuales
         <?php 
         $estadisticasMensuales = $datosGraficas['estadisticasMensuales'] ?? [];
         $meses = array_column($estadisticasMensuales, 'mes');
-        $datosActividades = array_column($estadisticasMensuales, 'actividades');
-        $datosPracticas = array_column($estadisticasMensuales, 'practicas');
-        
-        // Debug: mostrar datos en consola
-        echo "console.log('Datos mensuales:', " . json_encode($estadisticasMensuales) . ");";
-        echo "console.log('Meses:', " . json_encode($meses) . ");";
-        echo "console.log('Actividades:', " . json_encode($datosActividades) . ");";
-        echo "console.log('Prácticas:', " . json_encode($datosPracticas) . ");";
+        $datosPreprofesionales = array_column($estadisticasMensuales, 'preprofesionales');
+        $datosServicioComunitario = array_column($estadisticasMensuales, 'servicioComunitario');
         ?>
         
-        // Verificar que tenemos datos antes de crear el gráfico
         if (<?= json_encode($meses) ?> && <?= json_encode($meses) ?>.length > 0) {
             const actividadesChart = new Chart(actividadesCtx, {
                 type: 'line',
                 data: {
                     labels: <?= json_encode($meses) ?>,
                     datasets: [{
-                        label: 'Actividades Educativas',
-                        data: <?= json_encode($datosActividades) ?>,
+                        label: 'Prácticas preprofesionales',
+                        data: <?= json_encode($datosPreprofesionales) ?>,
                         borderColor: '#667eea',
                         backgroundColor: 'rgba(102, 126, 234, 0.1)',
                         tension: 0.4,
                         fill: true
                     }, {
-                        label: 'Prácticas Asignadas',
-                        data: <?= json_encode($datosPracticas) ?>,
+                        label: 'Servicio comunitario',
+                        data: <?= json_encode($datosServicioComunitario) ?>,
                         borderColor: '#f093fb',
                         backgroundColor: 'rgba(240, 147, 251, 0.1)',
                         tension: 0.4,
@@ -551,72 +481,63 @@ if (!$periodoNombreDashboard) {
             actividadesCtx.fillStyle = '#666';
             actividadesCtx.textAlign = 'center';
             actividadesCtx.fillText('No hay datos disponibles', actividadesCtx.canvas.width / 2, actividadesCtx.canvas.height / 2);
-            console.log('No hay datos para mostrar en el gráfico de actividades');
+            console.log('No hay datos para mostrar en el gráfico de prácticas');
         }
 
-        // Gráfica de Distribución por Carrera
-        const carrerasCtx = document.getElementById('carrerasChart').getContext('2d');
-        
-        <?php 
-        $carrerasLabels = array_column($distribucionCarreras ?? [], 'CARRERA');
-        $carrerasData = array_column($distribucionCarreras ?? [], 'TOTAL');
-        echo "console.log('Distribución carreras completa:', " . json_encode($distribucionCarreras ?? []) . ");";
-        echo "console.log('Carreras labels:', " . json_encode($carrerasLabels) . ");";
-        echo "console.log('Carreras data:', " . json_encode($carrerasData) . ");";
-        ?>
-        
-        if (<?= json_encode($carrerasLabels) ?> && <?= json_encode($carrerasLabels) ?>.length > 0) {
-            const carrerasChart = new Chart(carrerasCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: <?= json_encode($carrerasLabels) ?>,
-                    datasets: [{
-                        label: 'Estudiantes por Carrera',
-                        data: <?= json_encode($carrerasData) ?>,
-                        backgroundColor: [
-                            '#667eea',
-                            '#f093fb',
-                            '#4facfe',
-                            '#43e97b',
-                            '#ff6b6b',
-                            '#4ecdc4',
-                            '#45b7d1',
-                            '#96ceb4',
-                            '#feca57',
-                            '#ff9ff3',
-                            '#54a0ff',
-                            '#5f27cd'
-                        ],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            display: false // Ocultamos la leyenda de Chart.js
+        // Gráfica de barras: Prácticas preprofesionales y servicio comunitario por carrera
+        const practicasPorCarreraCtx = document.getElementById('practicasPorCarreraChart');
+        if (practicasPorCarreraCtx) {
+            <?php
+            $practicasPorCarrera = $practicasPorCarrera ?? [];
+            $carrerasPracticas = array_column($practicasPorCarrera, 'CARRERA');
+            $datosPreprofCarrera = array_column($practicasPorCarrera, 'PREPROFESIONALES');
+            $datosServCarrera = array_column($practicasPorCarrera, 'SERVICIO_COMUNITARIO');
+            ?>
+            if (<?= json_encode($carrerasPracticas) ?> && <?= json_encode($carrerasPracticas) ?>.length > 0) {
+                new Chart(practicasPorCarreraCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: <?= json_encode($carrerasPracticas) ?>,
+                        datasets: [{
+                            label: 'Prácticas preprofesionales',
+                            data: <?= json_encode($datosPreprofCarrera) ?>,
+                            backgroundColor: 'rgba(102, 126, 234, 0.8)',
+                            borderColor: '#667eea',
+                            borderWidth: 1
+                        }, {
+                            label: 'Servicio comunitario',
+                            data: <?= json_encode($datosServCarrera) ?>,
+                            backgroundColor: 'rgba(240, 147, 251, 0.8)',
+                            borderColor: '#f093fb',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'top' }
                         },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.label + ': ' + context.parsed + ' estudiantes';
-                                }
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                ticks: { stepSize: 1 },
+                                grid: { color: 'rgba(0,0,0,0.08)' }
+                            },
+                            x: {
+                                grid: { display: false }
                             }
                         }
                     }
-                }
-            });
-        } else {
-            // Mostrar mensaje si no hay datos
-            carrerasCtx.font = '16px Arial';
-            carrerasCtx.fillStyle = '#666';
-            carrerasCtx.textAlign = 'center';
-            carrerasCtx.fillText('No hay datos disponibles', carrerasCtx.canvas.width / 2, carrerasCtx.canvas.height / 2);
-            console.log('No hay datos para mostrar en el gráfico de carreras');
+                });
+            } else {
+                const ctx = practicasPorCarreraCtx.getContext('2d');
+                ctx.font = '16px Arial';
+                ctx.fillStyle = '#666';
+                ctx.textAlign = 'center';
+                ctx.fillText('No hay datos de prácticas por carrera', practicasPorCarreraCtx.canvas.width / 2, practicasPorCarreraCtx.canvas.height / 2);
+            }
         }
-
-        
 
         // Función para navegar a diferentes secciones
         function navegarA(seccion) {
