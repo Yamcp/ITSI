@@ -13,6 +13,7 @@ drop table if exists TAB_SEGUIMIENTO_PRACTICAS_PREPROFESIONALES;
 drop table if exists TAB_DOCUMENTOS_SERVICIO_COMUNITARIO;
 drop table if exists TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES;
 drop table if exists TAB_EVALUACIONES_ENLACES;
+drop table if exists TAB_INSCRIPCIONES_ACTIVIDADES;
 drop table if exists TAB_SERVICIO_COMUNITARIO;
 drop table if exists TAB_PRACTICAS_PREPROFESIONALES;
 drop table if exists TAB_ACTIVIDADES_EDUCACION;
@@ -28,6 +29,7 @@ drop table if exists TAB_INSTITUCIONES_CONVENIOS;
 drop table if exists TAB_CARRERAS;
 drop table if exists TAB_DEPARTAMENTOS;
 drop table if exists TAB_EXPORTACIONES;
+drop table if exists TAB_RECUPERACION_CONTRASENA;
 drop table if exists TAB_USUARIOS;
 drop table if exists TAB_DATOS_PERSONAS;
 drop table if exists TAB_TIPOS_ACTIVIDADES;
@@ -218,6 +220,7 @@ create table TAB_INSTITUCIONES_CONVENIOS
    CONTACTO             varchar(150) not null,
    TELEFONO_CONTACTO    varchar(20) not null,
    EMAIL_CONTACTO       varchar(100) not null,
+   LOGO                 varchar(255) null,
    primary key (ID_INSTITUCION_CONVENIO)
 );
 
@@ -357,6 +360,22 @@ create table TAB_USUARIOS
    CONTRASENA           varchar(60) not null,
    ESTADO               char(1) not null,
    primary key (ID_USUARIO)
+);
+
+/*==============================================================*/
+/* Table: TAB_RECUPERACION_CONTRASENA                            */
+/*==============================================================*/
+create table TAB_RECUPERACION_CONTRASENA
+(
+   ID_RECUPERACION      int unsigned not null auto_increment,
+   ID_USUARIO           int unsigned null,
+   TOKEN                varchar(64) null,
+   EXPIRA_EN            datetime null,
+   USADO                tinyint(1) default 0 null,
+   CREADO_EN            datetime null,
+   primary key (ID_RECUPERACION),
+   key TOKEN (TOKEN),
+   key EXPIRA_EN (EXPIRA_EN)
 );
 
 /*==============================================================*/
@@ -855,6 +874,11 @@ alter table TAB_ESTUDIANTES add constraint FK_REFERENCE_40 foreign key (ID_DATO_
 
 alter table TAB_ESTUDIANTES add constraint FK_REFERENCE_45 foreign key (ID_CARRERA)
       references TAB_CARRERAS (ID_CARRERA) on delete restrict on update restrict;
+
+alter table TAB_INSCRIPCIONES_ACTIVIDADES add constraint FK_INSCRIPCIONES_ACTIVIDAD foreign key (ID_ACTIVIDAD_EDUCACION)
+      references TAB_ACTIVIDADES_EDUCACION (ID_ACTIVIDAD_EDUCACION) on delete cascade on update cascade;
+alter table TAB_INSCRIPCIONES_ACTIVIDADES add constraint FK_INSCRIPCIONES_ESTUDIANTE foreign key (ID_ESTUDIANTE)
+      references TAB_ESTUDIANTES (ID_ESTUDIANTE) on delete cascade on update cascade;
 
 alter table TAB_EXPORTACIONES add constraint FK_REFERENCE_17 foreign key (ID_USUARIO)
       references TAB_USUARIOS (ID_USUARIO) on delete restrict on update restrict;
