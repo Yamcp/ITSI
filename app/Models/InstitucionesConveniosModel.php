@@ -9,7 +9,7 @@ class InstitucionesConveniosModel extends Model
     protected $primaryKey = 'ID_INSTITUCION_CONVENIO';
     protected $allowedFields = [
         'ID_TIPO_INSTITUCION', 'NOMBRE', 'RUC', 'DIRECCION', 'CIUDAD', 'TELEFONO', 'EMAIL',
-        'REPRESENTANTE_LEGAL', 'CONTACTO', 'TELEFONO_CONTACTO', 'EMAIL_CONTACTO'
+        'REPRESENTANTE_LEGAL', 'CONTACTO', 'TELEFONO_CONTACTO', 'EMAIL_CONTACTO', 'LOGO'
     ];
     protected $returnType = 'array';
     

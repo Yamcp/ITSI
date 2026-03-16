@@ -72,8 +72,8 @@ class PracticasEstudianteController extends BaseController
     }
 
     /**
-     * Vista exclusiva solo con los formatos de Prácticas Laborales (QR y aviso SharePoint).
-     * El QR se configura en Admin > Documentos - Preprofesionales.
+     * Vista exclusiva con los documentos de formato de Prácticas Laborales.
+     * Los documentos se configuran en Admin > Documentos - Prácticas Preprofesionales.
      */
     public function formatos()
     {
@@ -81,17 +81,94 @@ class PracticasEstudianteController extends BaseController
             return redirect()->to(base_url('/'));
         }
 
-        $qrPath = WRITEPATH . 'uploads/qr/practicas_preprofesionales.png';
-        $qr_url = (file_exists($qrPath) && is_readable($qrPath))
-            ? base_url('qr/practicas')
-            : base_url('sistema/assets/images/practicas/formatos-practicas-laborales-qr.png');
-
         $data = [
             'title' => 'Formatos de las prácticas - ITSI',
-            'qr_url' => $qr_url,
+            'documentos_formatos' => $this->getListaFormatosPracticasEstudiante(),
         ];
 
         return view('estudiante/practicas/practicas_formatos_estudiante', $data);
+    }
+
+    private function getListaFormatosPracticasEstudiante()
+    {
+        $path = WRITEPATH . 'uploads/formatos_practicas/lista.json';
+        if (!file_exists($path) || !is_readable($path)) {
+            return [];
+        }
+        $json = file_get_contents($path);
+        $lista = json_decode($json, true);
+        return is_array($lista) ? $lista : [];
+    }
+
+    private function getListaFormatosServicioEstudiante()
+    {
+        $path = WRITEPATH . 'uploads/formatos_servicio/lista.json';
+        if (!file_exists($path) || !is_readable($path)) {
+            return [];
+        }
+        $json = file_get_contents($path);
+        $lista = json_decode($json, true);
+        return is_array($lista) ? $lista : [];
+    }
+
+    /**
+     * Descargar un documento de formato de prácticas preprofesionales.
+     */
+    public function descargarFormatoPracticas($archivo)
+    {
+        if (!session()->get('logged_in')) {
+            return redirect()->to(base_url('/'));
+        }
+        $archivo = basename($archivo);
+        if (!preg_match('/^[a-zA-Z0-9_\-\.]+$/', $archivo)) {
+            return $this->response->setStatusCode(400)->setBody('Archivo no válido');
+        }
+        $lista = $this->getListaFormatosPracticasEstudiante();
+        $enLista = false;
+        foreach ($lista as $item) {
+            if (($item['archivo'] ?? '') === $archivo) {
+                $enLista = true;
+                break;
+            }
+        }
+        if (!$enLista) {
+            return $this->response->setStatusCode(404)->setBody('Documento no encontrado');
+        }
+        $ruta = WRITEPATH . 'uploads/formatos_practicas/' . $archivo;
+        if (!file_exists($ruta) || !is_file($ruta)) {
+            return $this->response->setStatusCode(404)->setBody('Archivo no encontrado');
+        }
+        return $this->response->download($ruta, $archivo);
+    }
+
+    /**
+     * Descargar un documento de formato de servicio comunitario.
+     */
+    public function descargarFormatoServicio($archivo)
+    {
+        if (!session()->get('logged_in')) {
+            return redirect()->to(base_url('/'));
+        }
+        $archivo = basename($archivo);
+        if (!preg_match('/^[a-zA-Z0-9_\-\.]+$/', $archivo)) {
+            return $this->response->setStatusCode(400)->setBody('Archivo no válido');
+        }
+        $lista = $this->getListaFormatosServicioEstudiante();
+        $enLista = false;
+        foreach ($lista as $item) {
+            if (($item['archivo'] ?? '') === $archivo) {
+                $enLista = true;
+                break;
+            }
+        }
+        if (!$enLista) {
+            return $this->response->setStatusCode(404)->setBody('Documento no encontrado');
+        }
+        $ruta = WRITEPATH . 'uploads/formatos_servicio/' . $archivo;
+        if (!file_exists($ruta) || !is_file($ruta)) {
+            return $this->response->setStatusCode(404)->setBody('Archivo no encontrado');
+        }
+        return $this->response->download($ruta, $archivo);
     }
 
     /**
@@ -111,17 +188,12 @@ class PracticasEstudianteController extends BaseController
             $progresoServicios[$s['ID_SERVICIO_COMUNITARIO']] = (int) $this->calcularProgreso($s['ID_SERVICIO_COMUNITARIO'], 'servicio');
         }
 
-        $qrPath = WRITEPATH . 'uploads/qr/servicio_comunitario.png';
-        $qr_url = (file_exists($qrPath) && is_readable($qrPath))
-            ? base_url('qr/servicio')
-            : base_url('sistema/assets/images/practicas/formatos-servicio-comunitario-qr.png');
-
         $data = [
             'title' => 'Prácticas de Servicio Comunitario - ITSI',
             'estadisticas' => $estadisticas,
             'serviciosComunitarios' => $serviciosComunitarios,
             'progresoServicios' => $progresoServicios,
-            'qr_url' => $qr_url,
+            'documentos_formatos_servicio' => $this->getListaFormatosServicioEstudiante(),
         ];
 
         return view('estudiante/practicas/practicas_servicio_comunitario_estudiante', $data);
@@ -235,12 +307,14 @@ class PracticasEstudianteController extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Archivo inválido']);
         }
 
-        // Validar tipo de archivo
-        $allowedTypes = ['pdf', 'doc', 'docx', 'xls', 'xlsx'];
-        $fileExtension = $file->getClientExtension();
-        
-        if (!in_array($fileExtension, $allowedTypes)) {
-            return $this->response->setJSON(['success' => false, 'message' => 'Tipo de archivo no permitido']);
+        // Solo PDF, máximo 10 MB
+        $fileExtension = strtolower($file->getClientExtension());
+        if ($fileExtension !== 'pdf') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Solo se permiten archivos en formato PDF.']);
+        }
+        $maxBytes = 10 * 1024 * 1024; // 10 MB
+        if ($file->getSize() > $maxBytes) {
+            return $this->response->setJSON(['success' => false, 'message' => 'El archivo no debe superar 10 MB.']);
         }
 
         try {

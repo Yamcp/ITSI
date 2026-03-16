@@ -54,8 +54,7 @@ app/
 │   └── TiposConveniosModel.php         # Modelo de tipos
 ├── Views/admin/convenios/
 │   ├── convenios_views.php             # Vista principal
-│   ├── reportes.php                    # Vista de reportes con filtros
-│   └── reporte_pdf.php                 # Plantilla para reportes PDF
+│   └── reportes.php                    # Vista única de reportes (filtros, tabla y exportación PDF/Excel)
 └── Config/
     └── Routes.php                       # Rutas actualizadas
 ```
@@ -152,7 +151,7 @@ El sistema utiliza las siguientes tablas:
 ## Archivos de Configuración
 
 - **Directorio de uploads**: `writable/uploads/convenios/`
-- **Plantilla PDF**: `app/Views/admin/convenios/reporte_pdf.php`
+- **Reportes**: Un solo documento/vista en `app/Views/admin/convenios/reportes.php` (página con filtros, resultados y exportación; el PDF se genera por código con TCPDF).
 - **Rutas**: Configuradas en `app/Config/Routes.php`
 
 ## Notas Técnicas

@@ -68,15 +68,15 @@
             </div>
             <div class="col-md-3 col-sm-6 mb-3">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
-                    <a href="#" onclick="showModal('modalNuevaInstitucion')" style="text-decoration: none; color: inherit;">
-                        <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                        <a href="#" onclick="showModal('modalNuevaInstitucion')" style="text-decoration: none; color: inherit;">
                             <i class="fas fa-building fa-2x mb-2" style="color: #007bff; text-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);"></i>
                             <div class="fw-bold">Nueva Institución</div>
-                    </a>
+                        </a>
+                    </div>
                 </div>
             </div>
-        </div>
-                    <div class="col-md-3 col-sm-6 mb-3">
+            <div class="col-md-3 col-sm-6 mb-3">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="<?= base_url('admin/convenios/reportes') ?>" style="text-decoration: none; color: inherit;">
@@ -86,13 +86,14 @@
                     </div>
                 </div>
             </div>
-        <div class="col-md-3 col-sm-6 mb-3">
-            <div class="card text-center shadow-sm h-100" style="border: none;">
-                <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                    <a href="#" onclick="exportData()" style="text-decoration: none; color: inherit;">
-                        <i class="fas fa-download fa-2x mb-2" style="color: #dc3545; text-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);"></i>
-                        <div class="fw-bold">Exportar Datos</div>
-                    </a>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card text-center shadow-sm h-100" style="border: none;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                        <a href="#" onclick="exportData()" style="text-decoration: none; color: inherit;">
+                            <i class="fas fa-download fa-2x mb-2" style="color: #dc3545; text-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);"></i>
+                            <div class="fw-bold">Exportar Datos</div>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -652,6 +653,24 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
+                                <label class="form-label">Logo de la empresa</label>
+                                <input type="file" class="form-control" name="logo_empresa" id="logo_empresa" accept="image/jpeg,image/png,image/gif,image/webp">
+                                <small class="text-muted">Opcional. Formatos: JPG, PNG, GIF, WebP. Tamaño recomendado: 200x200 px.</small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Vista previa</label>
+                                <div class="border rounded p-2 text-center bg-light" style="min-height: 80px;">
+                                    <img id="previewLogoEmpresa" src="" alt="Vista previa logo" class="img-fluid" style="max-height: 70px; display: none;">
+                                    <span id="previewLogoPlaceholder" class="text-muted small">Sin imagen</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
                                 <label class="form-label">Representante Legal<span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" name="representante_legal" id="representante_legal" required>
                                 <div class="invalid-feedback" id="error_representante_legal"></div>
@@ -707,8 +726,14 @@
                                 <h6 class="mb-0">Información General</h6>
                             </div>
                             <div class="card-body">
-                                <div class="row">
-                                    <div class="col-md-6">
+                                <div class="row align-items-start">
+                                    <div class="col-auto mb-2 mb-md-0">
+                                        <div class="border rounded p-2 bg-light text-center" style="width: 120px; height: 100px;">
+                                            <img id="detalleLogoEmpresa" src="" alt="Logo institución" class="img-fluid mw-100 mh-100" style="max-width: 110px; max-height: 90px; object-fit: contain; display: none;">
+                                            <span id="detalleLogoPlaceholder" class="text-muted small d-block" style="line-height: 90px;">Sin logo</span>
+                                        </div>
+                                    </div>
+                                    <div class="col">
                                         <p><strong>Institución:</strong> <span id="detalleInstitucion">-</span></p>
                                         <p><strong>Tipo de Convenio:</strong> <span id="detalleTipo">-</span></p>
                                         <p><strong>RUC:</strong> <span id="detalleRUC">-</span></p>
@@ -863,6 +888,7 @@
     let conveniosData = <?= json_encode($convenios) ?>;
     let instituciones = <?= json_encode($instituciones) ?>;
     let tiposConvenios = <?= json_encode($tipos_convenios) ?>;
+    const baseUrlLogos = <?= json_encode(base_url('uploads/logos_instituciones/')) ?>;
 
     // Funciones principales
     function showModal(modalId) {
@@ -874,40 +900,62 @@
     }
 
     function verDetalle(id) {
-        // Buscar el convenio en todos los arrays
-        let convenio = [...conveniosData.preprofesionales, ...conveniosData.servicio, ...conveniosData.mixta].find(c => c.id === id);
+        // conveniosData es el array que envía PHP (claves en mayúsculas)
+        const lista = Array.isArray(conveniosData) ? conveniosData : [];
+        const convenio = lista.find(c => Number(c.ID_DETALLE_CONVENIO) === Number(id));
 
-        if (convenio) {
-            document.getElementById('detalleInstitucion').textContent = convenio.institucion;
-            document.getElementById('detalleTipo').textContent = convenio.tipo;
-            document.getElementById('detalleRUC').textContent = convenio.ruc;
-            document.getElementById('detallePeriodo').textContent = `${convenio.fechaInicio} - ${convenio.fechaFin}`;
-            document.getElementById('detalleDuracion').textContent = convenio.duracion;
-            document.getElementById('detalleEstado').textContent = convenio.estado;
-            document.getElementById('detalleObjetivo').textContent = convenio.objetivo;
-            document.getElementById('detalleRepresentante').textContent = convenio.representante;
-            document.getElementById('detalleTelefono').textContent = convenio.telefono;
-            document.getElementById('detalleEmail').textContent = convenio.email;
-            document.getElementById('detalleContacto').textContent = convenio.contacto;
-            document.getElementById('detalleTelefonoContacto').textContent = convenio.telefonoContacto;
-            document.getElementById('detalleEmailContacto').textContent = convenio.emailContacto;
-
-            // Calcular días restantes
-            const hoy = new Date();
-            const fechaFin = new Date(convenio.fechaFin);
-            const diasRestantes = Math.ceil((fechaFin - hoy) / (1000 * 60 * 60 * 24));
-            const porcentaje = Math.max(0, Math.min(100, ((fechaFin - hoy) / (fechaFin - new Date(convenio.fechaInicio))) * 100));
-
-            document.getElementById('estadoPercent').textContent = `${Math.round(porcentaje)}%`;
-            document.getElementById('estadoDias').textContent = `${diasRestantes} días restantes`;
-
-            drawEstadoChart(porcentaje);
-            showModal('modalDetalleConvenio');
+        if (!convenio) {
+            showNotification('No se encontró el convenio.', 'warning');
+            return;
         }
+
+        const imgLogo = document.getElementById('detalleLogoEmpresa');
+        const placeholderLogo = document.getElementById('detalleLogoPlaceholder');
+        if (convenio.LOGO && baseUrlLogos) {
+            imgLogo.src = baseUrlLogos + convenio.LOGO;
+            imgLogo.style.display = 'block';
+            if (placeholderLogo) placeholderLogo.style.display = 'none';
+        } else {
+            imgLogo.src = '';
+            imgLogo.style.display = 'none';
+            if (placeholderLogo) placeholderLogo.style.display = 'block';
+        }
+
+        document.getElementById('detalleInstitucion').textContent = convenio.NOMBRE || '-';
+        document.getElementById('detalleTipo').textContent = convenio.TIPO_CONVENIO || '-';
+        document.getElementById('detalleRUC').textContent = convenio.RUC || '-';
+        document.getElementById('detallePeriodo').textContent = `${convenio.FECHA_INICIO || '-'} - ${convenio.FECHA_FIN || '-'}`;
+        document.getElementById('detalleDuracion').textContent = (convenio.DURACION != null ? convenio.DURACION + ' meses' : '-');
+        document.getElementById('detalleObjetivo').textContent = convenio.OBJETIVO || '-';
+        document.getElementById('detalleRepresentante').textContent = convenio.REPRESENTANTE_LEGAL || '-';
+        document.getElementById('detalleTelefono').textContent = convenio.TELEFONO || '-';
+        document.getElementById('detalleEmail').textContent = convenio.EMAIL || '-';
+        document.getElementById('detalleContacto').textContent = convenio.CONTACTO || '-';
+        document.getElementById('detalleTelefonoContacto').textContent = convenio.TELEFONO_CONTACTO || '-';
+        document.getElementById('detalleEmailContacto').textContent = convenio.EMAIL_CONTACTO || '-';
+
+        const hoy = new Date();
+        const fechaFin = new Date(convenio.FECHA_FIN);
+        const fechaInicio = new Date(convenio.FECHA_INICIO);
+        const diasRestantes = Math.ceil((fechaFin - hoy) / (1000 * 60 * 60 * 24));
+        let estado = 'Vigente';
+        if (convenio.FECHA_FIN < hoy.toISOString().slice(0, 10)) estado = 'Vencido';
+        else if (diasRestantes <= 30) estado = 'Por Vencer';
+        document.getElementById('detalleEstado').textContent = estado;
+
+        const totalDias = fechaFin - fechaInicio;
+        const transcurridos = hoy - fechaInicio;
+        const porcentaje = totalDias > 0 ? Math.max(0, Math.min(100, (transcurridos / totalDias) * 100)) : 0;
+
+        document.getElementById('estadoPercent').textContent = `${Math.round(porcentaje)}%`;
+        document.getElementById('estadoDias').textContent = diasRestantes > 0 ? `${diasRestantes} días restantes` : (diasRestantes === 0 ? 'Vence hoy' : `${Math.abs(diasRestantes)} días vencido`);
+
+        drawEstadoChart(porcentaje);
+        showModal('modalDetalleConvenio');
     }
 
     function editarConvenio(id) {
-        showNotification('Función de edición en desarrollo', 'info');
+        showNotification('Edición de convenio en desarrollo. Por ahora use la opción de descarga.', 'info');
     }
 
     function renovarConvenio(id) {
@@ -1063,8 +1111,12 @@
                 // Cerrar modal de nueva institución
                 bootstrap.Modal.getInstance(document.getElementById('modalNuevaInstitucion')).hide();
                 
-                // Limpiar formulario
+                // Limpiar formulario y vista previa del logo
                 form.reset();
+                const previewLogo = document.getElementById('previewLogoEmpresa');
+                const placeholderLogo = document.getElementById('previewLogoPlaceholder');
+                if (previewLogo) { previewLogo.src = ''; previewLogo.style.display = 'none'; }
+                if (placeholderLogo) placeholderLogo.style.display = 'inline';
                 
                 // Volver al modal de nuevo convenio y recargar instituciones
                 setTimeout(() => {
@@ -1409,11 +1461,38 @@
         }
     }
 
+    // Vista previa del logo al seleccionar archivo (Nueva Institución)
+    function initPreviewLogoEmpresa() {
+        const input = document.getElementById('logo_empresa');
+        const preview = document.getElementById('previewLogoEmpresa');
+        const placeholder = document.getElementById('previewLogoPlaceholder');
+        if (!input || !preview) return;
+        input.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block';
+                    if (placeholder) placeholder.style.display = 'none';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.src = '';
+                preview.style.display = 'none';
+                if (placeholder) placeholder.style.display = 'inline';
+            }
+        });
+    }
+
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
+        initPreviewLogoEmpresa();
+
         // Set default date for new convention
         const today = new Date().toISOString().split('T')[0];
-        document.querySelector('input[name="fecha_inicio"]').value = today;
+        const fechaInicioInput = document.querySelector('input[name="fecha_inicio"]');
+        if (fechaInicioInput) fechaInicioInput.value = today;
 
         // Set default end date (12 months later)
         const endDate = new Date();

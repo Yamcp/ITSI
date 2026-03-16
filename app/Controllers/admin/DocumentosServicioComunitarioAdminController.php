@@ -57,7 +57,7 @@ class DocumentosServicioComunitarioAdminController extends BaseController
                 'tiposDocumentos' => $tiposDocumentos,
                 'estados_revision' => $this->estadosRevisionesModel->getAllEstados(),
                 'estudiantes' => $this->getEstudiantes(),
-                'qr_servicio_url' => $this->getQrServicioUrl(),
+                'documentos_formatos_servicio' => $this->getListaFormatosServicio(),
             ];
 
             return view('admin/documentos/documentos_servicio_comunitario', $data);
@@ -71,56 +71,98 @@ class DocumentosServicioComunitarioAdminController extends BaseController
                 'tiposDocumentos' => [],
                 'estados_revision' => [],
                 'estudiantes' => [],
-                'qr_servicio_url' => $this->getQrServicioUrl(),
+                'documentos_formatos_servicio' => $this->getListaFormatosServicio(),
             ];
             
             return view('admin/documentos/documentos_servicio_comunitario', $data);
         }
     }
 
-    /**
-     * Obtener URL del QR de servicio comunitario. Se refleja en el perfil del estudiante.
-     */
-    private function getQrServicioUrl()
+    private function getDirFormatosServicio()
     {
-        $qrFile = WRITEPATH . 'uploads/qr/servicio_comunitario.png';
-        if (file_exists($qrFile) && is_readable($qrFile)) {
-            return base_url('qr/servicio');
+        $dir = WRITEPATH . 'uploads/formatos_servicio/';
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
         }
-        return base_url('sistema/assets/images/practicas/formatos-servicio-comunitario-qr.png');
+        return $dir;
     }
 
-    /**
-     * Subir / actualizar imagen QR de formatos de servicio comunitario.
-     * Se refleja en el perfil del estudiante (Servicio Comunitario).
-     */
-    public function subirQr()
+    private function getListaFormatosServicioPath()
     {
-        $file = $this->request->getFile('qr_imagen');
+        return $this->getDirFormatosServicio() . 'lista.json';
+    }
+
+    public function getListaFormatosServicio()
+    {
+        $path = $this->getListaFormatosServicioPath();
+        if (!file_exists($path) || !is_readable($path)) {
+            return [];
+        }
+        $json = file_get_contents($path);
+        $lista = json_decode($json, true);
+        return is_array($lista) ? $lista : [];
+    }
+
+    public function subirDocumentoFormato()
+    {
+        $nombre = trim((string) $this->request->getPost('nombre'));
+        $file = $this->request->getFile('documento');
+        if (!$nombre) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Indique el nombre del documento.']);
+        }
         if (!$file || !$file->isValid()) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Seleccione una imagen válida (PNG o JPG).'
-            ]);
+            return $this->response->setJSON(['success' => false, 'message' => 'Seleccione un archivo válido.']);
         }
         $ext = strtolower($file->getClientExtension());
-        if (!in_array($ext, ['png', 'jpg', 'jpeg'], true)) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Solo se permiten imágenes PNG o JPG.'
-            ]);
+        $permitidos = ['pdf', 'doc', 'docx'];
+        if (!in_array($ext, $permitidos, true)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Solo se permiten archivos PDF, DOC o DOCX.']);
         }
-        $qrDir = WRITEPATH . 'uploads/qr/';
-        if (!is_dir($qrDir)) {
-            mkdir($qrDir, 0755, true);
+        $dir = $this->getDirFormatosServicio();
+        $nombreArchivo = preg_replace('/[^a-zA-Z0-9_\-\.]/', '_', $file->getClientName());
+        $nombreArchivo = time() . '_' . $nombreArchivo;
+        $file->move($dir, $nombreArchivo);
+        $lista = $this->getListaFormatosServicio();
+        $lista[] = ['nombre' => $nombre, 'archivo' => $nombreArchivo];
+        $path = $this->getListaFormatosServicioPath();
+        if (file_put_contents($path, json_encode($lista, JSON_UNESCAPED_UNICODE)) === false) {
+            @unlink($dir . $nombreArchivo);
+            return $this->response->setJSON(['success' => false, 'message' => 'Error al guardar la lista.']);
         }
-        $file->move($qrDir, 'servicio_comunitario.png');
         return $this->response->setJSON([
             'success' => true,
-            'message' => 'Código QR actualizado. Se verá en el perfil del estudiante.',
-            'url' => $this->getQrServicioUrl()
+            'message' => 'Documento subido. Los estudiantes podrán descargarlo en Formatos de Servicio Comunitario.',
+            'lista' => $this->getListaFormatosServicio(),
         ]);
     }
+
+    public function eliminarDocumentoFormato($archivo)
+    {
+        $archivo = basename($archivo);
+        if (!preg_match('/^[a-zA-Z0-9_\-\.]+$/', $archivo)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Archivo no válido.']);
+        }
+        $dir = $this->getDirFormatosServicio();
+        $rutaArchivo = $dir . $archivo;
+        $lista = $this->getListaFormatosServicio();
+        $nuevaLista = array_values(array_filter($lista, function ($item) use ($archivo) {
+            return ($item['archivo'] ?? '') !== $archivo;
+        }));
+        if (count($nuevaLista) === count($lista)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Documento no encontrado.']);
+        }
+        if (file_exists($rutaArchivo) && is_file($rutaArchivo)) {
+            @unlink($rutaArchivo);
+        }
+        $path = $this->getListaFormatosServicioPath();
+        file_put_contents($path, json_encode($nuevaLista, JSON_UNESCAPED_UNICODE));
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => 'Documento eliminado.',
+            'lista' => $this->getListaFormatosServicio(),
+        ]);
+    }
+
 
     /**
      * Obtener documentos para AJAX

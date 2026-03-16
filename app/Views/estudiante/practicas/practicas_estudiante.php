@@ -586,8 +586,8 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Archivo</label>
-                        <input type="file" class="form-control" name="archivo" id="archivoDocumentoPractica" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.mp4,.avi,.zip,.rar" required>
-                        <small class="text-muted">Máx. 10 MB. Formatos: PDF, DOC, JPG, MP4, ZIP</small>
+                        <input type="file" class="form-control" name="archivo" id="archivoDocumentoPractica" accept=".pdf,application/pdf" required>
+                        <small class="text-muted">Solo PDF. Máximo 10 MB.</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Observaciones (opcional)</label>

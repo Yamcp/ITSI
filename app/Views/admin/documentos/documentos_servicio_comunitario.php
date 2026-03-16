@@ -84,12 +84,20 @@
 <?= $this->section('content') ?>
 <div class="body-wrapper">
     <div class="container-fluid">
+        <!-- Volver a Prácticas Asignadas -->
+        <div class="row mb-2">
+            <div class="col-12">
+                <a href="<?= base_url('admin/practicas') ?>" class="btn btn-outline-secondary btn-sm">
+                    <i class="fas fa-arrow-left me-1"></i>Volver a Prácticas Asignadas
+                </a>
+            </div>
+        </div>
         <!-- Header -->
         <div class="row">
             <div class="col-12">
                 <h3 class="text-center my-3">
                     <i class="fas fa-hands-helping me-2"></i>
-                    Gestión de Documentos de Servicio Comunitario
+                    Documentos - Servicio Comunitario
                 </h3>
             </div>
         </div>
@@ -130,110 +138,100 @@
             </div>
         </div>
 
-        <!-- Filtros Rápidos -->
-        <div class="filtros-rapidos">
-            <div class="row align-items-center">
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Filtrar por Estado:</label>
-                    <select class="form-select" id="filtroEstado" onchange="aplicarFiltros()">
-                        <option value="">Todos los estados</option>
-                        <option value="Pendiente">Pendiente</option>
-                        <option value="En Revisión">En Revisión</option>
-                        <option value="Aprobado">Aprobado</option>
-                        <option value="Rechazado">Rechazado</option>
-                        <option value="Requiere Corrección">Requiere Corrección</option>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Filtrar por Tipo:</label>
-                    <select class="form-select" id="filtroTipo" onchange="aplicarFiltros()">
-                        <option value="">Todos los tipos</option>
-                        <?php if (isset($tiposDocumentos)): ?>
-                            <?php foreach ($tiposDocumentos as $tipo): ?>
-                                <option value="<?= $tipo['ID_TIPO_DOCUMENTO_SERVICIO'] ?>"><?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?></option>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
-                    </select>
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">Buscar Estudiante:</label>
-                    <input type="text" class="form-control" id="buscarEstudiante" placeholder="Nombre o cédula..." onkeyup="aplicarFiltros()">
-                </div>
-                <div class="col-md-3">
-                    <label class="form-label fw-bold">&nbsp;</label>
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-outline-secondary" onclick="limpiarFiltros()">
-                            <i class="fas fa-times me-1"></i>Limpiar
-                        </button>
-                        <button class="btn btn-primary" onclick="generarReporteServicio()">
-                            <i class="fas fa-download me-1"></i>Exportar
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Acciones Rápidas -->
-        <div class="row mb-4 justify-content-center">
-            <div class="col-md-2 col-sm-6 mb-3">
+        <div class="row mb-4">
+            <div class="col-md-3 col-sm-6 mb-3">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="showModal('modalSubirDocumentoServicio')" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-cloud-upload-alt fa-2x mb-2" style="color: #17a2b8;"></i>
+                            <i class="fas fa-cloud-upload-alt fa-2x mb-2" style="color: #17a2b8; text-shadow: 0 2px 4px rgba(23, 162, 184, 0.3);"></i>
                             <div class="fw-bold">Nuevo Documento</div>
                         </a>
                     </div>
                 </div>
             </div>
-            <div class="col-md-2 col-sm-6 mb-3">
+            <div class="col-md-3 col-sm-6 mb-3">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="revisionMasiva()" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-tasks fa-2x mb-2" style="color: #007bff;"></i>
+                            <i class="fas fa-tasks fa-2x mb-2" style="color: #007bff; text-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);"></i>
                             <div class="fw-bold">Revisión Masiva</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card text-center shadow-sm h-100" style="border: none;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                        <a href="#" onclick="generarReporteServicio()" style="text-decoration: none; color: inherit;">
+                            <i class="fas fa-chart-bar fa-2x mb-2" style="color: #ffc107; text-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);"></i>
+                            <div class="fw-bold">Generar Reporte</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card text-center shadow-sm h-100" style="border: none;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                        <a href="<?= base_url('admin/documentos/servicio/reportes') ?>" style="text-decoration: none; color: inherit;">
+                            <i class="fas fa-download fa-2x mb-2" style="color: #dc3545; text-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);"></i>
+                            <div class="fw-bold">Exportar Datos</div>
                         </a>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Código QR - Servicio Comunitario -->
-        <div class="row mb-4">
+        <!-- Tabs (igual que en Documentos Preprofesionales) -->
+        <div class="row">
             <div class="col-12">
-                <div class="card shadow-sm">
-                    <div class="card-header tipo-documento-header">
-                        <h5 class="mb-0">
-                            <i class="fas fa-qrcode me-2"></i>
-                            Código QR – Servicio Comunitario
-                        </h5>
-                        <small class="opacity-75">Esta imagen se muestra en el perfil del estudiante (Prácticas de Servicio Comunitario).</small>
-                    </div>
-                    <div class="card-body">
-                        <div class="row align-items-center">
-                            <div class="col-md-4 text-center">
-                                <p class="text-muted small mb-2">Vista previa actual</p>
-                                <img id="previewQrServicio" src="<?= esc($qr_servicio_url ?? base_url('sistema/assets/images/practicas/formatos-servicio-comunitario-qr.png')) ?>" alt="QR Servicio Comunitario" class="img-fluid rounded border" style="max-height: 200px;" />
-                            </div>
-                            <div class="col-md-8">
-                                <form id="formQrServicio" enctype="multipart/form-data">
-                                    <div class="mb-3">
-                                        <label class="form-label fw-bold">Subir nueva imagen del código QR</label>
-                                        <input type="file" class="form-control" name="qr_imagen" id="qrImagenServicio" accept="image/png,image/jpeg,image/jpg" />
-                                        <div class="form-text">PNG o JPG. Se mostrará en la sección Servicio Comunitario del estudiante.</div>
-                                    </div>
-                                    <button type="submit" class="btn btn-success" id="btnSubirQrServicio">
-                                        <i class="fas fa-upload me-1"></i> Actualizar QR
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body pb-0">
+                        <ul class="nav nav-tabs nav-justified rounded-pill bg-light px-2 py-1" id="documentosTabsServicio" role="tablist" style="gap: 0.5rem;">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active rounded-pill fw-semibold text-primary" id="documentos-tipo-tab-servicio" data-bs-toggle="tab" data-bs-target="#documentos-por-tipo-servicio" type="button" role="tab" aria-selected="true">
+                                    <i class="fas fa-folder-open me-2"></i>Documentos por tipo
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link rounded-pill fw-semibold text-success" id="formatos-docs-tab-servicio" data-bs-toggle="tab" data-bs-target="#formatos-documentos-servicio" type="button" role="tab" aria-selected="false">
+                                    <i class="fas fa-file-upload me-2"></i>Documentos de formato
+                                </button>
+                            </li>
+                        </ul>
+                        <hr class="mt-0 mb-2" style="border-top: 2px solid #e3e6f0;">
 
-        <!-- Tablas de Documentos por Tipo -->
-        <div id="vistaGrid">
+                        <div class="tab-content mt-3" id="documentosTabContentServicio">
+                            <!-- Pestaña: Documentos por tipo -->
+                            <div class="tab-pane fade show active" id="documentos-por-tipo-servicio" role="tabpanel">
+                                <!-- Filtros rápidos -->
+                                <div class="card shadow-sm border-0 mb-3">
+                                    <div class="card-header bg-light d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                        <span class="fw-semibold"><i class="fas fa-filter me-1"></i>Filtros</span>
+                                        <div class="d-flex flex-wrap gap-2 align-items-center">
+                                            <select class="form-select form-select-sm" id="filtroEstado" onchange="aplicarFiltros()" style="width: auto;">
+                                                <option value="">Todos los estados</option>
+                                                <option value="Pendiente">Pendiente</option>
+                                                <option value="En Revisión">En Revisión</option>
+                                                <option value="Aprobado">Aprobado</option>
+                                                <option value="Rechazado">Rechazado</option>
+                                                <option value="Requiere Corrección">Requiere Corrección</option>
+                                            </select>
+                                            <select class="form-select form-select-sm" id="filtroTipo" onchange="aplicarFiltros()" style="width: auto;">
+                                                <option value="">Todos los tipos</option>
+                                                <?php if (isset($tiposDocumentos)): ?>
+                                                    <?php foreach ($tiposDocumentos as $tipo): ?>
+                                                        <option value="<?= $tipo['ID_TIPO_DOCUMENTO_SERVICIO'] ?>"><?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?></option>
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
+                                            </select>
+                                            <input type="text" class="form-control form-control-sm" id="buscarEstudiante" placeholder="Estudiante o cédula..." onkeyup="aplicarFiltros()" style="width: 180px;">
+                                            <button class="btn btn-outline-secondary btn-sm" onclick="limpiarFiltros()"><i class="fas fa-times me-1"></i>Limpiar</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- Tablas por tipo -->
+                                <div id="vistaGrid">
             <?php if (!empty($tiposDocumentos)): ?>
                 <?php foreach ($tiposDocumentos as $tipo): ?>
                     <div class="row mb-4">
@@ -290,6 +288,76 @@
                     </div>
                 </div>
             <?php endif; ?>
+                                </div>
+                            </div>
+
+                            <!-- Pestaña: Documentos de formato (Servicio Comunitario) -->
+                            <div class="tab-pane fade" id="formatos-documentos-servicio" role="tabpanel">
+                                <div class="card shadow-sm border-0">
+                                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                                        <span><i class="fas fa-file-upload me-2"></i>Documentos de formato – Servicio Comunitario</span>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="text-muted small mb-3">Estos documentos se muestran en el perfil del estudiante (Servicio Comunitario) para que puedan descargarlos.</p>
+                                        <div class="row mb-4">
+                                            <div class="col-md-8">
+                                                <form id="formDocumentoFormatoServicio" enctype="multipart/form-data">
+                                                    <div class="row g-2">
+                                                        <div class="col-md-5">
+                                                            <label class="form-label fw-bold">Nombre del documento</label>
+                                                            <input type="text" class="form-control" name="nombre" placeholder="Ej: Modelo informe servicio comunitario" required />
+                                                        </div>
+                                                        <div class="col-md-5">
+                                                            <label class="form-label fw-bold">Archivo (PDF, DOC, DOCX)</label>
+                                                            <input type="file" class="form-control" name="documento" id="docFormatoServicio" accept=".pdf,.doc,.docx" required />
+                                                        </div>
+                                                        <div class="col-md-2 d-flex align-items-end">
+                                                            <button type="submit" class="btn btn-success w-100" id="btnSubirDocFormatoServicio">
+                                                                <i class="fas fa-upload me-1"></i> Subir
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm table-hover">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Nombre</th>
+                                                        <th>Archivo</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="tbodyFormatosServicio">
+                                                    <?php
+                                                    $docsFormatosServ = $documentos_formatos_servicio ?? [];
+                                                    foreach ($docsFormatosServ as $i => $item): ?>
+                                                        <tr>
+                                                            <td><?= $i + 1 ?></td>
+                                                            <td><?= esc($item['nombre'] ?? '') ?></td>
+                                                            <td><span class="text-muted small"><?= esc($item['archivo'] ?? '') ?></span></td>
+                                                            <td>
+                                                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="eliminarDocFormatoServicio('<?= esc($item['archivo'] ?? '') ?>')" title="Eliminar">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                    <?php if (empty($docsFormatosServ)): ?>
+                                                        <tr><td colspan="4" class="text-center text-muted py-3">No hay documentos. Suba uno arriba.</td></tr>
+                                                    <?php endif; ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
     </div>
@@ -871,19 +939,18 @@
         }, 5000);
     }
 
-    // Formulario QR Servicio Comunitario
-    document.getElementById('formQrServicio')?.addEventListener('submit', function(e) {
+    // Formulario subir documento de formato (Servicio Comunitario)
+    document.getElementById('formDocumentoFormatoServicio')?.addEventListener('submit', function(e) {
         e.preventDefault();
-        const input = document.getElementById('qrImagenServicio');
-        if (!input?.files?.length) {
-            showNotification('Seleccione una imagen', 'error');
-            return;
-        }
-        const formData = new FormData();
-        formData.append('qr_imagen', input.files[0]);
-        const btn = document.getElementById('btnSubirQrServicio');
+        const form = this;
+        const input = document.getElementById('docFormatoServicio');
+        const nombre = form.querySelector('[name="nombre"]').value.trim();
+        if (!nombre) { showNotification('Indique el nombre del documento', 'error'); return; }
+        if (!input?.files?.length) { showNotification('Seleccione un archivo', 'error'); return; }
+        const formData = new FormData(form);
+        const btn = document.getElementById('btnSubirDocFormatoServicio');
         btn.disabled = true;
-        fetch('<?= base_url('admin/documentos/servicio/subir-qr') ?>', {
+        fetch('<?= base_url('admin/documentos/servicio/subir-formato') ?>', {
             method: 'POST',
             body: formData,
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
@@ -893,15 +960,60 @@
             btn.disabled = false;
             if (data.success) {
                 showNotification(data.message, 'success');
-                const preview = document.getElementById('previewQrServicio');
-                if (preview) preview.src = data.url + '?t=' + Date.now();
-                input.value = '';
+                form.reset();
+                actualizarTablaFormatosServicio(data.lista || []);
             } else {
                 showNotification(data.message || 'Error al subir', 'error');
             }
         })
         .catch(() => { btn.disabled = false; showNotification('Error de conexión', 'error'); });
     });
+
+    function actualizarTablaFormatosServicio(lista) {
+        const tbody = document.getElementById('tbodyFormatosServicio');
+        if (!tbody) return;
+        if (!lista.length) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">No hay documentos. Suba uno arriba.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = lista.map((item, i) => {
+            const archivo = (item.archivo || '').replace(/"/g, '&quot;');
+            return `<tr>
+                <td>${i + 1}</td>
+                <td>${escapeHtmlServ(item.nombre || '')}</td>
+                <td><span class="text-muted small">${escapeHtmlServ(item.archivo || '')}</span></td>
+                <td>
+                    <button type="button" class="btn btn-outline-danger btn-sm" data-archivo="${escapeHtmlServ(archivo)}" onclick="eliminarDocFormatoServicio(this.getAttribute('data-archivo'))" title="Eliminar">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    function eliminarDocFormatoServicio(archivo) {
+        if (!archivo || !confirm('¿Eliminar este documento de formato?')) return;
+        fetch('<?= base_url('admin/documentos/servicio/eliminar-formato/') ?>' + encodeURIComponent(archivo), {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message, 'success');
+                actualizarTablaFormatosServicio(data.lista || []);
+            } else {
+                showNotification(data.message || 'Error', 'error');
+            }
+        })
+        .catch(() => showNotification('Error de conexión', 'error'));
+    }
+
+    function escapeHtmlServ(s) {
+        const div = document.createElement('div');
+        div.textContent = s;
+        return div.innerHTML;
+    }
 
     // Inicialización al cargar la página
     document.addEventListener('DOMContentLoaded', function() {

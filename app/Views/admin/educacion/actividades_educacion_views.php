@@ -123,16 +123,6 @@
             <div class="col-md-3 col-sm-6 mb-3">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="<?= base_url('admin/evaluaciones') ?>" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-clipboard-check fa-2x mb-2" style="color: #6f42c1; text-shadow: 0 2px 4px rgba(111, 66, 193, 0.3);"></i>
-                            <div class="fw-bold">Ver encuestas / evaluaciones</div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm h-100" style="border: none;">
-                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="generarReporteEvaluaciones()" style="text-decoration: none; color: inherit;">
                             <i class="fas fa-chart-bar fa-2x mb-2" style="color: #ffc107; text-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);"></i>
                             <div class="fw-bold">Generar Reporte</div>

@@ -9,7 +9,11 @@
 
     <!-- ESTILOS -->
     <link rel="stylesheet" href="<?= base_url('sistema/assets/css/styles.min.css') ?>" />
+    <link rel="stylesheet" href="<?= base_url('sistema/assets/css/theme-toggle.css') ?>" />
     <?= $this->renderSection('styles') ?>
+    <script>
+        (function(){var t=document.documentElement,k='itsi-theme';try{var s=localStorage.getItem(k)||'light';t.setAttribute('data-bs-theme',s);}catch(e){t.setAttribute('data-bs-theme','light');}})();
+    </script>
 </head>
 
 <body>
@@ -48,6 +52,7 @@
     <script src="<?= base_url('sistema/assets/libs/bootstrap/dist/js/bootstrap.bundle.min.js') ?>"></script>
     <script src="<?= base_url('sistema/assets/libs/apexcharts/dist/apexcharts.min.js') ?>"></script>
     <script src="<?= base_url('sistema/assets/libs/simplebar/dist/simplebar.js') ?>"></script>
+    <script src="<?= base_url('sistema/assets/js/theme-toggle.js') ?>"></script>
     <script src="<?= base_url('sistema/assets/js/sidebarmenu.js') ?>"></script>
     <script src="<?= base_url('sistema/assets/js/app.min.js') ?>"></script>
     <script src="<?= base_url('sistema/assets/js/dashboard.js') ?>"></script>

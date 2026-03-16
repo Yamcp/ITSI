@@ -261,7 +261,7 @@ if (!$periodoNombreDashboard) {
                             </div>
                             <h3 class="mb-0" id="totalInstructores"><?= number_format($metricas['totalInstructores'] ?? 0) ?></h3>
                             <p class="metric-label mb-0">Instructores</p>
-                            <small class="metric-sub">Docentes</small>
+                            <small class="metric-sub"><?= (int)($metricas['instructoresInternos'] ?? 0) ?> internos, <?= (int)($metricas['instructoresExternos'] ?? 0) ?> externos</small>
                         </div>
                     </div>
                 </a>

@@ -38,7 +38,7 @@ class DocumentosPracticasAdminController extends BaseController
             'tiposDocumentos' => $tiposDocumentos, // Duplicado para compatibilidad
             'estados_revision' => $this->estadosRevisionesModel->getAllEstados(),
             'estudiantes' => $this->getEstudiantes(),
-            'qr_practicas_url' => $this->getQrPracticasUrl(),
+            'documentos_formatos_practicas' => $this->getListaFormatosPracticas(),
         ];
 
         // Log para depuración
@@ -472,50 +472,100 @@ class DocumentosPracticasAdminController extends BaseController
         ]);
     }
 
-    /**
-     * Obtener URL del QR de prácticas preprofesionales (para admin y estudiante).
-     * Si hay imagen subida en writable/uploads/qr/, se sirve por ruta; si no, imagen por defecto.
-     */
-    private function getQrPracticasUrl()
+    /** Directorio donde se guardan los documentos de formato (prácticas preprofesionales). */
+    private function getDirFormatosPracticas()
     {
-        $qrDir = WRITEPATH . 'uploads/qr/';
-        $qrFile = $qrDir . 'practicas_preprofesionales.png';
-        if (file_exists($qrFile) && is_readable($qrFile)) {
-            return base_url('qr/practicas');
+        $dir = WRITEPATH . 'uploads/formatos_practicas/';
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
         }
-        return base_url('sistema/assets/images/practicas/formatos-practicas-laborales-qr.png');
+        return $dir;
+    }
+
+    /** Ruta del archivo JSON con la lista de documentos de formato. */
+    private function getListaFormatosPracticasPath()
+    {
+        return $this->getDirFormatosPracticas() . 'lista.json';
     }
 
     /**
-     * Subir / actualizar imagen QR de formatos de prácticas preprofesionales.
-     * Se refleja en el perfil del estudiante (Formatos - Prácticas Laborales).
+     * Obtener lista de documentos de formato (prácticas preprofesionales).
+     * Los estudiantes ven y descargan estos documentos en lugar del QR.
      */
-    public function subirQr()
+    public function getListaFormatosPracticas()
     {
-        $file = $this->request->getFile('qr_imagen');
+        $path = $this->getListaFormatosPracticasPath();
+        if (!file_exists($path) || !is_readable($path)) {
+            return [];
+        }
+        $json = file_get_contents($path);
+        $lista = json_decode($json, true);
+        return is_array($lista) ? $lista : [];
+    }
+
+    /**
+     * Subir un documento de formato (PDF, DOC, DOCX). Se muestra en la sección Formatos del estudiante.
+     */
+    public function subirDocumentoFormato()
+    {
+        $nombre = trim((string) $this->request->getPost('nombre'));
+        $file = $this->request->getFile('documento');
+        if (!$nombre) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Indique el nombre del documento.']);
+        }
         if (!$file || !$file->isValid()) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Seleccione una imagen válida (PNG o JPG).'
-            ]);
+            return $this->response->setJSON(['success' => false, 'message' => 'Seleccione un archivo válido.']);
         }
         $ext = strtolower($file->getClientExtension());
-        if (!in_array($ext, ['png', 'jpg', 'jpeg'], true)) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Solo se permiten imágenes PNG o JPG.'
-            ]);
+        $permitidos = ['pdf', 'doc', 'docx'];
+        if (!in_array($ext, $permitidos, true)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Solo se permiten archivos PDF, DOC o DOCX.']);
         }
-        $qrDir = WRITEPATH . 'uploads/qr/';
-        if (!is_dir($qrDir)) {
-            mkdir($qrDir, 0755, true);
+        $dir = $this->getDirFormatosPracticas();
+        $nombreArchivo = preg_replace('/[^a-zA-Z0-9_\-\.]/', '_', $file->getClientName());
+        $nombreArchivo = time() . '_' . $nombreArchivo;
+        $file->move($dir, $nombreArchivo);
+        $lista = $this->getListaFormatosPracticas();
+        $lista[] = ['nombre' => $nombre, 'archivo' => $nombreArchivo];
+        $path = $this->getListaFormatosPracticasPath();
+        if (file_put_contents($path, json_encode($lista, JSON_UNESCAPED_UNICODE)) === false) {
+            @unlink($dir . $nombreArchivo);
+            return $this->response->setJSON(['success' => false, 'message' => 'Error al guardar la lista.']);
         }
-        $destPath = $qrDir . 'practicas_preprofesionales.png';
-        $file->move($qrDir, 'practicas_preprofesionales.png');
         return $this->response->setJSON([
             'success' => true,
-            'message' => 'Código QR actualizado. Se verá en el perfil del estudiante.',
-            'url' => $this->getQrPracticasUrl()
+            'message' => 'Documento subido. Los estudiantes podrán descargarlo en Formatos.',
+            'lista' => $this->getListaFormatosPracticas(),
+        ]);
+    }
+
+    /**
+     * Eliminar un documento de formato por nombre de archivo.
+     */
+    public function eliminarDocumentoFormato($archivo)
+    {
+        $archivo = basename($archivo);
+        if (!preg_match('/^[a-zA-Z0-9_\-\.]+$/', $archivo)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Archivo no válido.']);
+        }
+        $dir = $this->getDirFormatosPracticas();
+        $rutaArchivo = $dir . $archivo;
+        $lista = $this->getListaFormatosPracticas();
+        $nuevaLista = array_values(array_filter($lista, function ($item) use ($archivo) {
+            return ($item['archivo'] ?? '') !== $archivo;
+        }));
+        if (count($nuevaLista) === count($lista)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Documento no encontrado.']);
+        }
+        if (file_exists($rutaArchivo) && is_file($rutaArchivo)) {
+            @unlink($rutaArchivo);
+        }
+        $path = $this->getListaFormatosPracticasPath();
+        file_put_contents($path, json_encode($nuevaLista, JSON_UNESCAPED_UNICODE));
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => 'Documento eliminado.',
+            'lista' => $this->getListaFormatosPracticas(),
         ]);
     }
 

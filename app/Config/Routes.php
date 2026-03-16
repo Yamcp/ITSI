@@ -126,7 +126,8 @@ $routes->group('admin', ['namespace' => 'App\Controllers\admin'], function ($rou
     $routes->post('documentos/practicas/eliminar/(:num)', 'DocumentosPracticasAdminController::eliminar/$1'); // Eliminar documento
     $routes->post('documentos/practicas/cambiar-estado/(:num)', 'DocumentosPracticasAdminController::cambiarEstado/$1'); // Cambiar estado
     $routes->get('documentos/practicas/reportes', 'DocumentosPracticasAdminController::reportes'); // Reportes de prácticas
-    $routes->post('documentos/practicas/subir-qr', 'DocumentosPracticasAdminController::subirQr'); // Subir QR formatos prácticas
+    $routes->post('documentos/practicas/subir-formato', 'DocumentosPracticasAdminController::subirDocumentoFormato');
+    $routes->post('documentos/practicas/eliminar-formato/(:segment)', 'DocumentosPracticasAdminController::eliminarDocumentoFormato/$1');
     
     // Rutas específicas para documentos de servicio comunitario
     $routes->get('documentos/servicio', 'DocumentosServicioComunitarioAdminController::index'); // Ver documentos de servicio
@@ -137,7 +138,8 @@ $routes->group('admin', ['namespace' => 'App\Controllers\admin'], function ($rou
     $routes->post('documentos/servicio/eliminar/(:num)', 'DocumentosServicioComunitarioAdminController::eliminar/$1'); // Eliminar documento
     $routes->post('documentos/servicio/cambiar-estado/(:num)', 'DocumentosServicioComunitarioAdminController::cambiarEstado/$1'); // Cambiar estado
     $routes->get('documentos/servicio/reportes', 'DocumentosServicioComunitarioAdminController::reportes'); // Reportes de servicio
-    $routes->post('documentos/servicio/subir-qr', 'DocumentosServicioComunitarioAdminController::subirQr'); // Subir QR servicio comunitario
+    $routes->post('documentos/servicio/subir-formato', 'DocumentosServicioComunitarioAdminController::subirDocumentoFormato');
+    $routes->post('documentos/servicio/eliminar-formato/(:segment)', 'DocumentosServicioComunitarioAdminController::eliminarDocumentoFormato/$1');
     $routes->post('documentos/crear-carpeta', 'DocumentosAdminController::crearCarpeta'); // Crear carpeta
 
     
@@ -260,8 +262,10 @@ $routes->group('estudiante', ['namespace' => 'App\Controllers\estudiante'], func
     $routes->get('convenios', 'InstitucionesConveniosController::index');        // Ver la sección de convenios
     
     // Rutas para prácticas (más específicas primero)
-    $routes->get('practicas/servicio-comunitario/formatos', 'PracticasEstudianteController::servicioComunitario'); // Formatos servicio comunitario
-    $routes->get('practicas/formatos', 'PracticasEstudianteController::formatos'); // Vista solo formatos prácticas laborales
+    $routes->get('practicas/servicio-comunitario/formatos', 'PracticasEstudianteController::servicioComunitario');
+    $routes->get('practicas/formatos', 'PracticasEstudianteController::formatos');
+    $routes->get('practicas/formatos/descargar/(:segment)', 'PracticasEstudianteController::descargarFormatoPracticas/$1');
+    $routes->get('practicas/servicio-comunitario/formatos/descargar/(:segment)', 'PracticasEstudianteController::descargarFormatoServicio/$1');
     $routes->get('practicas', 'PracticasEstudianteController::index'); // Prácticas preprofesionales
     $routes->get('practicas/servicio-comunitario', 'PracticasEstudianteController::servicioComunitario'); // Prácticas de servicio comunitario
     $routes->get('practicas/detalle/(:num)/(:alpha)', 'PracticasEstudianteController::detalle/$1/$2'); // Detalle de práctica

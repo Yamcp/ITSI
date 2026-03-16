@@ -27,6 +27,25 @@
             </div>
         </div>
 
+        <?php
+        $encuestaSatisfaccionAlert = $encuestaSatisfaccion ?? null;
+        $fechaFinAlert = new DateTime($actividad['FECHA_FIN']);
+        $hoyAlert = new DateTime();
+        $estaFinalizadaSinEncuesta = ($fechaFinAlert < $hoyAlert) && empty($encuestaSatisfaccionAlert);
+        ?>
+        <?php if ($estaFinalizadaSinEncuesta): ?>
+        <div class="alert alert-warning alert-dismissible fade show d-flex align-items-center" role="alert">
+            <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+            <div class="flex-grow-1">
+                <strong>Actividad finalizada.</strong> Por favor agregue el enlace de la encuesta de satisfacción en esta actividad para que los participantes puedan evaluarla.
+            </div>
+            <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#modalEncuestaSatisfaccion">
+                <i class="fas fa-plus me-1"></i>Agregar enlace
+            </button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+        <?php endif; ?>
+
         <!-- Información de la Actividad -->
         <div class="row">
             <div class="col-md-8">
@@ -132,9 +151,6 @@
                                 <i class="fas fa-external-link-alt me-1"></i>Abrir encuesta
                             </a>
                             <span class="text-muted small ms-2"><?= (int)($encuestaSatisfaccion['NUMERO_RESPUESTAS'] ?? 0) ?> respuestas</span>
-                            <div class="mt-2">
-                                <a href="<?= base_url('admin/evaluaciones') ?>" class="btn btn-outline-secondary btn-sm">Gestionar evaluación</a>
-                            </div>
                         <?php else: ?>
                             <p class="small text-muted mb-2">Al finalizar el curso puedes publicar el enlace de la encuesta de satisfacción.</p>
                             <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalEncuestaSatisfaccion">

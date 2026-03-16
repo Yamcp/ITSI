@@ -52,17 +52,22 @@ class DocumentosPracticasEstudianteController extends BaseController
         
         $rules = [
             'tipo_documento' => 'required|integer|is_natural_no_zero',
-            'archivo' => 'uploaded[archivo]|max_size[archivo,51200]|ext_in[archivo,pdf,doc,docx,jpg,jpeg,png,mp4,avi,zip,rar]',
+            'archivo' => 'uploaded[archivo]|max_size[archivo,10240]|ext_in[archivo,pdf]',
             'entidad_receptora' => 'permit_empty|max_length[255]',
             'docente_tutor' => 'permit_empty|max_length[255]',
             'observaciones' => 'permit_empty|max_length[500]'
         ];
 
         if (!$this->validate($rules)) {
+            $errors = $this->validator->getErrors();
+            $msg = 'Datos de entrada inválidos.';
+            if (isset($errors['archivo'])) {
+                $msg = 'Solo se permiten archivos PDF con un tamaño máximo de 10 MB.';
+            }
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Datos de entrada inválidos',
-                'errors' => $this->validator->getErrors()
+                'message' => $msg,
+                'errors' => $errors
             ]);
         }
 

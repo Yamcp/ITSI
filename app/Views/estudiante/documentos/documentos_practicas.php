@@ -309,8 +309,8 @@
                             <h5 class="text-muted">Arrastra y suelta tu archivo aquí</h5>
                             <p class="text-muted mb-3">o</p>
                             <input type="file" class="form-control" name="archivo" id="archivoInput" 
-                                   accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.mp4,.avi,.zip,.rar" required>
-                            <small class="text-muted">Máximo 10 MB. Formatos: PDF, DOC, XLS, JPG, MP4, ZIP</small>
+                                   accept=".pdf,application/pdf" required>
+                            <small class="text-muted">Solo PDF. Máximo 10 MB.</small>
                         </div>
                     </div>
                     

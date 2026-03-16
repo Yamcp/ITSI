@@ -45,10 +45,31 @@
 </div>
 
 <p class="formatos-aviso">
-    <i class="fas fa-info-circle me-1"></i>Para visualizar todo este contenido, es importante que inicien sesión con su correo institucional en SharePoint.
+    <i class="fas fa-info-circle me-1"></i>Descargue los documentos de formato que necesite para sus prácticas preprofesionales.
 </p>
 
-<div class="formatos-qr-wrap">
-    <img src="<?= esc($qr_url ?? base_url('sistema/assets/images/practicas/formatos-practicas-laborales-qr.png')) ?>" alt="Formatos: Modelo informe prácticas laborales, Fichas de seguimiento, Base de datos, Video" class="img-fluid formatos-qr-img" />
+<?php $documentos_formatos = $documentos_formatos ?? []; ?>
+<?php if (!empty($documentos_formatos)): ?>
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-primary text-white">
+        <h5 class="mb-0"><i class="fas fa-download me-2"></i>Documentos disponibles</h5>
+    </div>
+    <div class="card-body">
+        <ul class="list-group list-group-flush">
+            <?php foreach ($documentos_formatos as $item): ?>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-file-pdf me-2 text-danger"></i><?= esc($item['nombre'] ?? 'Documento') ?></span>
+                    <a href="<?= base_url('estudiante/practicas/formatos/descargar/' . rawurlencode($item['archivo'] ?? '')) ?>" class="btn btn-primary btn-sm" download>
+                        <i class="fas fa-download me-1"></i>Descargar
+                    </a>
+                </li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
 </div>
+<?php else: ?>
+<div class="alert alert-info">
+    <i class="fas fa-info-circle me-2"></i>No hay documentos de formato publicados aún. Consulte con el departamento de vinculación.
+</div>
+<?php endif; ?>
 <?= $this->endSection() ?>

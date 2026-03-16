@@ -113,11 +113,15 @@ class DashboardAdminController extends BaseController
         }
         
         try {
-            // Total de instructores
+            // Total de instructores (internos y externos)
             $totalInstructores = $this->instructoresModel->countAllResults();
+            $instructoresInternos = (new InstructoresModel())->where('ID_TIPO_INSTRUCTOR', 1)->countAllResults();
+            $instructoresExternos = (new InstructoresModel())->where('ID_TIPO_INSTRUCTOR', 2)->countAllResults();
         } catch (\Exception $e) {
             log_message('error', 'Error al obtener total de instructores: ' . $e->getMessage());
             $totalInstructores = 0;
+            $instructoresInternos = 0;
+            $instructoresExternos = 0;
         }
         
         try {
@@ -144,6 +148,8 @@ class DashboardAdminController extends BaseController
         return [
             'totalEstudiantes' => $totalEstudiantes,
             'totalInstructores' => $totalInstructores,
+            'instructoresInternos' => $instructoresInternos ?? 0,
+            'instructoresExternos' => $instructoresExternos ?? 0,
             'actividadesActivas' => $actividadesActivas,
             'conveniosPorCaducar' => $conveniosPorCaducar
         ];

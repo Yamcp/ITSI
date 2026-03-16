@@ -137,6 +137,24 @@ class ConveniosAdminController extends BaseController
             'EMAIL_CONTACTO' => $this->request->getPost('email_contacto')
         ];
 
+        $dirLogos = FCPATH . 'uploads/logos_instituciones/';
+        if (!is_dir($dirLogos)) {
+            mkdir($dirLogos, 0755, true);
+        }
+        $archivoLogo = $this->request->getFile('logo_empresa');
+        if ($archivoLogo && $archivoLogo->isValid() && !$archivoLogo->hasMoved()) {
+            $ext = $archivoLogo->getClientExtension();
+            $permitidos = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+            if (in_array(strtolower($ext ?? ''), $permitidos)) {
+                $nombreLogo = $archivoLogo->getRandomName();
+                $archivoLogo->move($dirLogos, $nombreLogo);
+                $data['LOGO'] = $nombreLogo;
+            }
+        }
+        if (empty($data['LOGO'])) {
+            $data['LOGO'] = null;
+        }
+
         if ($this->institucionesModel->insert($data)) {
             return $this->response->setJSON([
                 'success' => true,

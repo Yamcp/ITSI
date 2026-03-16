@@ -121,8 +121,8 @@
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-pill fw-semibold text-success" id="formatos-qr-tab" data-bs-toggle="tab" data-bs-target="#formatos-qr" type="button" role="tab" aria-selected="false">
-                                    <i class="fas fa-qrcode me-2"></i>Formatos y QR
+                                <button class="nav-link rounded-pill fw-semibold text-success" id="formatos-docs-tab" data-bs-toggle="tab" data-bs-target="#formatos-documentos" type="button" role="tab" aria-selected="false">
+                                    <i class="fas fa-file-upload me-2"></i>Documentos de formato
                                 </button>
                             </li>
                         </ul>
@@ -199,31 +199,65 @@
                                 </div>
                             </div>
 
-                            <!-- Pestaña: Formatos y QR -->
-                            <div class="tab-pane fade" id="formatos-qr" role="tabpanel">
+                            <!-- Pestaña: Documentos de formato (Prácticas Preprofesionales) -->
+                            <div class="tab-pane fade" id="formatos-documentos" role="tabpanel">
                                 <div class="card shadow-sm border-0">
                                     <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                                        <span><i class="fas fa-qrcode me-2"></i>Código QR – Formatos Prácticas Preprofesionales</span>
+                                        <span><i class="fas fa-file-upload me-2"></i>Documentos de formato – Prácticas Preprofesionales</span>
                                     </div>
                                     <div class="card-body">
-                                        <p class="text-muted small mb-3">Esta imagen se muestra en el perfil del estudiante (Formatos - Prácticas Laborales).</p>
-                                        <div class="row align-items-center">
-                                            <div class="col-md-4 text-center">
-                                                <p class="text-muted small mb-2">Vista previa actual</p>
-                                                <img id="previewQrPracticas" src="<?= esc($qr_practicas_url ?? base_url('sistema/assets/images/practicas/formatos-practicas-laborales-qr.png')) ?>" alt="QR Prácticas" class="img-fluid rounded border" style="max-height: 200px;" />
-                                            </div>
+                                        <p class="text-muted small mb-3">Estos documentos se muestran en el perfil del estudiante (Formatos - Prácticas Laborales) para que puedan descargarlos.</p>
+                                        <div class="row mb-4">
                                             <div class="col-md-8">
-                                                <form id="formQrPracticas" enctype="multipart/form-data">
-                                                    <div class="mb-3">
-                                                        <label class="form-label fw-bold">Subir nueva imagen del código QR</label>
-                                                        <input type="file" class="form-control" name="qr_imagen" id="qrImagenPracticas" accept="image/png,image/jpeg,image/jpg" />
-                                                        <div class="form-text">PNG o JPG. Se mostrará en la sección Formatos del estudiante.</div>
+                                                <form id="formDocumentoFormatoPracticas" enctype="multipart/form-data">
+                                                    <div class="row g-2">
+                                                        <div class="col-md-5">
+                                                            <label class="form-label fw-bold">Nombre del documento</label>
+                                                            <input type="text" class="form-control" name="nombre" placeholder="Ej: Modelo informe prácticas" required />
+                                                        </div>
+                                                        <div class="col-md-5">
+                                                            <label class="form-label fw-bold">Archivo (PDF, DOC, DOCX)</label>
+                                                            <input type="file" class="form-control" name="documento" id="docFormatoPracticas" accept=".pdf,.doc,.docx" required />
+                                                        </div>
+                                                        <div class="col-md-2 d-flex align-items-end">
+                                                            <button type="submit" class="btn btn-success w-100" id="btnSubirDocFormatoPracticas">
+                                                                <i class="fas fa-upload me-1"></i> Subir
+                                                            </button>
+                                                        </div>
                                                     </div>
-                                                    <button type="submit" class="btn btn-success" id="btnSubirQrPracticas">
-                                                        <i class="fas fa-upload me-1"></i> Actualizar QR
-                                                    </button>
                                                 </form>
                                             </div>
+                                        </div>
+                                        <div class="table-responsive">
+                                            <table class="table table-sm table-hover">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Nombre</th>
+                                                        <th>Archivo</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="tbodyFormatosPracticas">
+                                                    <?php
+                                                    $docsFormatos = $documentos_formatos_practicas ?? [];
+                                                    foreach ($docsFormatos as $i => $item): ?>
+                                                        <tr>
+                                                            <td><?= $i + 1 ?></td>
+                                                            <td><?= esc($item['nombre'] ?? '') ?></td>
+                                                            <td><span class="text-muted small"><?= esc($item['archivo'] ?? '') ?></span></td>
+                                                            <td>
+                                                                <button type="button" class="btn btn-outline-danger btn-sm" onclick="eliminarDocFormatoPracticas('<?= esc($item['archivo'] ?? '') ?>')" title="Eliminar">
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    <?php endforeach; ?>
+                                                    <?php if (empty($docsFormatos)): ?>
+                                                        <tr><td colspan="4" class="text-center text-muted py-3">No hay documentos. Suba uno arriba.</td></tr>
+                                                    <?php endif; ?>
+                                                </tbody>
+                                            </table>
                                         </div>
                                     </div>
                                 </div>
@@ -951,19 +985,18 @@
         }, 5000);
     }
 
-    // Formulario QR Prácticas Preprofesionales
-    document.getElementById('formQrPracticas')?.addEventListener('submit', function(e) {
+    // Formulario subir documento de formato (Prácticas Preprofesionales)
+    document.getElementById('formDocumentoFormatoPracticas')?.addEventListener('submit', function(e) {
         e.preventDefault();
-        const input = document.getElementById('qrImagenPracticas');
-        if (!input?.files?.length) {
-            showNotification('Seleccione una imagen', 'error');
-            return;
-        }
-        const formData = new FormData();
-        formData.append('qr_imagen', input.files[0]);
-        const btn = document.getElementById('btnSubirQrPracticas');
+        const form = this;
+        const input = document.getElementById('docFormatoPracticas');
+        const nombre = form.querySelector('[name="nombre"]').value.trim();
+        if (!nombre) { showNotification('Indique el nombre del documento', 'error'); return; }
+        if (!input?.files?.length) { showNotification('Seleccione un archivo', 'error'); return; }
+        const formData = new FormData(form);
+        const btn = document.getElementById('btnSubirDocFormatoPracticas');
         btn.disabled = true;
-        fetch('<?= base_url('admin/documentos/practicas/subir-qr') ?>', {
+        fetch('<?= base_url('admin/documentos/practicas/subir-formato') ?>', {
             method: 'POST',
             body: formData,
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
@@ -973,15 +1006,60 @@
             btn.disabled = false;
             if (data.success) {
                 showNotification(data.message, 'success');
-                const preview = document.getElementById('previewQrPracticas');
-                if (preview) preview.src = data.url + '?t=' + Date.now();
-                input.value = '';
+                form.reset();
+                actualizarTablaFormatosPracticas(data.lista || []);
             } else {
                 showNotification(data.message || 'Error al subir', 'error');
             }
         })
         .catch(() => { btn.disabled = false; showNotification('Error de conexión', 'error'); });
     });
+
+    function actualizarTablaFormatosPracticas(lista) {
+        const tbody = document.getElementById('tbodyFormatosPracticas');
+        if (!tbody) return;
+        if (!lista.length) {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center text-muted py-3">No hay documentos. Suba uno arriba.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = lista.map((item, i) => {
+            const archivo = (item.archivo || '').replace(/"/g, '&quot;');
+            return `<tr>
+                <td>${i + 1}</td>
+                <td>${escapeHtml(item.nombre || '')}</td>
+                <td><span class="text-muted small">${escapeHtml(item.archivo || '')}</span></td>
+                <td>
+                    <button type="button" class="btn btn-outline-danger btn-sm" data-archivo="${escapeHtml(archivo)}" onclick="eliminarDocFormatoPracticas(this.getAttribute('data-archivo'))" title="Eliminar">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>`;
+        }).join('');
+    }
+
+    function eliminarDocFormatoPracticas(archivo) {
+        if (!archivo || !confirm('¿Eliminar este documento de formato?')) return;
+        fetch('<?= base_url('admin/documentos/practicas/eliminar-formato/') ?>' + encodeURIComponent(archivo), {
+            method: 'POST',
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message, 'success');
+                actualizarTablaFormatosPracticas(data.lista || []);
+            } else {
+                showNotification(data.message || 'Error', 'error');
+            }
+        })
+        .catch(() => showNotification('Error de conexión', 'error'));
+    }
+
+    function escapeHtml(s) {
+        const div = document.createElement('div');
+        div.textContent = s;
+        return div.innerHTML;
+    }
 
     // Inicialización al cargar la página
     document.addEventListener('DOMContentLoaded', function() {

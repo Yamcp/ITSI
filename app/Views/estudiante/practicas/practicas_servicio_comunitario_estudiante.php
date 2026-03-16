@@ -259,12 +259,24 @@
                 <i class="fas fa-file-alt me-2 text-primary"></i>Formatos de las prácticas de Servicio Comunitario
             </div>
             <div class="card-body">
-                <p class="text-danger fw-semibold mb-4">
-                    <i class="fas fa-info-circle me-1"></i>Para visualizar todo este contenido, es importante que inicien sesión con su correo institucional en SharePoint.
+                <p class="text-muted mb-3">
+                    <i class="fas fa-info-circle me-1"></i>Descargue los documentos de formato que necesite para sus prácticas de servicio comunitario.
                 </p>
-                <div class="formatos-qr-wrap">
-                    <img src="<?= esc($qr_url ?? base_url('sistema/assets/images/practicas/formatos-servicio-comunitario-qr.png')) ?>" alt="Formatos y recursos de Servicio Comunitario - Modelo informe, Fichas de seguimiento, Base de datos, Video" class="img-fluid formatos-qr-img" />
-                </div>
+                <?php $documentos_formatos_serv = $documentos_formatos_servicio ?? []; ?>
+                <?php if (!empty($documentos_formatos_serv)): ?>
+                <ul class="list-group list-group-flush">
+                    <?php foreach ($documentos_formatos_serv as $item): ?>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-file-pdf me-2 text-danger"></i><?= esc($item['nombre'] ?? 'Documento') ?></span>
+                            <a href="<?= base_url('estudiante/practicas/servicio-comunitario/formatos/descargar/' . rawurlencode($item['archivo'] ?? '')) ?>" class="btn btn-primary btn-sm" download>
+                                <i class="fas fa-download me-1"></i>Descargar
+                            </a>
+                        </li>
+                    <?php endforeach; ?>
+                </ul>
+                <?php else: ?>
+                <p class="text-muted mb-0">No hay documentos de formato publicados aún.</p>
+                <?php endif; ?>
             </div>
         </div>
 
