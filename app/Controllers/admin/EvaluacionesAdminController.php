@@ -26,7 +26,7 @@ class EvaluacionesAdminController extends BaseController
     public function index()
     {
         // Cargar la vista de evaluaciones
-        return view('admin/evaluaciones/evaluaciones_views');
+        return view('admin/evaluaciones/evaluaciones');
     }
 
     public function agregarEvaluacion()

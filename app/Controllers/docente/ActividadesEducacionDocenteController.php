@@ -70,7 +70,7 @@ class ActividadesEducacionDocenteController extends BaseController
             'tipos_actividades' => $this->tiposActividadesModel->findAll()
         ];
 
-        return view('docente/educacion/actividades_educacion_views', $data);
+        return view('docente/educacion/actividades_educacion', $data);
     }
 
     public function create()
@@ -654,7 +654,7 @@ class ActividadesEducacionDocenteController extends BaseController
         ];
 
         // Generar HTML para PDF
-        $html = view('docente/educacion/reportes/pdf/reportes', $data);
+        $html = view('docente/educacion/reportes_pdf', $data);
 
         // Configurar headers para descarga
         $this->response->setHeader('Content-Type', 'application/pdf');

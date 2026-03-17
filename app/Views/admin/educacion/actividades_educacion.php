@@ -103,7 +103,7 @@
             <div class="col-md-3 col-sm-6 mb-3">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="<?= base_url('admin/actividades-educacion/crear') ?>" style="text-decoration: none; color: inherit;">
+                        <a href="#" onclick="showModal('modalNuevaActividad')" style="text-decoration: none; color: inherit;">
                             <i class="fas fa-plus-circle fa-2x mb-2" style="color: #28a745; text-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);"></i>
                             <div class="fw-bold">Nueva Actividad</div>
                         </a>
@@ -581,8 +581,8 @@
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Horario<span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="horario" placeholder="Ej: Lunes a Viernes 8:00-12:00" required>
+                                <label class="form-label">Horario</label>
+                                <input type="text" class="form-control" name="horario" placeholder="Ej: Lunes a Viernes 8:00-12:00">
                             </div>
                         </div>
                     </div>
@@ -1247,8 +1247,7 @@
             { name: 'duracion_horas', label: 'Duración (horas)' },
             { name: 'fecha_inicio', label: 'Fecha de Inicio' },
             { name: 'fecha_fin', label: 'Fecha de Fin' },
-            { name: 'lugar', label: 'Lugar' },
-            { name: 'horario', label: 'Horario' }
+            { name: 'lugar', label: 'Lugar' }
         ];
 
         let errores = [];

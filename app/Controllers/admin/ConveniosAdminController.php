@@ -30,7 +30,7 @@ class ConveniosAdminController extends BaseController
             'estadisticas' => $this->getEstadisticas()
         ];
 
-        return view('admin/convenios/convenios_views', $data);
+        return view('admin/convenios/convenios', $data);
     }
 
     public function create()

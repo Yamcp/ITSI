@@ -35,7 +35,7 @@ class ReportesEvaluacionesAdminController extends BaseController
             'cursos' => $this->actividadesModel->findAll()
         ];
         
-        return view('admin/evaluaciones/reportes_views', $data);
+        return view('admin/evaluaciones/reportes', $data);
     }
 
     /**

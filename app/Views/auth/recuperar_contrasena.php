@@ -1,10 +1,14 @@
+<?php
+$esRestablecer = !empty($token ?? '');
+$tituloPagina = $esRestablecer ? 'Nueva contraseña' : 'Recuperar contraseña';
+?>
 <!DOCTYPE html>
 <html lang="es">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recuperar contraseña | Departamento de Vinculación</title>
+    <title><?= $esRestablecer ? 'Nueva contraseña' : 'Recuperar contraseña' ?> | Departamento de Vinculación</title>
     <link rel="shortcut icon" type="image/png" href="<?= base_url('sistema/assets/images/logos/logo.png') ?>" />
     <link href="<?= base_url('login/assets/css/bootstrap.min.css') ?>" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
@@ -49,28 +53,15 @@
         .card-body { padding: 2rem 2rem 1.5rem 2rem; }
         .login-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
         .login-subtitle { font-size: 1rem; color: #6c757d; margin-bottom: 1.5rem; }
-        /* Alerta cuando no se pudo enviar el correo */
         .alert-recuperacion {
             background: #fffbf0;
             border: 1px solid #f0e6c8;
             border-radius: 0.5rem;
             padding: 1rem 1.25rem;
         }
-        .alert-recuperacion .alert-titulo {
-            color: #856404;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-        .alert-recuperacion p {
-            color: #664d03;
-            font-size: 0.9375rem;
-            margin-bottom: 1rem;
-        }
-        .alert-recuperacion .btn-enlace-recuperar {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-        }
+        .alert-recuperacion .alert-titulo { color: #856404; font-weight: 600; margin-bottom: 0.5rem; }
+        .alert-recuperacion p { color: #664d03; font-size: 0.9375rem; margin-bottom: 1rem; }
+        .alert-recuperacion .btn-enlace-recuperar { display: inline-flex; align-items: center; gap: 0.35rem; }
         @media (max-width: 576px) {
             .login-card { max-width: 95vw; padding: 0.5rem; }
             .card-body { padding: 1rem; }
@@ -99,8 +90,14 @@
             <div class="card-body">
                 <div class="text-center mb-3">
                     <img src="<?= base_url('login/assets/img/logo_instituto.png') ?>" alt="Logo Instituto" class="instituto-logo mb-2">
-                    <h1 class="login-title">Recuperar contraseña</h1>
-                    <div class="login-subtitle">Ingresa tu correo electrónico, cédula o usuario. Disponible para administradores, docentes y estudiantes.</div>
+                    <h1 class="login-title"><?= $tituloPagina ?></h1>
+                    <div class="login-subtitle">
+                        <?php if ($esRestablecer) : ?>
+                            Ingresa tu nueva contraseña (mínimo 8 caracteres)
+                        <?php else : ?>
+                            Ingresa tu correo electrónico, cédula o usuario. Disponible para administradores, docentes y estudiantes.
+                        <?php endif; ?>
+                    </div>
                 </div>
                 <?php if (session()->getFlashdata('error')) : ?>
                     <div class="alert alert-danger d-flex align-items-center mb-3 py-2" role="alert">
@@ -109,10 +106,11 @@
                         <button type="button" class="btn-close flex-shrink-0" data-bs-dismiss="alert" aria-label="Cerrar"></button>
                     </div>
                 <?php endif; ?>
-                <?php
-                $enlaceRecup = session()->getFlashdata('enlace_recuperacion');
-                $errorEmail  = session()->getFlashdata('error_email');
-                if ($errorEmail && $enlaceRecup) : ?>
+
+                <?php if (!$esRestablecer) :
+                    $enlaceRecup = session()->getFlashdata('enlace_recuperacion');
+                    $errorEmail  = session()->getFlashdata('error_email');
+                    if ($errorEmail && $enlaceRecup) : ?>
                     <div class="alert-recuperacion mb-3" role="alert">
                         <p class="alert-titulo mb-1"><i class="bi bi-envelope-exclamation me-2"></i>No se pudo enviar el correo.</p>
                         <p class="mb-2">Configure <code>app/Config/Email.php</code> (fromEmail, SMTPUser, SMTPPass) o use el enlace siguiente (válido 1 hora):</p>
@@ -120,28 +118,57 @@
                             <i class="bi bi-link-45deg"></i> Abrir enlace para restablecer contraseña
                         </a>
                     </div>
+                    <?php endif; ?>
                 <?php endif; ?>
-                <form action="<?= site_url('auth/solicitar-recuperacion') ?>" method="post" id="formRecuperar" autocomplete="off" novalidate>
-                    <?= csrf_field() ?>
-                    <div class="form-floating mb-4">
-                        <input type="text" class="form-control" id="email_o_usuario" name="email_o_usuario"
-                            placeholder="Correo o usuario" required
-                            value="<?= esc(old('email_o_usuario')) ?>"
-                            autofocus>
-                        <label for="email_o_usuario"><i class="bi bi-person-badge me-2"></i>Correo, cédula o usuario</label>
-                        <div class="invalid-feedback">Este campo es obligatorio.</div>
-                    </div>
-                    <div class="d-grid mb-3">
-                        <button type="submit" class="btn btn-primary text-uppercase fw-bold py-2">
-                            <i class="bi bi-send me-2"></i>Enviar instrucciones
-                        </button>
-                    </div>
-                    <div class="text-center">
-                        <a href="<?= site_url('/') ?>" class="text-decoration-none small">
-                            <i class="bi bi-arrow-left me-1"></i>Volver al inicio de sesión
-                        </a>
-                    </div>
-                </form>
+
+                <?php if ($esRestablecer) : ?>
+                    <!-- Formulario: Nueva contraseña -->
+                    <form action="<?= site_url('auth/restablecer-contrasena') ?>" method="post" id="formRestablecer" autocomplete="off" novalidate>
+                        <?= csrf_field() ?>
+                        <input type="hidden" name="token" value="<?= esc($token) ?>">
+                        <div class="form-floating mb-3">
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Nueva contraseña" required minlength="8">
+                            <label for="password"><i class="bi bi-lock-fill me-2"></i>Nueva contraseña</label>
+                            <div class="invalid-feedback">Mínimo 8 caracteres.</div>
+                        </div>
+                        <div class="form-floating mb-4">
+                            <input type="password" class="form-control" id="password_confirmar" name="password_confirmar" placeholder="Confirmar contraseña" required minlength="8">
+                            <label for="password_confirmar"><i class="bi bi-lock-fill me-2"></i>Confirmar contraseña</label>
+                            <div class="invalid-feedback">Las contraseñas deben coincidir.</div>
+                        </div>
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-primary text-uppercase fw-bold">
+                                <i class="bi bi-check-lg me-2"></i>Guardar contraseña
+                            </button>
+                        </div>
+                        <div class="text-center">
+                            <a href="<?= site_url('/') ?>" class="text-decoration-none small"><i class="bi bi-arrow-left me-1"></i>Volver al inicio de sesión</a>
+                        </div>
+                    </form>
+                <?php else : ?>
+                    <!-- Formulario: Solicitar recuperación -->
+                    <form action="<?= site_url('auth/solicitar-recuperacion') ?>" method="post" id="formRecuperar" autocomplete="off" novalidate>
+                        <?= csrf_field() ?>
+                        <div class="form-floating mb-4">
+                            <input type="text" class="form-control" id="email_o_usuario" name="email_o_usuario"
+                                placeholder="Correo o usuario" required
+                                value="<?= esc(old('email_o_usuario')) ?>"
+                                autofocus>
+                            <label for="email_o_usuario"><i class="bi bi-person-badge me-2"></i>Correo, cédula o usuario</label>
+                            <div class="invalid-feedback">Este campo es obligatorio.</div>
+                        </div>
+                        <div class="d-grid mb-3">
+                            <button type="submit" class="btn btn-primary text-uppercase fw-bold py-2">
+                                <i class="bi bi-send me-2"></i>Enviar instrucciones
+                            </button>
+                        </div>
+                        <div class="text-center">
+                            <a href="<?= site_url('/') ?>" class="text-decoration-none small">
+                                <i class="bi bi-arrow-left me-1"></i>Volver al inicio de sesión
+                            </a>
+                        </div>
+                    </form>
+                <?php endif; ?>
             </div>
             <footer class="text-center mt-3 text-muted small">
                 &copy; <?= date('Y') ?> Departamento de Vinculación
@@ -149,15 +176,33 @@
         </div>
     </div>
     <script src="<?= base_url('login/assets/js/bootstrap.bundle.min.js') ?>"></script>
+    <?php if ($esRestablecer) : ?>
+    <script>
+        document.getElementById('formRestablecer').addEventListener('submit', function(e) {
+            var p = document.getElementById('password').value;
+            var c = document.getElementById('password_confirmar').value;
+            if (c && p !== c) {
+                e.preventDefault();
+                document.getElementById('password_confirmar').setCustomValidity('Las contraseñas no coinciden');
+            } else {
+                document.getElementById('password_confirmar').setCustomValidity('');
+            }
+            if (!this.checkValidity()) { e.preventDefault(); e.stopPropagation(); }
+            this.classList.add('was-validated');
+        });
+        document.getElementById('password_confirmar').addEventListener('input', function() {
+            if (this.value !== document.getElementById('password').value) this.setCustomValidity('Las contraseñas no coinciden');
+            else this.setCustomValidity('');
+        });
+    </script>
+    <?php else : ?>
     <script>
         document.getElementById('formRecuperar').addEventListener('submit', function(e) {
-            if (!this.checkValidity()) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
+            if (!this.checkValidity()) { e.preventDefault(); e.stopPropagation(); }
             this.classList.add('was-validated');
         });
     </script>
+    <?php endif; ?>
 </body>
 
 </html>

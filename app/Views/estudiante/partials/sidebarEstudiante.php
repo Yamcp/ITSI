@@ -92,19 +92,6 @@
                         <span class="hide-menu">Formatos</span>
                     </a>
                 </li>
-                <li class="nav-small-cap mt-3">
-                    <i class="fa-solid fa-circle-half-stroke nav-small-cap-icon fs-6"></i>
-                    <span class="hide-menu">APARIENCIA</span>
-                </li>
-                <li class="sidebar-item">
-                    <button type="button" class="sidebar-theme-toggle" id="sidebarThemeToggle" aria-label="Cambiar modo claro/oscuro">
-                        <span class="theme-toggle-icon">
-                            <i class="fa-solid fa-fw fa-sun"></i>
-                        </span>
-                        <span class="theme-label hide-menu">Modo claro</span>
-                        <span class="theme-mode-badge">Claro</span>
-                    </button>
-                </li>
             </ul>
         </nav>
     </div>

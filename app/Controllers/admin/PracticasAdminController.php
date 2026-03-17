@@ -75,7 +75,7 @@ class PracticasAdminController extends BaseController
             'seguimiento' => $seguimiento
         ];
 
-        return view('admin/practicas/practicas_views', $data);
+        return view('admin/practicas/practicas', $data);
     }
 
     /**

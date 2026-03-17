@@ -86,11 +86,11 @@
 <?= $this->section('content') ?>
 <div class="body-wrapper">
     <div class="container-fluid">
-        <!-- Volver a Cursos y evaluaciones -->
+        <!-- Volver a Actividades educativas -->
         <div class="row mb-2">
             <div class="col-12">
                 <a href="<?= base_url('admin/educacion') ?>" class="btn btn-outline-secondary btn-sm">
-                    <i class="fas fa-arrow-left me-1"></i>Volver a Cursos y evaluaciones
+                    <i class="fas fa-arrow-left me-1"></i>Volver a Actividades educativas
                 </a>
             </div>
         </div>

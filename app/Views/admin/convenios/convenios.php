@@ -668,6 +668,9 @@
                             </div>
                         </div>
                     </div>
+                    <!-- Datos del Representante Legal -->
+                    <hr class="my-3">
+                    <h6 class="mb-3"><i class="fas fa-id-card me-1"></i>Datos del Representante Legal</h6>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
@@ -677,15 +680,25 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Datos de Contacto del Convenio -->
+                    <h6 class="mb-3 mt-2"><i class="fas fa-phone-alt me-1"></i>Datos de Contacto del Convenio</h6>
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label class="form-label">Nombre del Contacto<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="contacto" id="contacto" required>
+                                <div class="invalid-feedback" id="error_contacto"></div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="form-label">Teléfono de Contacto<span class="text-danger">*</span></label>
                                 <input type="text" class="form-control" name="telefono_contacto" id="telefono_contacto" required>
                                 <div class="invalid-feedback" id="error_telefono_contacto"></div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="form-label">Email de Contacto<span class="text-danger">*</span></label>
                                 <input type="email" class="form-control" name="email_contacto" id="email_contacto" required>

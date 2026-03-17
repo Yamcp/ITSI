@@ -34,7 +34,7 @@ class InstructoresAdminController extends BaseController
             'tiposInstructores' => $this->tipoInstructoresModel->findAll()
         ];
 
-        return view('admin/instructores/instructores_views', $data);
+        return view('admin/instructores/instructores', $data);
     }
 
     // Obtener todos los instructores (AJAX)
@@ -334,7 +334,7 @@ class InstructoresAdminController extends BaseController
                 'total_instructores' => count($instructores)
             ];
 
-            return view('admin/educacion/pdf/reportes', $data);
+            return view('admin/educacion/reportes_pdf', $data);
 
         } catch (\Exception $e) {
             return $this->response->setJSON([

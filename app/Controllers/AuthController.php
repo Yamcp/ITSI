@@ -38,7 +38,7 @@ class AuthController extends BaseController
         if (session()->get('logged_in')) {
             return $this->redirigirSegunRol(session()->get('rol'));
         }
-        return view('auth/recuperar_contrasena');
+        return view('auth/recuperar_contrasena', ['token' => null]);
     }
 
     /**
@@ -203,7 +203,7 @@ class AuthController extends BaseController
             return redirect()->to('auth/recuperar-contrasena')->with('error', 'El enlace ha expirado o ya fue utilizado. Solicita uno nuevo.');
         }
 
-        return view('auth/restablecer_contrasena', ['token' => $token]);
+        return view('auth/recuperar_contrasena', ['token' => $token]);
     }
 
     /**
