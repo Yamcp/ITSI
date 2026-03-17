@@ -47,7 +47,7 @@
                 <div class="card" style="margin-top: 0;">
                     <div class="card-header">
                         <h4 class="card-title mb-0">
-                            <i class="fa-solid fa-key me-2 text-primary" ></i>
+                            <i class="fa-solid fa-key me-2 text-primary"></i>
                             <span style="color: white;">Cambio de Contraseña</span>
                         </h4>
                         <p class="text-muted mb-0">Actualiza tu contraseña para mantener tu cuenta segura</p>
@@ -134,7 +134,7 @@
                                     <!-- Botones -->
                                     <div class="d-flex gap-2">
                                         <button type="submit" class="btn btn-primary">
-                                            <i class="fa-solid fa-save me-2" ></i>
+                                            <i class="fa-solid fa-save me-2"></i>
                                             Cambiar Contraseña
                                         </button>
                                         <a href="<?= base_url('estudiante/dashboard') ?>" class="btn btn-secondary">
@@ -277,19 +277,19 @@
         color: #6c757d;
         margin-top: 0.25rem;
     }
-    
+
     /* Eliminar espacios innecesarios */
     .page-title {
         margin-bottom: 1rem !important;
     }
-    
+
     .page-title h3 {
         margin-bottom: 0;
         font-size: 1.75rem;
         font-weight: 600;
         color: #1e3a8a;
     }
-    
+
     .container-fluid {
         padding-top: 0;
     }

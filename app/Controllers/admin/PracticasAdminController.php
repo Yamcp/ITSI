@@ -278,17 +278,46 @@ class PracticasAdminController extends BaseController
     /**
      * Crear nueva práctica
      */
+    /** Horas requeridas por tipo: preprofesionales 240 h (una vez en la carrera), servicio comunitario 60 h (una vez). */
+    private const HORAS_PRACTICAS_PREPROFESIONALES = 240;
+    private const HORAS_SERVICIO_COMUNITARIO = 60;
+
     public function crearPractica()
     {
-        $tipoPractica = $this->request->getPost('tipo_practica');
-        $estudiante = $this->request->getPost('estudiante');
-        $institucion = $this->request->getPost('institucion');
-        $estado = $this->request->getPost('estado');
-        $fechaInicio = $this->request->getPost('fecha_inicio');
-        $fechaFin = $this->request->getPost('fecha_fin');
-        $horasTotal = $this->request->getPost('horas_total');
-        $cronograma = $this->request->getPost('cronograma');
-        $descripcion = $this->request->getPost('descripcion');
+        $tipoPractica = (int) ($this->request->getPost('tipo_practica') ?: $this->request->getPost('tipo_practica_asignar'));
+        $estudiante = (int) ($this->request->getPost('estudiante') ?: $this->request->getPost('estudiante_asignar'));
+        $institucion = $this->request->getPost('institucion') ?: $this->request->getPost('institucion_asignar');
+        $estado = $this->request->getPost('estado') ?: $this->request->getPost('estado_asignar');
+        $fechaInicio = $this->request->getPost('fecha_inicio') ?: $this->request->getPost('fecha_inicio_asignar');
+        $fechaFin = $this->request->getPost('fecha_fin') ?: $this->request->getPost('fecha_fin_asignar');
+        $cronograma = $this->request->getPost('cronograma') ?: $this->request->getPost('cronograma_asignar');
+        $descripcion = $this->request->getPost('descripcion') ?: $this->request->getPost('descripcion_asignar');
+
+        // Regla de negocio: una sola vez por estudiante y horas fijas (240 h preprofesionales, 60 h servicio comunitario)
+        $db = \Config\Database::connect();
+        if ($tipoPractica == 2) { // Prácticas Preprofesionales
+            $yaTiene = $db->table('TAB_PRACTICAS_PREPROFESIONALES')
+                ->where('ID_ESTUDIANTE', $estudiante)
+                ->countAllResults();
+            if ($yaTiene > 0) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Este estudiante ya tiene asignadas prácticas preprofesionales. Solo se realizan una vez en la carrera (240 horas).'
+                ]);
+            }
+            $horasTotal = self::HORAS_PRACTICAS_PREPROFESIONALES;
+        } else { // Servicio Comunitario (tipo 1)
+            $yaTiene = $db->table('TAB_SERVICIO_COMUNITARIO')
+                ->where('ID_ESTUDIANTE', $estudiante)
+                ->countAllResults();
+            if ($yaTiene > 0) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Este estudiante ya tiene asignado servicio comunitario. Solo se realiza una vez (60 horas).'
+                ]);
+            }
+            $horasTotal = self::HORAS_SERVICIO_COMUNITARIO;
+        }
 
         try {
             $db = \Config\Database::connect();

@@ -1,7 +1,9 @@
 <?= $this->extend('docente/layouts/mainDocente') ?>
 
 <?php
+
 use Config\Database;
+
 $periodoNombreDashboard = $periodoAcademicoNombre ?? session('periodo_academico_nombre');
 $periodoRangoDashboard  = $periodoAcademicoRango ?? session('periodo_academico_rango');
 if (!$periodoNombreDashboard) {
@@ -26,24 +28,38 @@ if (!$periodoNombreDashboard) {
     /* Diseño igual que dashboard Estudiante */
     :root {
         --dashboard-radius: 16px;
-        --dashboard-shadow: 0 4px 20px rgba(0,0,0,0.06);
-        --dashboard-shadow-hover: 0 12px 32px rgba(0,0,0,0.12);
+        --dashboard-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        --dashboard-shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.12);
         --gradient-pre: linear-gradient(145deg, #0ea5e9 0%, #06b6d4 100%);
         --gradient-serv: linear-gradient(145deg, #ec4899 0%, #f59e0b 100%);
         --gradient-active: linear-gradient(145deg, #10b981 0%, #14b8a6 100%);
         --gradient-actividades: linear-gradient(145deg, #6366f1 0%, #8b5cf6 100%);
     }
-    .dashboard-page { font-family: 'Segoe UI', system-ui, sans-serif; }
+
+    .dashboard-page {
+        font-family: 'Segoe UI', system-ui, sans-serif;
+    }
 
     .dashboard-header {
         background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
         border-radius: var(--dashboard-radius);
         padding: 1.5rem 1.75rem;
         margin-bottom: 1.75rem;
-        border: 1px solid rgba(0,0,0,0.04);
+        border: 1px solid rgba(0, 0, 0, 0.04);
     }
-    .dashboard-header .title-dash { font-weight: 700; font-size: 1.6rem; color: #0f172a; letter-spacing: -0.02em; }
-    .dashboard-header .subtitle-dash { color: #64748b; font-size: 0.95rem; }
+
+    .dashboard-header .title-dash {
+        font-weight: 700;
+        font-size: 1.6rem;
+        color: #0f172a;
+        letter-spacing: -0.02em;
+    }
+
+    .dashboard-header .subtitle-dash {
+        color: #64748b;
+        font-size: 0.95rem;
+    }
+
     .dashboard-header .badge-rol {
         background: #e0f2fe;
         color: #0369a1;
@@ -51,6 +67,7 @@ if (!$periodoNombreDashboard) {
         padding: 0.4rem 0.75rem;
         border-radius: 999px;
     }
+
     .dashboard-header .date-time-box {
         background: #fff;
         border-radius: 12px;
@@ -67,14 +84,17 @@ if (!$periodoNombreDashboard) {
         transition: transform 0.25s ease, box-shadow 0.25s ease;
         overflow: hidden;
     }
+
     .metric-card:hover {
         transform: translateY(-4px);
         box-shadow: var(--dashboard-shadow-hover);
     }
+
     .metric-card .card-body {
         padding: 1.35rem 1.25rem;
         position: relative;
     }
+
     .metric-card .metric-icon {
         width: 52px;
         height: 52px;
@@ -86,15 +106,30 @@ if (!$periodoNombreDashboard) {
         color: #fff;
         opacity: 0.95;
     }
-    .metric-card h3 { font-weight: 700; font-size: 1.75rem; margin-bottom: 0.2rem; }
-    .metric-card .metric-label { font-weight: 600; font-size: 0.9rem; opacity: 0.95; }
-    .metric-card .metric-sub { font-size: 0.8rem; opacity: 0.85; }
+
+    .metric-card h3 {
+        font-weight: 700;
+        font-size: 1.75rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .metric-card .metric-label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        opacity: 0.95;
+    }
+
+    .metric-card .metric-sub {
+        font-size: 0.8rem;
+        opacity: 0.85;
+    }
 
     .card-dash {
         border: none;
         border-radius: var(--dashboard-radius);
         box-shadow: var(--dashboard-shadow);
     }
+
     .card-dash .card-header {
         background: #fff;
         border-bottom: 1px solid #f1f5f9;
@@ -103,6 +138,7 @@ if (!$periodoNombreDashboard) {
         color: #0f172a;
         font-size: 1.05rem;
     }
+
     .quick-action-btn {
         display: inline-flex;
         align-items: center;
@@ -116,15 +152,23 @@ if (!$periodoNombreDashboard) {
         border: none;
         text-decoration: none;
     }
+
     .quick-action-btn:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
         color: inherit;
     }
 
-    .chart-container { position: relative; height: 280px; margin: 1rem 0; }
+    .chart-container {
+        position: relative;
+        height: 280px;
+        margin: 1rem 0;
+    }
 
-    .table-dash { margin-bottom: 0; }
+    .table-dash {
+        margin-bottom: 0;
+    }
+
     .table-dash thead th {
         font-weight: 600;
         color: #475569;
@@ -134,13 +178,42 @@ if (!$periodoNombreDashboard) {
         border-bottom: 1px solid #e2e8f0;
         padding: 1rem 1rem;
     }
-    .table-dash tbody td { padding: 1rem; vertical-align: middle; }
-    .table-dash tbody tr { transition: background 0.15s ease; }
-    .table-dash tbody tr:hover { background: #f8fafc; }
-    .table-dash .badge { font-weight: 600; padding: 0.35rem 0.65rem; font-size: 0.75rem; }
-    .table-dash .btn-sm { border-radius: 8px; font-weight: 600; padding: 0.35rem 0.75rem; }
-    .empty-state { padding: 3rem 1rem; color: #94a3b8; }
-    .empty-state i { font-size: 2.5rem; margin-bottom: 0.75rem; opacity: 0.6; }
+
+    .table-dash tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+
+    .table-dash tbody tr {
+        transition: background 0.15s ease;
+    }
+
+    .table-dash tbody tr:hover {
+        background: #f8fafc;
+    }
+
+    .table-dash .badge {
+        font-weight: 600;
+        padding: 0.35rem 0.65rem;
+        font-size: 0.75rem;
+    }
+
+    .table-dash .btn-sm {
+        border-radius: 8px;
+        font-weight: 600;
+        padding: 0.35rem 0.75rem;
+    }
+
+    .empty-state {
+        padding: 3rem 1rem;
+        color: #94a3b8;
+    }
+
+    .empty-state i {
+        font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+        opacity: 0.6;
+    }
 </style>
 <?= $this->endSection() ?>
 
@@ -293,7 +366,11 @@ if (!$periodoNombreDashboard) {
         const span = document.getElementById('currentTime');
         if (span) {
             const ahora = new Date();
-            span.textContent = ahora.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            span.textContent = ahora.toLocaleTimeString('es-ES', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
         }
     }
     setInterval(actualizarHora, 1000);

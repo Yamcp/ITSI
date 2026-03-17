@@ -48,7 +48,7 @@
                         </a>
                     </div>
                 </div>
-            </div>            
+            </div>
             <div class="col-md-3 col-sm-6 mb-3">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
@@ -731,7 +731,7 @@
         try {
             const response = await fetch('<?= base_url('admin/instructores/getInstructores') ?>');
             const result = await response.json();
-            
+
             if (result.success) {
                 instructoresData = result.data;
                 actualizarTablaInstructores();
@@ -749,7 +749,7 @@
         try {
             const response = await fetch('<?= base_url('admin/instructores/getEstadisticas') ?>');
             const result = await response.json();
-            
+
             if (result.success) {
                 const stats = result.data;
                 document.getElementById('totalInstructores').textContent = stats.total_instructores;
@@ -767,18 +767,18 @@
         const tbodyTodos = document.getElementById('tablaTodos');
         const tbodyInternos = document.getElementById('tablaInternos');
         const tbodyExternos = document.getElementById('tablaExternos');
-        
+
         // Limpiar tablas
         tbodyTodos.innerHTML = '';
         tbodyInternos.innerHTML = '';
         tbodyExternos.innerHTML = '';
-        
+
         instructoresData.forEach((instructor, index) => {
             const row = crearFilaInstructor(instructor, index + 1);
-            
+
             // Agregar a tabla "Todos"
             tbodyTodos.appendChild(row.cloneNode(true));
-            
+
             // Agregar a tabla específica según tipo
             if (instructor.TIPO_INSTRUCTOR === 'Interno') {
                 tbodyInternos.appendChild(row.cloneNode(true));
@@ -791,14 +791,14 @@
     // Crear fila de instructor
     function crearFilaInstructor(instructor, numero) {
         const tr = document.createElement('tr');
-        
-        const tipoBadge = instructor.TIPO_INSTRUCTOR === 'Interno' ? 
-            '<span class="badge bg-success">Interno</span>' : 
+
+        const tipoBadge = instructor.TIPO_INSTRUCTOR === 'Interno' ?
+            '<span class="badge bg-success">Interno</span>' :
             '<span class="badge bg-info">Externo</span>';
-        
+
         const actividadesActivas = instructor.actividades_activas || 0;
         const actividadesCompletadas = instructor.actividades_completadas || 0;
-        
+
         tr.innerHTML = `
             <td>${numero.toString().padStart(3, '0')}</td>
             <td>
@@ -846,7 +846,7 @@
                 </div>
             </td>
         `;
-        
+
         return tr;
     }
 
@@ -859,10 +859,10 @@
         try {
             const response = await fetch(`<?= base_url('admin/instructores/getInstructor') ?>/${id}`);
             const result = await response.json();
-            
+
             if (result.success) {
                 const instructor = result.data;
-                
+
                 document.getElementById('detalleNombre').textContent = `${instructor.TITULO_PROFESIONAL} ${instructor.NOMBRE} ${instructor.APELLIDO}`;
                 document.getElementById('detalleTitulo').textContent = instructor.TITULO_PROFESIONAL;
                 document.getElementById('detalleTipo').textContent = instructor.TIPO_INSTRUCTOR;
@@ -874,11 +874,11 @@
                 document.getElementById('detalleEspecialidad').textContent = instructor.ESPECIALIDAD;
                 document.getElementById('totalActividadesInstructor').textContent = instructor.actividades ? instructor.actividades.length : 0;
                 document.getElementById('evaluacionPromedio').textContent = '4.8';
-                
+
                 // Actualizar tabla de actividades
                 const tbodyActividades = document.getElementById('tablaActividadesInstructor');
                 tbodyActividades.innerHTML = '';
-                
+
                 if (instructor.actividades && instructor.actividades.length > 0) {
                     instructor.actividades.forEach(actividad => {
                         const tr = document.createElement('tr');
@@ -892,7 +892,7 @@
                         tbodyActividades.appendChild(tr);
                     });
                 }
-                
+
                 showModal('modalDetalleInstructor');
             } else {
                 showNotification('Error al obtener detalles del instructor: ' + result.message, 'error');
@@ -921,35 +921,35 @@
     async function guardarInstructor() {
         const form = document.getElementById('formNuevoInstructor');
         const formData = new FormData(form);
-        
+
         // Limpiar validaciones anteriores
         form.classList.remove('was-validated');
         const inputs = form.querySelectorAll('.form-control, .form-select');
         inputs.forEach(input => {
             input.classList.remove('is-invalid', 'is-valid');
         });
-        
+
         // Validar campos obligatorios
         const camposObligatorios = [
-            'tipo_instructor', 
-            'titulo_profesional', 
-            'nombre', 
-            'apellido', 
-            'cedula', 
-            'email', 
-            'celular', 
-            'genero', 
-            'direccion', 
-            'especialidad', 
+            'tipo_instructor',
+            'titulo_profesional',
+            'nombre',
+            'apellido',
+            'cedula',
+            'email',
+            'celular',
+            'genero',
+            'direccion',
+            'especialidad',
             'nacionalidad'
         ];
-        
+
         let hayErrores = false;
-        
+
         camposObligatorios.forEach(campo => {
             const input = form.querySelector(`[name="${campo}"]`);
             const valor = formData.get(campo);
-            
+
             if (!valor || valor.trim() === '') {
                 input.classList.add('is-invalid');
                 hayErrores = true;
@@ -957,7 +957,7 @@
                 input.classList.add('is-valid');
             }
         });
-        
+
         // Validar formato de email
         const email = formData.get('email');
         const emailInput = form.querySelector('[name="email"]');
@@ -966,7 +966,7 @@
             emailInput.classList.add('is-invalid');
             hayErrores = true;
         }
-        
+
         // Validar formato de cédula (10 dígitos para Ecuador)
         const cedula = formData.get('cedula');
         const cedulaInput = form.querySelector('[name="cedula"]');
@@ -974,7 +974,7 @@
             cedulaInput.classList.add('is-invalid');
             hayErrores = true;
         }
-        
+
         // Validar formato de celular (10 dígitos para Ecuador)
         const celular = formData.get('celular');
         const celularInput = form.querySelector('[name="celular"]');
@@ -982,22 +982,22 @@
             celularInput.classList.add('is-invalid');
             hayErrores = true;
         }
-        
+
         if (hayErrores) {
             form.classList.add('was-validated');
             showNotification('Por favor corrige los errores en el formulario', 'error');
             return;
         }
-        
+
         // Enviar datos al servidor
         try {
             const response = await fetch('<?= base_url('admin/instructores/crear') ?>', {
                 method: 'POST',
                 body: formData
             });
-            
+
             const result = await response.json();
-            
+
             if (result.success) {
                 showNotification('Instructor guardado exitosamente', 'success');
                 bootstrap.Modal.getInstance(document.getElementById('modalNuevoInstructor')).hide();
@@ -1155,20 +1155,22 @@
         // Cargar datos iniciales
         cargarInstructores();
         cargarEstadisticas();
-        
+
         // Set default values
         const today = new Date().toISOString().split('T')[0];
-        
+
         // Cargar tipos de instructores en el select
         cargarTiposInstructores();
-        
+
         // Agregar validación en tiempo real
         agregarValidacionTiempoReal();
 
         // Si se llegó desde "agregar instructor" (ej. desde actividades), abrir modal de nuevo instructor
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('crear') === '1') {
-            setTimeout(function() { showModal('modalNuevoInstructor'); }, 400);
+            setTimeout(function() {
+                showModal('modalNuevoInstructor');
+            }, 400);
             window.history.replaceState({}, document.title, window.location.pathname);
         }
     });
@@ -1177,12 +1179,12 @@
     function agregarValidacionTiempoReal() {
         const form = document.getElementById('formNuevoInstructor');
         const inputs = form.querySelectorAll('.form-control, .form-select');
-        
+
         inputs.forEach(input => {
             input.addEventListener('blur', function() {
                 validarCampo(this);
             });
-            
+
             input.addEventListener('input', function() {
                 if (this.classList.contains('is-invalid')) {
                     validarCampo(this);
@@ -1195,19 +1197,19 @@
     function validarCampo(input) {
         const valor = input.value.trim();
         const nombre = input.name;
-        
+
         // Limpiar clases anteriores
         input.classList.remove('is-valid', 'is-invalid');
-        
+
         // Validar campo vacío
         if (!valor) {
             input.classList.add('is-invalid');
             return false;
         }
-        
+
         // Validaciones específicas
         let esValido = true;
-        
+
         switch (nombre) {
             case 'email':
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -1228,13 +1230,13 @@
                 esValido = valor.length >= 3;
                 break;
         }
-        
+
         if (esValido) {
             input.classList.add('is-valid');
         } else {
             input.classList.add('is-invalid');
         }
-        
+
         return esValido;
     }
 
@@ -1243,11 +1245,11 @@
         try {
             const response = await fetch('<?= base_url('admin/instructores/getTiposInstructores') ?>');
             const result = await response.json();
-            
+
             if (result.success) {
                 const select = document.querySelector('select[name="tipo_instructor"]');
                 select.innerHTML = '<option value="">Seleccionar...</option>';
-                
+
                 result.data.forEach(tipo => {
                     const option = document.createElement('option');
                     option.value = tipo.ID_TIPO_INSTRUCTOR;

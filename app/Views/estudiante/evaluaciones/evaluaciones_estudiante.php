@@ -8,26 +8,54 @@
         transition: all 0.3s ease;
         border-left: 4px solid #007bff;
     }
+
     .evaluation-card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     }
-    .evaluation-card.satisfaccion { border-left-color: #28a745; }
-    .evaluation-card.instructores { border-left-color: #ffc107; }
-    .evaluation-card.practicas { border-left-color: #17a2b8; }
-    .evaluation-card.cursos { border-left-color: #6f42c1; }
-    .evaluation-card.comunidad { border-left-color: #fd7e14; }
-    
+
+    .evaluation-card.satisfaccion {
+        border-left-color: #28a745;
+    }
+
+    .evaluation-card.instructores {
+        border-left-color: #ffc107;
+    }
+
+    .evaluation-card.practicas {
+        border-left-color: #17a2b8;
+    }
+
+    .evaluation-card.cursos {
+        border-left-color: #6f42c1;
+    }
+
+    .evaluation-card.comunidad {
+        border-left-color: #fd7e14;
+    }
+
     .status-badge {
         padding: 0.25rem 0.75rem;
         border-radius: 20px;
         font-size: 0.75rem;
         font-weight: 600;
     }
-    .status-activo { background-color: #d4edda; color: #155724; }
-    .status-inactivo { background-color: #f8d7da; color: #721c24; }
-    .status-vencido { background-color: #fff3cd; color: #856404; }
-    
+
+    .status-activo {
+        background-color: #d4edda;
+        color: #155724;
+    }
+
+    .status-inactivo {
+        background-color: #f8d7da;
+        color: #721c24;
+    }
+
+    .status-vencido {
+        background-color: #fff3cd;
+        color: #856404;
+    }
+
     .link-preview {
         background: #f8f9fa;
         border: 1px solid #dee2e6;
@@ -37,7 +65,7 @@
         color: #6c757d;
         word-break: break-all;
     }
-    
+
     .btn-evaluacion {
         background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%);
         border: none;
@@ -51,14 +79,14 @@
         align-items: center;
         gap: 0.5rem;
     }
-    
+
     .btn-evaluacion:hover {
         background: linear-gradient(135deg, #1e7e34 0%, #155724 100%);
         color: white;
         transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(40,167,69,0.3);
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
     }
-    
+
     .info-card {
         background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
         border: 1px solid #dee2e6;
@@ -66,7 +94,7 @@
         padding: 1.5rem;
         margin-bottom: 1rem;
     }
-    
+
     .urgent-card {
         background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
         border: 1px solid #ffc107;
@@ -102,7 +130,7 @@
                         <div>
                             <h6 class="mb-1">Información Importante</h6>
                             <p class="mb-0 text-muted">
-                                Como estudiante, puedes acceder a los formularios de evaluación de tus cursos y actividades. 
+                                Como estudiante, puedes acceder a los formularios de evaluación de tus cursos y actividades.
                                 Es importante que completes estas evaluaciones para contribuir a la mejora continua de la educación.
                             </p>
                         </div>
@@ -245,13 +273,13 @@
         evaluaciones.forEach(eval => {
             const card = document.createElement('div');
             card.className = 'col-md-6 col-lg-4';
-            
+
             // Verificar si está próxima a vencer (7 días o menos)
             const fechaVencimiento = new Date(eval.fecha_vencimiento);
             const hoy = new Date();
             const diasRestantes = Math.ceil((fechaVencimiento - hoy) / (1000 * 60 * 60 * 24));
             const esUrgente = diasRestantes <= 7 && diasRestantes >= 0;
-            
+
             card.innerHTML = `
                 <div class="card evaluation-card ${eval.tipo.toLowerCase()} h-100 ${esUrgente ? 'border-warning' : ''}">
                     <div class="card-body d-flex flex-column">
@@ -303,13 +331,13 @@
 
         evaluaciones.forEach(eval => {
             const row = document.createElement('tr');
-            
+
             // Verificar si está próxima a vencer
             const fechaVencimiento = new Date(eval.fecha_vencimiento);
             const hoy = new Date();
             const diasRestantes = Math.ceil((fechaVencimiento - hoy) / (1000 * 60 * 60 * 24));
             const esUrgente = diasRestantes <= 7 && diasRestantes >= 0;
-            
+
             row.innerHTML = `
                 <td>
                     <div class="fw-semibold">${eval.nombre}</div>

@@ -6,16 +6,19 @@
     .convenio-card {
         transition: transform 0.2s ease-in-out;
         border: none;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
+
     .convenio-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     }
+
     .estado-badge {
         font-size: 0.8rem;
         padding: 0.4rem 0.8rem;
     }
+
     .institucion-card {
         border-left: 4px solid #007bff;
     }
@@ -102,12 +105,12 @@
                                         <?php
                                         $estado = 'Vigente';
                                         $badgeClass = 'bg-success';
-                                        
+
                                         if (isset($convenio['FECHA_FIN'])) {
                                             $fechaFin = strtotime($convenio['FECHA_FIN']);
                                             $hoy = time();
                                             $diasRestantes = ($fechaFin - $hoy) / (60 * 60 * 24);
-                                            
+
                                             if ($diasRestantes < 0) {
                                                 $estado = 'Vencido';
                                                 $badgeClass = 'bg-danger';
@@ -213,7 +216,7 @@
     // Inicializar tooltips si es necesario
     document.addEventListener('DOMContentLoaded', function() {
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
             return new bootstrap.Tooltip(tooltipTriggerEl);
         });
     });

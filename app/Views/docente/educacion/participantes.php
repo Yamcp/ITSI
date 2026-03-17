@@ -124,75 +124,89 @@
 </div>
 
 <script>
-(function() {
-    const idActividad = <?= (int)$actividad['ID_ACTIVIDAD_EDUCACION'] ?>;
-    const urlAgregar = '<?= base_url('docente/actividades-educacion/participantes/agregar') ?>';
-    const urlQuitar = '<?= base_url('docente/actividades-educacion/participantes/quitar') ?>';
+    (function() {
+        const idActividad = <?= (int)$actividad['ID_ACTIVIDAD_EDUCACION'] ?>;
+        const urlAgregar = '<?= base_url('docente/actividades-educacion/participantes/agregar') ?>';
+        const urlQuitar = '<?= base_url('docente/actividades-educacion/participantes/quitar') ?>';
 
-    function notificar(msg, tipo) {
-        const colors = { success: '#28a745', error: '#dc3545', info: '#17a2b8' };
-        const n = document.createElement('div');
-        n.className = 'position-fixed top-0 end-0 m-3';
-        n.style.zIndex = '9999';
-        n.innerHTML = '<div class="alert alert-' + tipo + ' alert-dismissible fade show" role="alert" style="background:' + (colors[tipo] || colors.info) + ';color:white;border:none;">' + msg + '<button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button></div>';
-        document.body.appendChild(n);
-        setTimeout(function() { if (n.parentNode) n.remove(); }, 5000);
-    }
+        function notificar(msg, tipo) {
+            const colors = {
+                success: '#28a745',
+                error: '#dc3545',
+                info: '#17a2b8'
+            };
+            const n = document.createElement('div');
+            n.className = 'position-fixed top-0 end-0 m-3';
+            n.style.zIndex = '9999';
+            n.innerHTML = '<div class="alert alert-' + tipo + ' alert-dismissible fade show" role="alert" style="background:' + (colors[tipo] || colors.info) + ';color:white;border:none;">' + msg + '<button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button></div>';
+            document.body.appendChild(n);
+            setTimeout(function() {
+                if (n.parentNode) n.remove();
+            }, 5000);
+        }
 
-    function actualizarTotal() {
-        const filas = document.querySelectorAll('#tbodyParticipantes tr[data-id-estudiante]');
-        const el = document.getElementById('totalParticipantes');
-        if (el) el.textContent = filas.length;
-    }
+        function actualizarTotal() {
+            const filas = document.querySelectorAll('#tbodyParticipantes tr[data-id-estudiante]');
+            const el = document.getElementById('totalParticipantes');
+            if (el) el.textContent = filas.length;
+        }
 
-    document.getElementById('formAgregarParticipante').addEventListener('submit', function(e) {
-        e.preventDefault();
-        const btn = document.getElementById('btnAgregar');
-        const fd = new FormData(this);
-        btn.disabled = true;
-        fetch(urlAgregar, { method: 'POST', body: fd })
-            .then(r => r.json())
-            .then(function(res) {
-                if (res.success) {
-                    notificar(res.message, 'success');
-                    window.location.reload();
-                } else {
-                    notificar(res.message || 'Error al agregar', 'error');
-                    btn.disabled = false;
-                }
-            })
-            .catch(function() {
-                notificar('Error de conexión', 'error');
-                btn.disabled = false;
-            });
-    });
-
-    document.getElementById('tbodyParticipantes').addEventListener('click', function(e) {
-        const btn = e.target.closest('.btn-quitar');
-        if (!btn) return;
-        const idEstudiante = btn.getAttribute('data-id-estudiante');
-        if (!confirm('¿Quitar a este participante de la actividad?')) return;
-        const fd = new FormData();
-        fd.append('id_actividad', idActividad);
-        fd.append('id_estudiante', idEstudiante);
-        fd.append('<?= csrf_token() ?>', '<?= csrf_hash() ?>');
-        fetch(urlQuitar, { method: 'POST', body: fd })
-            .then(r => r.json())
-            .then(function(res) {
-                if (res.success) {
-                    notificar(res.message, 'success');
-                    const row = document.querySelector('tr[data-id-estudiante="' + idEstudiante + '"]');
-                    if (row) row.remove();
-                    actualizarTotal();
-                    if (document.querySelectorAll('#tbodyParticipantes tr[data-id-estudiante]').length === 0) {
-                        document.getElementById('tbodyParticipantes').innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4"><i class="fas fa-users fa-3x mb-2"></i><p class="mb-0">Aún no hay participantes. Agregue estudiantes con el formulario.</p></td></tr>';
+        document.getElementById('formAgregarParticipante').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnAgregar');
+            const fd = new FormData(this);
+            btn.disabled = true;
+            fetch(urlAgregar, {
+                    method: 'POST',
+                    body: fd
+                })
+                .then(r => r.json())
+                .then(function(res) {
+                    if (res.success) {
+                        notificar(res.message, 'success');
+                        window.location.reload();
+                    } else {
+                        notificar(res.message || 'Error al agregar', 'error');
+                        btn.disabled = false;
                     }
-                } else {
-                    notificar(res.message || 'Error al quitar', 'error');
-                }
-            })
-            .catch(function() { notificar('Error de conexión', 'error'); });
-    });
-})();
+                })
+                .catch(function() {
+                    notificar('Error de conexión', 'error');
+                    btn.disabled = false;
+                });
+        });
+
+        document.getElementById('tbodyParticipantes').addEventListener('click', function(e) {
+            const btn = e.target.closest('.btn-quitar');
+            if (!btn) return;
+            const idEstudiante = btn.getAttribute('data-id-estudiante');
+            if (!confirm('¿Quitar a este participante de la actividad?')) return;
+            const fd = new FormData();
+            fd.append('id_actividad', idActividad);
+            fd.append('id_estudiante', idEstudiante);
+            fd.append('<?= csrf_token() ?>', '<?= csrf_hash() ?>');
+            fetch(urlQuitar, {
+                    method: 'POST',
+                    body: fd
+                })
+                .then(r => r.json())
+                .then(function(res) {
+                    if (res.success) {
+                        notificar(res.message, 'success');
+                        const row = document.querySelector('tr[data-id-estudiante="' + idEstudiante + '"]');
+                        if (row) row.remove();
+                        actualizarTotal();
+                        if (document.querySelectorAll('#tbodyParticipantes tr[data-id-estudiante]').length === 0) {
+                            document.getElementById('tbodyParticipantes').innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4"><i class="fas fa-users fa-3x mb-2"></i><p class="mb-0">Aún no hay participantes. Agregue estudiantes con el formulario.</p></td></tr>';
+                        }
+                    } else {
+                        notificar(res.message || 'Error al quitar', 'error');
+                    }
+                })
+                .catch(function() {
+                    notificar('Error de conexión', 'error');
+                });
+        });
+    })();
 </script>
 <?= $this->endSection() ?>

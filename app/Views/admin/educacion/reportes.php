@@ -8,7 +8,7 @@
         padding: 20px;
         margin-bottom: 20px;
     }
-    
+
     .estadisticas-card {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
@@ -16,19 +16,19 @@
         padding: 20px;
         margin-bottom: 20px;
     }
-    
+
     .export-buttons {
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
     }
-    
+
     .table-responsive {
         border-radius: 10px;
         overflow: hidden;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-    
+
     .badge-tipo {
         font-size: 0.8rem;
         padding: 0.5rem 0.8rem;
@@ -94,8 +94,8 @@
                                 <select class="form-select" name="tipo_actividad">
                                     <option value="">Todos los tipos</option>
                                     <?php foreach ($tipos_actividades as $tipo): ?>
-                                        <option value="<?= $tipo['ID_TIPO_ACTIVIDAD'] ?>" 
-                                                <?= (isset($filtros['tipo_actividad']) && $filtros['tipo_actividad'] == $tipo['ID_TIPO_ACTIVIDAD']) ? 'selected' : '' ?>>
+                                        <option value="<?= $tipo['ID_TIPO_ACTIVIDAD'] ?>"
+                                            <?= (isset($filtros['tipo_actividad']) && $filtros['tipo_actividad'] == $tipo['ID_TIPO_ACTIVIDAD']) ? 'selected' : '' ?>>
                                             <?= $tipo['ACTIVIDAD'] ?>
                                         </option>
                                     <?php endforeach; ?>
@@ -106,8 +106,8 @@
                                 <select class="form-select" name="modalidad">
                                     <option value="">Todas las modalidades</option>
                                     <?php foreach ($modalidades as $modalidad): ?>
-                                        <option value="<?= $modalidad['ID_TIPO_MODALIDAD'] ?>" 
-                                                <?= (isset($filtros['modalidad']) && $filtros['modalidad'] == $modalidad['ID_TIPO_MODALIDAD']) ? 'selected' : '' ?>>
+                                        <option value="<?= $modalidad['ID_TIPO_MODALIDAD'] ?>"
+                                            <?= (isset($filtros['modalidad']) && $filtros['modalidad'] == $modalidad['ID_TIPO_MODALIDAD']) ? 'selected' : '' ?>>
                                             <?= $modalidad['MODALIDAD'] ?>
                                         </option>
                                     <?php endforeach; ?>
@@ -118,8 +118,8 @@
                                 <select class="form-select" name="instructor">
                                     <option value="">Todos los instructores</option>
                                     <?php foreach ($instructores as $instructor): ?>
-                                        <option value="<?= $instructor['ID_INSTRUCTOR'] ?>" 
-                                                <?= (isset($filtros['instructor']) && $filtros['instructor'] == $instructor['ID_INSTRUCTOR']) ? 'selected' : '' ?>>
+                                        <option value="<?= $instructor['ID_INSTRUCTOR'] ?>"
+                                            <?= (isset($filtros['instructor']) && $filtros['instructor'] == $instructor['ID_INSTRUCTOR']) ? 'selected' : '' ?>>
                                             <?= $instructor['NOMBRE'] ?> <?= $instructor['APELLIDO'] ?>
                                         </option>
                                     <?php endforeach; ?>
@@ -127,15 +127,15 @@
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label class="form-label">Fecha Inicio</label>
-                                <input type="date" class="form-control" name="fecha_inicio" 
-                                       value="<?= $filtros['fecha_inicio'] ?? '' ?>">
+                                <input type="date" class="form-control" name="fecha_inicio"
+                                    value="<?= $filtros['fecha_inicio'] ?? '' ?>">
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-3 mb-3">
                                 <label class="form-label">Fecha Fin</label>
-                                <input type="date" class="form-control" name="fecha_fin" 
-                                       value="<?= $filtros['fecha_fin'] ?? '' ?>">
+                                <input type="date" class="form-control" name="fecha_fin"
+                                    value="<?= $filtros['fecha_fin'] ?? '' ?>">
                             </div>
                             <div class="col-md-9 mb-3 d-flex align-items-end">
                                 <button type="submit" class="btn btn-primary me-2">
@@ -162,12 +162,12 @@
                     </div>
                     <div class="card-body">
                         <div class="export-buttons">
-                            <a href="<?= base_url('admin/actividades-educacion/exportar/pdf') . '?' . http_build_query($filtros) ?>" 
-                               class="btn btn-outline-danger">
+                            <a href="<?= base_url('admin/actividades-educacion/exportar/pdf') . '?' . http_build_query($filtros) ?>"
+                                class="btn btn-outline-danger">
                                 <i class="fas fa-file-pdf me-1"></i>Exportar PDF
                             </a>
-                            <a href="<?= base_url('admin/actividades-educacion/exportar/excel') . '?' . http_build_query($filtros) ?>" 
-                               class="btn btn-outline-success">
+                            <a href="<?= base_url('admin/actividades-educacion/exportar/excel') . '?' . http_build_query($filtros) ?>"
+                                class="btn btn-outline-success">
                                 <i class="fas fa-file-excel me-1"></i>Exportar Excel
                             </a>
                         </div>
@@ -233,7 +233,7 @@
                                                 <td><span class="badge bg-warning text-dark"><?= $actividad['DURACION_HORAS'] ?>h</span></td>
                                                 <td><?= $actividad['LUGAR'] ?></td>
                                                 <td>
-                                                    <?php 
+                                                    <?php
                                                     $fechaFin = new DateTime($actividad['FECHA_FIN']);
                                                     $hoy = new DateTime();
                                                     if ($fechaFin >= $hoy) {

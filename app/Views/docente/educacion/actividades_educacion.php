@@ -10,37 +10,37 @@
         color: #2c3e50 !important;
         text-transform: capitalize !important;
     }
-    
+
     .fc-button {
         background-color: #007bff !important;
         border-color: #007bff !important;
         color: white !important;
         font-weight: 500 !important;
     }
-    
+
     .fc-button:hover {
         background-color: #0056b3 !important;
         border-color: #0056b3 !important;
     }
-    
+
     .fc-button:focus {
         box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
     }
-    
+
     .fc-button-active {
         background-color: #0056b3 !important;
         border-color: #0056b3 !important;
     }
-    
+
     .fc-daygrid-day-number {
         color: #2c3e50 !important;
         font-weight: 500 !important;
     }
-    
+
     .fc-day-today {
         background-color: #e3f2fd !important;
     }
-    
+
     .fc-event {
         border-radius: 4px !important;
         font-size: 0.85rem !important;
@@ -53,16 +53,16 @@
 <div class="body-wrapper">
     <div class="container-fluid">
         <?php if (session()->getFlashdata('success')): ?>
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <i class="fas fa-check-circle me-2"></i><?= session()->getFlashdata('success') ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <i class="fas fa-check-circle me-2"></i><?= session()->getFlashdata('success') ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
         <?php endif; ?>
         <?php if (session()->getFlashdata('error')): ?>
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <i class="fas fa-exclamation-circle me-2"></i><?= session()->getFlashdata('error') ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-        </div>
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="fas fa-exclamation-circle me-2"></i><?= session()->getFlashdata('error') ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
         <?php endif; ?>
         <!-- Header -->
         <div class="row">
@@ -223,7 +223,7 @@
                                                                     </td>
                                                                     <td><span class="badge bg-secondary"><?= $actividad['DURACION_HORAS'] ?>h</span></td>
                                                                     <td>
-                                                                        <?php 
+                                                                        <?php
                                                                         $fechaFin = new DateTime($actividad['FECHA_FIN']);
                                                                         $hoy = new DateTime();
                                                                         if ($fechaFin >= $hoy) {
@@ -314,7 +314,7 @@
                                                                     </td>
                                                                     <td><span class="badge bg-secondary"><?= $actividad['DURACION_HORAS'] ?>h</span></td>
                                                                     <td>
-                                                                        <?php 
+                                                                        <?php
                                                                         $fechaFin = new DateTime($actividad['FECHA_FIN']);
                                                                         $hoy = new DateTime();
                                                                         if ($fechaFin >= $hoy) {
@@ -405,7 +405,7 @@
                                                                     </td>
                                                                     <td><span class="badge bg-secondary"><?= $actividad['DURACION_HORAS'] ?>h</span></td>
                                                                     <td>
-                                                                        <?php 
+                                                                        <?php
                                                                         $fechaFin = new DateTime($actividad['FECHA_FIN']);
                                                                         $hoy = new DateTime();
                                                                         if ($fechaFin >= $hoy) {
@@ -479,12 +479,12 @@
                             <label class="btn btn-outline-primary" for="filtroCursos">
                                 <i class="fas fa-book me-1"></i>Cursos
                             </label>
-                            
+
                             <input type="checkbox" class="btn-check" id="filtroTalleres" checked>
                             <label class="btn btn-outline-success" for="filtroTalleres">
                                 <i class="fas fa-tools me-1"></i>Talleres
                             </label>
-                            
+
                             <input type="checkbox" class="btn-check" id="filtroSeminarios" checked>
                             <label class="btn btn-outline-info" for="filtroSeminarios">
                                 <i class="fas fa-users me-1"></i>Seminarios
@@ -492,7 +492,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Calendario -->
                 <div id="calendario" style="background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);"></div>
             </div>
@@ -538,15 +538,15 @@
 
     function inicializarCalendario(eventos) {
         const calendarEl = document.getElementById('calendario');
-        
+
         if (!calendarEl) {
             console.error('Elemento calendario no encontrado');
             return;
         }
-        
+
         // Limpiar contenido previo
         calendarEl.innerHTML = '';
-        
+
         try {
             // Crear el calendario
             const calendar = new FullCalendar.Calendar(calendarEl, {
@@ -577,14 +577,14 @@
                     list: 'Lista'
                 }
             });
-            
+
             calendar.render();
-            
+
             // Guardar referencia global del calendario
             window.calendario = calendar;
-            
+
             console.log('Calendario inicializado correctamente');
-            
+
         } catch (error) {
             console.error('Error al inicializar el calendario:', error);
             calendarEl.innerHTML = `
@@ -642,13 +642,13 @@
         try {
             const response = await fetch('<?= base_url('docente/actividades-educacion/api/estadisticas') ?>');
             const stats = await response.json();
-            
+
             // Actualizar las estadísticas en la interfaz
             document.getElementById('totalActividades').textContent = stats.totalActividades || 0;
             document.getElementById('cursosActivos').textContent = stats.cursosActivos || 0;
             document.getElementById('talleresActivos').textContent = stats.talleresActivos || 0;
             document.getElementById('seminariosActivos').textContent = stats.seminariosActivos || 0;
-            
+
             estadisticas = stats;
         } catch (error) {
             console.error('Error al cargar estadísticas:', error);

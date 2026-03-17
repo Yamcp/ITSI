@@ -63,8 +63,8 @@
                                             <option value="">Seleccionar...</option>
                                             <?php if (!empty($tipos_actividades)): ?>
                                                 <?php foreach ($tipos_actividades as $tipo): ?>
-                                                    <option value="<?= $tipo['ID_TIPO_ACTIVIDAD'] ?>" 
-                                                            <?= (old('tipo_actividad', $actividad['ID_TIPO_ACTIVIDAD']) == $tipo['ID_TIPO_ACTIVIDAD']) ? 'selected' : '' ?>>
+                                                    <option value="<?= $tipo['ID_TIPO_ACTIVIDAD'] ?>"
+                                                        <?= (old('tipo_actividad', $actividad['ID_TIPO_ACTIVIDAD']) == $tipo['ID_TIPO_ACTIVIDAD']) ? 'selected' : '' ?>>
                                                         <?= $tipo['ACTIVIDAD'] ?>
                                                     </option>
                                                 <?php endforeach; ?>
@@ -75,8 +75,8 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Nombre de la Actividad<span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" name="nombre_actividad" 
-                                               value="<?= old('nombre_actividad', $actividad['NOMBRE_ACTIVIDAD']) ?>" required>
+                                        <input type="text" class="form-control" name="nombre_actividad"
+                                            value="<?= old('nombre_actividad', $actividad['NOMBRE_ACTIVIDAD']) ?>" required>
                                     </div>
                                 </div>
                             </div>
@@ -89,8 +89,8 @@
                                             <option value="">Seleccionar instructor...</option>
                                             <?php if (!empty($instructores)): ?>
                                                 <?php foreach ($instructores as $instructor): ?>
-                                                    <option value="<?= $instructor['ID_INSTRUCTOR'] ?>" 
-                                                            <?= (old('instructor', $actividad['ID_INSTRUCTOR']) == $instructor['ID_INSTRUCTOR']) ? 'selected' : '' ?>>
+                                                    <option value="<?= $instructor['ID_INSTRUCTOR'] ?>"
+                                                        <?= (old('instructor', $actividad['ID_INSTRUCTOR']) == $instructor['ID_INSTRUCTOR']) ? 'selected' : '' ?>>
                                                         <?= $instructor['NOMBRE'] ?> <?= $instructor['APELLIDO'] ?> - <?= $instructor['ESPECIALIDAD'] ?>
                                                     </option>
                                                 <?php endforeach; ?>
@@ -105,8 +105,8 @@
                                             <option value="">Seleccionar modalidad...</option>
                                             <?php if (!empty($modalidades)): ?>
                                                 <?php foreach ($modalidades as $modalidad): ?>
-                                                    <option value="<?= $modalidad['ID_TIPO_MODALIDAD'] ?>" 
-                                                            <?= (old('modalidad', $actividad['ID_TIPO_MODALIDAD']) == $modalidad['ID_TIPO_MODALIDAD']) ? 'selected' : '' ?>>
+                                                    <option value="<?= $modalidad['ID_TIPO_MODALIDAD'] ?>"
+                                                        <?= (old('modalidad', $actividad['ID_TIPO_MODALIDAD']) == $modalidad['ID_TIPO_MODALIDAD']) ? 'selected' : '' ?>>
                                                         <?= $modalidad['MODALIDAD'] ?>
                                                     </option>
                                                 <?php endforeach; ?>
@@ -120,22 +120,22 @@
                                 <div class="col-md-4">
                                     <div class="mb-3">
                                         <label class="form-label">Fecha Inicio<span class="text-danger">*</span></label>
-                                        <input type="date" class="form-control" name="fecha_inicio" 
-                                               value="<?= old('fecha_inicio', $actividad['FECHA_INICIO']) ?>" required>
+                                        <input type="date" class="form-control" name="fecha_inicio"
+                                            value="<?= old('fecha_inicio', $actividad['FECHA_INICIO']) ?>" required>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="mb-3">
                                         <label class="form-label">Fecha Fin<span class="text-danger">*</span></label>
-                                        <input type="date" class="form-control" name="fecha_fin" 
-                                               value="<?= old('fecha_fin', $actividad['FECHA_FIN']) ?>" required>
+                                        <input type="date" class="form-control" name="fecha_fin"
+                                            value="<?= old('fecha_fin', $actividad['FECHA_FIN']) ?>" required>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="mb-3">
                                         <label class="form-label">Duración (horas)<span class="text-danger">*</span></label>
-                                        <input type="number" class="form-control" name="duracion_horas" 
-                                               value="<?= old('duracion_horas', $actividad['DURACION_HORAS']) ?>" min="1" required>
+                                        <input type="number" class="form-control" name="duracion_horas"
+                                            value="<?= old('duracion_horas', $actividad['DURACION_HORAS']) ?>" min="1" required>
                                     </div>
                                 </div>
                             </div>
@@ -144,16 +144,16 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Lugar<span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" name="lugar" 
-                                               value="<?= old('lugar', $actividad['LUGAR']) ?>" required>
+                                        <input type="text" class="form-control" name="lugar"
+                                            value="<?= old('lugar', $actividad['LUGAR']) ?>" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Horario<span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" name="horario" 
-                                               value="<?= old('horario', $actividad['HORARIO']) ?>" 
-                                               placeholder="Ej: Lunes a Viernes 8:00-12:00" required>
+                                        <input type="text" class="form-control" name="horario"
+                                            value="<?= old('horario', $actividad['HORARIO']) ?>"
+                                            placeholder="Ej: Lunes a Viernes 8:00-12:00" required>
                                     </div>
                                 </div>
                             </div>
@@ -173,7 +173,7 @@
                                 <textarea class="form-control" name="programa_detallado" rows="4"><?= old('programa_detallado', $actividad['PROGRAMA_DETALLADO']) ?></textarea>
                             </div>
 
-                            
+
 
                             <div class="d-flex justify-content-end gap-2">
                                 <a href="<?= base_url('admin/actividades-educacion/ver/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-secondary">

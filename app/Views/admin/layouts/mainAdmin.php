@@ -26,7 +26,9 @@ if (session()->get('logged_in') && (int) session()->get('rol') === 1) {
     <!-- ESTILOS -->
     <link rel="stylesheet" href="<?= base_url('sistema/assets/css/styles.min.css') ?>" />
     <?= $this->renderSection('styles') ?>
-    <script>document.documentElement.setAttribute('data-bs-theme','light');</script>
+    <script>
+        document.documentElement.setAttribute('data-bs-theme', 'light');
+    </script>
 </head>
 
 <body>
@@ -47,18 +49,18 @@ if (session()->get('logged_in') && (int) session()->get('rol') === 1) {
             <div id="layoutSidenav_content">
                 <main>
                     <?php if ($conveniosPorCaducarAlerta > 0): ?>
-                    <div class="container-fluid px-3 px-md-4 pt-2">
-                        <div class="alert alert-warning alert-dismissible fade show mb-0 rounded-0 border-0 shadow-sm" role="alert" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #fff;">
-                            <div class="d-flex align-items-center">
-                                <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
-                                <div class="flex-grow-1">
-                                    <strong>Convenios por caducar:</strong> <?= $conveniosPorCaducarAlerta === 1 ? '1 convenio vence' : $conveniosPorCaducarAlerta . ' convenios vencen' ?> en los próximos 3 meses.
-                                    <a href="<?= base_url('admin/convenios') ?>" class="alert-link text-white text-decoration-underline fw-semibold ms-1">Ver convenios</a>
+                        <div class="container-fluid px-3 px-md-4 pt-2">
+                            <div class="alert alert-warning alert-dismissible fade show mb-0 rounded-0 border-0 shadow-sm" role="alert" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: #fff;">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+                                    <div class="flex-grow-1">
+                                        <strong>Convenios por caducar:</strong> <?= $conveniosPorCaducarAlerta === 1 ? '1 convenio vence' : $conveniosPorCaducarAlerta . ' convenios vencen' ?> en los próximos 3 meses.
+                                        <a href="<?= base_url('admin/convenios') ?>" class="alert-link text-white text-decoration-underline fw-semibold ms-1">Ver convenios</a>
+                                    </div>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Cerrar"></button>
                                 </div>
-                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert" aria-label="Cerrar"></button>
                             </div>
                         </div>
-                    </div>
                     <?php endif; ?>
                     <div class="container-fluid">
                         <?= $this->renderSection('content') ?>
@@ -82,11 +84,11 @@ if (session()->get('logged_in') && (int) session()->get('rol') === 1) {
     <script src="<?= base_url('sistema/assets/js/sidebarmenu.js') ?>"></script>
     <script src="<?= base_url('sistema/assets/js/app.min.js') ?>"></script>
     <?php if (!str_contains(current_url(), 'backup')): ?>
-    <script src="<?= base_url('sistema/assets/js/dashboard.js') ?>"></script>
+        <script src="<?= base_url('sistema/assets/js/dashboard.js') ?>"></script>
     <?php endif; ?>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
-    
+
     <script>
         // Función para manejar el cierre de sesión
         function cerrarSesion() {
@@ -97,11 +99,11 @@ if (session()->get('logged_in') && (int) session()->get('rol') === 1) {
                 btnCerrar.style.pointerEvents = 'none';
                 btnCerrar.style.opacity = '0.7';
             }
-            
+
             // Redirigir al cierre de sesión
             window.location.href = '<?= base_url('auth/cerrar-sesion') ?>';
         }
-        
+
         // Agregar event listener cuando el DOM esté listo
         document.addEventListener('DOMContentLoaded', function() {
             // Buscar el botón del navbar
@@ -112,7 +114,7 @@ if (session()->get('logged_in') && (int) session()->get('rol') === 1) {
                     cerrarSesion();
                 });
             }
-            
+
             // Buscar el botón del sidebar
             const btnCerrarSesionSidebar = document.getElementById('btnCerrarSesionSidebar');
             if (btnCerrarSesionSidebar) {
@@ -121,7 +123,7 @@ if (session()->get('logged_in') && (int) session()->get('rol') === 1) {
                     cerrarSesion();
                 });
             }
-            
+
             // También buscar otros enlaces de cierre de sesión como respaldo
             const enlacesCerrarSesion = document.querySelectorAll('a[href*="cerrar-sesion"]:not(#btnCerrarSesion):not(#btnCerrarSesionSidebar)');
             enlacesCerrarSesion.forEach(function(enlace) {
@@ -131,7 +133,7 @@ if (session()->get('logged_in') && (int) session()->get('rol') === 1) {
                 });
             });
         });
-        
+
         // Función global para cierre de sesión (por si se llama desde otros lugares)
         window.cerrarSesion = cerrarSesion;
 

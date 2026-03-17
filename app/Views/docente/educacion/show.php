@@ -79,12 +79,12 @@
                         </div>
 
                         <?php if (!empty($actividad['PROGRAMA_DETALLADO'])): ?>
-                        <div class="row">
-                            <div class="col-12">
-                                <h6><strong>Programa Detallado:</strong></h6>
-                                <p class="text-muted"><?= nl2br(esc($actividad['PROGRAMA_DETALLADO'])) ?></p>
+                            <div class="row">
+                                <div class="col-12">
+                                    <h6><strong>Programa Detallado:</strong></h6>
+                                    <p class="text-muted"><?= nl2br(esc($actividad['PROGRAMA_DETALLADO'])) ?></p>
+                                </div>
                             </div>
-                        </div>
                         <?php endif; ?>
                     </div>
                 </div>

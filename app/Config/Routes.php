@@ -255,14 +255,17 @@ $routes->group('estudiante', ['namespace' => 'App\Controllers\estudiante'], func
     $routes->get('cuenta', 'CuentaEstudianteController::index');          // Ver la cuenta del estudiante
     $routes->post('cuenta/cambiar-password', 'CuentaEstudianteController::cambiarPassword'); // Cambiar contraseña
     
-    $routes->get('educacion', 'ActividadesEducacionEstudianteController::index');    // Ver la sección de educación
+    $routes->get('educacion', 'ActividadesEducacionEstudianteController::index');    // Ver la sección de educación (Mis cursos)
+    $routes->get('actividades-educacion/detalle/(:num)', 'ActividadesEducacionEstudianteController::detalle/$1');
+    $routes->get('actividades-educacion/calendario', 'ActividadesEducacionEstudianteController::calendario');
+    $routes->get('actividades-educacion/api/estadisticas', 'ActividadesEducacionEstudianteController::getEstadisticas');
     $routes->get('evaluaciones', 'EvaluacionesEstudianteController::index');        // Ver evaluaciones
     $routes->get('evaluaciones/obtener', 'EvaluacionesEstudianteController::obtenerEvaluaciones'); // Obtener evaluaciones
     $routes->get('evaluaciones/estadisticas', 'EvaluacionesEstudianteController::obtenerEstadisticas'); // Estadísticas
     $routes->get('convenios', 'InstitucionesConveniosController::index');        // Ver la sección de convenios
     
     // Rutas para prácticas (más específicas primero)
-    $routes->get('practicas/servicio-comunitario/formatos', 'PracticasEstudianteController::servicioComunitario');
+    $routes->get('practicas/servicio-comunitario/formatos', 'PracticasEstudianteController::formatosServicioComunitario');
     $routes->get('practicas/formatos', 'PracticasEstudianteController::formatos');
     $routes->get('practicas/formatos/descargar/(:segment)', 'PracticasEstudianteController::descargarFormatoPracticas/$1');
     $routes->get('practicas/servicio-comunitario/formatos/descargar/(:segment)', 'PracticasEstudianteController::descargarFormatoServicio/$1');
@@ -280,6 +283,11 @@ $routes->group('estudiante', ['namespace' => 'App\Controllers\estudiante'], func
     $routes->get('documentos-practicas/progreso', 'DocumentosPracticasEstudianteController::verProgreso'); // Ver progreso
     $routes->get('documentos-practicas/descargar/(:num)', 'DocumentosPracticasEstudianteController::descargarDocumento/$1'); // Descargar documento
     $routes->post('documentos-practicas/eliminar/(:num)', 'DocumentosPracticasEstudianteController::eliminarDocumento/$1'); // Eliminar documento
+
+    // Rutas para documentos de servicio comunitario (estudiante)
+    $routes->post('documentos-servicio-comunitario/subir', 'PracticasEstudianteController::subirDocumentoServicioComunitario');
+    $routes->get('documentos-servicio-comunitario/descargar/(:num)', 'PracticasEstudianteController::descargarDocumentoServicioComunitario/$1');
+    $routes->post('documentos-servicio-comunitario/eliminar/(:num)', 'PracticasEstudianteController::eliminarDocumentoServicioComunitario/$1');
     
     // Rutas para notificaciones
     $routes->get('notificaciones', 'NotificacionesController::vistaEstudiante');    // Ver notificaciones del estudiante

@@ -8,15 +8,23 @@ use App\Models\ServiciosComunitariosModel;
 use App\Models\ActividadesPracticasModel;
 use App\Models\DocumentosPracticasModel;
 use App\Models\TiposDocumentosPracticasModel;
+use App\Models\DocumentosServicioComunitarioModel;
+use App\Models\TiposDocumentosServicioComunitarioModel;
 use App\Models\UsuariosModel;
 
 class PracticasEstudianteController extends BaseController
 {
+    /** Horas requeridas: preprofesionales una sola vez en la carrera (240 h), servicio comunitario una sola vez (60 h). */
+    private const HORAS_PRACTICAS_PREPROFESIONALES = 240;
+    private const HORAS_SERVICIO_COMUNITARIO = 60;
+
     protected $practicasPreprofesionalesModel;
     protected $serviciosComunitariosModel;
     protected $actividadesPracticasModel;
     protected $documentosPracticasModel;
     protected $tiposDocumentosPracticasModel;
+    protected $documentosServicioComunitarioModel;
+    protected $tiposDocumentosServicioComunitarioModel;
     protected $usuariosModel;
     protected $db;
 
@@ -27,6 +35,8 @@ class PracticasEstudianteController extends BaseController
         $this->actividadesPracticasModel = new ActividadesPracticasModel();
         $this->documentosPracticasModel = new DocumentosPracticasModel();
         $this->tiposDocumentosPracticasModel = new TiposDocumentosPracticasModel();
+        $this->documentosServicioComunitarioModel = new DocumentosServicioComunitarioModel();
+        $this->tiposDocumentosServicioComunitarioModel = new TiposDocumentosServicioComunitarioModel();
         $this->usuariosModel = new UsuariosModel();
         $this->db = \Config\Database::connect();
     }
@@ -56,6 +66,23 @@ class PracticasEstudianteController extends BaseController
         $tiposDocumentos = $this->tiposDocumentosPracticasModel->getAllTipos();
         $progresoDocumentos = $this->documentosPracticasModel->getProgresoEstudiante($userId);
 
+        // Tipo para "Documento final": buscar por nombre o usar el primero disponible
+        $idTipoDocumentoFinal = null;
+        foreach ($tiposDocumentos as $t) {
+            $nombre = $t['NOMBRE'] ?? '';
+            if (stripos($nombre, 'documento final') !== false || stripos($nombre, 'informe final') !== false) {
+                $idTipoDocumentoFinal = (int) ($t['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?? $t['ID_TIPO_DOCUMENTO'] ?? 0);
+                break;
+            }
+        }
+        if ($idTipoDocumentoFinal === null && !empty($tiposDocumentos)) {
+            $t = $tiposDocumentos[count($tiposDocumentos) - 1];
+            $idTipoDocumentoFinal = (int) ($t['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?? $t['ID_TIPO_DOCUMENTO'] ?? 0);
+        }
+
+        // Alerta: máximo 15 días para subir documento final desde que culminan las prácticas
+        $alertaDocumentoFinal = $this->calcularAlertaDocumentoFinal($practicasPreprofesionales, $progresoDocumentos, $idTipoDocumentoFinal);
+
         $data = [
             'title' => 'Mis Prácticas - ITSI',
             'estadisticas' => $estadisticas,
@@ -65,10 +92,14 @@ class PracticasEstudianteController extends BaseController
             'tipos_documentos' => $tiposDocumentos,
             'progreso_documentos' => $progresoDocumentos,
             'checklist_informe' => $this->getChecklistInformePracticasLaborales(),
-            'checklist_rubricas' => $this->getChecklistRubricasSeguimiento()
+            'checklist_rubricas' => $this->getChecklistRubricasSeguimiento(),
+            'horas_requeridas_preprof' => self::HORAS_PRACTICAS_PREPROFESIONALES,
+            'horas_requeridas_servicio' => self::HORAS_SERVICIO_COMUNITARIO,
+            'id_tipo_documento_final' => $idTipoDocumentoFinal,
+            'alerta_documento_final' => $alertaDocumentoFinal,
         ];
 
-        return view('estudiante/practicas/practicas_estudiante', $data);
+        return view('estudiante/practicas_preprofesionales/index', $data);
     }
 
     /**
@@ -86,7 +117,25 @@ class PracticasEstudianteController extends BaseController
             'documentos_formatos' => $this->getListaFormatosPracticasEstudiante(),
         ];
 
-        return view('estudiante/practicas/practicas_formatos_estudiante', $data);
+        return view('estudiante/practicas_preprofesionales/formatos', $data);
+    }
+
+    /**
+     * Vista exclusiva con los documentos de formato de Servicio Comunitario.
+     * Mismo formato y estructura (body-wrapper) que la página de formatos de prácticas preprofesionales.
+     */
+    public function formatosServicioComunitario()
+    {
+        if (!session()->get('logged_in')) {
+            return redirect()->to(base_url('/'));
+        }
+
+        $data = [
+            'title' => 'Formatos de servicio comunitario - ITSI',
+            'documentos_formatos_servicio' => $this->getListaFormatosServicioEstudiante(),
+        ];
+
+        return view('estudiante/practicas_servicio_comunitario/formatos', $data);
     }
 
     private function getListaFormatosPracticasEstudiante()
@@ -188,15 +237,160 @@ class PracticasEstudianteController extends BaseController
             $progresoServicios[$s['ID_SERVICIO_COMUNITARIO']] = (int) $this->calcularProgreso($s['ID_SERVICIO_COMUNITARIO'], 'servicio');
         }
 
+        $tiposDocumentosServicio = $this->tiposDocumentosServicioComunitarioModel->getAllTipos();
+        $progresoDocumentosServicio = [];
+        foreach ($serviciosComunitarios as $s) {
+            $docs = $this->documentosServicioComunitarioModel->getDocumentosPorServicio($s['ID_SERVICIO_COMUNITARIO']);
+            foreach ($docs as $d) {
+                $d['ID_TIPO_DOCUMENTO_SERVICIO'] = $d['ID_TIPO_DOCUMENTO'] ?? null;
+                $progresoDocumentosServicio[] = $d;
+            }
+        }
+
+        $idTipoDocumentoFinalServicio = null;
+        foreach ($tiposDocumentosServicio as $t) {
+            $nombre = $t['NOMBRE'] ?? '';
+            if (stripos($nombre, 'documento final') !== false || stripos($nombre, 'informe final') !== false) {
+                $idTipoDocumentoFinalServicio = (int) ($t['ID_TIPO_DOCUMENTO_SERVICIO'] ?? 0);
+                break;
+            }
+        }
+        if ($idTipoDocumentoFinalServicio === null && !empty($tiposDocumentosServicio)) {
+            $t = $tiposDocumentosServicio[count($tiposDocumentosServicio) - 1];
+            $idTipoDocumentoFinalServicio = (int) ($t['ID_TIPO_DOCUMENTO_SERVICIO'] ?? 0);
+        }
+
+        $alertaDocumentoFinalServicio = $this->calcularAlertaDocumentoFinalServicio($serviciosComunitarios, $progresoDocumentosServicio, $idTipoDocumentoFinalServicio);
+
         $data = [
             'title' => 'Prácticas de Servicio Comunitario - ITSI',
             'estadisticas' => $estadisticas,
             'serviciosComunitarios' => $serviciosComunitarios,
             'progresoServicios' => $progresoServicios,
             'documentos_formatos_servicio' => $this->getListaFormatosServicioEstudiante(),
+            'horas_requeridas_servicio' => self::HORAS_SERVICIO_COMUNITARIO,
+            'tipos_documentos_servicio' => $tiposDocumentosServicio,
+            'progreso_documentos_servicio' => $progresoDocumentosServicio,
+            'id_tipo_documento_final_servicio' => $idTipoDocumentoFinalServicio,
+            'alerta_documento_final_servicio' => $alertaDocumentoFinalServicio,
         ];
 
-        return view('estudiante/practicas/practicas_servicio_comunitario_estudiante', $data);
+        return view('estudiante/practicas_servicio_comunitario/index', $data);
+    }
+
+    /**
+     * Subir documento de servicio comunitario (estudiante).
+     */
+    public function subirDocumentoServicioComunitario()
+    {
+        if (!session()->get('logged_in')) {
+            return $this->response->setJSON(['success' => false, 'message' => 'No autorizado']);
+        }
+        $userId = session()->get('id_usuario');
+        $idServicio = (int) $this->request->getPost('id_servicio');
+        if ($idServicio <= 0) {
+            $servicios = $this->obtenerServiciosComunitarios($userId);
+            $idServicio = !empty($servicios) ? (int) $servicios[0]['ID_SERVICIO_COMUNITARIO'] : 0;
+        }
+        if ($idServicio <= 0) {
+            return $this->response->setJSON(['success' => false, 'message' => 'No tienes un servicio comunitario asignado.']);
+        }
+        if (!$this->perteneceServicioAlEstudiante($idServicio, $userId)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'No autorizado para este servicio.']);
+        }
+        $idTipo = (int) $this->request->getPost('tipo_documento');
+        if ($idTipo <= 0) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Tipo de documento requerido.']);
+        }
+        if ($this->documentosServicioComunitarioModel->verificarDocumentoExistente($idServicio, $idTipo)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Ya tienes un documento de este tipo. Elimina el anterior para reemplazarlo.']);
+        }
+        $archivo = $this->request->getFile('archivo');
+        if (!$archivo || !$archivo->isValid() || !$archivo->hasMoved()) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Selecciona un archivo PDF válido (máx. 10 MB).']);
+        }
+        $ext = strtolower($archivo->getClientExtension());
+        if ($ext !== 'pdf') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Solo se permiten archivos PDF.']);
+        }
+        if ($archivo->getSize() > 10 * 1024 * 1024) {
+            return $this->response->setJSON(['success' => false, 'message' => 'El archivo no debe superar 10 MB.']);
+        }
+        $dir = WRITEPATH . 'uploads/documentos-servicio/';
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+        $nombreArchivo = 'serv_' . $idServicio . '_' . $idTipo . '_' . date('YmdHis') . '_' . preg_replace('/[^a-zA-Z0-9_\-\.]/', '', $archivo->getClientName());
+        $archivo->move($dir, $nombreArchivo);
+        $datos = [
+            'ID_SERVICIO_COMUNITARIO' => $idServicio,
+            'ID_TIPO_DOCUMENTO' => $idTipo,
+            'NOMBRE_ARCHIVO' => $nombreArchivo,
+            'TIPO_ARCHIVO' => $archivo->getClientMimeType() ?: 'application/pdf',
+            'FECHA_SUBIDA' => date('Y-m-d H:i:s'),
+            'ESTADO_REVISION' => 'Pendiente',
+            'OBSERVACIONES' => $this->request->getPost('observaciones') ?? '',
+        ];
+        if ($this->documentosServicioComunitarioModel->insert($datos)) {
+            return $this->response->setJSON(['success' => true, 'message' => 'Documento subido correctamente. Será revisado por el coordinador.']);
+        }
+        @unlink($dir . $nombreArchivo);
+        return $this->response->setJSON(['success' => false, 'message' => 'Error al guardar el documento.']);
+    }
+
+    /**
+     * Descargar documento de servicio comunitario (estudiante).
+     */
+    public function descargarDocumentoServicioComunitario($id)
+    {
+        if (!session()->get('logged_in')) {
+            return $this->response->setStatusCode(403)->setBody('No autorizado');
+        }
+        $userId = session()->get('id_usuario');
+        $doc = $this->documentosServicioComunitarioModel->find($id);
+        if (!$doc || !$this->perteneceServicioAlEstudiante($doc['ID_SERVICIO_COMUNITARIO'], $userId)) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Documento no encontrado');
+        }
+        $ruta = WRITEPATH . 'uploads/documentos-servicio/' . $doc['NOMBRE_ARCHIVO'];
+        if (!file_exists($ruta) || !is_file($ruta)) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Archivo no encontrado');
+        }
+        return $this->response->download($ruta, null);
+    }
+
+    /**
+     * Eliminar documento de servicio comunitario (estudiante).
+     */
+    public function eliminarDocumentoServicioComunitario($id)
+    {
+        if (!session()->get('logged_in')) {
+            return $this->response->setJSON(['success' => false, 'message' => 'No autorizado']);
+        }
+        $userId = session()->get('id_usuario');
+        $doc = $this->documentosServicioComunitarioModel->find($id);
+        if (!$doc || !$this->perteneceServicioAlEstudiante($doc['ID_SERVICIO_COMUNITARIO'], $userId)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Documento no encontrado']);
+        }
+        $ruta = WRITEPATH . 'uploads/documentos-servicio/' . $doc['NOMBRE_ARCHIVO'];
+        if (file_exists($ruta)) {
+            @unlink($ruta);
+        }
+        $this->documentosServicioComunitarioModel->delete($id);
+        return $this->response->setJSON(['success' => true, 'message' => 'Documento eliminado']);
+    }
+
+    /**
+     * Comprueba si el servicio comunitario pertenece al estudiante logueado.
+     */
+    private function perteneceServicioAlEstudiante(int $idServicio, int $userId): bool
+    {
+        $servicios = $this->obtenerServiciosComunitarios($userId);
+        foreach ($servicios as $s) {
+            if ((int) $s['ID_SERVICIO_COMUNITARIO'] === $idServicio) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public function detalle($id, $tipo)
@@ -537,6 +731,136 @@ class PracticasEstudianteController extends BaseController
                 ['datos' => 'Rúbrica de Evaluación de Control y Seguimiento Docente. (Llena y firmada y sellada por los docentes tutores)']
             ]],
             ['num' => 4, 'datos' => 'Respaldo en fotos de los trabajos y actividades realizadas en las prácticas laborales, por medio de fotos, capturas, videos, impresiones, entre otros.']
+        ];
+    }
+
+    /** Días máximos para subir el documento final tras culminar las prácticas (240 h). */
+    private const DIAS_PLAZO_DOCUMENTO_FINAL = 15;
+
+    /**
+     * Calcula si debe mostrarse la alerta de plazo para subir el documento final.
+     * Una vez culminada la fecha fin de las prácticas, el estudiante tiene 15 días para subir el documento final.
+     *
+     * @param array $practicasPreprofesionales
+     * @param array $progresoDocumentos
+     * @param int $idTipoDocumentoFinal
+     * @return array { mostrar, fecha_limite, dias_restantes, superado_plazo, mensaje }
+     */
+    private function calcularAlertaDocumentoFinal(array $practicasPreprofesionales, array $progresoDocumentos, int $idTipoDocumentoFinal): array
+    {
+        $default = ['mostrar' => false, 'fecha_limite' => null, 'dias_restantes' => null, 'superado_plazo' => false, 'mensaje' => ''];
+
+        if (empty($practicasPreprofesionales) || $idTipoDocumentoFinal <= 0) {
+            return $default;
+        }
+
+        $tieneDocumentoFinalSubido = false;
+        foreach ($progresoDocumentos as $doc) {
+            $docTipoId = (int) ($doc['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?? $doc['ID_TIPO_DOCUMENTO'] ?? 0);
+            if ($docTipoId === $idTipoDocumentoFinal && !empty($doc['ID_DOCUMENTO_PRACTICA'] ?? $doc['ID_DOCUMENTO_PREPROFESIONAL'] ?? null)) {
+                $tieneDocumentoFinalSubido = true;
+                break;
+            }
+        }
+        if ($tieneDocumentoFinalSubido) {
+            return $default;
+        }
+
+        $practica = $practicasPreprofesionales[0];
+        $fechaFin = $practica['FECHA_FIN'] ?? null;
+        if (!$fechaFin) {
+            return $default;
+        }
+
+        $hoy = date('Y-m-d');
+        $fechaFinDate = date('Y-m-d', strtotime($fechaFin));
+        if ($fechaFinDate > $hoy) {
+            return $default;
+        }
+
+        $fechaLimite = date('Y-m-d', strtotime($fechaFin . ' + ' . self::DIAS_PLAZO_DOCUMENTO_FINAL . ' days'));
+        $superadoPlazo = $hoy > $fechaLimite;
+        $diasRestantes = null;
+        if (!$superadoPlazo) {
+            $diasRestantes = (int) ((strtotime($fechaLimite) - strtotime($hoy)) / 86400);
+        }
+
+        $fechaLimiteFormato = date('d/m/Y', strtotime($fechaLimite));
+        if ($superadoPlazo) {
+            $mensaje = 'Has superado el plazo de ' . self::DIAS_PLAZO_DOCUMENTO_FINAL . ' días para subir el documento final (la fecha límite era el ' . $fechaLimiteFormato . '). Por favor, súbelo lo antes posible.';
+        } else {
+            $mensaje = 'Una vez culminadas las horas de prácticas tienes un máximo de ' . self::DIAS_PLAZO_DOCUMENTO_FINAL . ' días para subir el documento final. <strong>Fecha límite: ' . $fechaLimiteFormato . '</strong>. Días restantes: <strong>' . $diasRestantes . '</strong>.';
+        }
+
+        return [
+            'mostrar' => true,
+            'fecha_limite' => $fechaLimiteFormato,
+            'dias_restantes' => $diasRestantes,
+            'superado_plazo' => $superadoPlazo,
+            'mensaje' => $mensaje,
+        ];
+    }
+
+    /**
+     * Alerta documento final para servicio comunitario (15 días desde FECHA_FIN).
+     *
+     * @param array $serviciosComunitarios
+     * @param array $progresoDocumentosServicio
+     * @param int $idTipoDocumentoFinal
+     * @return array
+     */
+    private function calcularAlertaDocumentoFinalServicio(array $serviciosComunitarios, array $progresoDocumentosServicio, int $idTipoDocumentoFinal): array
+    {
+        $default = ['mostrar' => false, 'fecha_limite' => null, 'dias_restantes' => null, 'superado_plazo' => false, 'mensaje' => ''];
+
+        if (empty($serviciosComunitarios) || $idTipoDocumentoFinal <= 0) {
+            return $default;
+        }
+
+        $tieneDocumentoFinalSubido = false;
+        foreach ($progresoDocumentosServicio as $doc) {
+            $docTipoId = (int) ($doc['ID_TIPO_DOCUMENTO_SERVICIO'] ?? $doc['ID_TIPO_DOCUMENTO'] ?? 0);
+            if ($docTipoId === $idTipoDocumentoFinal && !empty($doc['ID_DOCUMENTO_SERVICIO'] ?? null)) {
+                $tieneDocumentoFinalSubido = true;
+                break;
+            }
+        }
+        if ($tieneDocumentoFinalSubido) {
+            return $default;
+        }
+
+        $servicio = $serviciosComunitarios[0];
+        $fechaFin = $servicio['FECHA_FIN'] ?? null;
+        if (!$fechaFin) {
+            return $default;
+        }
+
+        $hoy = date('Y-m-d');
+        $fechaFinDate = date('Y-m-d', strtotime($fechaFin));
+        if ($fechaFinDate > $hoy) {
+            return $default;
+        }
+
+        $fechaLimite = date('Y-m-d', strtotime($fechaFin . ' + ' . self::DIAS_PLAZO_DOCUMENTO_FINAL . ' days'));
+        $superadoPlazo = $hoy > $fechaLimite;
+        $diasRestantes = null;
+        if (!$superadoPlazo) {
+            $diasRestantes = (int) ((strtotime($fechaLimite) - strtotime($hoy)) / 86400);
+        }
+
+        $fechaLimiteFormato = date('d/m/Y', strtotime($fechaLimite));
+        if ($superadoPlazo) {
+            $mensaje = 'Has superado el plazo de ' . self::DIAS_PLAZO_DOCUMENTO_FINAL . ' días para subir el documento final de servicio comunitario (la fecha límite era el ' . $fechaLimiteFormato . '). Por favor, súbelo lo antes posible.';
+        } else {
+            $mensaje = 'Una vez culminadas las horas de servicio comunitario tienes un máximo de ' . self::DIAS_PLAZO_DOCUMENTO_FINAL . ' días para subir el documento final. <strong>Fecha límite: ' . $fechaLimiteFormato . '</strong>. Días restantes: <strong>' . $diasRestantes . '</strong>.';
+        }
+
+        return [
+            'mostrar' => true,
+            'fecha_limite' => $fechaLimiteFormato,
+            'dias_restantes' => $diasRestantes,
+            'superado_plazo' => $superadoPlazo,
+            'mensaje' => $mensaje,
         ];
     }
 

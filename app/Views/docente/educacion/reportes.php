@@ -2,11 +2,37 @@
 
 <?= $this->section('styles') ?>
 <style>
-    .filtros-container { background: #f8f9fa; border-radius: 10px; padding: 20px; margin-bottom: 20px; }
-    .estadisticas-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 15px; padding: 20px; margin-bottom: 20px; }
-    .export-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
-    .table-responsive { border-radius: 10px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-    .badge-tipo { font-size: 0.8rem; padding: 0.5rem 0.8rem; }
+    .filtros-container {
+        background: #f8f9fa;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .estadisticas-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-radius: 15px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .export-buttons {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .table-responsive {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .badge-tipo {
+        font-size: 0.8rem;
+        padding: 0.5rem 0.8rem;
+    }
 </style>
 <?= $this->endSection() ?>
 

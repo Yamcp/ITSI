@@ -10,7 +10,9 @@
     <!-- ESTILOS -->
     <link rel="stylesheet" href="<?= base_url('sistema/assets/css/styles.min.css') ?>" />
     <?= $this->renderSection('styles') ?>
-    <script>document.documentElement.setAttribute('data-bs-theme','light');</script>
+    <script>
+        document.documentElement.setAttribute('data-bs-theme', 'light');
+    </script>
 </head>
 
 <body>

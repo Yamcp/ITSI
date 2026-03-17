@@ -64,7 +64,7 @@
                                             <?php if (!empty($tipos_actividades)): ?>
                                                 <?php foreach ($tipos_actividades as $tipo): ?>
                                                     <option value="<?= $tipo['ID_TIPO_ACTIVIDAD'] ?>"
-                                                            <?= (old('tipo_actividad', $actividad['ID_TIPO_ACTIVIDAD']) == $tipo['ID_TIPO_ACTIVIDAD']) ? 'selected' : '' ?>>
+                                                        <?= (old('tipo_actividad', $actividad['ID_TIPO_ACTIVIDAD']) == $tipo['ID_TIPO_ACTIVIDAD']) ? 'selected' : '' ?>>
                                                         <?= esc($tipo['ACTIVIDAD']) ?>
                                                     </option>
                                                 <?php endforeach; ?>
@@ -76,7 +76,7 @@
                                     <div class="mb-3">
                                         <label class="form-label">Nombre de la Actividad<span class="text-danger">*</span></label>
                                         <input type="text" class="form-control" name="nombre_actividad"
-                                               value="<?= esc(old('nombre_actividad', $actividad['NOMBRE_ACTIVIDAD'])) ?>" required>
+                                            value="<?= esc(old('nombre_actividad', $actividad['NOMBRE_ACTIVIDAD'])) ?>" required>
                                     </div>
                                 </div>
                             </div>
@@ -90,7 +90,7 @@
                                             <?php if (!empty($instructores)): ?>
                                                 <?php foreach ($instructores as $instructor): ?>
                                                     <option value="<?= $instructor['ID_INSTRUCTOR'] ?>"
-                                                            <?= (old('instructor', $actividad['ID_INSTRUCTOR']) == $instructor['ID_INSTRUCTOR']) ? 'selected' : '' ?>>
+                                                        <?= (old('instructor', $actividad['ID_INSTRUCTOR']) == $instructor['ID_INSTRUCTOR']) ? 'selected' : '' ?>>
                                                         <?= esc($instructor['NOMBRE']) ?> <?= esc($instructor['APELLIDO']) ?> - <?= esc($instructor['ESPECIALIDAD']) ?>
                                                     </option>
                                                 <?php endforeach; ?>
@@ -106,7 +106,7 @@
                                             <?php if (!empty($modalidades)): ?>
                                                 <?php foreach ($modalidades as $modalidad): ?>
                                                     <option value="<?= $modalidad['ID_TIPO_MODALIDAD'] ?>"
-                                                            <?= (old('modalidad', $actividad['ID_TIPO_MODALIDAD']) == $modalidad['ID_TIPO_MODALIDAD']) ? 'selected' : '' ?>>
+                                                        <?= (old('modalidad', $actividad['ID_TIPO_MODALIDAD']) == $modalidad['ID_TIPO_MODALIDAD']) ? 'selected' : '' ?>>
                                                         <?= esc($modalidad['MODALIDAD']) ?>
                                                     </option>
                                                 <?php endforeach; ?>
@@ -121,21 +121,21 @@
                                     <div class="mb-3">
                                         <label class="form-label">Fecha Inicio<span class="text-danger">*</span></label>
                                         <input type="date" class="form-control" name="fecha_inicio"
-                                               value="<?= old('fecha_inicio', $actividad['FECHA_INICIO']) ?>" required>
+                                            value="<?= old('fecha_inicio', $actividad['FECHA_INICIO']) ?>" required>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="mb-3">
                                         <label class="form-label">Fecha Fin<span class="text-danger">*</span></label>
                                         <input type="date" class="form-control" name="fecha_fin"
-                                               value="<?= old('fecha_fin', $actividad['FECHA_FIN']) ?>" required>
+                                            value="<?= old('fecha_fin', $actividad['FECHA_FIN']) ?>" required>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="mb-3">
                                         <label class="form-label">Duración (horas)<span class="text-danger">*</span></label>
                                         <input type="number" class="form-control" name="duracion_horas"
-                                               value="<?= old('duracion_horas', $actividad['DURACION_HORAS']) ?>" min="1" required>
+                                            value="<?= old('duracion_horas', $actividad['DURACION_HORAS']) ?>" min="1" required>
                                     </div>
                                 </div>
                             </div>
@@ -145,15 +145,15 @@
                                     <div class="mb-3">
                                         <label class="form-label">Lugar<span class="text-danger">*</span></label>
                                         <input type="text" class="form-control" name="lugar"
-                                               value="<?= esc(old('lugar', $actividad['LUGAR'])) ?>" required>
+                                            value="<?= esc(old('lugar', $actividad['LUGAR'])) ?>" required>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Horario<span class="text-danger">*</span></label>
                                         <input type="text" class="form-control" name="horario"
-                                               value="<?= esc(old('horario', $actividad['HORARIO'])) ?>"
-                                               placeholder="Ej: Lunes a Viernes 8:00-12:00" required>
+                                            value="<?= esc(old('horario', $actividad['HORARIO'])) ?>"
+                                            placeholder="Ej: Lunes a Viernes 8:00-12:00" required>
                                     </div>
                                 </div>
                             </div>

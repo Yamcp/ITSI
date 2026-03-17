@@ -554,9 +554,10 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Horas Totales <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" name="horas_total" min="1" max="1000" required>
+                                <input type="number" class="form-control" name="horas_total" id="horas_total_nueva" min="1" max="1000" value="" readonly required>
+                                <div class="form-text">Prácticas preprofesionales: 240 h (una sola vez en la carrera). Servicio comunitario: 60 h (una sola vez por estudiante).</div>
                                 <div class="invalid-feedback">
-                                    Por favor ingresa un número válido de horas (mínimo 1, máximo 1000).
+                                    Seleccione el tipo de práctica para asignar las horas correspondientes.
                                 </div>
                             </div>
                         </div>
@@ -871,9 +872,10 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Horas Totales <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" name="horas_total_asignar" min="1" max="1000" required>
+                                <input type="number" class="form-control" name="horas_total_asignar" id="horas_total_asignar" min="1" max="1000" value="" readonly required>
+                                <div class="form-text">Preprofesionales: 240 h (una vez). Servicio comunitario: 60 h (una vez).</div>
                                 <div class="invalid-feedback">
-                                    Por favor ingresa un número válido de horas (mínimo 1, máximo 1000).
+                                    Seleccione el tipo de práctica para asignar las horas correspondientes.
                                 </div>
                             </div>
                         </div>
@@ -1101,6 +1103,35 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
 
         // Poblar también el modal de asignar estudiante
         poblarModalAsignarEstudiante();
+        configurarHorasPorTipoPractica();
+    }
+
+    function configurarHorasPorTipoPractica() {
+        const HORAS_PREPROFESIONALES = 240;
+        const HORAS_SERVICIO = 60;
+        function setHorasPorTipo(tipoVal, inputHoras) {
+            if (!inputHoras) return;
+            const v = parseInt(tipoVal, 10);
+            if (v === 2) inputHoras.value = HORAS_PREPROFESIONALES;
+            else if (v === 1) inputHoras.value = HORAS_SERVICIO;
+            else inputHoras.value = '';
+        }
+        const selectTipo = document.querySelector('select[name="tipo_practica"]');
+        const inputHorasNueva = document.getElementById('horas_total_nueva');
+        if (selectTipo && inputHorasNueva) {
+            selectTipo.removeEventListener('change', selectTipo._horasHandler);
+            selectTipo._horasHandler = function() { setHorasPorTipo(selectTipo.value, inputHorasNueva); };
+            selectTipo.addEventListener('change', selectTipo._horasHandler);
+            setHorasPorTipo(selectTipo.value, inputHorasNueva);
+        }
+        const selectTipoAsignar = document.querySelector('select[name="tipo_practica_asignar"]');
+        const inputHorasAsignar = document.getElementById('horas_total_asignar');
+        if (selectTipoAsignar && inputHorasAsignar) {
+            selectTipoAsignar.removeEventListener('change', selectTipoAsignar._horasHandler);
+            selectTipoAsignar._horasHandler = function() { setHorasPorTipo(selectTipoAsignar.value, inputHorasAsignar); };
+            selectTipoAsignar.addEventListener('change', selectTipoAsignar._horasHandler);
+            setHorasPorTipo(selectTipoAsignar.value, inputHorasAsignar);
+        }
     }
 
     function poblarModalAsignarEstudiante() {

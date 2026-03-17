@@ -8,7 +8,7 @@
         padding: 20px;
         margin-bottom: 20px;
     }
-    
+
     .estadisticas-card {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
@@ -16,19 +16,19 @@
         padding: 20px;
         margin-bottom: 20px;
     }
-    
+
     .export-buttons {
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
     }
-    
+
     .table-responsive {
         border-radius: 10px;
         overflow: hidden;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-    
+
     .badge-tipo {
         font-size: 0.8rem;
         padding: 0.5rem 0.8rem;
@@ -125,8 +125,8 @@
                                     <option value="">Todas las instituciones</option>
                                     <?php if (isset($instituciones)): ?>
                                         <?php foreach ($instituciones as $institucion): ?>
-                                            <option value="<?= $institucion['ID_INSTITUCION_CONVENIO'] ?>" 
-                                                    <?= (isset($filtros['institucion']) && $filtros['institucion'] == $institucion['ID_INSTITUCION_CONVENIO']) ? 'selected' : '' ?>>
+                                            <option value="<?= $institucion['ID_INSTITUCION_CONVENIO'] ?>"
+                                                <?= (isset($filtros['institucion']) && $filtros['institucion'] == $institucion['ID_INSTITUCION_CONVENIO']) ? 'selected' : '' ?>>
                                                 <?= $institucion['NOMBRE'] ?>
                                             </option>
                                         <?php endforeach; ?>
@@ -135,15 +135,15 @@
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label class="form-label">Fecha Inicio</label>
-                                <input type="date" class="form-control" name="fecha_inicio" 
-                                       value="<?= $filtros['fecha_inicio'] ?? '' ?>">
+                                <input type="date" class="form-control" name="fecha_inicio"
+                                    value="<?= $filtros['fecha_inicio'] ?? '' ?>">
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-3 mb-3">
                                 <label class="form-label">Fecha Fin</label>
-                                <input type="date" class="form-control" name="fecha_fin" 
-                                       value="<?= $filtros['fecha_fin'] ?? '' ?>">
+                                <input type="date" class="form-control" name="fecha_fin"
+                                    value="<?= $filtros['fecha_fin'] ?? '' ?>">
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label class="form-label">Carrera</label>
@@ -204,15 +204,15 @@
                     <div class="card-header bg-primary text-white">
                         <ul class="nav nav-tabs card-header-tabs" id="reportesTabs" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="preprofesionales-tab" data-bs-toggle="tab" 
-                                        data-bs-target="#preprofesionales" type="button" role="tab">
+                                <button class="nav-link active" id="preprofesionales-tab" data-bs-toggle="tab"
+                                    data-bs-target="#preprofesionales" type="button" role="tab">
                                     <i class="fas fa-building me-2"></i>Prácticas Preprofesionales
                                     <span class="badge bg-light text-dark ms-2"><?= count($practicasPreprofesionales) ?></span>
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="servicio-tab" data-bs-toggle="tab" 
-                                        data-bs-target="#servicio" type="button" role="tab">
+                                <button class="nav-link" id="servicio-tab" data-bs-toggle="tab"
+                                    data-bs-target="#servicio" type="button" role="tab">
                                     <i class="fas fa-heart me-2"></i>Servicio Comunitario
                                     <span class="badge bg-light text-dark ms-2"><?= count($serviciosComunitarios) ?></span>
                                 </button>
@@ -262,7 +262,7 @@
                                                         <td>
                                                             <?php
                                                             $estadoClass = '';
-                                                            switch($practica['ESTADO_PRACTICA']) {
+                                                            switch ($practica['ESTADO_PRACTICA']) {
                                                                 case 'Completada':
                                                                     $estadoClass = 'bg-success text-white';
                                                                     break;
@@ -339,7 +339,7 @@
                                                         <td>
                                                             <?php
                                                             $estadoClass = '';
-                                                            switch($servicio['ESTADO_SERVICIO']) {
+                                                            switch ($servicio['ESTADO_SERVICIO']) {
                                                                 case 'Completado':
                                                                     $estadoClass = 'bg-success text-white';
                                                                     break;
@@ -393,11 +393,11 @@
                 if (!response.ok) {
                     throw new Error('Error en la respuesta del servidor');
                 }
-                
+
                 // Obtener el nombre del archivo del header Content-Disposition
                 const contentDisposition = response.headers.get('Content-Disposition');
                 let filename = `reporte_practicas_${new Date().toISOString().split('T')[0]}.${formato}`;
-                
+
                 if (contentDisposition) {
                     const filenameMatch = contentDisposition.match(/filename="(.+)"/);
                     if (filenameMatch) {
@@ -405,24 +405,30 @@
                     }
                 }
 
-                return response.blob().then(blob => ({ blob, filename }));
+                return response.blob().then(blob => ({
+                    blob,
+                    filename
+                }));
             })
-            .then(({ blob, filename }) => {
+            .then(({
+                blob,
+                filename
+            }) => {
                 // Crear URL temporal para descarga
                 const url = window.URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.style.display = 'none';
                 a.href = url;
                 a.download = filename;
-                
+
                 // Agregar al DOM, hacer clic y remover
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
-                
+
                 // Limpiar la URL temporal
                 window.URL.revokeObjectURL(url);
-                
+
                 showNotification(`Archivo ${formato.toUpperCase()} descargado exitosamente`, 'success');
             })
             .catch(error => {

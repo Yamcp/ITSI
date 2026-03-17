@@ -201,7 +201,7 @@
         // Validar que la fecha de fin sea posterior a la fecha de inicio
         const fechaInicio = document.querySelector('input[name="fecha_inicio"]');
         const fechaFin = document.querySelector('input[name="fecha_fin"]');
-        
+
         fechaInicio.addEventListener('change', function() {
             if (fechaFin.value && fechaFin.value <= this.value) {
                 fechaFin.value = '';

@@ -5,22 +5,33 @@
 <style>
     :root {
         --dashboard-radius: 16px;
-        --dashboard-shadow: 0 4px 20px rgba(0,0,0,0.06);
-        --dashboard-shadow-hover: 0 12px 32px rgba(0,0,0,0.12);
+        --dashboard-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        --dashboard-shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.12);
         --gradient-pre: linear-gradient(145deg, #0ea5e9 0%, #06b6d4 100%);
         --gradient-serv: linear-gradient(145deg, #ec4899 0%, #f59e0b 100%);
         --gradient-active: linear-gradient(145deg, #10b981 0%, #14b8a6 100%);
         --gradient-actividades: linear-gradient(145deg, #6366f1 0%, #8b5cf6 100%);
     }
-    .practicas-page { font-family: 'Segoe UI', system-ui, sans-serif; }
+
+    .practicas-page {
+        font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+
     .page-header-practicas {
         background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
         border-radius: var(--dashboard-radius);
         padding: 1.5rem 1.75rem;
         margin-bottom: 1.75rem;
-        border: 1px solid rgba(0,0,0,0.04);
+        border: 1px solid rgba(0, 0, 0, 0.04);
     }
-    .page-header-practicas .title-page { font-weight: 700; font-size: 1.5rem; color: #0f172a; letter-spacing: -0.02em; }
+
+    .page-header-practicas .title-page {
+        font-weight: 700;
+        font-size: 1.5rem;
+        color: #0f172a;
+        letter-spacing: -0.02em;
+    }
+
     .metric-card-practicas {
         border: none;
         border-radius: var(--dashboard-radius);
@@ -28,11 +39,16 @@
         transition: transform 0.25s ease, box-shadow 0.25s ease;
         overflow: hidden;
     }
+
     .metric-card-practicas:hover {
         transform: translateY(-4px);
         box-shadow: var(--dashboard-shadow-hover);
     }
-    .metric-card-practicas .card-body { padding: 1.35rem 1.25rem; }
+
+    .metric-card-practicas .card-body {
+        padding: 1.35rem 1.25rem;
+    }
+
     .metric-card-practicas .metric-icon {
         width: 52px;
         height: 52px;
@@ -45,14 +61,31 @@
         opacity: 0.95;
         margin: 0 auto 0.5rem;
     }
-    .metric-card-practicas h3 { font-weight: 700; font-size: 1.75rem; margin-bottom: 0.2rem; }
-    .metric-card-practicas .metric-label { font-weight: 600; font-size: 0.9rem; opacity: 0.95; white-space: nowrap; }
-    .metric-card-practicas .metric-sub { font-size: 0.8rem; opacity: 0.85; }
+
+    .metric-card-practicas h3 {
+        font-weight: 700;
+        font-size: 1.75rem;
+        margin-bottom: 0.2rem;
+    }
+
+    .metric-card-practicas .metric-label {
+        font-weight: 600;
+        font-size: 0.9rem;
+        opacity: 0.95;
+        white-space: nowrap;
+    }
+
+    .metric-card-practicas .metric-sub {
+        font-size: 0.8rem;
+        opacity: 0.85;
+    }
+
     .card-dash {
         border: none;
         border-radius: var(--dashboard-radius);
         box-shadow: var(--dashboard-shadow);
     }
+
     .card-dash .card-header {
         background: #fff;
         border-bottom: 1px solid #f1f5f9;
@@ -61,6 +94,7 @@
         color: #0f172a;
         font-size: 1.05rem;
     }
+
     .action-card-practicas {
         border: 1px solid #e2e8f0;
         border-radius: 12px;
@@ -72,11 +106,13 @@
         color: inherit;
         display: block;
     }
+
     .action-card-practicas:hover {
         box-shadow: var(--dashboard-shadow);
         border-color: #cbd5e1;
         color: inherit;
     }
+
     .action-card-practicas .action-icon {
         width: 48px;
         height: 48px;
@@ -87,7 +123,13 @@
         font-size: 1.4rem;
         margin: 0 auto 0.75rem;
     }
-    .action-card-practicas .action-label { font-weight: 600; font-size: 0.95rem; color: #0f172a; }
+
+    .action-card-practicas .action-label {
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: #0f172a;
+    }
+
     .practica-card {
         border: none;
         border-radius: var(--dashboard-radius);
@@ -96,24 +138,37 @@
         margin-bottom: 1.5rem;
         overflow: hidden;
     }
+
     .practica-card:hover {
         transform: translateY(-4px);
         box-shadow: var(--dashboard-shadow-hover);
     }
+
     .practica-header {
         background: var(--gradient-serv);
         color: white;
         border-radius: 0;
         padding: 1.25rem 1.5rem;
     }
-    .practica-body { padding: 1.5rem; }
+
+    .practica-body {
+        padding: 1.5rem;
+    }
+
     .estado-badge {
         border-radius: 999px;
         padding: 0.35rem 0.75rem;
         font-weight: 600;
         font-size: 0.8rem;
     }
-    .progreso-circular { width: 80px; height: 80px; position: relative; margin: 0 auto; }
+
+    .progreso-circular {
+        width: 80px;
+        height: 80px;
+        position: relative;
+        margin: 0 auto;
+    }
+
     .progreso-texto {
         position: absolute;
         top: 50%;
@@ -122,9 +177,25 @@
         font-weight: bold;
         font-size: 0.9rem;
     }
-    .accion-btn { border-radius: 10px; padding: 0.5rem 1rem; font-weight: 500; transition: all 0.2s ease; }
-    .accion-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.15); }
-    .timeline-item { position: relative; padding-left: 2rem; margin-bottom: 1.5rem; }
+
+    .accion-btn {
+        border-radius: 10px;
+        padding: 0.5rem 1rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+
+    .accion-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .timeline-item {
+        position: relative;
+        padding-left: 2rem;
+        margin-bottom: 1.5rem;
+    }
+
     .timeline-marker {
         position: absolute;
         left: 0;
@@ -134,6 +205,7 @@
         border-radius: 50%;
         background: #ec4899;
     }
+
     .timeline-item:not(:last-child)::before {
         content: '';
         position: absolute;
@@ -155,7 +227,7 @@
                 <i class="fas fa-hands-helping me-2 text-primary"></i>
                 Servicio Comunitario
             </h1>
-            <p class="text-muted mb-0 mt-1" style="font-size: 0.95rem;">Gestiona tu documentación y progreso de servicio comunitario</p>
+            <p class="text-muted mb-0 mt-1" style="font-size: 0.95rem;">Gestiona tu documentación y progreso.</p>
         </div>
 
         <!-- Métricas (mismo diseño que dashboard) -->
@@ -168,7 +240,7 @@
                         </div>
                         <h3 class="mb-0"><?= $estadisticas['totalPracticas'] ?? 0 ?></h3>
                         <p class="metric-label mb-0">Total</p>
-                        <small class="metric-sub">Prácticas</small>
+                        <small class="metric-sub"><?= (int)($horas_requeridas_servicio ?? 60) ?> h (una sola vez)</small>
                     </div>
                 </div>
             </div>
@@ -264,19 +336,89 @@
                 </p>
                 <?php $documentos_formatos_serv = $documentos_formatos_servicio ?? []; ?>
                 <?php if (!empty($documentos_formatos_serv)): ?>
-                <ul class="list-group list-group-flush">
-                    <?php foreach ($documentos_formatos_serv as $item): ?>
-                        <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <span><i class="fas fa-file-pdf me-2 text-danger"></i><?= esc($item['nombre'] ?? 'Documento') ?></span>
-                            <a href="<?= base_url('estudiante/practicas/servicio-comunitario/formatos/descargar/' . rawurlencode($item['archivo'] ?? '')) ?>" class="btn btn-primary btn-sm" download>
-                                <i class="fas fa-download me-1"></i>Descargar
-                            </a>
-                        </li>
-                    <?php endforeach; ?>
-                </ul>
+                    <ul class="list-group list-group-flush">
+                        <?php foreach ($documentos_formatos_serv as $item): ?>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <span><i class="fas fa-file-pdf me-2 text-danger"></i><?= esc($item['nombre'] ?? 'Documento') ?></span>
+                                <a href="<?= base_url('estudiante/practicas/servicio-comunitario/formatos/descargar/' . rawurlencode($item['archivo'] ?? '')) ?>" class="btn btn-primary btn-sm" download>
+                                    <i class="fas fa-download me-1"></i>Descargar
+                                </a>
+                            </li>
+                        <?php endforeach; ?>
+                    </ul>
                 <?php else: ?>
-                <p class="text-muted mb-0">No hay documentos de formato publicados aún.</p>
+                    <p class="text-muted mb-0">No hay documentos de formato publicados aún.</p>
                 <?php endif; ?>
+            </div>
+        </div>
+
+        <!-- Alerta: plazo 15 días para documento final (servicio comunitario) -->
+        <?php $alertaServ = $alerta_documento_final_servicio ?? ['mostrar' => false]; ?>
+        <?php if (!empty($alertaServ['mostrar'])): ?>
+            <div class="row mb-4">
+                <div class="col-12">
+                    <div class="alert <?= !empty($alertaServ['superado_plazo']) ? 'alert-danger' : 'alert-warning' ?> alert-dismissible fade show shadow-sm mb-0" role="alert">
+                        <h6 class="alert-heading mb-2">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Documento final – plazo de 15 días
+                        </h6>
+                        <p class="mb-0"><?= $alertaServ['mensaje'] ?? '' ?></p>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
+        <!-- Apartado: Subir documento final (servicio comunitario) -->
+        <?php
+        $idTipoFinalServ = (int)($id_tipo_documento_final_servicio ?? 0);
+        $docFinalServRow = null;
+        if ($idTipoFinalServ > 0 && !empty($progreso_documentos_servicio ?? [])) {
+            foreach ($progreso_documentos_servicio as $doc) {
+                $docTipoId = (int)($doc['ID_TIPO_DOCUMENTO_SERVICIO'] ?? $doc['ID_TIPO_DOCUMENTO'] ?? 0);
+                if ($docTipoId === $idTipoFinalServ && !empty($doc['ID_DOCUMENTO_SERVICIO'] ?? null)) {
+                    $docFinalServRow = $doc;
+                    break;
+                }
+            }
+        }
+        $estadoFinalServ = $docFinalServRow ? ($docFinalServRow['ESTADO_REVISION'] ?? 'Pendiente') : 'Pendiente';
+        $idDocFinalServ = $docFinalServRow['ID_DOCUMENTO_SERVICIO'] ?? null;
+        $idServicioParaModal = !empty($serviciosComunitarios) ? (int)$serviciosComunitarios[0]['ID_SERVICIO_COMUNITARIO'] : 0;
+        ?>
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header text-white" style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);">
+                        <h5 class="mb-0">
+                            <i class="fas fa-file-export me-2"></i>
+                            Documento final
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted mb-3">
+                            Una vez completadas las 60 horas de servicio comunitario, sube aquí el <strong>documento final</strong>. Tienes un máximo de 15 días desde la fecha de culminación. Será revisado por el coordinador.
+                        </p>
+                        <div class="d-flex flex-wrap align-items-center gap-3">
+                            <?php if ($idTipoFinalServ > 0): ?>
+                                <?php if ($docFinalServRow && $idDocFinalServ): ?>
+                                    <span class="badge <?= $estadoFinalServ === 'Aprobado' ? 'bg-success' : ($estadoFinalServ === 'Rechazado' ? 'bg-danger' : 'bg-warning text-dark') ?>">
+                                        <i class="fas fa-<?= $estadoFinalServ === 'Aprobado' ? 'check-circle' : ($estadoFinalServ === 'Rechazado' ? 'times-circle' : 'clock') ?> me-1"></i><?= $estadoFinalServ ?>
+                                    </span>
+                                    <span class="text-muted small">Subido: <?= isset($docFinalServRow['FECHA_SUBIDA']) ? date('d/m/Y', strtotime($docFinalServRow['FECHA_SUBIDA'])) : '-' ?></span>
+                                    <button type="button" class="btn btn-outline-primary btn-sm" onclick="verDocumentoServicio(<?= (int)$idDocFinalServ ?>)" title="Ver"><i class="fas fa-eye"></i></button>
+                                    <button type="button" class="btn btn-outline-success btn-sm" onclick="descargarDocumentoServicio(<?= (int)$idDocFinalServ ?>)" title="Descargar"><i class="fas fa-download"></i></button>
+                                    <?php if ($estadoFinalServ !== 'Aprobado'): ?>
+                                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="eliminarDocumentoServicio(<?= (int)$idDocFinalServ ?>)"><i class="fas fa-trash"></i></button>
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <button type="button" class="btn btn-primary" onclick="mostrarModalSubirDocServicio(<?= $idTipoFinalServ ?>, <?= $idServicioParaModal ?>)"><i class="fas fa-cloud-upload-alt me-1"></i>Subir documento final</button>
+                                <?php endif; ?>
+                            <?php else: ?>
+                                <span class="text-muted">No hay tipo de documento configurado para documento final. Contacte al administrador.</span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -286,105 +428,141 @@
                 <i class="fas fa-hands-helping me-2 text-primary"></i>Mis prácticas de servicio comunitario
             </div>
             <div class="card-body">
-                        <?php if (!empty($serviciosComunitarios)): ?>
-                            <?php foreach ($serviciosComunitarios as $servicio): ?>
-                                <?php
-                                $progresoServ = $progresoServicios[$servicio['ID_SERVICIO_COMUNITARIO']] ?? 0;
-                                ?>
-                                <div class="practica-card">
-                                    <div class="practica-header">
-                                        <div class="row align-items-center">
-                                            <div class="col-md-8">
-                                                <h5 class="mb-1">
-                                                    <i class="fas fa-hands-helping me-2"></i>
-                                                    <?= esc($servicio['INSTITUCION_NOMBRE']) ?>
-                                                </h5>
-                                                <p class="mb-0 opacity-75"><?= esc($servicio['PROYECTO_SOCIAL'] ?? 'Sin descripción específica') ?></p>
+                <?php if (!empty($serviciosComunitarios)): ?>
+                    <?php foreach ($serviciosComunitarios as $servicio): ?>
+                        <?php
+                        $progresoServ = $progresoServicios[$servicio['ID_SERVICIO_COMUNITARIO']] ?? 0;
+                        ?>
+                        <div class="practica-card">
+                            <div class="practica-header">
+                                <div class="row align-items-center">
+                                    <div class="col-md-8">
+                                        <h5 class="mb-1">
+                                            <i class="fas fa-hands-helping me-2"></i>
+                                            <?= esc($servicio['INSTITUCION_NOMBRE']) ?>
+                                        </h5>
+                                        <p class="mb-0 opacity-75"><?= esc($servicio['PROYECTO_SOCIAL'] ?? 'Sin descripción específica') ?></p>
+                                    </div>
+                                    <div class="col-md-4 text-md-end">
+                                        <?php
+                                        $estadoClass = '';
+                                        switch ($servicio['ESTADO_SERVICIO']) {
+                                            case 'Completado':
+                                                $estadoClass = 'bg-success text-white';
+                                                break;
+                                            case 'En Progreso':
+                                                $estadoClass = 'bg-warning text-dark';
+                                                break;
+                                            case 'Pendiente':
+                                                $estadoClass = 'bg-info text-dark';
+                                                break;
+                                            default:
+                                                $estadoClass = 'bg-secondary text-white';
+                                        }
+                                        ?>
+                                        <span class="estado-badge <?= $estadoClass ?>"><?= esc($servicio['ESTADO_SERVICIO']) ?></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="practica-body">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <div class="row mb-3">
+                                            <div class="col-md-6">
+                                                <strong>Período:</strong><br>
+                                                <small class="text-muted">
+                                                    <?= date('d/m/Y', strtotime($servicio['FECHA_INICIO'])) ?> -
+                                                    <?= date('d/m/Y', strtotime($servicio['FECHA_FIN'])) ?>
+                                                </small>
                                             </div>
-                                            <div class="col-md-4 text-md-end">
-                                                <?php
-                                                $estadoClass = '';
-                                                switch($servicio['ESTADO_SERVICIO']) {
-                                                    case 'Completado':
-                                                        $estadoClass = 'bg-success text-white';
-                                                        break;
-                                                    case 'En Progreso':
-                                                        $estadoClass = 'bg-warning text-dark';
-                                                        break;
-                                                    case 'Pendiente':
-                                                        $estadoClass = 'bg-info text-dark';
-                                                        break;
-                                                    default:
-                                                        $estadoClass = 'bg-secondary text-white';
-                                                }
-                                                ?>
-                                                <span class="estado-badge <?= $estadoClass ?>"><?= esc($servicio['ESTADO_SERVICIO']) ?></span>
+                                            <div class="col-md-6">
+                                                <strong>Horas Totales:</strong><br>
+                                                <span class="badge bg-info"><?= (int)($servicio['HORAS_SERVICIO'] ?? 0) ?> h</span>
+                                                <small class="d-block text-muted mt-1">Meta: <?= (int)($horas_requeridas_servicio ?? 60) ?> h (una sola vez por estudiante)</small>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <strong>Supervisor:</strong><br>
+                                                <small class="text-muted"><?= esc($servicio['SUPERVISOR_NOMBRE'] ?? 'No asignado') ?></small>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <strong>Progreso:</strong><br>
+                                                <div class="progress" style="height: 8px;">
+                                                    <div class="progress-bar bg-success" style="width: <?= $progresoServ ?>%"></div>
+                                                </div>
+                                                <small class="text-muted"><?= $progresoServ ?>% completado</small>
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="practica-body">
-                                        <div class="row">
-                                            <div class="col-md-8">
-                                                <div class="row mb-3">
-                                                    <div class="col-md-6">
-                                                        <strong>Período:</strong><br>
-                                                        <small class="text-muted">
-                                                            <?= date('d/m/Y', strtotime($servicio['FECHA_INICIO'])) ?> -
-                                                            <?= date('d/m/Y', strtotime($servicio['FECHA_FIN'])) ?>
-                                                        </small>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <strong>Horas Totales:</strong><br>
-                                                        <span class="badge bg-info"><?= (int)($servicio['HORAS_SERVICIO'] ?? 0) ?>h</span>
-                                                    </div>
-                                                </div>
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <strong>Supervisor:</strong><br>
-                                                        <small class="text-muted"><?= esc($servicio['SUPERVISOR_NOMBRE'] ?? 'No asignado') ?></small>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <strong>Progreso:</strong><br>
-                                                        <div class="progress" style="height: 8px;">
-                                                            <div class="progress-bar bg-success" style="width: <?= $progresoServ ?>%"></div>
-                                                        </div>
-                                                        <small class="text-muted"><?= $progresoServ ?>% completado</small>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4 text-center">
-                                                <div class="progreso-circular">
-                                                    <canvas id="progresoServ<?= $servicio['ID_SERVICIO_COMUNITARIO'] ?>" width="80" height="80" data-porcentaje="<?= $progresoServ ?>"></canvas>
-                                                    <div class="progreso-texto"><?= $progresoServ ?>%</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <hr>
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <div class="btn-group w-100" role="group">
-                                                    <button class="btn btn-outline-primary accion-btn" onclick="verDetallePractica(<?= (int)$servicio['ID_SERVICIO_COMUNITARIO'] ?>, 'servicio')">
-                                                        <i class="fas fa-eye me-1"></i>Ver Detalle
-                                                    </button>
-                                                    <button class="btn btn-outline-success accion-btn" onclick="registrarActividadPractica(<?= (int)$servicio['ID_SERVICIO_COMUNITARIO'] ?>, 'servicio')">
-                                                        <i class="fas fa-plus me-1"></i>Registrar
-                                                    </button>
-                                                    <button class="btn btn-outline-info accion-btn" onclick="verDocumentos(<?= (int)$servicio['ID_SERVICIO_COMUNITARIO'] ?>, 'servicio')">
-                                                        <i class="fas fa-file-alt me-1"></i>Documentos
-                                                    </button>
-                                                </div>
-                                            </div>
+                                    <div class="col-md-4 text-center">
+                                        <div class="progreso-circular">
+                                            <canvas id="progresoServ<?= $servicio['ID_SERVICIO_COMUNITARIO'] ?>" width="80" height="80" data-porcentaje="<?= $progresoServ ?>"></canvas>
+                                            <div class="progreso-texto"><?= $progresoServ ?>%</div>
                                         </div>
                                     </div>
                                 </div>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <div class="text-center py-5">
-                                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                                <h5 class="text-muted">No tienes prácticas de servicio comunitario asignadas</h5>
-                                <p class="text-muted">Contacta con tu coordinador para más información</p>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-12">
+                                        <div class="btn-group w-100" role="group">
+                                            <button class="btn btn-outline-primary accion-btn" onclick="verDetallePractica(<?= (int)$servicio['ID_SERVICIO_COMUNITARIO'] ?>, 'servicio')">
+                                                <i class="fas fa-eye me-1"></i>Ver Detalle
+                                            </button>
+                                            <button class="btn btn-outline-success accion-btn" onclick="registrarActividadPractica(<?= (int)$servicio['ID_SERVICIO_COMUNITARIO'] ?>, 'servicio')">
+                                                <i class="fas fa-plus me-1"></i>Registrar
+                                            </button>
+                                            <button class="btn btn-outline-info accion-btn" onclick="verDocumentos(<?= (int)$servicio['ID_SERVICIO_COMUNITARIO'] ?>, 'servicio')">
+                                                <i class="fas fa-file-alt me-1"></i>Documentos
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="text-center py-5">
+                        <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No tienes prácticas de servicio comunitario asignadas</h5>
+                        <p class="text-muted">Contacta con tu coordinador para más información.</p>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Subir Documento Final (servicio comunitario) -->
+<div class="modal fade" id="modalSubirDocumentoServicio" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-cloud-upload-alt me-2"></i>Subir documento final</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formSubirDocumentoServicio" enctype="multipart/form-data">
+                    <input type="hidden" name="tipo_documento" id="tipo_documento_servicio_id">
+                    <input type="hidden" name="id_servicio" id="id_servicio_modal">
+                    <div class="mb-3">
+                        <label class="form-label">Documento</label>
+                        <input type="text" class="form-control" id="tipo_documento_servicio_nombre" value="Documento final (servicio comunitario)" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Archivo <span class="text-danger">*</span></label>
+                        <input type="file" class="form-control" name="archivo" id="archivoDocumentoServicio" accept=".pdf,application/pdf" required>
+                        <small class="text-muted">Solo PDF. Máximo 10 MB.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Observaciones (opcional)</label>
+                        <textarea class="form-control" name="observaciones" rows="2"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="subirDocumentoServicio()"><i class="fas fa-upload me-1"></i>Subir</button>
             </div>
         </div>
     </div>
@@ -405,7 +583,9 @@
                 <div class="row">
                     <div class="col-md-8">
                         <div class="card mb-3">
-                            <div class="card-header"><h6 class="mb-0">Información General</h6></div>
+                            <div class="card-header">
+                                <h6 class="mb-0">Información General</h6>
+                            </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-6">
@@ -424,7 +604,9 @@
                             </div>
                         </div>
                         <div class="card">
-                            <div class="card-header"><h6 class="mb-0">Actividades Recientes</h6></div>
+                            <div class="card-header">
+                                <h6 class="mb-0">Actividades Recientes</h6>
+                            </div>
                             <div class="card-body">
                                 <div class="timeline">
                                     <div class="timeline-item">
@@ -440,7 +622,9 @@
                     </div>
                     <div class="col-md-4">
                         <div class="card mb-3">
-                            <div class="card-header"><h6 class="mb-0">Progreso</h6></div>
+                            <div class="card-header">
+                                <h6 class="mb-0">Progreso</h6>
+                            </div>
                             <div class="card-body text-center">
                                 <div class="progreso-circular">
                                     <canvas id="progressChart" width="120" height="120"></canvas>
@@ -450,7 +634,9 @@
                             </div>
                         </div>
                         <div class="card">
-                            <div class="card-header"><h6 class="mb-0">Contacto</h6></div>
+                            <div class="card-header">
+                                <h6 class="mb-0">Contacto</h6>
+                            </div>
                             <div class="card-body">
                                 <p><strong>Supervisor:</strong><br><small class="text-muted" id="contactoSupervisor">-</small></p>
                                 <button class="btn btn-primary btn-sm w-100 mt-2"><i class="fas fa-envelope me-1"></i>Enviar Mensaje</button>
@@ -515,9 +701,74 @@
 
 <script>
     let practicaActual = null;
+    const baseUrlDocumentosServicio = '<?= base_url('estudiante/documentos-servicio-comunitario') ?>';
+
+    function mostrarModalSubirDocServicio(tipoId, servicioId) {
+        document.getElementById('tipo_documento_servicio_id').value = tipoId || '';
+        document.getElementById('id_servicio_modal').value = servicioId || '';
+        new bootstrap.Modal(document.getElementById('modalSubirDocumentoServicio')).show();
+    }
+
+    function subirDocumentoServicio() {
+        const form = document.getElementById('formSubirDocumentoServicio');
+        const archivo = document.getElementById('archivoDocumentoServicio').files[0];
+        if (!archivo) {
+            showNotification('Selecciona un archivo PDF', 'warning');
+            return;
+        }
+        const formData = new FormData(form);
+        const btn = form.closest('.modal').querySelector('.btn-primary');
+        const txt = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Subiendo...';
+        btn.disabled = true;
+        fetch(baseUrlDocumentosServicio + '/subir', {
+                method: 'POST',
+                body: formData
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('modalSubirDocumentoServicio')).hide();
+                    form.reset();
+                    setTimeout(() => location.reload(), 1200);
+                } else {
+                    showNotification(data.message || 'Error al subir', 'error');
+                }
+            })
+            .catch(() => showNotification('Error al subir el documento', 'error'))
+            .finally(() => {
+                btn.innerHTML = txt;
+                btn.disabled = false;
+            });
+    }
+
+    function verDocumentoServicio(id) {
+        window.open(baseUrlDocumentosServicio + '/descargar/' + id, '_blank');
+    }
+
+    function descargarDocumentoServicio(id) {
+        window.location.href = baseUrlDocumentosServicio + '/descargar/' + id;
+    }
+
+    function eliminarDocumentoServicio(id) {
+        if (!confirm('¿Eliminar este documento?')) return;
+        fetch(baseUrlDocumentosServicio + '/eliminar/' + id, {
+                method: 'POST'
+            })
+            .then(r => r.json())
+            .then(data => {
+                showNotification(data.message || (data.success ? 'Eliminado' : 'Error'), data.success ? 'success' : 'error');
+                if (data.success) setTimeout(() => location.reload(), 1200);
+            })
+            .catch(() => showNotification('Error al eliminar', 'error'));
+    }
 
     function verDetallePractica(id, tipo) {
-        practicaActual = { id: id, tipo: tipo };
+        practicaActual = {
+            id: id,
+            tipo: tipo
+        };
         document.getElementById('detalleTipo').textContent = 'Servicio Comunitario';
         const modal = new bootstrap.Modal(document.getElementById('modalDetallePractica'));
         modal.show();
@@ -529,17 +780,31 @@
     }
 
     function registrarActividadPractica(id, tipo) {
-        practicaActual = { id: id, tipo: tipo };
+        practicaActual = {
+            id: id,
+            tipo: tipo
+        };
         registrarActividad();
     }
 
-    function subirDocumento() { showNotification('Función de subida de documentos en desarrollo', 'info'); }
-    function verProgreso() { showNotification('Mostrando progreso detallado...', 'info'); }
-    function verDocumentos(id, tipo) { showNotification('Mostrando documentos de la práctica...', 'info'); }
+    function subirDocumento() {
+        showNotification('Función de subida de documentos en desarrollo', 'info');
+    }
+
+    function verProgreso() {
+        showNotification('Mostrando progreso detallado...', 'info');
+    }
+
+    function verDocumentos(id, tipo) {
+        showNotification('Mostrando documentos de la práctica...', 'info');
+    }
 
     function guardarActividad() {
         const form = document.getElementById('formRegistrarActividad');
-        if (!form.checkValidity()) { form.classList.add('was-validated'); return; }
+        if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            return;
+        }
         showNotification('Actividad registrada exitosamente', 'success');
         bootstrap.Modal.getInstance(document.getElementById('modalRegistrarActividad')).hide();
         form.reset();
@@ -550,7 +815,9 @@
         const canvas = document.getElementById('progressChart');
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
-        const centerX = canvas.width / 2, centerY = canvas.height / 2, radius = 50;
+        const centerX = canvas.width / 2,
+            centerY = canvas.height / 2,
+            radius = 50;
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.beginPath();
         ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
@@ -566,7 +833,12 @@
     }
 
     function showNotification(message, type) {
-        const colors = { success: '#27ae60', error: '#e74c3c', warning: '#f39c12', info: '#3498db' };
+        const colors = {
+            success: '#27ae60',
+            error: '#e74c3c',
+            warning: '#f39c12',
+            info: '#3498db'
+        };
         const notification = document.createElement('div');
         notification.className = 'position-fixed top-0 end-0 m-3';
         notification.style.zIndex = '9999';
@@ -581,7 +853,9 @@
         if (fechaInput) fechaInput.value = today;
         document.querySelectorAll('[id^="progresoServ"]').forEach(function(canvas) {
             const ctx = canvas.getContext('2d');
-            const centerX = canvas.width / 2, centerY = canvas.height / 2, radius = 30;
+            const centerX = canvas.width / 2,
+                centerY = canvas.height / 2,
+                radius = 30;
             const percentage = parseInt(canvas.getAttribute('data-porcentaje'), 10) || 0;
             ctx.beginPath();
             ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);

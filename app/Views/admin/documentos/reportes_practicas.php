@@ -8,7 +8,7 @@
         padding: 20px;
         margin-bottom: 20px;
     }
-    
+
     .estadisticas-card {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
@@ -16,19 +16,19 @@
         padding: 20px;
         margin-bottom: 20px;
     }
-    
+
     .export-buttons {
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
     }
-    
+
     .table-responsive {
         border-radius: 10px;
         overflow: hidden;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-    
+
     .badge-tipo {
         font-size: 0.8rem;
         padding: 0.5rem 0.8rem;
@@ -95,8 +95,8 @@
                                     <option value="">Todos los tipos</option>
                                     <?php if (isset($tipos_documentos)): ?>
                                         <?php foreach ($tipos_documentos as $tipo): ?>
-                                            <option value="<?= $tipo['ID_TIPO_DOCUMENTO'] ?>" 
-                                                    <?= (isset($filtros['tipo_documento']) && $filtros['tipo_documento'] == $tipo['ID_TIPO_DOCUMENTO']) ? 'selected' : '' ?>>
+                                            <option value="<?= $tipo['ID_TIPO_DOCUMENTO'] ?>"
+                                                <?= (isset($filtros['tipo_documento']) && $filtros['tipo_documento'] == $tipo['ID_TIPO_DOCUMENTO']) ? 'selected' : '' ?>>
                                                 <?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?>
                                             </option>
                                         <?php endforeach; ?>
@@ -109,8 +109,8 @@
                                     <option value="">Todos los estados</option>
                                     <?php if (isset($estados_revision)): ?>
                                         <?php foreach ($estados_revision as $estado): ?>
-                                            <option value="<?= $estado['ID_ESTADO_REVISION'] ?>" 
-                                                    <?= (isset($filtros['estado_revision']) && $filtros['estado_revision'] == $estado['ID_ESTADO_REVISION']) ? 'selected' : '' ?>>
+                                            <option value="<?= $estado['ID_ESTADO_REVISION'] ?>"
+                                                <?= (isset($filtros['estado_revision']) && $filtros['estado_revision'] == $estado['ID_ESTADO_REVISION']) ? 'selected' : '' ?>>
                                                 <?= $estado['ESTADO'] ?>
                                             </option>
                                         <?php endforeach; ?>
@@ -128,20 +128,20 @@
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label class="form-label">Fecha Inicio</label>
-                                <input type="date" class="form-control" name="fecha_inicio" 
-                                       value="<?= $filtros['fecha_inicio'] ?? '' ?>">
+                                <input type="date" class="form-control" name="fecha_inicio"
+                                    value="<?= $filtros['fecha_inicio'] ?? '' ?>">
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-3 mb-3">
                                 <label class="form-label">Fecha Fin</label>
-                                <input type="date" class="form-control" name="fecha_fin" 
-                                       value="<?= $filtros['fecha_fin'] ?? '' ?>">
+                                <input type="date" class="form-control" name="fecha_fin"
+                                    value="<?= $filtros['fecha_fin'] ?? '' ?>">
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label class="form-label">Entidad Receptora</label>
-                                <input type="text" class="form-control" name="entidad_receptora" 
-                                       placeholder="Buscar por entidad..." value="<?= $filtros['entidad_receptora'] ?? '' ?>">
+                                <input type="text" class="form-control" name="entidad_receptora"
+                                    placeholder="Buscar por entidad..." value="<?= $filtros['entidad_receptora'] ?? '' ?>">
                             </div>
                             <div class="col-md-6 mb-3 d-flex align-items-end">
                                 <button type="submit" class="btn btn-primary me-2">
@@ -168,12 +168,12 @@
                     </div>
                     <div class="card-body">
                         <div class="export-buttons">
-                            <a href="<?= base_url('admin/documentos/practicas/exportar/pdf') . '?' . http_build_query($filtros ?? []) ?>" 
-                               class="btn btn-outline-danger">
+                            <a href="<?= base_url('admin/documentos/practicas/exportar/pdf') . '?' . http_build_query($filtros ?? []) ?>"
+                                class="btn btn-outline-danger">
                                 <i class="fas fa-file-pdf me-1"></i>Exportar PDF
                             </a>
-                            <a href="<?= base_url('admin/documentos/practicas/exportar/excel') . '?' . http_build_query($filtros ?? []) ?>" 
-                               class="btn btn-outline-success">
+                            <a href="<?= base_url('admin/documentos/practicas/exportar/excel') . '?' . http_build_query($filtros ?? []) ?>"
+                                class="btn btn-outline-success">
                                 <i class="fas fa-file-excel me-1"></i>Exportar Excel
                             </a>
                         </div>
@@ -237,7 +237,7 @@
                                                 <td><?= $documento['ENTIDAD_RECEPTORA'] ?? $documento['entidad'] ?? 'N/A' ?></td>
                                                 <td><?= $documento['DOCENTE_TUTOR'] ?? $documento['docente'] ?? 'N/A' ?></td>
                                                 <td>
-                                                    <?php 
+                                                    <?php
                                                     $estado = $documento['ESTADO_REVISION'] ?? $documento['estado'] ?? 'Pendiente';
                                                     $estadoColor = 'bg-secondary';
                                                     if ($estado === 'Aprobado') $estadoColor = 'bg-success';
@@ -248,7 +248,7 @@
                                                     <span class="badge <?= $estadoColor ?>"><?= $estado ?></span>
                                                 </td>
                                                 <td>
-                                                    <?php 
+                                                    <?php
                                                     $fecha = $documento['FECHA_SUBIDA'] ?? $documento['fecha_subida'] ?? null;
                                                     if ($fecha) {
                                                         echo date('d/m/Y H:i', strtotime($fecha));
@@ -258,7 +258,7 @@
                                                     ?>
                                                 </td>
                                                 <td>
-                                                    <?php 
+                                                    <?php
                                                     $prioridad = $documento['PRIORIDAD'] ?? $documento['prioridad'] ?? 'media';
                                                     $prioridadColor = 'bg-secondary';
                                                     if ($prioridad === 'alta') $prioridadColor = 'bg-danger';

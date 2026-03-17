@@ -8,42 +8,51 @@
         transition: all 0.3s ease;
         border-left: 4px solid #17a2b8;
     }
+
     .documento-card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     }
+
     .estado-badge {
         font-size: 0.75rem;
         padding: 0.25rem 0.5rem;
     }
+
     .tipo-documento-header {
         background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
         color: white;
         border-radius: 8px 8px 0 0;
     }
+
     .filtros-rapidos {
         background: #f8f9fa;
         border-radius: 8px;
         padding: 1rem;
         margin-bottom: 1rem;
     }
+
     .estadistica-card {
         background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
         color: white;
         border-radius: 10px;
         transition: transform 0.3s ease;
     }
+
     .estadistica-card:hover {
         transform: scale(1.05);
     }
+
     .table-responsive {
         font-size: 0.9rem;
     }
+
     .text-truncate {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
+
     .file-icon {
         display: flex;
         align-items: center;
@@ -51,29 +60,36 @@
         border-radius: 8px;
         color: white;
     }
+
     .badge {
         font-size: 0.75rem;
         padding: 0.35em 0.65em;
     }
+
     .form-select option {
         padding: 8px 12px;
     }
+
     .form-select option.text-success {
         background-color: #d4edda;
         color: #155724;
     }
+
     .form-select option.text-danger {
         background-color: #f8d7da;
         color: #721c24;
     }
+
     .form-select option.text-info {
         background-color: #d1ecf1;
         color: #0c5460;
     }
+
     .form-select option.text-warning {
         background-color: #fff3cd;
         color: #856404;
     }
+
     .form-select option.text-secondary {
         background-color: #e2e3e5;
         color: #383d41;
@@ -232,62 +248,62 @@
                                 </div>
                                 <!-- Tablas por tipo -->
                                 <div id="vistaGrid">
-            <?php if (!empty($tiposDocumentos)): ?>
-                <?php foreach ($tiposDocumentos as $tipo): ?>
-                    <div class="row mb-4">
-                        <div class="col-12">
-                            <div class="card shadow-sm">
-                                <div class="tipo-documento-header p-3">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <h5 class="mb-1">
-                                                <i class="fas fa-hands-helping me-2"></i>
-                                                <?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?>
-                                            </h5>
-                                            <small class="opacity-75"><?= $tipo['DESCRIPCION'] ?></small>
+                                    <?php if (!empty($tiposDocumentos)): ?>
+                                        <?php foreach ($tiposDocumentos as $tipo): ?>
+                                            <div class="row mb-4">
+                                                <div class="col-12">
+                                                    <div class="card shadow-sm">
+                                                        <div class="tipo-documento-header p-3">
+                                                            <div class="d-flex justify-content-between align-items-center">
+                                                                <div>
+                                                                    <h5 class="mb-1">
+                                                                        <i class="fas fa-hands-helping me-2"></i>
+                                                                        <?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?>
+                                                                    </h5>
+                                                                    <small class="opacity-75"><?= $tipo['DESCRIPCION'] ?></small>
+                                                                </div>
+                                                                <div class="text-end">
+                                                                    <span class="badge bg-light text-dark">
+                                                                        <?= $tipo['OBLIGATORIO'] ? 'Obligatorio' : 'Opcional' ?>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="card-body p-0">
+                                                            <div class="table-responsive">
+                                                                <table class="table table-hover mb-0" id="tabla-<?= $tipo['ID_TIPO_DOCUMENTO_SERVICIO'] ?>">
+                                                                    <thead class="table-light">
+                                                                        <tr>
+                                                                            <th width="5%">#</th>
+                                                                            <th width="20%">Estudiante</th>
+                                                                            <th width="15%">Cédula</th>
+                                                                            <th width="20%">Proyecto Social</th>
+                                                                            <th width="15%">Archivo</th>
+                                                                            <th width="10%">Estado</th>
+                                                                            <th width="10%">Fecha</th>
+                                                                            <th width="15%">Acciones</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody id="documentos-<?= $tipo['ID_TIPO_DOCUMENTO_SERVICIO'] ?>">
+                                                                        <!-- Los documentos de este tipo se cargarán aquí -->
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <div class="row">
+                                            <div class="col-12 text-center">
+                                                <div class="alert alert-info">
+                                                    <i class="fas fa-info-circle me-2"></i>
+                                                    No hay tipos de documentos configurados
+                                                </div>
+                                            </div>
                                         </div>
-                                        <div class="text-end">
-                                            <span class="badge bg-light text-dark">
-                                                <?= $tipo['OBLIGATORIO'] ? 'Obligatorio' : 'Opcional' ?>
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="card-body p-0">
-                                    <div class="table-responsive">
-                                        <table class="table table-hover mb-0" id="tabla-<?= $tipo['ID_TIPO_DOCUMENTO_SERVICIO'] ?>">
-                                            <thead class="table-light">
-                                                <tr>
-                                                    <th width="5%">#</th>
-                                                    <th width="20%">Estudiante</th>
-                                                    <th width="15%">Cédula</th>
-                                                    <th width="20%">Proyecto Social</th>
-                                                    <th width="15%">Archivo</th>
-                                                    <th width="10%">Estado</th>
-                                                    <th width="10%">Fecha</th>
-                                                    <th width="15%">Acciones</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody id="documentos-<?= $tipo['ID_TIPO_DOCUMENTO_SERVICIO'] ?>">
-                                                <!-- Los documentos de este tipo se cargarán aquí -->
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <div class="row">
-                    <div class="col-12 text-center">
-                        <div class="alert alert-info">
-                            <i class="fas fa-info-circle me-2"></i>
-                            No hay tipos de documentos configurados
-                        </div>
-                    </div>
-                </div>
-            <?php endif; ?>
+                                    <?php endif; ?>
                                 </div>
                             </div>
 
@@ -346,7 +362,9 @@
                                                         </tr>
                                                     <?php endforeach; ?>
                                                     <?php if (empty($docsFormatosServ)): ?>
-                                                        <tr><td colspan="4" class="text-center text-muted py-3">No hay documentos. Suba uno arriba.</td></tr>
+                                                        <tr>
+                                                            <td colspan="4" class="text-center text-muted py-3">No hay documentos. Suba uno arriba.</td>
+                                                        </tr>
                                                     <?php endif; ?>
                                                 </tbody>
                                             </table>
@@ -422,7 +440,7 @@
                             </button>
                         </div>
                     </div>
-                </form>    
+                </form>
             </div>
         </div>
     </div>
@@ -484,9 +502,9 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-0">
-                <iframe 
-                    id="iframeDocumento" 
-                    src="" 
+                <iframe
+                    id="iframeDocumento"
+                    src=""
                     style="width: 100%; height: 70vh; border: none;"
                     title="Vista previa del documento">
                 </iframe>
@@ -544,20 +562,20 @@
         const tiposDocumentos = <?= json_encode($tiposDocumentos ?? []) ?>;
         console.log('Tipos de documentos disponibles:', tiposDocumentos);
         console.log('Documentos a procesar:', documentosServicio);
-        
+
         tiposDocumentos.forEach(tipo => {
             console.log(`Procesando tipo: ${tipo.CODIGO} - ${tipo.NOMBRE}`);
             const contenedor = document.getElementById(`documentos-${tipo.ID_TIPO_DOCUMENTO_SERVICIO}`);
             if (contenedor) {
                 contenedor.innerHTML = '';
-                
+
                 // Filtrar documentos de este tipo
-                const documentosTipo = documentosServicio.filter(doc => 
+                const documentosTipo = documentosServicio.filter(doc =>
                     doc.ID_TIPO_DOCUMENTO == tipo.ID_TIPO_DOCUMENTO_SERVICIO
                 );
-                
+
                 console.log(`Documentos encontrados para tipo ${tipo.CODIGO}:`, documentosTipo.length);
-                
+
                 if (documentosTipo.length === 0) {
                     contenedor.innerHTML = `
                         <tr>
@@ -583,10 +601,10 @@
 
     function crearFilaTabla(doc, numero) {
         const fila = document.createElement('tr');
-        
+
         const estadoInfo = obtenerEstadoInfo(doc.ESTADO_REVISION);
         const fecha = new Date(doc.FECHA_SUBIDA).toLocaleDateString('es-ES');
-        
+
         fila.innerHTML = `
             <td class="text-center">${numero}</td>
             <td>
@@ -627,24 +645,51 @@
                 </div>
             </td>
         `;
-        
+
         return fila;
     }
 
     function obtenerEstadoInfo(estado) {
         // Mapeo de estados (tanto números como texto)
         const estadosMap = {
-            '1': { texto: 'Aprobado', clase: 'bg-success text-white' },
-            '2': { texto: 'Rechazado', clase: 'bg-danger text-white' },
-            '4': { texto: 'Requiere Corrección', clase: 'bg-warning text-dark' },
-            '5': { texto: 'Pendiente', clase: 'bg-secondary text-white' },
-            'Aprobado': { texto: 'Aprobado', clase: 'bg-success text-white' },
-            'Rechazado': { texto: 'Rechazado', clase: 'bg-danger text-white' },
-            'Requiere Corrección': { texto: 'Requiere Corrección', clase: 'bg-warning text-dark' },
-            'Pendiente': { texto: 'Pendiente', clase: 'bg-secondary text-white' }
+            '1': {
+                texto: 'Aprobado',
+                clase: 'bg-success text-white'
+            },
+            '2': {
+                texto: 'Rechazado',
+                clase: 'bg-danger text-white'
+            },
+            '4': {
+                texto: 'Requiere Corrección',
+                clase: 'bg-warning text-dark'
+            },
+            '5': {
+                texto: 'Pendiente',
+                clase: 'bg-secondary text-white'
+            },
+            'Aprobado': {
+                texto: 'Aprobado',
+                clase: 'bg-success text-white'
+            },
+            'Rechazado': {
+                texto: 'Rechazado',
+                clase: 'bg-danger text-white'
+            },
+            'Requiere Corrección': {
+                texto: 'Requiere Corrección',
+                clase: 'bg-warning text-dark'
+            },
+            'Pendiente': {
+                texto: 'Pendiente',
+                clase: 'bg-secondary text-white'
+            }
         };
-        
-        return estadosMap[estado] || { texto: 'Desconocido', clase: 'bg-secondary text-white' };
+
+        return estadosMap[estado] || {
+            texto: 'Desconocido',
+            clase: 'bg-secondary text-white'
+        };
     }
 
     function obtenerClaseEstado(estado) {
@@ -655,31 +700,31 @@
         const filtroEstado = document.getElementById('filtroEstado').value;
         const filtroTipo = document.getElementById('filtroTipo').value;
         const buscarEstudiante = document.getElementById('buscarEstudiante').value.toLowerCase();
-        
+
         let documentosFiltrados = [...documentosServicio];
-        
+
         if (filtroEstado) {
             documentosFiltrados = documentosFiltrados.filter(doc => doc.ESTADO_REVISION === filtroEstado);
         }
-        
+
         if (filtroTipo) {
             documentosFiltrados = documentosFiltrados.filter(doc => doc.ID_TIPO_DOCUMENTO == filtroTipo);
         }
-        
+
         if (buscarEstudiante) {
-            documentosFiltrados = documentosFiltrados.filter(doc => 
+            documentosFiltrados = documentosFiltrados.filter(doc =>
                 doc.NOMBRE_ESTUDIANTE.toLowerCase().includes(buscarEstudiante) ||
                 doc.APELLIDO_ESTUDIANTE.toLowerCase().includes(buscarEstudiante) ||
                 doc.CEDULA_ESTUDIANTE.includes(buscarEstudiante)
             );
         }
-        
+
         // Actualizar la vista con los documentos filtrados
         const documentosOriginales = documentosServicio;
         documentosServicio = documentosFiltrados;
-        
+
         mostrarDocumentosPorTipo();
-        
+
         // Restaurar documentos originales para futuros filtros
         documentosServicio = documentosOriginales;
     }
@@ -688,18 +733,18 @@
         document.getElementById('filtroEstado').value = '';
         document.getElementById('filtroTipo').value = '';
         document.getElementById('buscarEstudiante').value = '';
-        
+
         cargarDocumentosGrid();
     }
 
     function verDocumento(id) {
         // Almacenar el ID del documento actual
         documentoActualId = id;
-        
+
         // Mostrar el documento en un modal
         const modal = document.getElementById('modalVerDocumento');
         const iframe = document.getElementById('iframeDocumento');
-        
+
         if (iframe) {
             iframe.src = `<?= base_url('admin/documentos/servicio/ver') ?>/${id}`;
             const bsModal = new bootstrap.Modal(modal);
@@ -714,7 +759,7 @@
             if (modal) {
                 modal.hide();
             }
-            
+
             // Descargar el documento
             descargarDocumento(documentoActualId);
         }
@@ -728,7 +773,7 @@
     function cambiarEstadoDocumento(id) {
         // Buscar el documento en el array de documentos
         const documento = documentosServicio.find(doc => doc.ID_DOCUMENTO_SERVICIO == id);
-        
+
         if (documento) {
             document.getElementById('documento_id_estado').value = id;
             document.getElementById('nombre_documento_estado').value = `${documento.NOMBRE_ARCHIVO} - ${documento.NOMBRE_ESTUDIANTE} ${documento.APELLIDO_ESTUDIANTE}`;
@@ -736,7 +781,7 @@
             document.getElementById('documento_id_estado').value = id;
             document.getElementById('nombre_documento_estado').value = 'Documento no encontrado';
         }
-        
+
         // Mostrar modal
         showModal('modalCambiarEstado');
     }
@@ -745,43 +790,43 @@
         const nuevoEstado = document.querySelector('select[name="nuevo_estado"]').value;
         const comentarios = document.querySelector('textarea[name="comentarios_estado"]').value;
         const documentoId = document.getElementById('documento_id_estado').value;
-        
+
         if (!nuevoEstado) {
             showNotification('Debe seleccionar un nuevo estado', 'error');
             return;
         }
-        
+
         const formData = new FormData();
         formData.append('estado', nuevoEstado);
         formData.append('observaciones_revisor', comentarios);
-        
+
         fetch(`<?= base_url('admin/documentos/servicio/cambiar-estado') ?>/${documentoId}`, {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showNotification(data.message, 'success');
-                bootstrap.Modal.getInstance(document.getElementById('modalCambiarEstado')).hide();
-                document.getElementById('formCambiarEstado').reset();
-                
-                // Actualizar el estado del documento en el array local
-                actualizarEstadoDocumentoLocal(documentoId, nuevoEstado);
-                
-                // Actualizar las estadísticas
-                actualizarEstadisticas();
-                
-                // Recargar la vista de documentos
-                mostrarDocumentosPorTipo();
-            } else {
-                showNotification(data.message, 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('Error al cambiar el estado', 'error');
-        });
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('modalCambiarEstado')).hide();
+                    document.getElementById('formCambiarEstado').reset();
+
+                    // Actualizar el estado del documento en el array local
+                    actualizarEstadoDocumentoLocal(documentoId, nuevoEstado);
+
+                    // Actualizar las estadísticas
+                    actualizarEstadisticas();
+
+                    // Recargar la vista de documentos
+                    mostrarDocumentosPorTipo();
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error al cambiar el estado', 'error');
+            });
     }
 
     function actualizarEstadoDocumentoLocal(documentoId, nuevoEstado) {
@@ -800,18 +845,18 @@
         const rechazados = documentosServicio.filter(doc => doc.ESTADO_REVISION === 'Rechazado').length;
         const requiereCorreccion = documentosServicio.filter(doc => doc.ESTADO_REVISION === 'Requiere Corrección').length;
         const pendientes = documentosServicio.filter(doc => doc.ESTADO_REVISION === 'Pendiente').length;
-        
+
         // Actualizar los elementos HTML con los IDs correctos
         const aprobadosElement = document.getElementById('Aprobados');
         const rechazadosElement = document.getElementById('Rechazados');
         const requiereCorreccionElement = document.getElementById('RequiereCorreccion');
         const pendientesElement = document.getElementById('Pendientes');
-        
+
         if (aprobadosElement) aprobadosElement.textContent = aprobados;
         if (rechazadosElement) rechazadosElement.textContent = rechazados;
         if (requiereCorreccionElement) requiereCorreccionElement.textContent = requiereCorreccion;
         if (pendientesElement) pendientesElement.textContent = pendientes;
-        
+
         // Agregar animación de actualización
         [aprobadosElement, rechazadosElement, requiereCorreccionElement, pendientesElement].forEach(element => {
             if (element) {
@@ -879,25 +924,25 @@
         formData.append('obligatorio', obligatorio);
 
         fetch('<?= base_url('admin/documentos/servicio/crear-tipo') ?>', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showNotification(data.message, 'success');
-                // Agregar la nueva opción al select
-                agregarOpcionAlSelect(data.tipo);
-                // Limpiar formulario
-                limpiarFormularioNuevoTipo();
-            } else {
-                showNotification(data.message, 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('Error al crear el nuevo tipo de documento', 'error');
-        });
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    // Agregar la nueva opción al select
+                    agregarOpcionAlSelect(data.tipo);
+                    // Limpiar formulario
+                    limpiarFormularioNuevoTipo();
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error al crear el nuevo tipo de documento', 'error');
+            });
     }
 
     function agregarOpcionAlSelect(tipo) {
@@ -906,7 +951,7 @@
         option.value = tipo.ID_TIPO_DOCUMENTO_SERVICIO;
         option.textContent = `${tipo.CODIGO}. ${tipo.NOMBRE}`;
         select.appendChild(option);
-        
+
         // Seleccionar la nueva opción
         select.value = tipo.ID_TIPO_DOCUMENTO_SERVICIO;
     }
@@ -945,28 +990,39 @@
         const form = this;
         const input = document.getElementById('docFormatoServicio');
         const nombre = form.querySelector('[name="nombre"]').value.trim();
-        if (!nombre) { showNotification('Indique el nombre del documento', 'error'); return; }
-        if (!input?.files?.length) { showNotification('Seleccione un archivo', 'error'); return; }
+        if (!nombre) {
+            showNotification('Indique el nombre del documento', 'error');
+            return;
+        }
+        if (!input?.files?.length) {
+            showNotification('Seleccione un archivo', 'error');
+            return;
+        }
         const formData = new FormData(form);
         const btn = document.getElementById('btnSubirDocFormatoServicio');
         btn.disabled = true;
         fetch('<?= base_url('admin/documentos/servicio/subir-formato') ?>', {
-            method: 'POST',
-            body: formData,
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        })
-        .then(r => r.json())
-        .then(data => {
-            btn.disabled = false;
-            if (data.success) {
-                showNotification(data.message, 'success');
-                form.reset();
-                actualizarTablaFormatosServicio(data.lista || []);
-            } else {
-                showNotification(data.message || 'Error al subir', 'error');
-            }
-        })
-        .catch(() => { btn.disabled = false; showNotification('Error de conexión', 'error'); });
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(r => r.json())
+            .then(data => {
+                btn.disabled = false;
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    form.reset();
+                    actualizarTablaFormatosServicio(data.lista || []);
+                } else {
+                    showNotification(data.message || 'Error al subir', 'error');
+                }
+            })
+            .catch(() => {
+                btn.disabled = false;
+                showNotification('Error de conexión', 'error');
+            });
     });
 
     function actualizarTablaFormatosServicio(lista) {
@@ -994,19 +1050,22 @@
     function eliminarDocFormatoServicio(archivo) {
         if (!archivo || !confirm('¿Eliminar este documento de formato?')) return;
         fetch('<?= base_url('admin/documentos/servicio/eliminar-formato/') ?>' + encodeURIComponent(archivo), {
-            method: 'POST',
-            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' }
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                showNotification(data.message, 'success');
-                actualizarTablaFormatosServicio(data.lista || []);
-            } else {
-                showNotification(data.message || 'Error', 'error');
-            }
-        })
-        .catch(() => showNotification('Error de conexión', 'error'));
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    actualizarTablaFormatosServicio(data.lista || []);
+                } else {
+                    showNotification(data.message || 'Error', 'error');
+                }
+            })
+            .catch(() => showNotification('Error de conexión', 'error'));
     }
 
     function escapeHtmlServ(s) {
@@ -1018,19 +1077,19 @@
     // Inicialización al cargar la página
     document.addEventListener('DOMContentLoaded', function() {
         console.log('Vista de documentos de servicio comunitario cargada');
-        
+
         // Verificar tipos de documentos disponibles
         const tiposDocumentos = <?= json_encode($tiposDocumentos ?? []) ?>;
         console.log('Tipos de documentos desde PHP:', tiposDocumentos);
-        
+
         if (!tiposDocumentos || tiposDocumentos.length === 0) {
             console.warn('No hay tipos de documentos configurados');
             showNotification('No hay tipos de documentos configurados. Contacte al administrador.', 'warning');
         }
-        
+
         // Cargar documentos inicialmente
         cargarDocumentosGrid();
-        
+
         // Limpiar iframe cuando se cierre el modal de ver documento
         const modalVerDocumento = document.getElementById('modalVerDocumento');
         if (modalVerDocumento) {

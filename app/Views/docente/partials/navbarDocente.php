@@ -1,4 +1,5 @@
 <?php
+
 use Config\Database;
 
 $periodoNombre = session('periodo_academico_nombre');

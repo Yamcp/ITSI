@@ -3,8 +3,16 @@
 <?= $this->section('styles') ?>
 <link rel="stylesheet" href="<?= base_url('sistema/assets/css/practicas.css') ?>" />
 <style>
-    .text-truncate { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .estado-badge { font-size: 0.75rem; padding: 0.25rem 0.5rem; }
+    .text-truncate {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .estado-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.5rem;
+    }
 </style>
 <?= $this->endSection() ?>
 
@@ -254,7 +262,9 @@
                                                         </tr>
                                                     <?php endforeach; ?>
                                                     <?php if (empty($docsFormatos)): ?>
-                                                        <tr><td colspan="4" class="text-center text-muted py-3">No hay documentos. Suba uno arriba.</td></tr>
+                                                        <tr>
+                                                            <td colspan="4" class="text-center text-muted py-3">No hay documentos. Suba uno arriba.</td>
+                                                        </tr>
                                                     <?php endif; ?>
                                                 </tbody>
                                             </table>
@@ -284,56 +294,56 @@
             <div class="modal-body">
                 <form id="formSubirDocumentoPractica">
                     <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Código</label>
-                                        <input type="text" class="form-control" id="nuevo_codigo" placeholder="Ej: PPR-013" pattern="PPR-\d{3}">
-                                        <div class="form-text">Formato: PPR-XXX (ej: PPR-013)</div>
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Nombre del Documento</label>
-                                        <input type="text" class="form-control" id="nuevo_nombre" placeholder="Ej: Informe Técnico Especializado">
-                                    </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Código</label>
+                                    <input type="text" class="form-control" id="nuevo_codigo" placeholder="Ej: PPR-013" pattern="PPR-\d{3}">
+                                    <div class="form-text">Formato: PPR-XXX (ej: PPR-013)</div>
                                 </div>
                             </div>
-                            <div class="mb-3">
-                                <label class="form-label">Descripción</label>
-                                <textarea class="form-control" id="nuevo_descripcion" rows="2" placeholder="Descripción detallada del tipo de documento..."></textarea>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Orden</label>
-                                        <input type="number" class="form-control" id="nuevo_orden" min="1" max="99" placeholder="13">
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Tipo</label>
-                                        <select class="form-select" id="nuevo_obligatorio">
-                                            <option value="1">Obligatorio</option>
-                                            <option value="0">Opcional</option>
-                                        </select>
-                                    </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Nombre del Documento</label>
+                                    <input type="text" class="form-control" id="nuevo_nombre" placeholder="Ej: Informe Técnico Especializado">
                                 </div>
                             </div>
-                            <div class="d-flex gap-2">
-                                <button type="button" class="btn btn-success" onclick="crearNuevoTipo()">
-                                    <i class="fas fa-save me-1"></i>Crear Tipo
-                                </button>
-                                <button type="button" class="btn btn-secondary" onclick="limpiarFormularioNuevoTipo()">
-                                    <i class="fas fa-times me-1"></i>Limpiar
-                                </button>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Descripción</label>
+                            <textarea class="form-control" id="nuevo_descripcion" rows="2" placeholder="Descripción detallada del tipo de documento..."></textarea>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Orden</label>
+                                    <input type="number" class="form-control" id="nuevo_orden" min="1" max="99" placeholder="13">
+                                </div>
                             </div>
-                        </div>                                 
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label class="form-label">Tipo</label>
+                                    <select class="form-select" id="nuevo_obligatorio">
+                                        <option value="1">Obligatorio</option>
+                                        <option value="0">Opcional</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <button type="button" class="btn btn-success" onclick="crearNuevoTipo()">
+                                <i class="fas fa-save me-1"></i>Crear Tipo
+                            </button>
+                            <button type="button" class="btn btn-secondary" onclick="limpiarFormularioNuevoTipo()">
+                                <i class="fas fa-times me-1"></i>Limpiar
+                            </button>
+                        </div>
                     </div>
-                </form>    
             </div>
+            </form>
         </div>
     </div>
+</div>
 </div>
 
 <!-- Modal Filtros -->
@@ -467,9 +477,9 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body p-0">
-                <iframe 
-                    id="iframeDocumento" 
-                    src="" 
+                <iframe
+                    id="iframeDocumento"
+                    src=""
                     style="width: 100%; height: 70vh; border: none;"
                     title="Vista previa del documento">
                 </iframe>
@@ -521,17 +531,17 @@
 
     function mostrarDocumentosPorTipo() {
         const tiposDocumentos = <?= json_encode($tiposDocumentos ?? []) ?>;
-        
+
         tiposDocumentos.forEach(tipo => {
             const contenedor = document.getElementById(`documentos-${tipo.ID_TIPO_DOCUMENTO_PREPROFESIONAL}`);
             if (contenedor) {
                 contenedor.innerHTML = '';
-                
+
                 // Filtrar documentos de este tipo
-                const documentosTipo = documentosPracticas.filter(doc => 
+                const documentosTipo = documentosPracticas.filter(doc =>
                     doc.ID_TIPO_DOCUMENTO_PREPROFESIONAL == tipo.ID_TIPO_DOCUMENTO_PREPROFESIONAL
                 );
-                
+
                 if (documentosTipo.length === 0) {
                     contenedor.innerHTML = `
                         <tr>
@@ -555,10 +565,10 @@
 
     function crearFilaTabla(doc, numero) {
         const fila = document.createElement('tr');
-        
+
         const estadoInfo = obtenerEstadoInfo(doc.ESTADO_REVISION);
         const fecha = new Date(doc.FECHA_SUBIDA).toLocaleDateString('es-ES');
-        
+
         fila.innerHTML = `
             <td class="text-center">${numero}</td>
             <td>
@@ -599,7 +609,7 @@
                 </div>
             </td>
         `;
-        
+
         return fila;
     }
 
@@ -607,19 +617,52 @@
     function obtenerEstadoInfo(estado) {
         // Mapeo de estados según la base de datos
         const estadosMap = {
-            '1': { texto: 'Pendiente', clase: 'bg-secondary text-white' },
-            '2': { texto: 'En Revisión', clase: 'bg-info text-white' },
-            '3': { texto: 'Aprobado', clase: 'bg-success text-white' },
-            '4': { texto: 'Rechazado', clase: 'bg-danger text-white' },
-            '5': { texto: 'Requiere Corrección', clase: 'bg-warning text-dark' },
-            'Pendiente': { texto: 'Pendiente', clase: 'bg-secondary text-white' },
-            'En Revisión': { texto: 'En Revisión', clase: 'bg-info text-white' },
-            'Aprobado': { texto: 'Aprobado', clase: 'bg-success text-white' },
-            'Rechazado': { texto: 'Rechazado', clase: 'bg-danger text-white' },
-            'Requiere Corrección': { texto: 'Requiere Corrección', clase: 'bg-warning text-dark' }
+            '1': {
+                texto: 'Pendiente',
+                clase: 'bg-secondary text-white'
+            },
+            '2': {
+                texto: 'En Revisión',
+                clase: 'bg-info text-white'
+            },
+            '3': {
+                texto: 'Aprobado',
+                clase: 'bg-success text-white'
+            },
+            '4': {
+                texto: 'Rechazado',
+                clase: 'bg-danger text-white'
+            },
+            '5': {
+                texto: 'Requiere Corrección',
+                clase: 'bg-warning text-dark'
+            },
+            'Pendiente': {
+                texto: 'Pendiente',
+                clase: 'bg-secondary text-white'
+            },
+            'En Revisión': {
+                texto: 'En Revisión',
+                clase: 'bg-info text-white'
+            },
+            'Aprobado': {
+                texto: 'Aprobado',
+                clase: 'bg-success text-white'
+            },
+            'Rechazado': {
+                texto: 'Rechazado',
+                clase: 'bg-danger text-white'
+            },
+            'Requiere Corrección': {
+                texto: 'Requiere Corrección',
+                clase: 'bg-warning text-dark'
+            }
         };
-        
-        return estadosMap[estado] || { texto: 'Desconocido', clase: 'bg-secondary text-white' };
+
+        return estadosMap[estado] || {
+            texto: 'Desconocido',
+            clase: 'bg-secondary text-white'
+        };
     }
 
     function obtenerClaseEstado(estado) {
@@ -630,31 +673,31 @@
         const filtroEstado = document.getElementById('filtroEstado').value;
         const filtroTipo = document.getElementById('filtroTipo').value;
         const buscarEstudiante = document.getElementById('buscarEstudiante').value.toLowerCase();
-        
+
         let documentosFiltrados = [...documentosPracticas];
-        
+
         if (filtroEstado) {
             documentosFiltrados = documentosFiltrados.filter(doc => doc.ESTADO_REVISION === filtroEstado);
         }
-        
+
         if (filtroTipo) {
             documentosFiltrados = documentosFiltrados.filter(doc => doc.ID_TIPO_DOCUMENTO_PREPROFESIONAL == filtroTipo);
         }
-        
+
         if (buscarEstudiante) {
-            documentosFiltrados = documentosFiltrados.filter(doc => 
+            documentosFiltrados = documentosFiltrados.filter(doc =>
                 doc.NOMBRE_ESTUDIANTE.toLowerCase().includes(buscarEstudiante) ||
                 doc.APELLIDO_ESTUDIANTE.toLowerCase().includes(buscarEstudiante) ||
                 doc.CEDULA_ESTUDIANTE.includes(buscarEstudiante)
             );
         }
-        
+
         // Actualizar la vista con los documentos filtrados
         const documentosOriginales = documentosPracticas;
         documentosPracticas = documentosFiltrados;
-        
+
         mostrarDocumentosPorTipo();
-        
+
         // Restaurar documentos originales para futuros filtros
         documentosPracticas = documentosOriginales;
     }
@@ -663,18 +706,18 @@
         document.getElementById('filtroEstado').value = '';
         document.getElementById('filtroTipo').value = '';
         document.getElementById('buscarEstudiante').value = '';
-        
+
         cargarDocumentosGrid();
     }
 
     function verDocumento(id) {
         // Almacenar el ID del documento actual
         documentoActualId = id;
-        
+
         // Mostrar el documento en un modal
         const modal = document.getElementById('modalVerDocumento');
         const iframe = document.getElementById('iframeDocumento');
-        
+
         if (iframe) {
             iframe.src = `<?= base_url('admin/documentos/practicas/ver') ?>/${id}`;
             const bsModal = new bootstrap.Modal(modal);
@@ -689,7 +732,7 @@
             if (modal) {
                 modal.hide();
             }
-            
+
             // Descargar el documento
             descargarDocumento(documentoActualId);
         }
@@ -704,60 +747,60 @@
     function subirDocumentoPractica() {
         const form = document.getElementById('formSubirDocumentoPractica');
         const formData = new FormData(form);
-        
+
         // Agregar el archivo al FormData
         const archivo = document.getElementById('archivoInputPractica').files[0];
         if (archivo) {
             formData.append('archivo', archivo);
         }
-        
+
         fetch('<?= base_url('admin/documentos/practicas/store') ?>', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showNotification(data.message, 'success');
-                bootstrap.Modal.getInstance(document.getElementById('modalSubirDocumentoPractica')).hide();
-                form.reset();
-                // Recargar la página para mostrar los nuevos datos
-                setTimeout(() => {
-                    location.reload();
-                }, 1500);
-            } else {
-                showNotification(data.message, 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('Error al subir el documento', 'error');
-        });
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('modalSubirDocumentoPractica')).hide();
+                    form.reset();
+                    // Recargar la página para mostrar los nuevos datos
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error al subir el documento', 'error');
+            });
     }
 
     function aplicarFiltrosPracticas() {
         const form = document.getElementById('formFiltrosPracticas');
         const formData = new FormData(form);
-        
+
         fetch('<?= base_url('admin/documentos/practicas/filtros') ?>', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showNotification('Filtros aplicados correctamente', 'success');
-                bootstrap.Modal.getInstance(document.getElementById('modalFiltrosPracticas')).hide();
-                // Aquí podrías actualizar la vista con los datos filtrados
-                console.log('Documentos filtrados:', data.data);
-            } else {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification('Filtros aplicados correctamente', 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('modalFiltrosPracticas')).hide();
+                    // Aquí podrías actualizar la vista con los datos filtrados
+                    console.log('Documentos filtrados:', data.data);
+                } else {
+                    showNotification('Error al aplicar filtros', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
                 showNotification('Error al aplicar filtros', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('Error al aplicar filtros', 'error');
-        });
+            });
     }
 
     function limpiarFiltrosPracticas() {
@@ -777,7 +820,7 @@
     function cambiarEstadoDocumento(id) {
         // Buscar el documento en el array de documentos
         const documento = documentosPracticas.find(doc => doc.ID_DOCUMENTO_PREPROFESIONAL == id);
-        
+
         if (documento) {
             document.getElementById('documento_id_estado').value = id;
             document.getElementById('nombre_documento_estado').value = `${documento.NOMBRE_ARCHIVO} - ${documento.NOMBRE_ESTUDIANTE} ${documento.APELLIDO_ESTUDIANTE}`;
@@ -785,7 +828,7 @@
             document.getElementById('documento_id_estado').value = id;
             document.getElementById('nombre_documento_estado').value = 'Documento no encontrado';
         }
-        
+
         // Mostrar modal
         showModal('modalCambiarEstado');
     }
@@ -794,43 +837,43 @@
         const nuevoEstado = document.querySelector('select[name="nuevo_estado"]').value;
         const comentarios = document.querySelector('textarea[name="comentarios_estado"]').value;
         const documentoId = document.getElementById('documento_id_estado').value;
-        
+
         if (!nuevoEstado) {
             showNotification('Debe seleccionar un nuevo estado', 'error');
             return;
         }
-        
+
         const formData = new FormData();
         formData.append('estado', nuevoEstado);
         formData.append('observaciones_revisor', comentarios);
-        
+
         fetch(`<?= base_url('admin/documentos/practicas/cambiar-estado') ?>/${documentoId}`, {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showNotification(data.message, 'success');
-                bootstrap.Modal.getInstance(document.getElementById('modalCambiarEstado')).hide();
-                document.getElementById('formCambiarEstado').reset();
-                
-                // Actualizar el estado del documento en el array local
-                actualizarEstadoDocumentoLocal(documentoId, nuevoEstado);
-                
-                // Actualizar las estadísticas
-                actualizarEstadisticas();
-                
-                // Recargar la vista de documentos
-                mostrarDocumentosPorTipo();
-            } else {
-                showNotification(data.message, 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('Error al cambiar el estado', 'error');
-        });
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('modalCambiarEstado')).hide();
+                    document.getElementById('formCambiarEstado').reset();
+
+                    // Actualizar el estado del documento en el array local
+                    actualizarEstadoDocumentoLocal(documentoId, nuevoEstado);
+
+                    // Actualizar las estadísticas
+                    actualizarEstadisticas();
+
+                    // Recargar la vista de documentos
+                    mostrarDocumentosPorTipo();
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error al cambiar el estado', 'error');
+            });
     }
 
     function actualizarEstadoDocumentoLocal(documentoId, nuevoEstado) {
@@ -850,18 +893,18 @@
         const rechazados = documentosPracticas.filter(doc => doc.ESTADO_REVISION === 'Rechazado').length;
         const requiereCorreccion = documentosPracticas.filter(doc => doc.ESTADO_REVISION === 'Requiere Corrección').length;
         const pendientes = documentosPracticas.filter(doc => doc.ESTADO_REVISION === 'Pendiente').length;
-        
+
         // Actualizar los elementos HTML con los IDs correctos
         const aprobadosElement = document.getElementById('Aprobados');
         const rechazadosElement = document.getElementById('Rechazados');
         const requiereCorreccionElement = document.getElementById('RequiereCorreccion');
         const pendientesElement = document.getElementById('Pendientes');
-        
+
         if (aprobadosElement) aprobadosElement.textContent = aprobados;
         if (rechazadosElement) rechazadosElement.textContent = rechazados;
         if (requiereCorreccionElement) requiereCorreccionElement.textContent = requiereCorreccion;
         if (pendientesElement) pendientesElement.textContent = pendientes;
-        
+
         // Agregar animación de actualización
         [aprobadosElement, rechazadosElement, requiereCorreccionElement, pendientesElement].forEach(element => {
             if (element) {
@@ -924,25 +967,25 @@
         formData.append('obligatorio', obligatorio);
 
         fetch('<?= base_url('admin/documentos/practicas/crear-tipo') ?>', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showNotification(data.message, 'success');
-                // Agregar la nueva opción al select
-                agregarOpcionAlSelect(data.tipo);
-                // Limpiar formulario
-                limpiarFormularioNuevoTipo();
-            } else {
-                showNotification(data.message, 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('Error al crear el nuevo tipo de documento', 'error');
-        });
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    // Agregar la nueva opción al select
+                    agregarOpcionAlSelect(data.tipo);
+                    // Limpiar formulario
+                    limpiarFormularioNuevoTipo();
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error al crear el nuevo tipo de documento', 'error');
+            });
     }
 
     function agregarOpcionAlSelect(tipo) {
@@ -951,7 +994,7 @@
         option.value = tipo.ID_TIPO_DOCUMENTO_PREPROFESIONAL;
         option.textContent = `${tipo.CODIGO}. ${tipo.NOMBRE}`;
         select.appendChild(option);
-        
+
         // Seleccionar la nueva opción
         select.value = tipo.ID_TIPO_DOCUMENTO_PREPROFESIONAL;
     }
@@ -991,28 +1034,39 @@
         const form = this;
         const input = document.getElementById('docFormatoPracticas');
         const nombre = form.querySelector('[name="nombre"]').value.trim();
-        if (!nombre) { showNotification('Indique el nombre del documento', 'error'); return; }
-        if (!input?.files?.length) { showNotification('Seleccione un archivo', 'error'); return; }
+        if (!nombre) {
+            showNotification('Indique el nombre del documento', 'error');
+            return;
+        }
+        if (!input?.files?.length) {
+            showNotification('Seleccione un archivo', 'error');
+            return;
+        }
         const formData = new FormData(form);
         const btn = document.getElementById('btnSubirDocFormatoPracticas');
         btn.disabled = true;
         fetch('<?= base_url('admin/documentos/practicas/subir-formato') ?>', {
-            method: 'POST',
-            body: formData,
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        })
-        .then(r => r.json())
-        .then(data => {
-            btn.disabled = false;
-            if (data.success) {
-                showNotification(data.message, 'success');
-                form.reset();
-                actualizarTablaFormatosPracticas(data.lista || []);
-            } else {
-                showNotification(data.message || 'Error al subir', 'error');
-            }
-        })
-        .catch(() => { btn.disabled = false; showNotification('Error de conexión', 'error'); });
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(r => r.json())
+            .then(data => {
+                btn.disabled = false;
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    form.reset();
+                    actualizarTablaFormatosPracticas(data.lista || []);
+                } else {
+                    showNotification(data.message || 'Error al subir', 'error');
+                }
+            })
+            .catch(() => {
+                btn.disabled = false;
+                showNotification('Error de conexión', 'error');
+            });
     });
 
     function actualizarTablaFormatosPracticas(lista) {
@@ -1040,19 +1094,22 @@
     function eliminarDocFormatoPracticas(archivo) {
         if (!archivo || !confirm('¿Eliminar este documento de formato?')) return;
         fetch('<?= base_url('admin/documentos/practicas/eliminar-formato/') ?>' + encodeURIComponent(archivo), {
-            method: 'POST',
-            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' }
-        })
-        .then(r => r.json())
-        .then(data => {
-            if (data.success) {
-                showNotification(data.message, 'success');
-                actualizarTablaFormatosPracticas(data.lista || []);
-            } else {
-                showNotification(data.message || 'Error', 'error');
-            }
-        })
-        .catch(() => showNotification('Error de conexión', 'error'));
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    actualizarTablaFormatosPracticas(data.lista || []);
+                } else {
+                    showNotification(data.message || 'Error', 'error');
+                }
+            })
+            .catch(() => showNotification('Error de conexión', 'error'));
     }
 
     function escapeHtml(s) {
@@ -1064,10 +1121,10 @@
     // Inicialización al cargar la página
     document.addEventListener('DOMContentLoaded', function() {
         console.log('Vista de documentos de prácticas cargada');
-        
+
         // Cargar documentos inicialmente
         cargarDocumentosGrid();
-        
+
         // Limpiar iframe cuando se cierre el modal de ver documento
         const modalVerDocumento = document.getElementById('modalVerDocumento');
         if (modalVerDocumento) {
@@ -1079,7 +1136,7 @@
                 documentoActualId = null;
             });
         }
-        
+
         // Configurar drag and drop para el modal de subida
         const uploadArea = document.getElementById('uploadAreaPractica');
         const archivoInput = document.getElementById('archivoInputPractica');
@@ -1098,11 +1155,13 @@
             uploadArea.addEventListener('drop', function(e) {
                 e.preventDefault();
                 uploadArea.classList.remove('dragover');
-                
+
                 const files = e.dataTransfer.files;
                 if (files.length > 0) {
                     archivoInput.files = files;
-                    const event = new Event('change', { bubbles: true });
+                    const event = new Event('change', {
+                        bubbles: true
+                    });
                     archivoInput.dispatchEvent(event);
                 }
             });
@@ -1113,7 +1172,7 @@
                 if (this.files.length > 0) {
                     const file = this.files[0];
                     const fileSize = (file.size / (1024 * 1024)).toFixed(2);
-                    
+
                     uploadArea.innerHTML = `
                         <i class="fas fa-file fa-3x text-primary mb-3"></i>
                         <h5 class="text-primary">${file.name}</h5>

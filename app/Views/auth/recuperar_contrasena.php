@@ -22,6 +22,7 @@ $tituloPagina = $esRestablecer ? 'Nueva contraseña' : 'Recuperar contraseña';
             justify-content: center;
             overflow: hidden;
         }
+
         body::before {
             content: '';
             position: fixed;
@@ -36,6 +37,7 @@ $tituloPagina = $esRestablecer ? 'Nueva contraseña' : 'Recuperar contraseña';
             filter: blur(8px);
             transform: scale(1.1);
         }
+
         .login-card {
             border: none;
             border-radius: 1rem;
@@ -44,28 +46,83 @@ $tituloPagina = $esRestablecer ? 'Nueva contraseña' : 'Recuperar contraseña';
             max-width: 400px;
             margin: 2rem auto;
         }
+
         @keyframes fadeInDown {
-            from { opacity: 0; transform: translateY(-40px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-40px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-        .instituto-logo { max-width: 140px; margin-bottom: 1rem; }
-        .form-floating>.form-control:focus~label { color: #0d6efd; }
-        .card-body { padding: 2rem 2rem 1.5rem 2rem; }
-        .login-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; }
-        .login-subtitle { font-size: 1rem; color: #6c757d; margin-bottom: 1.5rem; }
+
+        .instituto-logo {
+            max-width: 140px;
+            margin-bottom: 1rem;
+        }
+
+        .form-floating>.form-control:focus~label {
+            color: #0d6efd;
+        }
+
+        .card-body {
+            padding: 2rem 2rem 1.5rem 2rem;
+        }
+
+        .login-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .login-subtitle {
+            font-size: 1rem;
+            color: #6c757d;
+            margin-bottom: 1.5rem;
+        }
+
         .alert-recuperacion {
             background: #fffbf0;
             border: 1px solid #f0e6c8;
             border-radius: 0.5rem;
             padding: 1rem 1.25rem;
         }
-        .alert-recuperacion .alert-titulo { color: #856404; font-weight: 600; margin-bottom: 0.5rem; }
-        .alert-recuperacion p { color: #664d03; font-size: 0.9375rem; margin-bottom: 1rem; }
-        .alert-recuperacion .btn-enlace-recuperar { display: inline-flex; align-items: center; gap: 0.35rem; }
+
+        .alert-recuperacion .alert-titulo {
+            color: #856404;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .alert-recuperacion p {
+            color: #664d03;
+            font-size: 0.9375rem;
+            margin-bottom: 1rem;
+        }
+
+        .alert-recuperacion .btn-enlace-recuperar {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
         @media (max-width: 576px) {
-            .login-card { max-width: 95vw; padding: 0.5rem; }
-            .card-body { padding: 1rem; }
-            .alert-recuperacion .btn-enlace-recuperar { width: 100%; justify-content: center; }
+            .login-card {
+                max-width: 95vw;
+                padding: 0.5rem;
+            }
+
+            .card-body {
+                padding: 1rem;
+            }
+
+            .alert-recuperacion .btn-enlace-recuperar {
+                width: 100%;
+                justify-content: center;
+            }
         }
     </style>
 </head>
@@ -111,13 +168,13 @@ $tituloPagina = $esRestablecer ? 'Nueva contraseña' : 'Recuperar contraseña';
                     $enlaceRecup = session()->getFlashdata('enlace_recuperacion');
                     $errorEmail  = session()->getFlashdata('error_email');
                     if ($errorEmail && $enlaceRecup) : ?>
-                    <div class="alert-recuperacion mb-3" role="alert">
-                        <p class="alert-titulo mb-1"><i class="bi bi-envelope-exclamation me-2"></i>No se pudo enviar el correo.</p>
-                        <p class="mb-2">Configure <code>app/Config/Email.php</code> (fromEmail, SMTPUser, SMTPPass) o use el enlace siguiente (válido 1 hora):</p>
-                        <a href="<?= esc($enlaceRecup) ?>" class="btn btn-primary btn-enlace-recuperar" target="_blank" rel="noopener">
-                            <i class="bi bi-link-45deg"></i> Abrir enlace para restablecer contraseña
-                        </a>
-                    </div>
+                        <div class="alert-recuperacion mb-3" role="alert">
+                            <p class="alert-titulo mb-1"><i class="bi bi-envelope-exclamation me-2"></i>No se pudo enviar el correo.</p>
+                            <p class="mb-2">Configure <code>app/Config/Email.php</code> (fromEmail, SMTPUser, SMTPPass) o use el enlace siguiente (válido 1 hora):</p>
+                            <a href="<?= esc($enlaceRecup) ?>" class="btn btn-primary btn-enlace-recuperar" target="_blank" rel="noopener">
+                                <i class="bi bi-link-45deg"></i> Abrir enlace para restablecer contraseña
+                            </a>
+                        </div>
                     <?php endif; ?>
                 <?php endif; ?>
 
@@ -177,31 +234,37 @@ $tituloPagina = $esRestablecer ? 'Nueva contraseña' : 'Recuperar contraseña';
     </div>
     <script src="<?= base_url('login/assets/js/bootstrap.bundle.min.js') ?>"></script>
     <?php if ($esRestablecer) : ?>
-    <script>
-        document.getElementById('formRestablecer').addEventListener('submit', function(e) {
-            var p = document.getElementById('password').value;
-            var c = document.getElementById('password_confirmar').value;
-            if (c && p !== c) {
-                e.preventDefault();
-                document.getElementById('password_confirmar').setCustomValidity('Las contraseñas no coinciden');
-            } else {
-                document.getElementById('password_confirmar').setCustomValidity('');
-            }
-            if (!this.checkValidity()) { e.preventDefault(); e.stopPropagation(); }
-            this.classList.add('was-validated');
-        });
-        document.getElementById('password_confirmar').addEventListener('input', function() {
-            if (this.value !== document.getElementById('password').value) this.setCustomValidity('Las contraseñas no coinciden');
-            else this.setCustomValidity('');
-        });
-    </script>
+        <script>
+            document.getElementById('formRestablecer').addEventListener('submit', function(e) {
+                var p = document.getElementById('password').value;
+                var c = document.getElementById('password_confirmar').value;
+                if (c && p !== c) {
+                    e.preventDefault();
+                    document.getElementById('password_confirmar').setCustomValidity('Las contraseñas no coinciden');
+                } else {
+                    document.getElementById('password_confirmar').setCustomValidity('');
+                }
+                if (!this.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                this.classList.add('was-validated');
+            });
+            document.getElementById('password_confirmar').addEventListener('input', function() {
+                if (this.value !== document.getElementById('password').value) this.setCustomValidity('Las contraseñas no coinciden');
+                else this.setCustomValidity('');
+            });
+        </script>
     <?php else : ?>
-    <script>
-        document.getElementById('formRecuperar').addEventListener('submit', function(e) {
-            if (!this.checkValidity()) { e.preventDefault(); e.stopPropagation(); }
-            this.classList.add('was-validated');
-        });
-    </script>
+        <script>
+            document.getElementById('formRecuperar').addEventListener('submit', function(e) {
+                if (!this.checkValidity()) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                this.classList.add('was-validated');
+            });
+        </script>
     <?php endif; ?>
 </body>
 

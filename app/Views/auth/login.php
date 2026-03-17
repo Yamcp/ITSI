@@ -181,8 +181,8 @@
                         <input type="password" class="form-control" id="password" name="password" placeholder="Contraseña" required
                             data-bs-toggle="tooltip" data-bs-placement="right" title="Ingrese su contraseña">
                         <label for="password"><i class="bi bi-lock-fill me-2"></i>Contraseña</label>
-                        <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y me-3" 
-                                id="togglePassword" style="z-index: 10; border: none; background: none; padding: 0;">
+                        <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y me-3"
+                            id="togglePassword" style="z-index: 10; border: none; background: none; padding: 0;">
                             <i class="bi bi-eye" id="togglePasswordIcon"></i>
                         </button>
                         <div class="invalid-feedback">
@@ -247,13 +247,13 @@
         document.addEventListener('DOMContentLoaded', function() {
             const usuarioInput = document.getElementById('usuario');
             const rememberCheckbox = document.getElementById('rememberMe');
-            
+
             // Cargar usuario guardado
             const savedUsuario = getFromLocalStorage('remembered_usuario');
             if (savedUsuario) {
                 usuarioInput.value = savedUsuario;
             }
-            
+
             // Cargar estado del checkbox
             const savedRemember = getFromLocalStorage('remember_me');
             if (savedRemember === 'true') {
@@ -265,7 +265,7 @@
         document.getElementById('togglePassword').addEventListener('click', function() {
             const passwordInput = document.getElementById('password');
             const toggleIcon = document.getElementById('togglePasswordIcon');
-            
+
             if (passwordInput.type === 'password') {
                 passwordInput.type = 'text';
                 toggleIcon.classList.remove('bi-eye');
@@ -281,7 +281,7 @@
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             const usuarioInput = document.getElementById('usuario');
             const rememberCheckbox = document.getElementById('rememberMe');
-            
+
             // Validación visual Bootstrap 5
             if (!this.checkValidity()) {
                 e.preventDefault();
@@ -296,7 +296,7 @@
                     removeFromLocalStorage('remembered_usuario');
                     removeFromLocalStorage('remember_me');
                 }
-                
+
                 document.getElementById('btnLogin').disabled = true;
                 document.getElementById('btnText').classList.add('d-none');
                 document.getElementById('btnSpinner').classList.remove('d-none');
@@ -307,7 +307,7 @@
         // Manejar cambios en el checkbox
         document.getElementById('rememberMe').addEventListener('change', function() {
             const usuarioInput = document.getElementById('usuario');
-            
+
             if (this.checked) {
                 // Si se marca, guardar el usuario actual
                 if (usuarioInput.value.trim()) {

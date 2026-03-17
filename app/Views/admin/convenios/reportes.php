@@ -8,7 +8,7 @@
         padding: 20px;
         margin-bottom: 20px;
     }
-    
+
     .estadisticas-card {
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         color: white;
@@ -16,34 +16,34 @@
         padding: 20px;
         margin-bottom: 20px;
     }
-    
+
     .export-buttons {
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
     }
-    
+
     .table-responsive {
         border-radius: 10px;
         overflow: hidden;
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
-    
+
     .badge-tipo {
         font-size: 0.8rem;
         padding: 0.5rem 0.8rem;
     }
-    
+
     .estado-vigente {
         background-color: #d4edda;
         color: #155724;
     }
-    
+
     .estado-por-vencer {
         background-color: #fff3cd;
         color: #856404;
     }
-    
+
     .estado-vencido {
         background-color: #f8d7da;
         color: #721c24;
@@ -109,8 +109,8 @@
                                 <select class="form-select" name="tipo_convenio">
                                     <option value="">Todos los tipos</option>
                                     <?php foreach ($tipos_convenios as $tipo): ?>
-                                        <option value="<?= $tipo['ID_TIPO_CONVENIO'] ?>" 
-                                                <?= (isset($filtros['tipo_convenio']) && $filtros['tipo_convenio'] == $tipo['ID_TIPO_CONVENIO']) ? 'selected' : '' ?>>
+                                        <option value="<?= $tipo['ID_TIPO_CONVENIO'] ?>"
+                                            <?= (isset($filtros['tipo_convenio']) && $filtros['tipo_convenio'] == $tipo['ID_TIPO_CONVENIO']) ? 'selected' : '' ?>>
                                             <?= $tipo['CONVENIO'] ?>
                                         </option>
                                     <?php endforeach; ?>
@@ -135,15 +135,15 @@
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label class="form-label">Fecha Inicio</label>
-                                <input type="date" class="form-control" name="fecha_inicio" 
-                                       value="<?= $filtros['fecha_inicio'] ?? '' ?>">
+                                <input type="date" class="form-control" name="fecha_inicio"
+                                    value="<?= $filtros['fecha_inicio'] ?? '' ?>">
                             </div>
                         </div>
                         <div class="row">
                             <div class="col-md-3 mb-3">
                                 <label class="form-label">Fecha Fin</label>
-                                <input type="date" class="form-control" name="fecha_fin" 
-                                       value="<?= $filtros['fecha_fin'] ?? '' ?>">
+                                <input type="date" class="form-control" name="fecha_fin"
+                                    value="<?= $filtros['fecha_fin'] ?? '' ?>">
                             </div>
                             <div class="col-md-3 mb-3">
                                 <label class="form-label">Renovable</label>
@@ -178,12 +178,12 @@
                     </div>
                     <div class="card-body">
                         <div class="export-buttons">
-                            <a href="<?= base_url('admin/convenios/generarReporte') . '?formato=pdf&' . http_build_query($filtros) ?>" 
-                               class="btn btn-outline-danger">
+                            <a href="<?= base_url('admin/convenios/generarReporte') . '?formato=pdf&' . http_build_query($filtros) ?>"
+                                class="btn btn-outline-danger">
                                 <i class="fas fa-file-pdf me-1"></i>Exportar PDF
                             </a>
-                            <a href="<?= base_url('admin/convenios/generarReporte') . '?formato=excel&' . http_build_query($filtros) ?>" 
-                               class="btn btn-outline-success">
+                            <a href="<?= base_url('admin/convenios/generarReporte') . '?formato=excel&' . http_build_query($filtros) ?>"
+                                class="btn btn-outline-success">
                                 <i class="fas fa-file-excel me-1"></i>Exportar Excel
                             </a>
                         </div>
@@ -243,7 +243,7 @@
                                                 </td>
                                                 <td><span class="badge bg-warning text-dark"><?= $convenio['DURACION'] ?> meses</span></td>
                                                 <td>
-                                                    <?php 
+                                                    <?php
                                                     $fechaActual = date('Y-m-d');
                                                     $fechaLimite = date('Y-m-d', strtotime('+30 days'));
                                                     if ($convenio['FECHA_FIN'] < $fechaActual) {

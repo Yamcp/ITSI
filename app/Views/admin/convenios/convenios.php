@@ -156,8 +156,10 @@
                                                 </tr>
                                             </thead>
                                             <tbody id="tablaPreprofesionales">
-                                                <?php 
-                                                $preprofesionales = array_filter($convenios, function($c) { return $c['ID_TIPO_CONVENIO'] == 1; });
+                                                <?php
+                                                $preprofesionales = array_filter($convenios, function ($c) {
+                                                    return $c['ID_TIPO_CONVENIO'] == 1;
+                                                });
                                                 if (empty($preprofesionales)): ?>
                                                     <tr>
                                                         <td colspan="8" class="text-center text-muted py-4">
@@ -166,7 +168,7 @@
                                                         </td>
                                                     </tr>
                                                 <?php else: ?>
-                                                    <?php foreach($preprofesionales as $convenio): ?>
+                                                    <?php foreach ($preprofesionales as $convenio): ?>
                                                         <tr>
                                                             <td><?= $convenio['ID_DETALLE_CONVENIO'] ?></td>
                                                             <td>
@@ -187,7 +189,7 @@
                                                                 <span class="badge bg-info"><?= $convenio['DURACION'] ?> meses</span>
                                                             </td>
                                                             <td>
-                                                                <?php 
+                                                                <?php
                                                                 $fechaActual = date('Y-m-d');
                                                                 $fechaLimite = date('Y-m-d', strtotime('+30 days'));
                                                                 if ($convenio['FECHA_FIN'] < $fechaActual) {
@@ -259,8 +261,10 @@
                                                 </tr>
                                             </thead>
                                             <tbody id="tablaServicio">
-                                                <?php 
-                                                $servicio = array_filter($convenios, function($c) { return $c['ID_TIPO_CONVENIO'] == 2; });
+                                                <?php
+                                                $servicio = array_filter($convenios, function ($c) {
+                                                    return $c['ID_TIPO_CONVENIO'] == 2;
+                                                });
                                                 if (empty($servicio)): ?>
                                                     <tr>
                                                         <td colspan="8" class="text-center text-muted py-4">
@@ -269,7 +273,7 @@
                                                         </td>
                                                     </tr>
                                                 <?php else: ?>
-                                                    <?php foreach($servicio as $convenio): ?>
+                                                    <?php foreach ($servicio as $convenio): ?>
                                                         <tr>
                                                             <td><?= $convenio['ID_DETALLE_CONVENIO'] ?></td>
                                                             <td>
@@ -290,7 +294,7 @@
                                                                 <span class="badge bg-info"><?= $convenio['DURACION'] ?> meses</span>
                                                             </td>
                                                             <td>
-                                                                <?php 
+                                                                <?php
                                                                 $fechaActual = date('Y-m-d');
                                                                 $fechaLimite = date('Y-m-d', strtotime('+30 days'));
                                                                 if ($convenio['FECHA_FIN'] < $fechaActual) {
@@ -362,8 +366,10 @@
                                                 </tr>
                                             </thead>
                                             <tbody id="tablaMixta">
-                                                <?php 
-                                                $mixta = array_filter($convenios, function($c) { return $c['ID_TIPO_CONVENIO'] == 3; });
+                                                <?php
+                                                $mixta = array_filter($convenios, function ($c) {
+                                                    return $c['ID_TIPO_CONVENIO'] == 3;
+                                                });
                                                 if (empty($mixta)): ?>
                                                     <tr>
                                                         <td colspan="8" class="text-center text-muted py-4">
@@ -372,7 +378,7 @@
                                                         </td>
                                                     </tr>
                                                 <?php else: ?>
-                                                    <?php foreach($mixta as $convenio): ?>
+                                                    <?php foreach ($mixta as $convenio): ?>
                                                         <tr>
                                                             <td><?= $convenio['ID_DETALLE_CONVENIO'] ?></td>
                                                             <td>
@@ -393,7 +399,7 @@
                                                                 <span class="badge bg-info"><?= $convenio['DURACION'] ?> meses</span>
                                                             </td>
                                                             <td>
-                                                                <?php 
+                                                                <?php
                                                                 $fechaActual = date('Y-m-d');
                                                                 $fechaLimite = date('Y-m-d', strtotime('+30 days'));
                                                                 if ($convenio['FECHA_FIN'] < $fechaActual) {
@@ -467,7 +473,7 @@
                                 <label class="form-label">Tipo de Convenio<span class="text-danger">*</span></label>
                                 <select class="form-select" name="tipo_convenio" id="tipo_convenio" required>
                                     <option value="">Seleccionar...</option>
-                                    <?php foreach($tipos_convenios as $tipo): ?>
+                                    <?php foreach ($tipos_convenios as $tipo): ?>
                                         <option value="<?= $tipo['ID_TIPO_CONVENIO'] ?>"><?= $tipo['CONVENIO'] ?></option>
                                     <?php endforeach; ?>
                                 </select>
@@ -481,7 +487,7 @@
                                     <div class="input-group">
                                         <select class="form-select" name="institucion" id="selectInstitucion" required>
                                             <option value="">Seleccionar institución...</option>
-                                            <?php foreach($instituciones as $institucion): ?>
+                                            <?php foreach ($instituciones as $institucion): ?>
                                                 <option value="<?= $institucion['ID_INSTITUCION_CONVENIO'] ?>">
                                                     <?= $institucion['NOMBRE'] ?> (<?= $institucion['TIPO_INSTITUCION'] ?>)
                                                 </option>
@@ -1001,7 +1007,7 @@
         // Validar fechas
         const fechaInicio = new Date(formData.get('fecha_inicio'));
         const fechaFin = new Date(formData.get('fecha_fin'));
-        
+
         if (fechaFin < fechaInicio) {
             mostrarError('fecha_fin', 'La fecha fin debe ser posterior a la fecha inicio');
             hayErrores = true;
@@ -1022,7 +1028,7 @@
                 mostrarError('archivo_convenio', 'Solo se permiten archivos PDF');
                 hayErrores = true;
             }
-            
+
             // Validar tamaño del archivo (máximo 10MB)
             const maxSize = 10 * 1024 * 1024; // 10MB en bytes
             if (archivo.size > maxSize) {
@@ -1038,32 +1044,32 @@
 
         // Enviar datos al servidor
         fetch('<?= base_url('admin/convenios/store') ?>', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showNotification(data.message, 'success');
-                bootstrap.Modal.getInstance(document.getElementById('modalNuevoConvenio')).hide();
-                form.reset();
-                // Recargar la página para mostrar los nuevos datos
-                setTimeout(() => {
-                    location.reload();
-                }, 1500);
-            } else {
-                if (data.errors) {
-                    Object.keys(data.errors).forEach(campo => {
-                        mostrarError(campo, data.errors[campo]);
-                    });
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('modalNuevoConvenio')).hide();
+                    form.reset();
+                    // Recargar la página para mostrar los nuevos datos
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    if (data.errors) {
+                        Object.keys(data.errors).forEach(campo => {
+                            mostrarError(campo, data.errors[campo]);
+                        });
+                    }
+                    showNotification(data.message, 'error');
                 }
-                showNotification(data.message, 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('Error al guardar el convenio', 'error');
-        });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error al guardar el convenio', 'error');
+            });
     }
 
     function guardarInstitucion() {
@@ -1088,12 +1094,12 @@
         // Validar email
         const email = formData.get('email');
         const emailContacto = formData.get('email_contacto');
-        
+
         if (email && !validarEmail(email)) {
             mostrarErrorInstitucion('email', 'Email inválido');
             hayErrores = true;
         }
-        
+
         if (emailContacto && !validarEmail(emailContacto)) {
             mostrarErrorInstitucion('email_contacto', 'Email de contacto inválido');
             hayErrores = true;
@@ -1113,50 +1119,53 @@
 
         // Enviar datos al servidor
         fetch('<?= base_url('admin/convenios/storeInstitucion') ?>', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showNotification(data.message, 'success');
-                
-                // Cerrar modal de nueva institución
-                bootstrap.Modal.getInstance(document.getElementById('modalNuevaInstitucion')).hide();
-                
-                // Limpiar formulario y vista previa del logo
-                form.reset();
-                const previewLogo = document.getElementById('previewLogoEmpresa');
-                const placeholderLogo = document.getElementById('previewLogoPlaceholder');
-                if (previewLogo) { previewLogo.src = ''; previewLogo.style.display = 'none'; }
-                if (placeholderLogo) placeholderLogo.style.display = 'inline';
-                
-                // Volver al modal de nuevo convenio y recargar instituciones
-                setTimeout(() => {
-                    showModal('modalNuevoConvenio');
-                    // Seleccionar automáticamente la nueva institución
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+
+                    // Cerrar modal de nueva institución
+                    bootstrap.Modal.getInstance(document.getElementById('modalNuevaInstitucion')).hide();
+
+                    // Limpiar formulario y vista previa del logo
+                    form.reset();
+                    const previewLogo = document.getElementById('previewLogoEmpresa');
+                    const placeholderLogo = document.getElementById('previewLogoPlaceholder');
+                    if (previewLogo) {
+                        previewLogo.src = '';
+                        previewLogo.style.display = 'none';
+                    }
+                    if (placeholderLogo) placeholderLogo.style.display = 'inline';
+
+                    // Volver al modal de nuevo convenio y recargar instituciones
                     setTimeout(() => {
-                        const selectInstitucion = document.getElementById('selectInstitucion');
-                        if (selectInstitucion && data.institucion_id) {
-                            selectInstitucion.value = data.institucion_id;
-                            // Disparar evento change para validación
-                            selectInstitucion.dispatchEvent(new Event('change'));
-                        }
-                    }, 100);
-                }, 500);
-            } else {
-                if (data.errors) {
-                    Object.keys(data.errors).forEach(campo => {
-                        mostrarErrorInstitucion(campo, data.errors[campo]);
-                    });
+                        showModal('modalNuevoConvenio');
+                        // Seleccionar automáticamente la nueva institución
+                        setTimeout(() => {
+                            const selectInstitucion = document.getElementById('selectInstitucion');
+                            if (selectInstitucion && data.institucion_id) {
+                                selectInstitucion.value = data.institucion_id;
+                                // Disparar evento change para validación
+                                selectInstitucion.dispatchEvent(new Event('change'));
+                            }
+                        }, 100);
+                    }, 500);
+                } else {
+                    if (data.errors) {
+                        Object.keys(data.errors).forEach(campo => {
+                            mostrarErrorInstitucion(campo, data.errors[campo]);
+                        });
+                    }
+                    showNotification(data.message, 'error');
                 }
-                showNotification(data.message, 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('Error al guardar la institución', 'error');
-        });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error al guardar la institución', 'error');
+            });
     }
 
     function aplicarFiltros() {
@@ -1233,26 +1242,26 @@
     function exportarFormato(formato) {
         const tipo = document.querySelector('input[name="filtro_tipo"]:checked')?.value || '';
         const url = `<?= base_url('admin/convenios/generarReporte') ?>?tipo=${tipo}&formato=${formato}`;
-        
+
         // Cerrar el modal
         const modal = document.getElementById('modalOpcionesExportacion');
         if (modal) {
             const bootstrapModal = bootstrap.Modal.getInstance(modal);
             bootstrapModal.hide();
         }
-        
+
         // Abrir la exportación
         window.open(url, '_blank');
-        
+
         // Mostrar notificación según el formato
         let mensaje = '';
-        switch(formato) {
+        switch (formato) {
             case 'pdf':
                 mensaje = 'Generando reporte PDF...';
                 break;
             case 'excel':
                 mensaje = 'Exportando datos a Excel...';
-                break;            
+                break;
             default:
                 mensaje = 'Exportando datos...';
         }
@@ -1384,11 +1393,11 @@
     function mostrarError(campo, mensaje) {
         const elemento = document.getElementById(campo);
         const errorElement = document.getElementById(`error_${campo}`);
-        
+
         if (elemento) {
             elemento.classList.add('is-invalid');
         }
-        
+
         if (errorElement) {
             errorElement.textContent = mensaje;
             errorElement.style.display = 'block';
@@ -1400,11 +1409,11 @@
         campos.forEach(campo => {
             const elemento = document.getElementById(campo);
             const errorElement = document.getElementById(`error_${campo}`);
-            
+
             if (elemento) {
                 elemento.classList.remove('is-invalid');
             }
-            
+
             if (errorElement) {
                 errorElement.style.display = 'none';
             }
@@ -1414,11 +1423,11 @@
     function mostrarErrorInstitucion(campo, mensaje) {
         const elemento = document.getElementById(campo);
         const errorElement = document.getElementById(`error_${campo}`);
-        
+
         if (elemento) {
             elemento.classList.add('is-invalid');
         }
-        
+
         if (errorElement) {
             errorElement.textContent = mensaje;
             errorElement.style.display = 'block';
@@ -1430,11 +1439,11 @@
         campos.forEach(campo => {
             const elemento = document.getElementById(campo);
             const errorElement = document.getElementById(`error_${campo}`);
-            
+
             if (elemento) {
                 elemento.classList.remove('is-invalid');
             }
-            
+
             if (errorElement) {
                 errorElement.style.display = 'none';
             }
@@ -1458,7 +1467,7 @@
                 const diffMonths = Math.round(diffDays / 30.44); // Promedio de días por mes
 
                 campoDuracion.value = diffMonths;
-                
+
                 // Limpiar error si existe
                 campoDuracion.classList.remove('is-invalid');
                 const errorElement = document.getElementById('error_duracion');

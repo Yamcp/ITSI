@@ -10,37 +10,37 @@
         color: #2c3e50 !important;
         text-transform: capitalize !important;
     }
-    
+
     .fc-button {
         background-color: #007bff !important;
         border-color: #007bff !important;
         color: white !important;
         font-weight: 500 !important;
     }
-    
+
     .fc-button:hover {
         background-color: #0056b3 !important;
         border-color: #0056b3 !important;
     }
-    
+
     .fc-button:focus {
         box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25) !important;
     }
-    
+
     .fc-button-active {
         background-color: #0056b3 !important;
         border-color: #0056b3 !important;
     }
-    
+
     .fc-daygrid-day-number {
         color: #2c3e50 !important;
         font-weight: 500 !important;
     }
-    
+
     .fc-day-today {
         background-color: #e3f2fd !important;
     }
-    
+
     .fc-event {
         border-radius: 4px !important;
         font-size: 0.85rem !important;
@@ -708,7 +708,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                
+
                 <!-- Filtros por tipo de actividad -->
                 <div class="row mb-3">
                     <div class="col-12">
@@ -717,12 +717,12 @@
                             <label class="btn btn-outline-primary" for="filtroCursos">
                                 <i class="fas fa-book me-1"></i>Cursos
                             </label>
-                            
+
                             <input type="checkbox" class="btn-check" id="filtroTalleres" checked>
                             <label class="btn btn-outline-success" for="filtroTalleres">
                                 <i class="fas fa-tools me-1"></i>Talleres
                             </label>
-                            
+
                             <input type="checkbox" class="btn-check" id="filtroSeminarios" checked>
                             <label class="btn btn-outline-info" for="filtroSeminarios">
                                 <i class="fas fa-users me-1"></i>Seminarios
@@ -730,7 +730,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <!-- Calendario -->
                 <div id="calendario" style="background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);"></div>
             </div>
@@ -827,15 +827,15 @@
 
     function inicializarCalendario(eventos) {
         const calendarEl = document.getElementById('calendario');
-        
+
         if (!calendarEl) {
             console.error('Elemento calendario no encontrado');
             return;
         }
-        
+
         // Limpiar contenido previo
         calendarEl.innerHTML = '';
-        
+
         try {
             // Crear el calendario
             const calendar = new FullCalendar.Calendar(calendarEl, {
@@ -866,14 +866,14 @@
                     list: 'Lista'
                 }
             });
-            
+
             calendar.render();
-            
+
             // Guardar referencia global del calendario
             window.calendario = calendar;
-            
+
             console.log('Calendario inicializado correctamente');
-            
+
         } catch (error) {
             console.error('Error al inicializar el calendario:', error);
             calendarEl.innerHTML = `
@@ -933,14 +933,14 @@
         document.getElementById('eventoFecha').textContent = `${evento.startStr} - ${evento.endStr}`;
         document.getElementById('eventoDuracion').textContent = `${evento.extendedProps.duracion} horas`;
         document.getElementById('eventoDescripcion').textContent = evento.extendedProps.descripcion;
-        
+
         showModal('modalDetalleEvento');
     }
 
     function editarActividadDesdeCalendario() {
         // Cerrar modal de detalle
         bootstrap.Modal.getInstance(document.getElementById('modalDetalleEvento')).hide();
-        
+
         // Aquí podrías implementar la lógica para editar la actividad
         showNotification('Función de edición desde calendario en desarrollo', 'info');
     }
@@ -948,10 +948,10 @@
     function exportarCalendario() {
         if (window.calendario) {
             showNotification('Exportando calendario...', 'info');
-            
+
             // Obtener el elemento del calendario
             const calendarElement = document.getElementById('calendario');
-            
+
             // Usar html2canvas para capturar el calendario como imagen
             if (typeof html2canvas !== 'undefined') {
                 html2canvas(calendarElement, {
@@ -964,12 +964,12 @@
                     const link = document.createElement('a');
                     link.download = 'calendario-actividades-' + new Date().toISOString().split('T')[0] + '.png';
                     link.href = canvas.toDataURL('image/png');
-                    
+
                     // Simular clic para descargar
                     document.body.appendChild(link);
                     link.click();
                     document.body.removeChild(link);
-                    
+
                     showNotification('Calendario exportado exitosamente', 'success');
                 }).catch(function(error) {
                     console.error('Error al exportar calendario:', error);
@@ -981,11 +981,11 @@
             }
         }
     }
-    
+
     function exportarComoHTML() {
         const calendarElement = document.getElementById('calendario');
         const htmlContent = calendarElement.outerHTML;
-        
+
         // Crear contenido HTML completo
         const fullHTML = `
         <!DOCTYPE html>
@@ -1008,9 +1008,11 @@
             ${htmlContent}
         </body>
         </html>`;
-        
+
         // Crear y descargar archivo HTML
-        const blob = new Blob([fullHTML], { type: 'text/html' });
+        const blob = new Blob([fullHTML], {
+            type: 'text/html'
+        });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
@@ -1019,7 +1021,7 @@
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-        
+
         showNotification('Calendario exportado como HTML', 'success');
     }
 
@@ -1027,7 +1029,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Filtros de tipo de actividad
         const filtros = ['filtroCursos', 'filtroTalleres', 'filtroSeminarios'];
-        
+
         filtros.forEach(filtro => {
             const elemento = document.getElementById(filtro);
             if (elemento) {
@@ -1040,22 +1042,22 @@
 
     function aplicarFiltrosCalendario() {
         if (!window.calendario) return;
-        
+
         const mostrarCursos = document.getElementById('filtroCursos').checked;
         const mostrarTalleres = document.getElementById('filtroTalleres').checked;
         const mostrarSeminarios = document.getElementById('filtroSeminarios').checked;
-        
+
         // Obtener todos los eventos
         const eventos = window.calendario.getEvents();
-        
+
         eventos.forEach(evento => {
             const tipo = evento.extendedProps.tipo;
             let visible = false;
-            
+
             if (tipo === 'Curso' && mostrarCursos) visible = true;
             if (tipo === 'Taller' && mostrarTalleres) visible = true;
             if (tipo === 'Seminario' && mostrarSeminarios) visible = true;
-            
+
             evento.setProp('display', visible ? 'auto' : 'none');
         });
     }
@@ -1097,13 +1099,13 @@
         try {
             const response = await fetch('<?= base_url('admin/actividades-educacion/api/estadisticas') ?>');
             const stats = await response.json();
-            
+
             // Actualizar las estadísticas en la interfaz
             document.getElementById('totalActividades').textContent = stats.totalActividades || 0;
             document.getElementById('cursosActivos').textContent = stats.cursosActivos || 0;
             document.getElementById('talleresActivos').textContent = stats.talleresActivos || 0;
             document.getElementById('seminariosActivos').textContent = stats.seminariosActivos || 0;
-            
+
             estadisticas = stats;
         } catch (error) {
             console.error('Error al cargar estadísticas:', error);
@@ -1176,11 +1178,11 @@
                 </div>
             </div>
         `;
-        
+
         document.body.appendChild(modal);
         const bootstrapModal = new bootstrap.Modal(modal);
         bootstrapModal.show();
-        
+
         // Limpiar modal cuando se cierre
         modal.addEventListener('hidden.bs.modal', function() {
             document.body.removeChild(modal);
@@ -1191,19 +1193,19 @@
         // Cerrar modal
         const modal = bootstrap.Modal.getInstance(document.getElementById('modalOpcionesExportacion'));
         modal.hide();
-        
+
         // Mostrar notificación
         showNotification(`Exportando actividades en formato ${formato.toUpperCase()}...`, 'info');
-        
+
         // Construir URL con filtros actuales
         const url = `<?= base_url('admin/actividades-educacion/exportar') ?>/${formato}`;
-        
+
         // Crear formulario temporal para enviar filtros
         const form = document.createElement('form');
         form.method = 'GET';
         form.action = url;
         form.target = '_blank';
-        
+
         // Agregar filtros si existen
         const filtros = obtenerFiltrosActuales();
         Object.keys(filtros).forEach(key => {
@@ -1215,11 +1217,11 @@
                 form.appendChild(input);
             }
         });
-        
+
         document.body.appendChild(form);
         form.submit();
         document.body.removeChild(form);
-        
+
         // Notificación de éxito
         setTimeout(() => {
             showNotification(`Archivo ${formato.toUpperCase()} generado exitosamente`, 'success');
@@ -1229,7 +1231,7 @@
     function obtenerFiltrosActuales() {
         // Obtener filtros del modal de filtros si está abierto
         const filtros = {};
-        
+
         // Aquí podrías obtener los filtros del modal de filtros
         // Por ahora retornamos un objeto vacío
         return filtros;
@@ -1237,17 +1239,46 @@
 
     // Función de validación del formulario
     function validarFormulario() {
-        const camposObligatorios = [
-            { name: 'tipo_actividad', label: 'Tipo de Actividad' },
-            { name: 'nombre_actividad', label: 'Nombre de la Actividad' },
-            { name: 'instructor', label: 'Instructor' },
-            { name: 'modalidad', label: 'Modalidad' },
-            { name: 'descripcion', label: 'Descripción' },
-            { name: 'objetivos', label: 'Objetivos' },
-            { name: 'duracion_horas', label: 'Duración (horas)' },
-            { name: 'fecha_inicio', label: 'Fecha de Inicio' },
-            { name: 'fecha_fin', label: 'Fecha de Fin' },
-            { name: 'lugar', label: 'Lugar' }
+        const camposObligatorios = [{
+                name: 'tipo_actividad',
+                label: 'Tipo de Actividad'
+            },
+            {
+                name: 'nombre_actividad',
+                label: 'Nombre de la Actividad'
+            },
+            {
+                name: 'instructor',
+                label: 'Instructor'
+            },
+            {
+                name: 'modalidad',
+                label: 'Modalidad'
+            },
+            {
+                name: 'descripcion',
+                label: 'Descripción'
+            },
+            {
+                name: 'objetivos',
+                label: 'Objetivos'
+            },
+            {
+                name: 'duracion_horas',
+                label: 'Duración (horas)'
+            },
+            {
+                name: 'fecha_inicio',
+                label: 'Fecha de Inicio'
+            },
+            {
+                name: 'fecha_fin',
+                label: 'Fecha de Fin'
+            },
+            {
+                name: 'lugar',
+                label: 'Lugar'
+            }
         ];
 
         let errores = [];
@@ -1258,24 +1289,24 @@
             const elemento = document.querySelector(`[name="${campo.name}"]`);
             if (elemento) {
                 const valor = elemento.value.trim();
-                
+
                 if (!valor) {
                     camposVacios.push(campo.label);
                     elemento.classList.add('is-invalid');
                 } else {
                     elemento.classList.remove('is-invalid');
-                    
+
                     // Validaciones específicas
                     if (campo.name === 'descripcion' && valor.length < 10) {
                         errores.push(`${campo.label} debe tener al menos 10 caracteres`);
                         elemento.classList.add('is-invalid');
                     }
-                    
+
                     if (campo.name === 'objetivos' && valor.length < 10) {
                         errores.push(`${campo.label} deben tener al menos 10 caracteres`);
                         elemento.classList.add('is-invalid');
                     }
-                    
+
                     if (campo.name === 'duracion_horas') {
                         const duracion = parseInt(valor);
                         if (isNaN(duracion) || duracion <= 0) {
@@ -1283,7 +1314,7 @@
                             elemento.classList.add('is-invalid');
                         }
                     }
-                    
+
                     if (campo.name === 'fecha_inicio' || campo.name === 'fecha_fin') {
                         const fecha = new Date(valor);
                         if (isNaN(fecha.getTime())) {
@@ -1298,11 +1329,11 @@
         // Validar que fecha fin sea posterior a fecha inicio
         const fechaInicio = document.querySelector('[name="fecha_inicio"]').value;
         const fechaFin = document.querySelector('[name="fecha_fin"]').value;
-        
+
         if (fechaInicio && fechaFin) {
             const inicio = new Date(fechaInicio);
             const fin = new Date(fechaFin);
-            
+
             if (fin <= inicio) {
                 errores.push('La fecha de fin debe ser posterior a la fecha de inicio');
                 document.querySelector('[name="fecha_fin"]').classList.add('is-invalid');
@@ -1312,15 +1343,15 @@
         // Mostrar errores
         if (camposVacios.length > 0 || errores.length > 0) {
             let mensaje = '';
-            
+
             if (camposVacios.length > 0) {
                 mensaje += 'Los siguientes campos son obligatorios:\n• ' + camposVacios.join('\n• ') + '\n\n';
             }
-            
+
             if (errores.length > 0) {
                 mensaje += 'Errores de validación:\n• ' + errores.join('\n• ');
             }
-            
+
             showNotification(mensaje, 'error');
             return false;
         }
@@ -1353,10 +1384,10 @@
                 }
             });
         }
-        
+
         // Cargar estadísticas al cargar la página
         cargarEstadisticas();
-        
+
         // Agregar eventos para limpiar validaciones
         const camposFormulario = document.querySelectorAll('#formNuevaActividad input, #formNuevaActividad select, #formNuevaActividad textarea');
         camposFormulario.forEach(campo => {

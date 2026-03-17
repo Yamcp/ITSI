@@ -34,16 +34,16 @@
         $estaFinalizadaSinEncuesta = ($fechaFinAlert < $hoyAlert) && empty($encuestaSatisfaccionAlert);
         ?>
         <?php if ($estaFinalizadaSinEncuesta): ?>
-        <div class="alert alert-warning alert-dismissible fade show d-flex align-items-center" role="alert">
-            <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
-            <div class="flex-grow-1">
-                <strong>Actividad finalizada.</strong> Por favor agregue el enlace de la encuesta de satisfacción en esta actividad para que los participantes puedan evaluarla.
+            <div class="alert alert-warning alert-dismissible fade show d-flex align-items-center" role="alert">
+                <i class="fas fa-exclamation-triangle fa-2x me-3"></i>
+                <div class="flex-grow-1">
+                    <strong>Actividad finalizada.</strong> Por favor agregue el enlace de la encuesta de satisfacción en esta actividad para que los participantes puedan evaluarla.
+                </div>
+                <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#modalEncuestaSatisfaccion">
+                    <i class="fas fa-plus me-1"></i>Agregar enlace
+                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
             </div>
-            <button type="button" class="btn btn-warning btn-sm" data-bs-toggle="modal" data-bs-target="#modalEncuestaSatisfaccion">
-                <i class="fas fa-plus me-1"></i>Agregar enlace
-            </button>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
-        </div>
         <?php endif; ?>
 
         <!-- Información de la Actividad -->
@@ -59,21 +59,21 @@
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-6">
-                                <p><strong>Tipo de Actividad:</strong> 
+                                <p><strong>Tipo de Actividad:</strong>
                                     <span class="badge bg-info"><?= $actividad['TIPO_ACTIVIDAD'] ?></span>
                                 </p>
                                 <p><strong>Instructor:</strong> <?= $actividad['NOMBRE'] ?> <?= $actividad['APELLIDO'] ?></p>
                                 <p><strong>Especialidad:</strong> <?= $actividad['ESPECIALIDAD'] ?></p>
-                                <p><strong>Modalidad:</strong> 
+                                <p><strong>Modalidad:</strong>
                                     <span class="badge bg-secondary"><?= $actividad['MODALIDAD'] ?></span>
                                 </p>
                             </div>
                             <div class="col-md-6">
-                                <p><strong>Período:</strong> 
-                                    <?= date('d/m/Y', strtotime($actividad['FECHA_INICIO'])) ?> - 
+                                <p><strong>Período:</strong>
+                                    <?= date('d/m/Y', strtotime($actividad['FECHA_INICIO'])) ?> -
                                     <?= date('d/m/Y', strtotime($actividad['FECHA_FIN'])) ?>
                                 </p>
-                                <p><strong>Duración:</strong> 
+                                <p><strong>Duración:</strong>
                                     <span class="badge bg-warning text-dark"><?= $actividad['DURACION_HORAS'] ?> horas</span>
                                 </p>
                                 <p><strong>Lugar:</strong> <?= $actividad['LUGAR'] ?></p>
@@ -98,12 +98,12 @@
                         </div>
 
                         <?php if (!empty($actividad['PROGRAMA_DETALLADO'])): ?>
-                        <div class="row">
-                            <div class="col-12">
-                                <h6><strong>Programa Detallado:</strong></h6>
-                                <p class="text-muted"><?= nl2br($actividad['PROGRAMA_DETALLADO']) ?></p>
+                            <div class="row">
+                                <div class="col-12">
+                                    <h6><strong>Programa Detallado:</strong></h6>
+                                    <p class="text-muted"><?= nl2br($actividad['PROGRAMA_DETALLADO']) ?></p>
+                                </div>
                             </div>
-                        </div>
                         <?php endif; ?>
                     </div>
                 </div>
@@ -116,7 +116,7 @@
                         <h6 class="mb-0">Estado de la Actividad</h6>
                     </div>
                     <div class="card-body text-center">
-                        <?php 
+                        <?php
                         $fechaFin = new DateTime($actividad['FECHA_FIN']);
                         $hoy = new DateTime();
                         if ($fechaFin >= $hoy) {
@@ -127,8 +127,8 @@
                             echo '<p class="text-muted">La actividad ha concluido</p>';
                         }
                         ?>
-                        
-                        
+
+
                     </div>
                 </div>
 
@@ -140,25 +140,25 @@
                 $encuestaSatisfaccion = $encuestaSatisfaccion ?? null;
                 ?>
                 <?php if ($estaFinalizada): ?>
-                <div class="card shadow-sm mb-4">
-                    <div class="card-header bg-success text-white">
-                        <h6 class="mb-0"><i class="fas fa-clipboard-check me-1"></i>Encuesta de satisfacción</h6>
+                    <div class="card shadow-sm mb-4">
+                        <div class="card-header bg-success text-white">
+                            <h6 class="mb-0"><i class="fas fa-clipboard-check me-1"></i>Encuesta de satisfacción</h6>
+                        </div>
+                        <div class="card-body">
+                            <?php if (!empty($encuestaSatisfaccion)): ?>
+                                <p class="small text-muted mb-2">Enlace para que los participantes evalúen el curso.</p>
+                                <a href="<?= esc($encuestaSatisfaccion['ENLACE_FORMULARIO']) ?>" target="_blank" rel="noopener" class="btn btn-success btn-sm">
+                                    <i class="fas fa-external-link-alt me-1"></i>Abrir encuesta
+                                </a>
+                                <span class="text-muted small ms-2"><?= (int)($encuestaSatisfaccion['NUMERO_RESPUESTAS'] ?? 0) ?> respuestas</span>
+                            <?php else: ?>
+                                <p class="small text-muted mb-2">Al finalizar el curso puedes publicar el enlace de la encuesta de satisfacción.</p>
+                                <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalEncuestaSatisfaccion">
+                                    <i class="fas fa-plus me-1"></i>Agregar enlace de encuesta
+                                </button>
+                            <?php endif; ?>
+                        </div>
                     </div>
-                    <div class="card-body">
-                        <?php if (!empty($encuestaSatisfaccion)): ?>
-                            <p class="small text-muted mb-2">Enlace para que los participantes evalúen el curso.</p>
-                            <a href="<?= esc($encuestaSatisfaccion['ENLACE_FORMULARIO']) ?>" target="_blank" rel="noopener" class="btn btn-success btn-sm">
-                                <i class="fas fa-external-link-alt me-1"></i>Abrir encuesta
-                            </a>
-                            <span class="text-muted small ms-2"><?= (int)($encuestaSatisfaccion['NUMERO_RESPUESTAS'] ?? 0) ?> respuestas</span>
-                        <?php else: ?>
-                            <p class="small text-muted mb-2">Al finalizar el curso puedes publicar el enlace de la encuesta de satisfacción.</p>
-                            <button type="button" class="btn btn-outline-success btn-sm" data-bs-toggle="modal" data-bs-target="#modalEncuestaSatisfaccion">
-                                <i class="fas fa-plus me-1"></i>Agregar enlace de encuesta
-                            </button>
-                        <?php endif; ?>
-                    </div>
-                </div>
                 <?php endif; ?>
 
                 <!-- Acciones Rápidas -->
@@ -174,9 +174,9 @@
                             <button class="btn btn-outline-info btn-sm" onclick="generarReporte(<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>)">
                                 <i class="fas fa-file-alt me-1"></i>Reporte de Asistencia
                             </button>
-                            <a href="<?= base_url('admin/actividades-educacion/eliminar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" 
-                               class="btn btn-outline-danger btn-sm" 
-                               onclick="return confirm('¿Estás seguro de que deseas eliminar esta actividad?')">
+                            <a href="<?= base_url('admin/actividades-educacion/eliminar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>"
+                                class="btn btn-outline-danger btn-sm"
+                                onclick="return confirm('¿Estás seguro de que deseas eliminar esta actividad?')">
                                 <i class="fas fa-trash me-1"></i>Eliminar Actividad
                             </a>
                         </div>
@@ -246,7 +246,10 @@
 <script>
     document.getElementById('btnGuardarEncuesta')?.addEventListener('click', function() {
         var form = document.getElementById('formEncuestaSatisfaccion');
-        if (!form.checkValidity()) { form.reportValidity(); return; }
+        if (!form.checkValidity()) {
+            form.reportValidity();
+            return;
+        }
         var btn = this;
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Guardando...';
@@ -254,13 +257,19 @@
         fetch('<?= base_url('admin/evaluaciones/agregar') ?>', {
             method: 'POST',
             body: fd,
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
-        }).then(function(r) { return r.json(); }).then(function(data) {
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        }).then(function(r) {
+            return r.json();
+        }).then(function(data) {
             if (data.success) {
                 var modal = bootstrap.Modal.getInstance(document.getElementById('modalEncuestaSatisfaccion'));
                 if (modal) modal.hide();
                 showNotification(data.message || 'Encuesta guardada. Recargando...', 'success');
-                setTimeout(function() { window.location.reload(); }, 1200);
+                setTimeout(function() {
+                    window.location.reload();
+                }, 1200);
             } else {
                 showNotification(data.message || 'Error al guardar', 'error');
                 btn.disabled = false;

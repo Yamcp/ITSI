@@ -2,8 +2,20 @@
 
 <?= $this->section('styles') ?>
 <style>
-    .perfil-avatar-wrap { width: 80px; height: 80px; overflow: hidden; border-radius: 50%; flex-shrink: 0; border: 2px solid #dee2e6; }
-    .perfil-avatar-wrap img { width: 100% !important; height: 100% !important; object-fit: cover !important; }
+    .perfil-avatar-wrap {
+        width: 80px;
+        height: 80px;
+        overflow: hidden;
+        border-radius: 50%;
+        flex-shrink: 0;
+        border: 2px solid #dee2e6;
+    }
+
+    .perfil-avatar-wrap img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+    }
 </style>
 <?= $this->endSection() ?>
 
@@ -206,48 +218,85 @@
 
 <?= $this->section('scripts') ?>
 <script>
-var csrfTokenName = <?= json_encode(config('Security')->tokenName ?? 'csrf_test_name') ?>;
-var csrfTokenValue = <?= json_encode(csrf_token()) ?>;
-var uploadUrl = <?= json_encode(base_url('docente/perfil/upload-image')) ?>;
+    var csrfTokenName = <?= json_encode(config('Security')->tokenName ?? 'csrf_test_name') ?>;
+    var csrfTokenValue = <?= json_encode(csrf_token()) ?>;
+    var uploadUrl = <?= json_encode(base_url('docente/perfil/upload-image')) ?>;
 
-function previewImage(input) {
-    if (input.files && input.files[0]) {
-        var r = new FileReader();
-        r.onload = function(e) { document.getElementById('preview-nueva').src = e.target.result; document.getElementById('preview-container').style.display = 'block'; };
-        r.readAsDataURL(input.files[0]);
+    function previewImage(input) {
+        if (input.files && input.files[0]) {
+            var r = new FileReader();
+            r.onload = function(e) {
+                document.getElementById('preview-nueva').src = e.target.result;
+                document.getElementById('preview-container').style.display = 'block';
+            };
+            r.readAsDataURL(input.files[0]);
+        }
     }
-}
-function subirImagen() {
-    var fileInput = document.getElementById('foto_perfil');
-    var file = fileInput.files[0];
-    if (!file) { alert('Selecciona una imagen'); return; }
-    if (file.size > 2 * 1024 * 1024) { alert('Máximo 2MB'); return; }
-    if (['image/jpeg', 'image/png', 'image/gif'].indexOf(file.type) === -1) { alert('Solo JPG, PNG o GIF'); return; }
-    var fd = new FormData();
-    fd.append('foto_perfil', file);
-    fd.append(csrfTokenName, csrfTokenValue);
-    var btn = document.getElementById('btnSubirImagen');
-    var orig = btn ? btn.innerHTML : '';
-    if (btn) { btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Subiendo...'; btn.disabled = true; }
-    fetch(uploadUrl, { method: 'POST', body: fd })
-        .then(function(r) { return r.json().catch(function() { return { success: false }; }); })
-        .then(function(data) {
-            if (data.success) {
-                if (btn) { btn.innerHTML = orig; btn.disabled = false; }
-                var av = document.getElementById('preview-avatar');
-                if (av && data.image_url) av.src = data.image_url;
-                var m = bootstrap.Modal.getInstance(document.getElementById('modalImagen'));
-                if (m) m.hide();
-                document.getElementById('formImagen').reset();
-                document.getElementById('preview-container').style.display = 'none';
-                alert('Imagen actualizada');
-                window.location.reload();
-            } else {
-                if (btn) { btn.innerHTML = orig; btn.disabled = false; }
-                alert(data.message || 'Error al subir');
-            }
-        })
-        .catch(function() { if (btn) { btn.innerHTML = orig; btn.disabled = false; } alert('Error'); });
-}
+
+    function subirImagen() {
+        var fileInput = document.getElementById('foto_perfil');
+        var file = fileInput.files[0];
+        if (!file) {
+            alert('Selecciona una imagen');
+            return;
+        }
+        if (file.size > 2 * 1024 * 1024) {
+            alert('Máximo 2MB');
+            return;
+        }
+        if (['image/jpeg', 'image/png', 'image/gif'].indexOf(file.type) === -1) {
+            alert('Solo JPG, PNG o GIF');
+            return;
+        }
+        var fd = new FormData();
+        fd.append('foto_perfil', file);
+        fd.append(csrfTokenName, csrfTokenValue);
+        var btn = document.getElementById('btnSubirImagen');
+        var orig = btn ? btn.innerHTML : '';
+        if (btn) {
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Subiendo...';
+            btn.disabled = true;
+        }
+        fetch(uploadUrl, {
+                method: 'POST',
+                body: fd
+            })
+            .then(function(r) {
+                return r.json().catch(function() {
+                    return {
+                        success: false
+                    };
+                });
+            })
+            .then(function(data) {
+                if (data.success) {
+                    if (btn) {
+                        btn.innerHTML = orig;
+                        btn.disabled = false;
+                    }
+                    var av = document.getElementById('preview-avatar');
+                    if (av && data.image_url) av.src = data.image_url;
+                    var m = bootstrap.Modal.getInstance(document.getElementById('modalImagen'));
+                    if (m) m.hide();
+                    document.getElementById('formImagen').reset();
+                    document.getElementById('preview-container').style.display = 'none';
+                    alert('Imagen actualizada');
+                    window.location.reload();
+                } else {
+                    if (btn) {
+                        btn.innerHTML = orig;
+                        btn.disabled = false;
+                    }
+                    alert(data.message || 'Error al subir');
+                }
+            })
+            .catch(function() {
+                if (btn) {
+                    btn.innerHTML = orig;
+                    btn.disabled = false;
+                }
+                alert('Error');
+            });
+    }
 </script>
 <?= $this->endSection() ?>

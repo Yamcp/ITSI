@@ -10,34 +10,47 @@
         transition: all 0.3s ease;
         border-left: 4px solid #007bff;
     }
+
     .report-card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
     }
-    .report-card.pdf { border-left-color: #dc3545; }
-    .report-card.excel { border-left-color: #28a745; }
-    .report-card.csv { border-left-color: #ffc107; }
-    .report-card.graficos { border-left-color: #6f42c1; }
-    
+
+    .report-card.pdf {
+        border-left-color: #dc3545;
+    }
+
+    .report-card.excel {
+        border-left-color: #28a745;
+    }
+
+    .report-card.csv {
+        border-left-color: #ffc107;
+    }
+
+    .report-card.graficos {
+        border-left-color: #6f42c1;
+    }
+
     .chart-container {
         position: relative;
         height: 300px;
         margin: 20px 0;
     }
-    
+
     .filter-section {
         background: #f8f9fa;
         border-radius: 10px;
         padding: 20px;
         margin-bottom: 20px;
     }
-    
+
     .export-buttons {
         display: flex;
         gap: 10px;
         flex-wrap: wrap;
     }
-    
+
     .export-btn {
         min-width: 120px;
         display: flex;
@@ -45,7 +58,7 @@
         justify-content: center;
         gap: 8px;
     }
-    
+
     .stats-grid {
         display: grid;
         grid-template-columns: repeat(4, 1fr);
@@ -53,19 +66,19 @@
         margin-bottom: 40px;
         width: 100%;
     }
-    
+
     @media (max-width: 768px) {
         .stats-grid {
             grid-template-columns: repeat(2, 1fr);
         }
     }
-    
+
     @media (max-width: 480px) {
         .stats-grid {
             grid-template-columns: 1fr;
         }
     }
-    
+
     .stat-card {
         background: transparent;
         color: #333;
@@ -75,7 +88,7 @@
         border: none;
         box-shadow: none;
     }
-    
+
     .stat-card h3 {
         font-size: 2.5rem;
         margin: 0;
@@ -83,7 +96,7 @@
         color: #333;
         line-height: 1;
     }
-    
+
     .stat-card p {
         margin: 8px 0 0 0;
         color: #666;
@@ -366,7 +379,7 @@
     function mostrarGraficos() {
         const seccionGraficos = document.getElementById('seccionGraficos');
         const seccionGraficoLineas = document.getElementById('seccionGraficoLineas');
-        
+
         if (seccionGraficos.style.display === 'none') {
             seccionGraficos.style.display = 'block';
             seccionGraficoLineas.style.display = 'block';
@@ -380,7 +393,7 @@
     function cargarDatosGraficos() {
         const filtros = obtenerFiltrosActuales();
         const url = `<?= base_url('admin/reportes-evaluaciones/graficos') ?>?${new URLSearchParams(filtros).toString()}`;
-        
+
         fetch(url)
             .then(response => response.json())
             .then(data => {
@@ -401,7 +414,7 @@
         // Gráfico de barras - Por tipo
         const ctxTipo = document.getElementById('graficoPorTipo').getContext('2d');
         if (graficoPorTipo) graficoPorTipo.destroy();
-        
+
         graficoPorTipo = new Chart(ctxTipo, {
             type: 'bar',
             data: {
@@ -442,7 +455,7 @@
         // Gráfico de dona - Por estado
         const ctxEstado = document.getElementById('graficoPorEstado').getContext('2d');
         if (graficoPorEstado) graficoPorEstado.destroy();
-        
+
         graficoPorEstado = new Chart(ctxEstado, {
             type: 'doughnut',
             data: {
@@ -476,10 +489,10 @@
         // Gráfico de líneas - Por mes
         const ctxMes = document.getElementById('graficoPorMes').getContext('2d');
         if (graficoPorMes) graficoPorMes.destroy();
-        
+
         const meses = datosGraficos.por_mes.map(item => item.mes);
         const cantidades = datosGraficos.por_mes.map(item => item.total);
-        
+
         graficoPorMes = new Chart(ctxMes, {
             type: 'line',
             data: {
@@ -509,7 +522,7 @@
     function cargarEstadisticasReportes() {
         const filtros = obtenerFiltrosActuales();
         const url = `<?= base_url('admin/evaluaciones/estadisticas') ?>?${new URLSearchParams(filtros).toString()}`;
-        
+
         fetch(url)
             .then(response => response.json())
             .then(data => {
@@ -528,36 +541,36 @@
     function actualizarVistaPrevia() {
         const filtros = obtenerFiltrosActuales();
         const url = `<?= base_url('admin/evaluaciones/filtros') ?>`;
-        
+
         const formData = new FormData();
         Object.keys(filtros).forEach(key => {
             if (filtros[key]) {
                 formData.append(key, filtros[key]);
             }
         });
-        
+
         fetch(url, {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                mostrarVistaPrevia(data.data);
-            } else {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    mostrarVistaPrevia(data.data);
+                } else {
+                    showNotification('Error al cargar vista previa', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
                 showNotification('Error al cargar vista previa', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('Error al cargar vista previa', 'error');
-        });
+            });
     }
 
     function mostrarVistaPrevia(evaluaciones) {
         const tbody = document.getElementById('tablaVistaPrevia');
         tbody.innerHTML = '';
-        
+
         evaluaciones.forEach(eval => {
             const row = document.createElement('tr');
             row.innerHTML = `

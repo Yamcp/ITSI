@@ -7,22 +7,22 @@
         transition: all 0.3s ease;
         border-left: 4px solid transparent;
     }
-    
+
     .notification-item:hover {
         transform: translateX(5px);
-        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
-    
+
     .notification-item.unread {
         border-left-color: #28a745;
         background-color: #f8fff8;
     }
-    
+
     .notification-item.read {
         border-left-color: #6c757d;
         background-color: #f8f9fa;
     }
-    
+
     .notification-priority {
         position: absolute;
         top: 10px;
@@ -31,32 +31,55 @@
         height: 8px;
         border-radius: 50%;
     }
-    
-    .priority-alta { background-color: #dc3545; }
-    .priority-media { background-color: #ffc107; }
-    .priority-baja { background-color: #28a745; }
-    
+
+    .priority-alta {
+        background-color: #dc3545;
+    }
+
+    .priority-media {
+        background-color: #ffc107;
+    }
+
+    .priority-baja {
+        background-color: #28a745;
+    }
+
     .notification-type {
         font-size: 0.8rem;
         padding: 2px 8px;
         border-radius: 12px;
         font-weight: 500;
     }
-    
-    .type-asignacion_practica { background-color: #e3f2fd; color: #1976d2; }
-    .type-tutoria_asignada { background-color: #f3e5f5; color: #7b1fa2; }
-    .type-recordatorio { background-color: #fff3e0; color: #f57c00; }
-    .type-general { background-color: #e8f5e8; color: #388e3c; }
-    
+
+    .type-asignacion_practica {
+        background-color: #e3f2fd;
+        color: #1976d2;
+    }
+
+    .type-tutoria_asignada {
+        background-color: #f3e5f5;
+        color: #7b1fa2;
+    }
+
+    .type-recordatorio {
+        background-color: #fff3e0;
+        color: #f57c00;
+    }
+
+    .type-general {
+        background-color: #e8f5e8;
+        color: #388e3c;
+    }
+
     .notification-actions {
         opacity: 0;
         transition: opacity 0.3s ease;
     }
-    
+
     .notification-item:hover .notification-actions {
         opacity: 1;
     }
-    
+
     .stats-card {
         background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
         color: white;
@@ -64,24 +87,24 @@
         padding: 20px;
         margin-bottom: 20px;
     }
-    
+
     .filter-buttons .btn {
         margin-right: 10px;
         margin-bottom: 10px;
     }
-    
+
     .empty-state {
         text-align: center;
         padding: 60px 20px;
         color: #6c757d;
     }
-    
+
     .empty-state i {
         font-size: 4rem;
         margin-bottom: 20px;
         opacity: 0.5;
     }
-    
+
     .tutoria-badge {
         background: linear-gradient(45deg, #28a745, #20c997);
         color: white;
@@ -179,14 +202,14 @@
                         <?php if (!empty($notificaciones)): ?>
                             <div id="notificacionesLista">
                                 <?php foreach ($notificaciones as $notificacion): ?>
-                                    <div class="notification-item p-3 border-bottom position-relative <?= $notificacion['LEIDA'] ? 'read' : 'unread' ?>" 
-                                         data-id="<?= $notificacion['ID_NOTIFICACION'] ?>"
-                                         data-tipo="<?= $notificacion['TIPO_NOTIFICACION'] ?>"
-                                         data-leida="<?= $notificacion['LEIDA'] ?>">
-                                        
+                                    <div class="notification-item p-3 border-bottom position-relative <?= $notificacion['LEIDA'] ? 'read' : 'unread' ?>"
+                                        data-id="<?= $notificacion['ID_NOTIFICACION'] ?>"
+                                        data-tipo="<?= $notificacion['TIPO_NOTIFICACION'] ?>"
+                                        data-leida="<?= $notificacion['LEIDA'] ?>">
+
                                         <!-- Indicador de prioridad -->
                                         <div class="notification-priority priority-<?= $notificacion['PRIORIDAD'] ?>"></div>
-                                        
+
                                         <div class="row">
                                             <div class="col-md-1">
                                                 <div class="text-center">
@@ -255,180 +278,180 @@
 </div>
 
 <script>
-// Variables globales
-let notificaciones = <?= json_encode($notificaciones) ?>;
+    // Variables globales
+    let notificaciones = <?= json_encode($notificaciones) ?>;
 
-// Funciones principales
-function marcarLeida(idNotificacion) {
-    fetch(`/notificaciones/marcar-leida/${idNotificacion}`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Actualizar la interfaz
-            const elemento = document.querySelector(`[data-id="${idNotificacion}"]`);
-            if (elemento) {
-                elemento.classList.remove('unread');
-                elemento.classList.add('read');
-                elemento.setAttribute('data-leida', '1');
-                
-                // Ocultar botón de marcar como leída
-                const btnMarcar = elemento.querySelector('.notification-actions .btn-outline-success');
-                if (btnMarcar) {
-                    btnMarcar.remove();
+    // Funciones principales
+    function marcarLeida(idNotificacion) {
+        fetch(`/notificaciones/marcar-leida/${idNotificacion}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
-                
-                // Actualizar contador
-                actualizarContador();
-            }
-            
-            showNotification('Notificación marcada como revisada', 'success');
-        } else {
-            showNotification('Error al marcar la notificación', 'error');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        showNotification('Error de conexión', 'error');
-    });
-}
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Actualizar la interfaz
+                    const elemento = document.querySelector(`[data-id="${idNotificacion}"]`);
+                    if (elemento) {
+                        elemento.classList.remove('unread');
+                        elemento.classList.add('read');
+                        elemento.setAttribute('data-leida', '1');
 
-function marcarTodasLeidas() {
-    if (confirm('¿Estás seguro de que quieres marcar todas las notificaciones como revisadas?')) {
-        fetch('/notificaciones/marcar-todas-leidas', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Actualizar todas las notificaciones no leídas
-                document.querySelectorAll('.notification-item.unread').forEach(elemento => {
-                    elemento.classList.remove('unread');
-                    elemento.classList.add('read');
-                    elemento.setAttribute('data-leida', '1');
-                    
-                    // Ocultar botones de marcar como leída
-                    const btnMarcar = elemento.querySelector('.notification-actions .btn-outline-success');
-                    if (btnMarcar) {
-                        btnMarcar.remove();
+                        // Ocultar botón de marcar como leída
+                        const btnMarcar = elemento.querySelector('.notification-actions .btn-outline-success');
+                        if (btnMarcar) {
+                            btnMarcar.remove();
+                        }
+
+                        // Actualizar contador
+                        actualizarContador();
                     }
-                });
-                
-                // Actualizar contador
-                actualizarContador();
-                
-                showNotification('Todas las notificaciones han sido marcadas como revisadas', 'success');
-            } else {
-                showNotification('Error al marcar las notificaciones', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('Error de conexión', 'error');
-        });
-    }
-}
 
-function eliminarNotificacion(idNotificacion) {
-    if (confirm('¿Estás seguro de que quieres eliminar esta notificación?')) {
-        fetch(`/notificaciones/eliminar/${idNotificacion}`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Remover elemento de la interfaz
-                const elemento = document.querySelector(`[data-id="${idNotificacion}"]`);
-                if (elemento) {
-                    elemento.remove();
+                    showNotification('Notificación marcada como revisada', 'success');
+                } else {
+                    showNotification('Error al marcar la notificación', 'error');
                 }
-                
-                // Actualizar contador
-                actualizarContador();
-                
-                showNotification('Notificación eliminada', 'success');
-            } else {
-                showNotification('Error al eliminar la notificación', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('Error de conexión', 'error');
-        });
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error de conexión', 'error');
+            });
     }
-}
 
-function filtrarNotificaciones(filtro) {
-    const elementos = document.querySelectorAll('.notification-item');
-    
-    elementos.forEach(elemento => {
-        let mostrar = true;
-        
-        switch(filtro) {
-            case 'no_leidas':
-                mostrar = elemento.getAttribute('data-leida') === '0';
-                break;
-            case 'tutoria_asignada':
-            case 'asignacion_practica':
-            case 'recordatorio':
-            case 'general':
-                mostrar = elemento.getAttribute('data-tipo') === filtro;
-                break;
-            case 'todas':
-            default:
-                mostrar = true;
-                break;
+    function marcarTodasLeidas() {
+        if (confirm('¿Estás seguro de que quieres marcar todas las notificaciones como revisadas?')) {
+            fetch('/notificaciones/marcar-todas-leidas', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Actualizar todas las notificaciones no leídas
+                        document.querySelectorAll('.notification-item.unread').forEach(elemento => {
+                            elemento.classList.remove('unread');
+                            elemento.classList.add('read');
+                            elemento.setAttribute('data-leida', '1');
+
+                            // Ocultar botones de marcar como leída
+                            const btnMarcar = elemento.querySelector('.notification-actions .btn-outline-success');
+                            if (btnMarcar) {
+                                btnMarcar.remove();
+                            }
+                        });
+
+                        // Actualizar contador
+                        actualizarContador();
+
+                        showNotification('Todas las notificaciones han sido marcadas como revisadas', 'success');
+                    } else {
+                        showNotification('Error al marcar las notificaciones', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Error de conexión', 'error');
+                });
         }
-        
-        elemento.style.display = mostrar ? 'block' : 'none';
-    });
-    
-    // Actualizar botones de filtro
-    document.querySelectorAll('.filter-buttons .btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    document.querySelector(`[data-filter="${filtro}"]`).classList.add('active');
-}
+    }
 
-function actualizarContador() {
-    const noLeidas = document.querySelectorAll('.notification-item[data-leida="0"]').length;
-    const total = document.querySelectorAll('.notification-item').length;
-    
-    // Actualizar estadísticas en la página
-    const statsNoLeidas = document.querySelector('.stats-card:nth-child(2) h4');
-    const statsLeidas = document.querySelector('.stats-card:nth-child(3) h4');
-    const statsTotal = document.querySelector('.stats-card:nth-child(1) h4');
-    
-    if (statsNoLeidas) statsNoLeidas.textContent = noLeidas;
-    if (statsLeidas) statsLeidas.textContent = total - noLeidas;
-    if (statsTotal) statsTotal.textContent = total;
-}
+    function eliminarNotificacion(idNotificacion) {
+        if (confirm('¿Estás seguro de que quieres eliminar esta notificación?')) {
+            fetch(`/notificaciones/eliminar/${idNotificacion}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Remover elemento de la interfaz
+                        const elemento = document.querySelector(`[data-id="${idNotificacion}"]`);
+                        if (elemento) {
+                            elemento.remove();
+                        }
 
-function showNotification(message, type = 'info') {
-    const colors = {
-        success: '#27ae60',
-        error: '#e74c3c',
-        warning: '#f39c12',
-        info: '#3498db'
-    };
+                        // Actualizar contador
+                        actualizarContador();
 
-    const notification = document.createElement('div');
-    notification.className = 'position-fixed top-0 end-0 m-3';
-    notification.style.zIndex = '9999';
-    notification.innerHTML = `
+                        showNotification('Notificación eliminada', 'success');
+                    } else {
+                        showNotification('Error al eliminar la notificación', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Error de conexión', 'error');
+                });
+        }
+    }
+
+    function filtrarNotificaciones(filtro) {
+        const elementos = document.querySelectorAll('.notification-item');
+
+        elementos.forEach(elemento => {
+            let mostrar = true;
+
+            switch (filtro) {
+                case 'no_leidas':
+                    mostrar = elemento.getAttribute('data-leida') === '0';
+                    break;
+                case 'tutoria_asignada':
+                case 'asignacion_practica':
+                case 'recordatorio':
+                case 'general':
+                    mostrar = elemento.getAttribute('data-tipo') === filtro;
+                    break;
+                case 'todas':
+                default:
+                    mostrar = true;
+                    break;
+            }
+
+            elemento.style.display = mostrar ? 'block' : 'none';
+        });
+
+        // Actualizar botones de filtro
+        document.querySelectorAll('.filter-buttons .btn').forEach(btn => {
+            btn.classList.remove('active');
+        });
+        document.querySelector(`[data-filter="${filtro}"]`).classList.add('active');
+    }
+
+    function actualizarContador() {
+        const noLeidas = document.querySelectorAll('.notification-item[data-leida="0"]').length;
+        const total = document.querySelectorAll('.notification-item').length;
+
+        // Actualizar estadísticas en la página
+        const statsNoLeidas = document.querySelector('.stats-card:nth-child(2) h4');
+        const statsLeidas = document.querySelector('.stats-card:nth-child(3) h4');
+        const statsTotal = document.querySelector('.stats-card:nth-child(1) h4');
+
+        if (statsNoLeidas) statsNoLeidas.textContent = noLeidas;
+        if (statsLeidas) statsLeidas.textContent = total - noLeidas;
+        if (statsTotal) statsTotal.textContent = total;
+    }
+
+    function showNotification(message, type = 'info') {
+        const colors = {
+            success: '#27ae60',
+            error: '#e74c3c',
+            warning: '#f39c12',
+            info: '#3498db'
+        };
+
+        const notification = document.createElement('div');
+        notification.className = 'position-fixed top-0 end-0 m-3';
+        notification.style.zIndex = '9999';
+        notification.innerHTML = `
         <div class="alert alert-${type} alert-dismissible fade show" role="alert" style="background: ${colors[type]}; color: white; border: none; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
             <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
             ${message}
@@ -436,27 +459,27 @@ function showNotification(message, type = 'info') {
         </div>
     `;
 
-    document.body.appendChild(notification);
+        document.body.appendChild(notification);
 
-    setTimeout(() => {
-        if (notification.parentNode) {
-            notification.remove();
-        }
-    }, 5000);
-}
+        setTimeout(() => {
+            if (notification.parentNode) {
+                notification.remove();
+            }
+        }, 5000);
+    }
 
-// Event listeners
-document.addEventListener('DOMContentLoaded', function() {
-    // Filtros
-    document.querySelectorAll('.filter-buttons .btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const filtro = this.getAttribute('data-filter');
-            filtrarNotificaciones(filtro);
+    // Event listeners
+    document.addEventListener('DOMContentLoaded', function() {
+        // Filtros
+        document.querySelectorAll('.filter-buttons .btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const filtro = this.getAttribute('data-filter');
+                filtrarNotificaciones(filtro);
+            });
         });
+
+        // Auto-actualizar contador cada 30 segundos
+        setInterval(actualizarContador, 30000);
     });
-    
-    // Auto-actualizar contador cada 30 segundos
-    setInterval(actualizarContador, 30000);
-});
 </script>
 <?= $this->endSection() ?>

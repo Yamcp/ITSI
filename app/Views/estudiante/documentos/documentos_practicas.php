@@ -11,45 +11,45 @@
         padding: 2rem;
         margin-bottom: 2rem;
     }
-    
+
     .document-card {
         transition: all 0.3s ease;
         border: 2px solid transparent;
         border-radius: 15px;
         overflow: hidden;
     }
-    
+
     .document-card:hover {
         transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         border-color: #007bff;
     }
-    
+
     .document-card.subido {
         border-color: #28a745;
     }
-    
+
     .document-card.pendiente {
         border-color: #ffc107;
     }
-    
+
     .document-card.aprobado {
         border-color: #28a745;
         background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
     }
-    
+
     .document-card.rechazado {
         border-color: #dc3545;
         background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
     }
-    
+
     .status-badge {
         font-size: 0.8rem;
         padding: 0.5rem 1rem;
         border-radius: 20px;
         font-weight: 600;
     }
-    
+
     .upload-area {
         border: 2px dashed #dee2e6;
         border-radius: 10px;
@@ -58,12 +58,12 @@
         transition: all 0.3s ease;
         cursor: pointer;
     }
-    
+
     .upload-area:hover {
         border-color: #007bff;
         background-color: #f8f9fa;
     }
-    
+
     .upload-area.dragover {
         border-color: #007bff;
         background-color: #e3f2fd;
@@ -96,10 +96,10 @@
                                 Progreso de Documentos
                             </h4>
                             <div class="progress mb-2" style="height: 20px;">
-                                <div class="progress-bar bg-light" role="progressbar" 
-                                     style="width: <?= $estadisticas['porcentaje_completado'] ?>%" 
-                                     aria-valuenow="<?= $estadisticas['porcentaje_completado'] ?>" 
-                                     aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar bg-light" role="progressbar"
+                                    style="width: <?= $estadisticas['porcentaje_completado'] ?>%"
+                                    aria-valuenow="<?= $estadisticas['porcentaje_completado'] ?>"
+                                    aria-valuemin="0" aria-valuemax="100">
                                     <?= $estadisticas['porcentaje_completado'] ?>%
                                 </div>
                             </div>
@@ -143,7 +143,7 @@
                     <div class="card-body">
                         <div class="row g-3">
                             <?php foreach ($tipos_documentos as $index => $tipo): ?>
-                                <?php 
+                                <?php
                                 $documentoEstudiante = null;
                                 foreach ($progreso as $doc) {
                                     if ($doc['ID_TIPO_DOCUMENTO'] == $tipo['ID_TIPO_DOCUMENTO'] && $doc['ID_DOCUMENTO_PRACTICA']) {
@@ -151,12 +151,12 @@
                                         break;
                                     }
                                 }
-                                
+
                                 $estado = $documentoEstudiante ? $documentoEstudiante['ESTADO_REVISION'] : 'No subido';
                                 $claseCard = '';
                                 $iconoEstado = '';
                                 $colorEstado = '';
-                                
+
                                 switch ($estado) {
                                     case 'Aprobado':
                                         $claseCard = 'aprobado';
@@ -184,7 +184,7 @@
                                         $colorEstado = 'secondary';
                                 }
                                 ?>
-                                
+
                                 <div class="col-md-6 col-lg-4">
                                     <div class="card document-card <?= $claseCard ?> h-100">
                                         <div class="card-body">
@@ -197,7 +197,7 @@
                                                     <small class="text-muted"><?= $tipo['DESCRIPCION'] ?></small>
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="mb-3">
                                                 <span class="status-badge bg-<?= $colorEstado ?> text-white">
                                                     <i class="<?= $iconoEstado ?> me-1"></i>
@@ -207,7 +207,7 @@
                                                     <span class="badge bg-danger ms-2">Requerido</span>
                                                 <?php endif; ?>
                                             </div>
-                                            
+
                                             <?php if ($documentoEstudiante): ?>
                                                 <div class="mb-3">
                                                     <small class="text-muted">
@@ -224,30 +224,30 @@
                                                     <?php endif; ?>
                                                 </div>
                                             <?php endif; ?>
-                                            
+
                                             <div class="d-flex gap-2">
                                                 <?php if ($documentoEstudiante): ?>
-                                                    <button class="btn btn-outline-primary btn-sm" 
-                                                            onclick="verDocumento(<?= $documentoEstudiante['ID_DOCUMENTO_PRACTICA'] ?>)"
-                                                            title="Ver Documento">
+                                                    <button class="btn btn-outline-primary btn-sm"
+                                                        onclick="verDocumento(<?= $documentoEstudiante['ID_DOCUMENTO_PRACTICA'] ?>)"
+                                                        title="Ver Documento">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
-                                                    <button class="btn btn-outline-success btn-sm" 
-                                                            onclick="descargarDocumento(<?= $documentoEstudiante['ID_DOCUMENTO_PRACTICA'] ?>)"
-                                                            title="Descargar">
+                                                    <button class="btn btn-outline-success btn-sm"
+                                                        onclick="descargarDocumento(<?= $documentoEstudiante['ID_DOCUMENTO_PRACTICA'] ?>)"
+                                                        title="Descargar">
                                                         <i class="fas fa-download"></i>
                                                     </button>
                                                     <?php if ($estado != 'Aprobado'): ?>
-                                                        <button class="btn btn-outline-danger btn-sm" 
-                                                                onclick="eliminarDocumento(<?= $documentoEstudiante['ID_DOCUMENTO_PRACTICA'] ?>)"
-                                                                title="Eliminar">
+                                                        <button class="btn btn-outline-danger btn-sm"
+                                                            onclick="eliminarDocumento(<?= $documentoEstudiante['ID_DOCUMENTO_PRACTICA'] ?>)"
+                                                            title="Eliminar">
                                                             <i class="fas fa-trash"></i>
                                                         </button>
                                                     <?php endif; ?>
                                                 <?php else: ?>
-                                                    <button class="btn btn-primary btn-sm" 
-                                                            onclick="mostrarModalSubir(<?= $tipo['ID_TIPO_DOCUMENTO'] ?>, '<?= $tipo['NOMBRE'] ?>')"
-                                                            title="Subir Documento">
+                                                    <button class="btn btn-primary btn-sm"
+                                                        onclick="mostrarModalSubir(<?= $tipo['ID_TIPO_DOCUMENTO'] ?>, '<?= $tipo['NOMBRE'] ?>')"
+                                                        title="Subir Documento">
                                                         <i class="fas fa-upload me-1"></i>
                                                         Subir
                                                     </button>
@@ -279,45 +279,45 @@
             <div class="modal-body">
                 <form id="formSubirDocumento" enctype="multipart/form-data">
                     <input type="hidden" name="tipo_documento" id="tipo_documento_id">
-                    
+
                     <div class="mb-3">
                         <label class="form-label">Tipo de Documento</label>
                         <input type="text" class="form-control" id="tipo_documento_nombre" readonly>
                     </div>
-                    
+
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Entidad Receptora</label>
-                                <input type="text" class="form-control" name="entidad_receptora" 
-                                       placeholder="Ej: Instituto Tecnológico Superior Ibarra">
+                                <input type="text" class="form-control" name="entidad_receptora"
+                                    placeholder="Ej: Instituto Tecnológico Superior Ibarra">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Docente Tutor</label>
-                                <input type="text" class="form-control" name="docente_tutor" 
-                                       placeholder="Nombre del docente tutor">
+                                <input type="text" class="form-control" name="docente_tutor"
+                                    placeholder="Nombre del docente tutor">
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label class="form-label">Archivo</label>
                         <div class="upload-area" id="uploadArea">
                             <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
                             <h5 class="text-muted">Arrastra y suelta tu archivo aquí</h5>
                             <p class="text-muted mb-3">o</p>
-                            <input type="file" class="form-control" name="archivo" id="archivoInput" 
-                                   accept=".pdf,application/pdf" required>
+                            <input type="file" class="form-control" name="archivo" id="archivoInput"
+                                accept=".pdf,application/pdf" required>
                             <small class="text-muted">Solo PDF. Máximo 10 MB.</small>
                         </div>
                     </div>
-                    
+
                     <div class="mb-3">
                         <label class="form-label">Observaciones (Opcional)</label>
-                        <textarea class="form-control" name="observaciones" rows="3" 
-                                  placeholder="Observaciones adicionales sobre el documento..."></textarea>
+                        <textarea class="form-control" name="observaciones" rows="3"
+                            placeholder="Observaciones adicionales sobre el documento..."></textarea>
                     </div>
                 </form>
             </div>
@@ -335,7 +335,7 @@
     function mostrarModalSubir(tipoId, tipoNombre) {
         document.getElementById('tipo_documento_id').value = tipoId;
         document.getElementById('tipo_documento_nombre').value = tipoNombre;
-        
+
         const modal = new bootstrap.Modal(document.getElementById('modalSubirDocumento'));
         modal.show();
     }
@@ -343,45 +343,45 @@
     function subirDocumento() {
         const form = document.getElementById('formSubirDocumento');
         const formData = new FormData(form);
-        
+
         const archivo = document.getElementById('archivoInput').files[0];
         if (!archivo) {
             showNotification('Debes seleccionar un archivo', 'error');
             return;
         }
-        
+
         // Mostrar loading
         const btnSubir = document.querySelector('#modalSubirDocumento .btn-primary');
         const textoOriginal = btnSubir.innerHTML;
         btnSubir.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Subiendo...';
         btnSubir.disabled = true;
-        
+
         fetch('<?= base_url('estudiante/documentos-practicas/subir') ?>', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showNotification(data.message, 'success');
-                bootstrap.Modal.getInstance(document.getElementById('modalSubirDocumento')).hide();
-                form.reset();
-                // Recargar la página para mostrar los cambios
-                setTimeout(() => {
-                    location.reload();
-                }, 1500);
-            } else {
-                showNotification(data.message, 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('Error al subir el documento', 'error');
-        })
-        .finally(() => {
-            btnSubir.innerHTML = textoOriginal;
-            btnSubir.disabled = false;
-        });
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('modalSubirDocumento')).hide();
+                    form.reset();
+                    // Recargar la página para mostrar los cambios
+                    setTimeout(() => {
+                        location.reload();
+                    }, 1500);
+                } else {
+                    showNotification(data.message, 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showNotification('Error al subir el documento', 'error');
+            })
+            .finally(() => {
+                btnSubir.innerHTML = textoOriginal;
+                btnSubir.disabled = false;
+            });
     }
 
     function verDocumento(id) {
@@ -395,23 +395,23 @@
     function eliminarDocumento(id) {
         if (confirm('¿Estás seguro de que quieres eliminar este documento?')) {
             fetch('<?= base_url('estudiante/documentos-practicas/eliminar') ?>/' + id, {
-                method: 'POST'
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showNotification(data.message, 'success');
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1500);
-                } else {
-                    showNotification(data.message, 'error');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('Error al eliminar el documento', 'error');
-            });
+                    method: 'POST'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showNotification(data.message, 'success');
+                        setTimeout(() => {
+                            location.reload();
+                        }, 1500);
+                    } else {
+                        showNotification(data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showNotification('Error al eliminar el documento', 'error');
+                });
         }
     }
 
@@ -463,12 +463,14 @@
         uploadArea.addEventListener('drop', function(e) {
             e.preventDefault();
             uploadArea.classList.remove('dragover');
-            
+
             const files = e.dataTransfer.files;
             if (files.length > 0) {
                 archivoInput.files = files;
                 // Trigger change event
-                const event = new Event('change', { bubbles: true });
+                const event = new Event('change', {
+                    bubbles: true
+                });
                 archivoInput.dispatchEvent(event);
             }
         });
@@ -478,7 +480,7 @@
             if (this.files.length > 0) {
                 const file = this.files[0];
                 const fileSize = (file.size / (1024 * 1024)).toFixed(2);
-                
+
                 // Update upload area with file info
                 uploadArea.innerHTML = `
                     <i class="fas fa-file fa-3x text-primary mb-3"></i>

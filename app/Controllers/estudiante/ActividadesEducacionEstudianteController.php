@@ -3,6 +3,7 @@
 namespace App\Controllers\estudiante;
 
 use App\Models\ActividadesEducacionModel;
+use App\Models\EvaluacionesEnlacesModel;
 use App\Models\InstructoresModel;
 use App\Models\LineasInvestigacionModel;
 use App\Models\TiposModalidadesModel;
@@ -12,6 +13,7 @@ use App\Controllers\BaseController;
 class ActividadesEducacionEstudianteController extends BaseController
 {
     protected $actividadesModel;
+    protected $evaluacionesEnlacesModel;
     protected $instructoresModel;
     protected $lineasInvestigacionModel;
     protected $tiposModalidadesModel;
@@ -20,28 +22,57 @@ class ActividadesEducacionEstudianteController extends BaseController
     public function __construct()
     {
         $this->actividadesModel = new ActividadesEducacionModel();
+        $this->evaluacionesEnlacesModel = new EvaluacionesEnlacesModel();
         $this->instructoresModel = new InstructoresModel();
-        $this->lineasInvestigacionModel = new LineasInvestigacionModel(); // Corregido: sin tilde
+        $this->lineasInvestigacionModel = new LineasInvestigacionModel();
         $this->tiposModalidadesModel = new TiposModalidadesModel();
         $this->tiposActividadesModel = new TiposActividadesModel();
+    }
+
+    /**
+     * Mapa ID_ACTIVIDAD_EDUCACION => evaluación de satisfacción (para encuesta estudiante).
+     */
+    private function obtenerEncuestasSatisfaccionPorActividad()
+    {
+        $lista = $this->evaluacionesEnlacesModel
+            ->where('TIPO_EVALUACION', 'satisfaccion')
+            ->where('ACTIVO', true)
+            ->findAll();
+        $mapa = [];
+        foreach ($lista as $ev) {
+            $mapa[(int) $ev['ID_ACTIVIDAD_EDUCACION']] = $ev;
+        }
+        return $mapa;
     }
 
     public function index()
     {
         $actividades = $this->actividadesModel->getActividadesConDatos();
-        
-        // Depuración temporal - remover en producción
-        log_message('debug', 'Actividades cargadas: ' . json_encode($actividades));
+        $encuestasPorActividad = $this->obtenerEncuestasSatisfaccionPorActividad();
 
         $data = [
-            'title' => 'Gestión de Actividades Educativas',
+            'title' => 'Actividades Educativas',
             'actividades' => $actividades,
+            'encuestasPorActividad' => $encuestasPorActividad,
             'instructores' => $this->instructoresModel->getInstructoresConDatos(),
             'modalidades' => $this->tiposModalidadesModel->findAll(),
             'tipos_actividades' => $this->tiposActividadesModel->findAll()
         ];
 
         return view('estudiante/educacion/actividades_educacion', $data);
+    }
+
+    /**
+     * Detalle de una actividad en JSON (para modal Ver detalle).
+     */
+    public function detalle($id)
+    {
+        $actividad = $this->actividadesModel->getActividadCompleta($id);
+        if (!$actividad) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Actividad no encontrada']);
+        }
+        $actividad['ACTIVIDAD'] = $actividad['TIPO_ACTIVIDAD'] ?? $actividad['ACTIVIDAD'] ?? '';
+        return $this->response->setJSON(['success' => true, 'data' => $actividad]);
     }
 
     public function create()
