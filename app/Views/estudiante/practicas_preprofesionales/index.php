@@ -239,11 +239,40 @@
         <div class="page-header-practicas">
             <h1 class="title-page mb-0">
                 <i class="fas fa-user-graduate me-2 text-primary"></i>
-                Prácticas Preprofesionales
+                Prácticas Asignadas
             </h1>
-            <p class="text-muted mb-0 mt-1" style="font-size: 0.95rem;">Gestiona tu documentación y progreso.</p>
+            <p class="text-muted mb-0 mt-1" style="font-size: 0.95rem;">Consulte sus prácticas por cédula o nombre.</p>
         </div>
 
+        <!-- Búsqueda por cédula o nombre -->
+        <div class="card card-dash mb-4">
+            <div class="card-body p-4">
+                <form method="get" action="<?= current_url() ?>" class="row g-3 align-items-end">
+                    <div class="col-md-8 col-lg-6">
+                        <label for="buscar_practicas" class="form-label">Buscar por cédula o nombre</label>
+                        <input type="text" class="form-control form-control-lg" id="buscar_practicas" name="buscar"
+                            value="<?= esc($termino_busqueda ?? '') ?>"
+                            placeholder="Ej: 1234567890 o Juan Pérez" autofocus>
+                    </div>
+                    <div class="col-md-4 col-lg-2">
+                        <button type="submit" class="btn btn-primary btn-lg w-100">
+                            <i class="fas fa-search me-1"></i>Buscar
+                        </button>
+                    </div>
+                </form>
+                <?php if (!isset($mostrar_resultados) || $mostrar_resultados === false): ?>
+                    <p class="text-muted mb-0 mt-3">Ingrese su número de cédula o nombre para consultar sus prácticas asignadas.</p>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <?php if (!empty($mensaje_busqueda)): ?>
+            <div class="alert alert-warning" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i><?= esc($mensaje_busqueda) ?>
+            </div>
+        <?php endif; ?>
+
+        <?php if (!empty($mostrar_resultados) && empty($mensaje_busqueda)): ?>
         <!-- Métricas (mismo diseño que dashboard: icono arriba, número, etiqueta) -->
         <div class="row g-3 mb-4">
             <div class="col-md-3 col-sm-6">
@@ -419,12 +448,15 @@
                                 <hr>
                                 <div class="row">
                                     <div class="col-12">
-                                        <div class="btn-group w-100" role="group">
+                                        <div class="btn-group w-100 flex-wrap" role="group">
                                             <button class="btn btn-outline-primary accion-btn" onclick="verDetallePractica(<?= $practica['ID_PRACTICA_PREPROFESIONAL'] ?>, 'preprofesional')">
                                                 <i class="fas fa-eye me-1"></i>Ver Detalle
                                             </button>
                                             <button class="btn btn-outline-success accion-btn" onclick="registrarActividadPractica(<?= $practica['ID_PRACTICA_PREPROFESIONAL'] ?>, 'preprofesional')">
-                                                <i class="fas fa-plus me-1"></i>Registrar
+                                                <i class="fas fa-plus me-1"></i>Registrar Actividad
+                                            </button>
+                                            <button class="btn btn-outline-warning accion-btn" onclick="abrirModalAsistencia(<?= $practica['ID_PRACTICA_PREPROFESIONAL'] ?>, 'preprofesional')">
+                                                <i class="fas fa-clock me-1"></i>Registrar Asistencia
                                             </button>
                                             <button class="btn btn-outline-info accion-btn" onclick="verDocumentos(<?= $practica['ID_PRACTICA_PREPROFESIONAL'] ?>, 'preprofesional')">
                                                 <i class="fas fa-file-alt me-1"></i>Documentos
@@ -708,6 +740,7 @@
                 </div>
             </div>
         </div>
+        <?php endif; ?>
     </div>
 </div>
 
@@ -858,6 +891,65 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
                 <button type="button" class="btn btn-primary" onclick="registrarActividadPractica()">
                     <i class="fas fa-plus me-1"></i>Registrar Actividad
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Registrar Asistencia -->
+<div class="modal fade" id="modalAsistencia" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-clock me-2"></i>
+                    Registrar Asistencia
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formAsistencia" novalidate>
+                    <input type="hidden" name="practica_id" id="asistencia_practica_id" value="">
+                    <input type="hidden" name="tipo_practica" id="asistencia_tipo_practica" value="">
+                    <div class="mb-3">
+                        <label class="form-label">Fecha <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" name="fecha_asistencia" required>
+                        <div class="invalid-feedback">Selecciona una fecha válida.</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Hora de Entrada <span class="text-danger">*</span></label>
+                                <input type="time" class="form-control" name="hora_entrada" required>
+                                <div class="invalid-feedback">Hora de entrada requerida.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Hora de Salida <span class="text-danger">*</span></label>
+                                <input type="time" class="form-control" name="hora_salida" required>
+                                <div class="invalid-feedback">Hora de salida requerida.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Actividades del Día <span class="text-danger">*</span></label>
+                        <textarea class="form-control" name="actividades_dia" rows="4" placeholder="Describe las actividades realizadas durante el día..." minlength="10" maxlength="300" required></textarea>
+                        <div class="invalid-feedback">Describe las actividades (mínimo 10 caracteres).</div>
+                        <div class="form-text"><span id="asistencia-actividades-count">0</span>/300 caracteres</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Observaciones</label>
+                        <textarea class="form-control" name="observaciones" rows="2" placeholder="Observaciones adicionales..." maxlength="200"></textarea>
+                        <div class="form-text"><span id="asistencia-observaciones-count">0</span>/200 caracteres</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" onclick="guardarAsistencia()">
+                    <i class="fas fa-save me-1"></i>Registrar Asistencia
                 </button>
             </div>
         </div>
@@ -1044,6 +1136,56 @@
         registrarActividad();
     }
 
+    function abrirModalAsistencia(id, tipo) {
+        document.getElementById('asistencia_practica_id').value = id;
+        document.getElementById('asistencia_tipo_practica').value = tipo;
+        document.getElementById('formAsistencia').reset();
+        document.getElementById('asistencia_practica_id').value = id;
+        document.getElementById('asistencia_tipo_practica').value = tipo;
+        document.getElementById('asistencia-actividades-count').textContent = '0';
+        document.getElementById('asistencia-observaciones-count').textContent = '0';
+        const modal = new bootstrap.Modal(document.getElementById('modalAsistencia'));
+        modal.show();
+    }
+
+    function guardarAsistencia() {
+        const form = document.getElementById('formAsistencia');
+        if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            return;
+        }
+        const horaEntrada = form.querySelector('input[name="hora_entrada"]').value;
+        const horaSalida = form.querySelector('input[name="hora_salida"]').value;
+        if (horaEntrada && horaSalida && horaSalida <= horaEntrada) {
+            showNotification('La hora de salida debe ser posterior a la de entrada', 'error');
+            return;
+        }
+        const url = '<?= base_url('estudiante/practicas/registrar-asistencia') ?>';
+        const formData = new FormData(form);
+        formData.append('practica_id', document.getElementById('asistencia_practica_id').value);
+        formData.append('tipo_practica', document.getElementById('asistencia_tipo_practica').value);
+
+        fetch(url, {
+            method: 'POST',
+            body: formData,
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message || 'Asistencia registrada exitosamente', 'success');
+                bootstrap.Modal.getInstance(document.getElementById('modalAsistencia')).hide();
+                form.reset();
+                form.classList.remove('was-validated');
+            } else {
+                showNotification(data.message || 'Error al registrar', 'error');
+            }
+        })
+        .catch(err => {
+            showNotification('Error de conexión', 'error');
+        });
+    }
+
     function subirDocumento() {
         showNotification('Función de subida de documentos en desarrollo', 'info');
     }
@@ -1133,6 +1275,20 @@
         const today = new Date().toISOString().split('T')[0];
         var fechaInput = document.querySelector('input[name="fecha_actividad"]');
         if (fechaInput) fechaInput.value = today;
+
+        // Contadores de caracteres para el formulario de asistencia
+        var actividadesDia = document.querySelector('#formAsistencia textarea[name="actividades_dia"]');
+        var observacionesAsist = document.querySelector('#formAsistencia textarea[name="observaciones"]');
+        if (actividadesDia) {
+            actividadesDia.addEventListener('input', function() {
+                document.getElementById('asistencia-actividades-count').textContent = this.value.length;
+            });
+        }
+        if (observacionesAsist) {
+            observacionesAsist.addEventListener('input', function() {
+                document.getElementById('asistencia-observaciones-count').textContent = this.value.length;
+            });
+        }
 
         // Dibujar gráficos de progreso para prácticas preprofesionales
         setTimeout(() => {

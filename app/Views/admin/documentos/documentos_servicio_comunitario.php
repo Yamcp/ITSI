@@ -100,14 +100,6 @@
 <?= $this->section('content') ?>
 <div class="body-wrapper">
     <div class="container-fluid">
-        <!-- Volver a Prácticas Asignadas -->
-        <div class="row mb-2">
-            <div class="col-12">
-                <a href="<?= base_url('admin/practicas') ?>" class="btn btn-outline-secondary btn-sm">
-                    <i class="fas fa-arrow-left me-1"></i>Volver a Prácticas Asignadas
-                </a>
-            </div>
-        </div>
         <!-- Header -->
         <div class="row">
             <div class="col-12">
@@ -534,8 +526,9 @@
 
     function cargarDocumentosGrid() {
         console.log('Iniciando carga de documentos...');
-        // Cargar documentos para cada tipo
-        fetch('<?= base_url('admin/documentos/servicio/obtenerDocumentos') ?>')
+        const urlEstudiante = <?= json_encode(!empty($estudiante_filtro) ? (int)$estudiante_filtro : null) ?>;
+        const url = '<?= base_url('admin/documentos/servicio/obtenerDocumentos') ?>' + (urlEstudiante ? '?estudiante=' + urlEstudiante : '');
+        fetch(url)
             .then(response => {
                 console.log('Respuesta recibida:', response.status);
                 return response.json();

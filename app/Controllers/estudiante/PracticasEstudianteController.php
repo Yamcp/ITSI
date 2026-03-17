@@ -49,42 +49,70 @@ class PracticasEstudianteController extends BaseController
         }
 
         $userId = session()->get('id_usuario');
-        
-        // Obtener estadísticas del estudiante
-        $estadisticas = $this->obtenerEstadisticasEstudiante($userId);
-        
-        // Obtener prácticas preprofesionales del estudiante
-        $practicasPreprofesionales = $this->obtenerPracticasPreprofesionales($userId);
-        
-        // Obtener servicios comunitarios del estudiante
-        $serviciosComunitarios = $this->obtenerServiciosComunitarios($userId);
+        $terminoBusqueda = trim((string) $this->request->getGet('buscar'));
+        $mostrarResultados = false;
+        $mensajeBusqueda = null;
 
-        // WhatsApp del primer supervisor (preprofesional o servicio comunitario) para "Contactar Supervisor"
-        $whatsappSupervisor = $this->obtenerWhatsappSupervisor($practicasPreprofesionales, $serviciosComunitarios);
+        // Datos del estudiante logueado (cédula y nombre) para validar la búsqueda
+        $estudianteDatos = $this->db->table('TAB_ESTUDIANTES e')
+            ->select('dp.CEDULA, dp.NOMBRE, dp.APELLIDO')
+            ->join('TAB_USUARIOS u', 'u.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+            ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+            ->where('u.ID_USUARIO', $userId)
+            ->get()
+            ->getRowArray();
 
-        // Datos para tablas de checklist de documentos (Informe de Prácticas Laborales)
-        $tiposDocumentos = $this->tiposDocumentosPracticasModel->getAllTipos();
-        $progresoDocumentos = $this->documentosPracticasModel->getProgresoEstudiante($userId);
+        $cedula = $estudianteDatos['CEDULA'] ?? '';
+        $nombreCompleto = trim(($estudianteDatos['NOMBRE'] ?? '') . ' ' . ($estudianteDatos['APELLIDO'] ?? ''));
+        $nombreCompletoInv = trim(($estudianteDatos['APELLIDO'] ?? '') . ' ' . ($estudianteDatos['NOMBRE'] ?? ''));
 
-        // Tipo para "Documento final": buscar por nombre o usar el primero disponible
-        $idTipoDocumentoFinal = null;
-        foreach ($tiposDocumentos as $t) {
-            $nombre = $t['NOMBRE'] ?? '';
-            if (stripos($nombre, 'documento final') !== false || stripos($nombre, 'informe final') !== false) {
-                $idTipoDocumentoFinal = (int) ($t['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?? $t['ID_TIPO_DOCUMENTO'] ?? 0);
-                break;
+        if ($terminoBusqueda !== '') {
+            $buscarNorm = preg_replace('/\s+/', '', $terminoBusqueda);
+            $cedulaNorm = preg_replace('/\s+/', '', $cedula);
+            $coincideCedula = $cedulaNorm !== '' && (stripos($cedula, $terminoBusqueda) !== false || stripos($cedulaNorm, $buscarNorm) !== false);
+            $coincideNombre = $nombreCompleto !== '' && (stripos($nombreCompleto, $terminoBusqueda) !== false || stripos($nombreCompletoInv, $terminoBusqueda) !== false);
+            if ($coincideCedula || $coincideNombre) {
+                $mostrarResultados = true;
+            } else {
+                $mostrarResultados = true;
+                $mensajeBusqueda = 'No se encontraron prácticas con ese criterio. Verifique su cédula o nombre.';
             }
         }
-        if ($idTipoDocumentoFinal === null && !empty($tiposDocumentos)) {
-            $t = $tiposDocumentos[count($tiposDocumentos) - 1];
-            $idTipoDocumentoFinal = (int) ($t['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?? $t['ID_TIPO_DOCUMENTO'] ?? 0);
-        }
 
-        // Alerta: máximo 15 días para subir documento final desde que culminan las prácticas
-        $alertaDocumentoFinal = $this->calcularAlertaDocumentoFinal($practicasPreprofesionales, $progresoDocumentos, $idTipoDocumentoFinal);
+        $estadisticas = ['totalPracticas' => 0, 'practicasActivas' => 0, 'practicasFinalizadas' => 0, 'horasCompletadas' => 0];
+        $practicasPreprofesionales = [];
+        $serviciosComunitarios = [];
+        $whatsappSupervisor = null;
+        $tiposDocumentos = $this->tiposDocumentosPracticasModel->getAllTipos();
+        $progresoDocumentos = [];
+        $idTipoDocumentoFinal = null;
+        $alertaDocumentoFinal = ['mostrar' => false, 'fecha_limite' => null, 'dias_restantes' => null, 'superado_plazo' => false, 'mensaje' => ''];
+
+        if ($mostrarResultados && $mensajeBusqueda === null) {
+            $estadisticas = $this->obtenerEstadisticasEstudiante($userId);
+            $practicasPreprofesionales = $this->obtenerPracticasPreprofesionales($userId);
+            $serviciosComunitarios = $this->obtenerServiciosComunitarios($userId);
+            $whatsappSupervisor = $this->obtenerWhatsappSupervisor($practicasPreprofesionales, $serviciosComunitarios);
+            $progresoDocumentos = $this->documentosPracticasModel->getProgresoEstudiante($userId);
+            foreach ($tiposDocumentos as $t) {
+                $nombre = $t['NOMBRE'] ?? '';
+                if (stripos($nombre, 'documento final') !== false || stripos($nombre, 'informe final') !== false) {
+                    $idTipoDocumentoFinal = (int) ($t['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?? $t['ID_TIPO_DOCUMENTO'] ?? 0);
+                    break;
+                }
+            }
+            if ($idTipoDocumentoFinal === null && !empty($tiposDocumentos)) {
+                $t = $tiposDocumentos[count($tiposDocumentos) - 1];
+                $idTipoDocumentoFinal = (int) ($t['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?? $t['ID_TIPO_DOCUMENTO'] ?? 0);
+            }
+            $alertaDocumentoFinal = $this->calcularAlertaDocumentoFinal($practicasPreprofesionales, $progresoDocumentos, $idTipoDocumentoFinal ?? 0);
+        }
 
         $data = [
             'title' => 'Mis Prácticas - ITSI',
+            'termino_busqueda' => $terminoBusqueda,
+            'mostrar_resultados' => $mostrarResultados,
+            'mensaje_busqueda' => $mensajeBusqueda,
             'estadisticas' => $estadisticas,
             'practicasPreprofesionales' => $practicasPreprofesionales,
             'serviciosComunitarios' => $serviciosComunitarios,
@@ -482,6 +510,88 @@ class PracticasEstudianteController extends BaseController
         } catch (\Exception $e) {
             log_message('error', 'Error al registrar actividad: ' . $e->getMessage());
             return $this->response->setJSON(['success' => false, 'message' => 'Error al registrar la actividad']);
+        }
+    }
+
+    /**
+     * Registrar asistencia (fecha, entrada, salida, actividades). Solo para la práctica del estudiante logueado.
+     */
+    public function registrarAsistencia()
+    {
+        if (!session()->get('logged_in')) {
+            return $this->response->setJSON(['success' => false, 'message' => 'No autorizado']);
+        }
+
+        $userId = session()->get('id_usuario');
+        $practicaId = (int) $this->request->getPost('practica_id');
+        $tipoPractica = $this->request->getPost('tipo_practica');
+        $fechaAsistencia = $this->request->getPost('fecha_asistencia');
+        $horaEntrada = $this->request->getPost('hora_entrada');
+        $horaSalida = $this->request->getPost('hora_salida');
+        $actividadesDia = $this->request->getPost('actividades_dia');
+        $observaciones = $this->request->getPost('observaciones');
+
+        if ($practicaId <= 0 || !in_array($tipoPractica, ['preprofesional', 'servicio'], true)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Datos inválidos']);
+        }
+
+        // Obtener ID_ESTUDIANTE del usuario logueado (mismo criterio que index)
+        $estudiante = $this->db->table('TAB_ESTUDIANTES e')
+            ->select('e.ID_ESTUDIANTE')
+            ->join('TAB_USUARIOS u', 'u.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+            ->where('u.ID_USUARIO', $userId)
+            ->get()
+            ->getRowArray();
+        $idEstudiante = (int) ($estudiante['ID_ESTUDIANTE'] ?? 0);
+        if ($idEstudiante <= 0) {
+            return $this->response->setJSON(['success' => false, 'message' => 'No se encontró el perfil de estudiante']);
+        }
+
+        // Verificar que la práctica pertenece al estudiante
+        if ($tipoPractica === 'preprofesional') {
+            $pp = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES')
+                ->where('ID_PRACTICA_PREPROFESIONAL', $practicaId)
+                ->where('ID_ESTUDIANTE', $idEstudiante)
+                ->get()
+                ->getRowArray();
+            if (!$pp) {
+                return $this->response->setJSON(['success' => false, 'message' => 'No tiene permiso para registrar asistencia en esta práctica']);
+            }
+        } else {
+            $sc = $this->db->table('TAB_SERVICIO_COMUNITARIO')
+                ->where('ID_SERVICIO_COMUNITARIO', $practicaId)
+                ->where('ID_ESTUDIANTE', $idEstudiante)
+                ->get()
+                ->getRowArray();
+            if (!$sc) {
+                return $this->response->setJSON(['success' => false, 'message' => 'No tiene permiso para registrar asistencia en esta práctica']);
+            }
+        }
+
+        $asistenciaData = [
+            'ID_PRACTICA_PREPROFESIONAL' => $tipoPractica === 'preprofesional' ? $practicaId : null,
+            'ID_SERVICIO_COMUNITARIO' => $tipoPractica === 'servicio' ? $practicaId : null,
+            'FECHA_ASISTENCIA' => $fechaAsistencia,
+            'HORA_ENTRADA' => $horaEntrada,
+            'HORA_SALIDA' => $horaSalida,
+            'ACTIVIDADES_DIA' => $actividadesDia,
+            'OBSERVACIONES' => $observaciones,
+            'FECHA_REGISTRO' => date('Y-m-d H:i:s')
+        ];
+
+        try {
+            if ($tipoPractica === 'preprofesional') {
+                $this->db->table('TAB_ASISTENCIAS_PRACTICAS_PREPROFESIONALES')->insert($asistenciaData);
+            } else {
+                $this->db->table('TAB_ASISTENCIAS_SERVICIO_COMUNITARIO')->insert($asistenciaData);
+            }
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Asistencia registrada exitosamente'
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Estudiante registrarAsistencia: ' . $e->getMessage());
+            return $this->response->setJSON(['success' => false, 'message' => 'Error al registrar la asistencia']);
         }
     }
 

@@ -29,6 +29,7 @@ class DocumentosServicioComunitarioAdminController extends BaseController
     public function index()
     {
         try {
+            $idEstudiante = (int) $this->request->getGet('estudiante');
             // Verificar si hay tipos de documentos, si no, crear los predefinidos
             $tiposDocumentos = $this->tiposDocumentosModel->getAllTipos();
             
@@ -44,20 +45,24 @@ class DocumentosServicioComunitarioAdminController extends BaseController
                 }
             }
 
-            // Verificar si hay documentos, si no, crear algunos de ejemplo
-            $documentos = $this->getDocumentosCompletos();
-            if (empty($documentos)) {
-                $this->crearDocumentosEjemplo();
+            $idEstFiltro = $idEstudiante > 0 ? $idEstudiante : null;
+            // Verificar si hay documentos, si no, crear algunos de ejemplo (solo cuando no hay filtro)
+            if ($idEstFiltro === null) {
+                $documentos = $this->getDocumentosCompletos(null);
+                if (empty($documentos)) {
+                    $this->crearDocumentosEjemplo();
+                }
             }
 
             $data = [
                 'title' => 'Gestión de Documentos de Servicio Comunitario',
-                'documentos' => $this->getDocumentosCompletos(),
+                'documentos' => $this->getDocumentosCompletos($idEstFiltro),
                 'estadisticas' => $this->getEstadisticas(),
                 'tiposDocumentos' => $tiposDocumentos,
                 'estados_revision' => $this->estadosRevisionesModel->getAllEstados(),
                 'estudiantes' => $this->getEstudiantes(),
                 'documentos_formatos_servicio' => $this->getListaFormatosServicio(),
+                'estudiante_filtro' => $idEstFiltro,
             ];
 
             return view('admin/documentos/documentos_servicio_comunitario', $data);
@@ -170,7 +175,8 @@ class DocumentosServicioComunitarioAdminController extends BaseController
     public function obtenerDocumentos()
     {
         try {
-            $documentos = $this->getDocumentosCompletos();
+            $idEstudiante = (int) $this->request->getGet('estudiante');
+            $documentos = $this->getDocumentosCompletos($idEstudiante > 0 ? $idEstudiante : null);
             
             return $this->response->setJSON([
                 'success' => true,
@@ -394,12 +400,13 @@ class DocumentosServicioComunitarioAdminController extends BaseController
     }
 
     /**
-     * Obtener documentos completos con toda la información
+     * Obtener documentos completos con toda la información.
+     * @param int|null $idEstudiante Si se indica, solo documentos de ese estudiante.
      */
-    public function getDocumentosCompletos()
+    public function getDocumentosCompletos($idEstudiante = null)
     {
         try {
-            return $this->documentosModel->getDocumentosCompletos();
+            return $this->documentosModel->getDocumentosCompletos($idEstudiante);
         } catch (\Exception $e) {
             // Si hay error, devolver array vacío para evitar errores en la vista
             return [];

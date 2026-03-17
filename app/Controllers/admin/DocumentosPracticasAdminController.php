@@ -28,17 +28,19 @@ class DocumentosPracticasAdminController extends BaseController
      */
     public function index()
     {
+        $idEstudiante = (int) $this->request->getGet('estudiante');
         $tiposDocumentos = $this->tiposDocumentosModel->getAllTipos();
         
         $data = [
             'title' => 'Gestión de Documentos de Prácticas',
-            'documentos' => $this->getDocumentosCompletos(),
+            'documentos' => $this->getDocumentosCompletos($idEstudiante > 0 ? $idEstudiante : null),
             'estadisticas' => $this->getEstadisticas(),
             'tipos_documentos' => $tiposDocumentos,
             'tiposDocumentos' => $tiposDocumentos, // Duplicado para compatibilidad
             'estados_revision' => $this->estadosRevisionesModel->getAllEstados(),
             'estudiantes' => $this->getEstudiantes(),
             'documentos_formatos_practicas' => $this->getListaFormatosPracticas(),
+            'estudiante_filtro' => $idEstudiante > 0 ? $idEstudiante : null,
         ];
 
         // Log para depuración
@@ -248,9 +250,10 @@ class DocumentosPracticasAdminController extends BaseController
     }
 
     /**
-     * Obtener documentos completos con información relacionada
+     * Obtener documentos completos con información relacionada.
+     * @param int|null $idEstudiante Si se indica, solo documentos de prácticas de ese estudiante.
      */
-    private function getDocumentosCompletos()
+    private function getDocumentosCompletos($idEstudiante = null)
     {
         $db = \Config\Database::connect();
         
@@ -278,6 +281,10 @@ class DocumentosPracticasAdminController extends BaseController
             ->join('TAB_ESTUDIANTES e', 'pp.ID_ESTUDIANTE = e.ID_ESTUDIANTE', 'left')
             ->join('TAB_DATOS_PERSONAS persona', 'e.ID_DATO_PERSONA = persona.ID_DATO_PERSONA', 'left')
             ->orderBy('dp.FECHA_SUBIDA', 'DESC');
+
+        if ($idEstudiante !== null && (int) $idEstudiante > 0) {
+            $builder->where('pp.ID_ESTUDIANTE', (int) $idEstudiante);
+        }
 
         $result = $builder->get()->getResultArray();
         
@@ -575,7 +582,8 @@ class DocumentosPracticasAdminController extends BaseController
     public function obtenerDocumentos()
     {
         try {
-            $documentos = $this->getDocumentosCompletos();
+            $idEstudiante = (int) $this->request->getGet('estudiante');
+            $documentos = $this->getDocumentosCompletos($idEstudiante > 0 ? $idEstudiante : null);
             
             // Log para depuración
             log_message('debug', 'Documentos obtenidos: ' . json_encode($documentos));

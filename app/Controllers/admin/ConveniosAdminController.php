@@ -5,6 +5,7 @@ namespace App\Controllers\admin;
 use App\Models\DetallesConveniosModel;
 use App\Models\InstitucionesConveniosModel;
 use App\Models\TiposConveniosModel;
+use App\Models\CarrerasModel;
 use App\Controllers\BaseController;
 
 class ConveniosAdminController extends BaseController
@@ -12,12 +13,14 @@ class ConveniosAdminController extends BaseController
     protected $conveniosModel;
     protected $institucionesModel;
     protected $tiposConveniosModel;
+    protected $carrerasModel;
 
     public function __construct()
     {
         $this->conveniosModel = new DetallesConveniosModel();
         $this->institucionesModel = new InstitucionesConveniosModel();
         $this->tiposConveniosModel = new TiposConveniosModel();
+        $this->carrerasModel = new CarrerasModel();
     }
 
     public function index()
@@ -27,6 +30,7 @@ class ConveniosAdminController extends BaseController
             'convenios' => $this->conveniosModel->getConveniosCompletos(),
             'instituciones' => $this->institucionesModel->getInstitucionesConTipo(),
             'tipos_convenios' => $this->tiposConveniosModel->findAll(),
+            'carreras' => $this->carrerasModel->orderBy('NOMBRE')->findAll(),
             'estadisticas' => $this->getEstadisticas()
         ];
 
@@ -49,6 +53,7 @@ class ConveniosAdminController extends BaseController
         $rules = [
             'tipo_convenio' => 'required|integer',
             'institucion' => 'required|integer',
+            'carrera' => 'required|integer',
             'fecha_inicio' => 'required|valid_date',
             'fecha_fin' => 'required|valid_date',
             'duracion' => 'required|integer|greater_than[0]',
@@ -72,8 +77,12 @@ class ConveniosAdminController extends BaseController
             'DURACION' => $this->request->getPost('duracion'),
             'OBJETIVO' => $this->request->getPost('objetivo'),
             'OBSERVACIONES' => $this->request->getPost('observaciones') ?? '',
-            'RENOVABLE' => $this->request->getPost('renovable')
+            'RENOVABLE' => $this->request->getPost('renovable'),
         ];
+        if ($this->conveniosModel->tieneColumnasCarreraYPlazas()) {
+            $data['ID_CARRERA'] = $this->request->getPost('carrera');
+            $data['PLAZAS_DISPONIBLES'] = (int) ($this->request->getPost('plazas_disponibles') ?? 0);
+        }
 
         // Manejar archivo si se sube
         $archivo = $this->request->getFile('archivo_convenio');
@@ -193,6 +202,109 @@ class ConveniosAdminController extends BaseController
         return $this->response->setJSON([
             'success' => true,
             'data' => array_values($convenios)
+        ]);
+    }
+
+    /**
+     * Actualizar solo plazas disponibles de un convenio (registrar o actualizar si existe).
+     */
+    public function actualizarPlazas($id)
+    {
+        $id = (int) $id;
+        $plazas = (int) ($this->request->getPost('plazas_disponibles') ?? $this->request->getGet('plazas_disponibles'));
+        if ($plazas < 0) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Las plazas no pueden ser negativas.']);
+        }
+        $convenio = $this->conveniosModel->find($id);
+        if (!$convenio) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Convenio no encontrado.']);
+        }
+        if (!$this->conveniosModel->tieneColumnasCarreraYPlazas()) {
+            return $this->response->setJSON(['success' => false, 'message' => 'La base de datos no tiene la columna de plazas. Ejecute el script docs/migrar_convenios_carrera_plazas.sql.']);
+        }
+        if ($this->conveniosModel->update($id, ['PLAZAS_DISPONIBLES' => $plazas])) {
+            return $this->response->setJSON(['success' => true, 'message' => 'Plazas actualizadas correctamente.', 'plazas_disponibles' => $plazas]);
+        }
+        return $this->response->setJSON(['success' => false, 'message' => 'Error al actualizar plazas.']);
+    }
+
+    /**
+     * Obtener un convenio por ID (para formulario de edición).
+     */
+    public function getConvenio($id)
+    {
+        $id = (int) $id;
+        $convenio = $this->conveniosModel->find($id);
+        if (!$convenio) {
+            return $this->response->setStatusCode(404)->setJSON(['success' => false, 'message' => 'Convenio no encontrado.']);
+        }
+        return $this->response->setJSON(['success' => true, 'data' => $convenio]);
+    }
+
+    /**
+     * Actualizar un convenio existente.
+     */
+    public function update($id)
+    {
+        $id = (int) $id;
+        $convenio = $this->conveniosModel->find($id);
+        if (!$convenio) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Convenio no encontrado.']);
+        }
+
+        $rules = [
+            'tipo_convenio' => 'required|integer',
+            'institucion' => 'required|integer',
+            'fecha_inicio' => 'required|valid_date',
+            'fecha_fin' => 'required|valid_date',
+            'duracion' => 'required|integer|greater_than[0]',
+            'objetivo' => 'required|min_length[10]',
+            'renovable' => 'required|in_list[0,1]'
+        ];
+        if ($this->conveniosModel->tieneColumnasCarreraYPlazas()) {
+            $rules['carrera'] = 'required|integer';
+        }
+
+        if (!$this->validate($rules)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Datos inválidos',
+                'errors' => $this->validator->getErrors()
+            ]);
+        }
+
+        $data = [
+            'ID_TIPO_CONVENIO' => $this->request->getPost('tipo_convenio'),
+            'ID_INSTITUCION_CONVENIO' => $this->request->getPost('institucion'),
+            'FECHA_INICIO' => $this->request->getPost('fecha_inicio'),
+            'FECHA_FIN' => $this->request->getPost('fecha_fin'),
+            'DURACION' => $this->request->getPost('duracion'),
+            'OBJETIVO' => $this->request->getPost('objetivo'),
+            'OBSERVACIONES' => $this->request->getPost('observaciones') ?? '',
+            'RENOVABLE' => $this->request->getPost('renovable'),
+        ];
+        if ($this->conveniosModel->tieneColumnasCarreraYPlazas()) {
+            $data['ID_CARRERA'] = $this->request->getPost('carrera');
+            $data['PLAZAS_DISPONIBLES'] = (int) ($this->request->getPost('plazas_disponibles') ?? 0);
+        }
+
+        $archivo = $this->request->getFile('archivo_convenio');
+        if ($archivo && $archivo->isValid()) {
+            $nombreArchivo = $archivo->getRandomName();
+            $archivo->move(WRITEPATH . 'uploads/convenios/', $nombreArchivo);
+            $data['ARCHIVO_CONVENIO'] = $nombreArchivo;
+        }
+
+        if ($this->conveniosModel->update($id, $data)) {
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Convenio actualizado correctamente'
+            ]);
+        }
+        return $this->response->setJSON([
+            'success' => false,
+            'message' => 'Error al actualizar el convenio',
+            'errors' => $this->conveniosModel->errors()
         ]);
     }
 

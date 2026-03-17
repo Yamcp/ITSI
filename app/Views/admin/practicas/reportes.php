@@ -33,6 +33,36 @@
         font-size: 0.8rem;
         padding: 0.5rem 0.8rem;
     }
+
+    /* Pestañas tipo pill (igual que en Prácticas asignadas) */
+    #reportesTabs.nav-tabs {
+        border: none;
+        gap: 0.5rem;
+    }
+    #reportesTabs .nav-link {
+        border: none;
+        color: #495057 !important;
+        background-color: #e9ecef;
+        padding: 0.6rem 1.1rem;
+        border-radius: 2rem;
+        font-weight: 600;
+        transition: background-color 0.2s, color 0.2s;
+    }
+    #reportesTabs .nav-link:hover {
+        background-color: #dee2e6;
+        color: #212529 !important;
+    }
+    #reportesTabs .nav-link.active {
+        background-color: #0d6efd !important;
+        color: #fff !important;
+    }
+    #reportesTabs .nav-link.active .badge {
+        background-color: rgba(255,255,255,0.9) !important;
+        color: #0d6efd !important;
+    }
+    #reportesTabs .nav-link i {
+        opacity: 0.95;
+    }
 </style>
 <?= $this->endSection() ?>
 
@@ -149,15 +179,14 @@
                                 <label class="form-label">Carrera</label>
                                 <select class="form-select" name="carrera">
                                     <option value="">Todas las carreras</option>
-                                    <option value="Sistemas" <?= (isset($filtros['carrera']) && $filtros['carrera'] == 'Sistemas') ? 'selected' : '' ?>>
-                                        Sistemas de Información
-                                    </option>
-                                    <option value="Desarrollo" <?= (isset($filtros['carrera']) && $filtros['carrera'] == 'Desarrollo') ? 'selected' : '' ?>>
-                                        Desarrollo de Software
-                                    </option>
-                                    <option value="Redes" <?= (isset($filtros['carrera']) && $filtros['carrera'] == 'Redes') ? 'selected' : '' ?>>
-                                        Redes y Telecomunicaciones
-                                    </option>
+                                    <?php if (!empty($carreras)): ?>
+                                        <?php foreach ($carreras as $carrera): ?>
+                                            <option value="<?= (int) $carrera['ID_CARRERA'] ?>"
+                                                <?= (isset($filtros['carrera']) && (string)$filtros['carrera'] === (string)$carrera['ID_CARRERA']) ? 'selected' : '' ?>>
+                                                <?= esc($carrera['NOMBRE']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
                                 </select>
                             </div>
                             <div class="col-md-6 mb-3 d-flex align-items-end">
@@ -197,12 +226,12 @@
             </div>
         </div>
 
-        <!-- Tabs para diferentes tipos de prácticas -->
+        <!-- Tabs para diferentes tipos de prácticas (mismo estilo que Prácticas asignadas) -->
         <div class="row">
             <div class="col-12">
-                <div class="card">
-                    <div class="card-header bg-primary text-white">
-                        <ul class="nav nav-tabs card-header-tabs" id="reportesTabs" role="tablist">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body pb-0">
+                        <ul class="nav nav-tabs nav-justified px-2 py-2 bg-light rounded-3" id="reportesTabs" role="tablist">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active" id="preprofesionales-tab" data-bs-toggle="tab"
                                     data-bs-target="#preprofesionales" type="button" role="tab">
@@ -218,6 +247,7 @@
                                 </button>
                             </li>
                         </ul>
+                        <hr class="mt-0 mb-2" style="border-top: 2px solid #e3e6f0;">
                     </div>
                     <div class="card-body p-0">
                         <div class="tab-content" id="reportesTabContent">
@@ -387,8 +417,12 @@
         // Mostrar notificación de procesamiento
         showNotification(`Generando archivo ${formato.toUpperCase()}...`, 'info');
 
+        // Pasar los mismos filtros de la URL para que la exportación use los datos visibles
+        const queryString = window.location.search || '';
+        const url = '<?= base_url('admin/practicas/exportar-datos/') ?>' + formato + (queryString ? '?' + queryString.slice(1) : '');
+
         // Realizar la exportación
-        fetch(`/admin/practicas/exportar-datos/${formato}`)
+        fetch(url)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Error en la respuesta del servidor');

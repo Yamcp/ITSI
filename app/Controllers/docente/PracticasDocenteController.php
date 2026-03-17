@@ -73,27 +73,51 @@ class PracticasDocenteController extends BaseController
             if (!$estudiante) {
                 return $this->response->setJSON(['success' => false, 'message' => 'Estudiante no encontrado']);
             }
+            // Registro de asistencias que el estudiante ha ido registrando (para control del docente/tutor)
             $actividadesRecientes = [];
-            $pp = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES')->where('ID_ESTUDIANTE', $estudianteId)->where('ID_INSTRUCTOR', $idInstructor)->get()->getRowArray();
+            $pp = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
+                ->select('pp.*, ic.NOMBRE as INSTITUCION_NOMBRE')
+                ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = pp.ID_INSTITUCION_CONVENIO', 'left')
+                ->where('pp.ID_ESTUDIANTE', $estudianteId)->where('pp.ID_INSTRUCTOR', $idInstructor)
+                ->get()->getRowArray();
             if ($pp) {
-                $actividadesRecientes = array_merge($actividadesRecientes, $this->obtenerActividadesRecientesPractica($pp['ID_PRACTICA_PREPROFESIONAL'], 'preprofesional'));
+                $actividadesRecientes = array_merge($actividadesRecientes, $this->obtenerActividadesRecientesPractica($pp['ID_PRACTICA_PREPROFESIONAL'], 'preprofesional', 50));
             }
-            $sc = $this->db->table('TAB_SERVICIO_COMUNITARIO')->where('ID_ESTUDIANTE', $estudianteId)->where('ID_INSTRUCTOR', $idInstructor)->get()->getRowArray();
+            $sc = $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
+                ->select('sc.*, ic.NOMBRE as INSTITUCION_NOMBRE')
+                ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = sc.ID_INSTITUCION_CONVENIO', 'left')
+                ->where('sc.ID_ESTUDIANTE', $estudianteId)->where('sc.ID_INSTRUCTOR', $idInstructor)
+                ->get()->getRowArray();
             if ($sc) {
-                $actividadesRecientes = array_merge($actividadesRecientes, $this->obtenerActividadesRecientesPractica($sc['ID_SERVICIO_COMUNITARIO'], 'servicio'));
+                $actividadesRecientes = array_merge($actividadesRecientes, $this->obtenerActividadesRecientesPractica($sc['ID_SERVICIO_COMUNITARIO'], 'servicio', 50));
             }
             usort($actividadesRecientes, function ($a, $b) {
                 $f1 = $a['FECHA_ASISTENCIA'] ?? '';
                 $f2 = $b['FECHA_ASISTENCIA'] ?? '';
-                return strcmp($f2, $f1);
+                if ($f1 !== $f2) return strcmp($f2, $f1);
+                $r1 = $a['FECHA_REGISTRO'] ?? '';
+                $r2 = $b['FECHA_REGISTRO'] ?? '';
+                return strcmp($r2, $r1);
             });
-            $actividadesRecientes = array_slice($actividadesRecientes, 0, 5);
+            $actividadesRecientes = array_slice($actividadesRecientes, 0, 50);
             $progreso = 0;
             if ($pp) {
                 $progreso = $this->calcularProgresoPractica($pp['ID_PRACTICA_PREPROFESIONAL'], $pp['HORAS_PRACTICAS'] ?? 0, 'preprofesional');
+                $estudiante['INSTITUCION_NOMBRE'] = $pp['INSTITUCION_NOMBRE'] ?? null;
+                $estudiante['FECHA_INICIO'] = $pp['FECHA_INICIO'] ?? null;
+                $estudiante['FECHA_FIN'] = $pp['FECHA_FIN'] ?? null;
+                $estudiante['ESTADO_PRACTICA'] = $pp['ESTADO_PRACTICA'] ?? null;
             }
-            if ($sc && $progreso === 0) {
-                $progreso = $this->calcularProgresoPractica($sc['ID_SERVICIO_COMUNITARIO'], $sc['HORAS_SERVICIO'] ?? 0, 'servicio');
+            if ($sc) {
+                if ($progreso === 0) {
+                    $progreso = $this->calcularProgresoPractica($sc['ID_SERVICIO_COMUNITARIO'], $sc['HORAS_SERVICIO'] ?? 0, 'servicio');
+                }
+                if (empty($estudiante['INSTITUCION_NOMBRE'])) {
+                    $estudiante['INSTITUCION_NOMBRE'] = $sc['INSTITUCION_NOMBRE'] ?? null;
+                    $estudiante['FECHA_INICIO'] = $sc['FECHA_INICIO'] ?? null;
+                    $estudiante['FECHA_FIN'] = $sc['FECHA_FIN'] ?? null;
+                    $estudiante['ESTADO_SERVICIO'] = $sc['ESTADO_SERVICIO'] ?? null;
+                }
             }
 
             return $this->response->setJSON([
@@ -539,21 +563,23 @@ class PracticasDocenteController extends BaseController
         }
     }
 
-    private function obtenerActividadesRecientesPractica($idPractica, $tipo)
+    private function obtenerActividadesRecientesPractica($idPractica, $tipo, $limite = 5)
     {
         try {
             if ($tipo === 'preprofesional') {
                 return $this->db->table('TAB_ASISTENCIAS_PRACTICAS_PREPROFESIONALES ap')
                     ->where('ap.ID_PRACTICA_PREPROFESIONAL', $idPractica)
                     ->orderBy('ap.FECHA_ASISTENCIA', 'DESC')
-                    ->limit(5)
+                    ->orderBy('ap.FECHA_REGISTRO', 'DESC')
+                    ->limit($limite)
                     ->get()
                     ->getResultArray();
             }
             return $this->db->table('TAB_ASISTENCIAS_SERVICIO_COMUNITARIO as_')
                 ->where('as_.ID_SERVICIO_COMUNITARIO', $idPractica)
                 ->orderBy('as_.FECHA_ASISTENCIA', 'DESC')
-                ->limit(5)
+                ->orderBy('as_.FECHA_REGISTRO', 'DESC')
+                ->limit($limite)
                 ->get()
                 ->getResultArray();
         } catch (\Exception $e) {

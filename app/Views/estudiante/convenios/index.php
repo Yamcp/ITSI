@@ -35,7 +35,7 @@
                     <i class="fas fa-handshake me-2 text-primary"></i>
                     Instituciones y Convenios
                 </h3>
-                <p class="text-center text-muted">Consulta las instituciones convenidas y los convenios activos</p>
+                <p class="text-center text-muted">Solo se muestran convenios vigentes e instituciones correspondientes a tu carrera</p>
             </div>
         </div>
 

@@ -212,6 +212,7 @@
                                         <tr>
                                             <th>ID</th>
                                             <th>Institución</th>
+                                            <th>Carrera</th>
                                             <th>Tipo</th>
                                             <th>Período</th>
                                             <th>Duración</th>
@@ -228,6 +229,7 @@
                                                     <div class="fw-semibold"><?= $convenio['NOMBRE'] ?></div>
                                                     <small class="text-muted"><?= $convenio['RUC'] ?> - <?= $convenio['TIPO_INSTITUCION'] ?></small>
                                                 </td>
+                                                <td><?= esc($convenio['CARRERA_NOMBRE'] ?? '-') ?></td>
                                                 <td>
                                                     <?php
                                                     $color = 'bg-primary';

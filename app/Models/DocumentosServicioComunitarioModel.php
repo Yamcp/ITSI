@@ -138,11 +138,12 @@ class DocumentosServicioComunitarioModel extends Model
     }
 
     /**
-     * Obtener documentos con información completa
+     * Obtener documentos con información completa.
+     * @param int|null $idEstudiante Si se indica, solo documentos de servicio comunitario de ese estudiante.
      */
-    public function getDocumentosCompletos()
+    public function getDocumentosCompletos($idEstudiante = null)
     {
-        return $this->select('
+        $builder = $this->select('
             TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.*,
             TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
             TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO.CODIGO as CODIGO_DOCUMENTO,
@@ -158,8 +159,13 @@ class DocumentosServicioComunitarioModel extends Model
         ->join('TAB_ASIGNACIONES_PRACTICAS', 'TAB_SERVICIO_COMUNITARIO.ID_ASIGNACION_PRACTICA = TAB_ASIGNACIONES_PRACTICAS.ID_ASIGNACION_PRACTICA')
         ->join('TAB_USUARIOS', 'TAB_ASIGNACIONES_PRACTICAS.ID_USUARIO = TAB_USUARIOS.ID_USUARIO')
         ->join('TAB_DATOS_PERSONAS', 'TAB_USUARIOS.ID_DATO_PERSONA = TAB_DATOS_PERSONAS.ID_DATO_PERSONA')
-        ->orderBy('TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.FECHA_SUBIDA', 'DESC')
-        ->findAll();
+        ->orderBy('TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.FECHA_SUBIDA', 'DESC');
+
+        if ($idEstudiante !== null && (int) $idEstudiante > 0) {
+            $builder->where('TAB_SERVICIO_COMUNITARIO.ID_ESTUDIANTE', (int) $idEstudiante);
+        }
+
+        return $builder->findAll();
     }
 
     /**

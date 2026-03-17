@@ -13,6 +13,7 @@ use App\Models\NotificacionesModel;
 use App\Models\UsuariosModel;
 use App\Models\PracticasPreprofesionalesModel;
 use App\Models\ServiciosComunitariosModel;
+use App\Models\DetallesConveniosModel;
 use App\Libraries\EmailNotificaciones;
 
 class PracticasAdminController extends BaseController
@@ -27,6 +28,7 @@ class PracticasAdminController extends BaseController
     protected $usuariosModel;
     protected $practicasPreprofesionalesModel;
     protected $serviciosComunitariosModel;
+    protected $detallesConveniosModel;
     protected $emailNotificaciones;
 
     public function __construct()
@@ -41,6 +43,7 @@ class PracticasAdminController extends BaseController
         $this->usuariosModel = new UsuariosModel();
         $this->practicasPreprofesionalesModel = new PracticasPreprofesionalesModel();
         $this->serviciosComunitariosModel = new ServiciosComunitariosModel();
+        $this->detallesConveniosModel = new DetallesConveniosModel();
         $this->emailNotificaciones = new EmailNotificaciones();
     }
 
@@ -67,12 +70,20 @@ class PracticasAdminController extends BaseController
             log_message('error', 'PracticasAdminController::index - Error BD: ' . $e->getMessage());
         }
 
+        $carreras = [];
+        try {
+            $carreras = $this->carrerasModel->orderBy('NOMBRE')->findAll();
+        } catch (\Throwable $e) {
+            log_message('error', 'PracticasAdminController::index - Error carreras: ' . $e->getMessage());
+        }
+
         $data = [
             'title' => 'Gestión de Prácticas',
             'estadisticas' => $estadisticas,
             'practicasPreprofesionales' => $practicasPreprofesionales,
             'serviciosComunitarios' => $serviciosComunitarios,
-            'seguimiento' => $seguimiento
+            'seguimiento' => $seguimiento,
+            'carreras' => $carreras
         ];
 
         return view('admin/practicas/practicas', $data);
@@ -157,6 +168,7 @@ class PracticasAdminController extends BaseController
             ->select('
                 pp.*,
                 CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as ESTUDIANTE_NOMBRE,
+                dp.CEDULA as ESTUDIANTE_CEDULA,
                 c.NOMBRE as CARRERA_NOMBRE,
                 ic.NOMBRE as INSTITUCION_NOMBRE,
                 ti.INSTITUCION as TIPO_INSTITUCION,
@@ -185,6 +197,7 @@ class PracticasAdminController extends BaseController
             ->select('
                 sc.*,
                 CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as ESTUDIANTE_NOMBRE,
+                dp.CEDULA as ESTUDIANTE_CEDULA,
                 c.NOMBRE as CARRERA_NOMBRE,
                 ic.NOMBRE as INSTITUCION_NOMBRE,
                 ti.INSTITUCION as TIPO_INSTITUCION,
@@ -273,6 +286,56 @@ class PracticasAdminController extends BaseController
             ->orderBy('dp.NOMBRE', 'ASC');
 
         return $builder->get()->getResultArray();
+    }
+
+    /**
+     * API: Buscar estudiantes por nombre (para modal nueva práctica)
+     */
+    public function buscarEstudiantes()
+    {
+        $q = trim((string) $this->request->getGet('q'));
+        if ($q === '') {
+            return $this->response->setJSON(['success' => true, 'data' => []]);
+        }
+        $db = \Config\Database::connect();
+        $builder = $db->table('TAB_ESTUDIANTES e')
+            ->select('e.ID_ESTUDIANTE, e.ID_CARRERA, CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as NOMBRE_COMPLETO, c.NOMBRE as CARRERA, e.SEMESTRE_ACTUAL')
+            ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+            ->join('TAB_CARRERAS c', 'c.ID_CARRERA = e.ID_CARRERA')
+            ->where('e.ID_TIPO_ESTADO', 1)
+            ->groupStart()
+            ->like('dp.NOMBRE', $q)
+            ->orLike('dp.APELLIDO', $q)
+            ->groupEnd()
+            ->orderBy('dp.NOMBRE', 'ASC')
+            ->limit(30);
+        $estudiantes = $builder->get()->getResultArray();
+        return $this->response->setJSON(['success' => true, 'data' => $estudiantes]);
+    }
+
+    /**
+     * API: Instituciones con convenio vigente para una carrera (para modal nueva práctica)
+     */
+    public function getInstitucionesPorCarrera()
+    {
+        $idCarrera = (int) $this->request->getGet('carrera_id');
+        if ($idCarrera <= 0) {
+            return $this->response->setJSON(['success' => true, 'data' => []]);
+        }
+        $convenios = $this->detallesConveniosModel->getConveniosVigentesPorCarrera($idCarrera);
+        $vistas = [];
+        $ids = [];
+        foreach ($convenios as $c) {
+            $id = (int) ($c['ID_INSTITUCION_CONVENIO'] ?? 0);
+            if ($id > 0 && !isset($ids[$id])) {
+                $ids[$id] = true;
+                $vistas[] = [
+                    'ID_INSTITUCION_CONVENIO' => $id,
+                    'NOMBRE' => $c['NOMBRE'] ?? $c['NOMBRE_INSTITUCION'] ?? 'Institución ' . $id
+                ];
+            }
+        }
+        return $this->response->setJSON(['success' => true, 'data' => $vistas]);
     }
 
     /**
@@ -546,13 +609,31 @@ class PracticasAdminController extends BaseController
     }
 
     /**
-     * API: Exportar datos de prácticas en diferentes formatos
+     * API: Exportar datos de prácticas en diferentes formatos (con los mismos filtros de la vista)
      */
     public function exportarDatos($formato = 'json')
     {
-        $practicasPreprofesionales = $this->obtenerPracticasPreprofesionales();
-        $serviciosComunitarios = $this->obtenerServiciosComunitarios();
-        $estadisticas = $this->obtenerEstadisticas();
+        $filtros = [
+            'tipo_practica' => $this->request->getGet('tipo_practica'),
+            'estado' => $this->request->getGet('estado'),
+            'institucion' => $this->request->getGet('institucion'),
+            'fecha_inicio' => $this->request->getGet('fecha_inicio'),
+            'fecha_fin' => $this->request->getGet('fecha_fin'),
+            'carrera' => $this->request->getGet('carrera')
+        ];
+
+        $practicasPreprofesionales = [];
+        $serviciosComunitarios = [];
+        if ($filtros['tipo_practica'] === 'servicio') {
+            $serviciosComunitarios = $this->obtenerServiciosComunitariosFiltrados($filtros);
+        } elseif ($filtros['tipo_practica'] === 'preprofesional') {
+            $practicasPreprofesionales = $this->obtenerPracticasPreprofesionalesFiltradas($filtros);
+        } else {
+            $practicasPreprofesionales = $this->obtenerPracticasPreprofesionalesFiltradas($filtros);
+            $serviciosComunitarios = $this->obtenerServiciosComunitariosFiltrados($filtros);
+        }
+
+        $estadisticas = $this->obtenerEstadisticasDesdeResultados($practicasPreprofesionales, $serviciosComunitarios);
 
         $datos = [
             'estadisticas' => $estadisticas,
@@ -883,7 +964,7 @@ class PracticasAdminController extends BaseController
     }
 
     /**
-     * Vista de reportes de prácticas
+     * Vista de reportes de prácticas (todo conectado a BD con filtros)
      */
     public function reportes()
     {
@@ -897,21 +978,59 @@ class PracticasAdminController extends BaseController
             'carrera' => $this->request->getGet('carrera')
         ];
 
-        // Obtener datos filtrados
-        $practicasPreprofesionales = $this->obtenerPracticasPreprofesionalesFiltradas($filtros);
-        $serviciosComunitarios = $this->obtenerServiciosComunitariosFiltrados($filtros);
-        $estadisticas = $this->obtenerEstadisticas();
+        $practicasPreprofesionales = [];
+        $serviciosComunitarios = [];
+
+        if ($filtros['tipo_practica'] === 'servicio') {
+            $serviciosComunitarios = $this->obtenerServiciosComunitariosFiltrados($filtros);
+        } elseif ($filtros['tipo_practica'] === 'preprofesional') {
+            $practicasPreprofesionales = $this->obtenerPracticasPreprofesionalesFiltradas($filtros);
+        } else {
+            $practicasPreprofesionales = $this->obtenerPracticasPreprofesionalesFiltradas($filtros);
+            $serviciosComunitarios = $this->obtenerServiciosComunitariosFiltrados($filtros);
+        }
+
+        $estadisticas = $this->obtenerEstadisticasDesdeResultados($practicasPreprofesionales, $serviciosComunitarios);
         $instituciones = $this->institucionesModel->getInstitucionesConTipo();
+        $carreras = $this->carrerasModel->orderBy('NOMBRE')->findAll();
 
         $data = [
             'practicasPreprofesionales' => $practicasPreprofesionales,
             'serviciosComunitarios' => $serviciosComunitarios,
             'estadisticas' => $estadisticas,
             'instituciones' => $instituciones,
+            'carreras' => $carreras,
             'filtros' => $filtros
         ];
 
         return view('admin/practicas/reportes', $data);
+    }
+
+    /**
+     * Calcular estadísticas a partir de los resultados ya filtrados
+     */
+    private function obtenerEstadisticasDesdeResultados(array $practicasPreprofesionales, array $serviciosComunitarios)
+    {
+        $activas = 0;
+        $finalizadas = 0;
+        $pendientes = 0;
+        foreach ($practicasPreprofesionales as $p) {
+            if (($p['ESTADO_PRACTICA'] ?? '') === 'En Progreso') $activas++;
+            elseif (($p['ESTADO_PRACTICA'] ?? '') === 'Completada') $finalizadas++;
+            else $pendientes++;
+        }
+        foreach ($serviciosComunitarios as $s) {
+            if (($s['ESTADO_SERVICIO'] ?? '') === 'En Progreso') $activas++;
+            elseif (($s['ESTADO_SERVICIO'] ?? '') === 'Completado') $finalizadas++;
+            else $pendientes++;
+        }
+        $total = count($practicasPreprofesionales) + count($serviciosComunitarios);
+        return [
+            'totalPracticas' => $total,
+            'practicasActivas' => $activas,
+            'practicasFinalizadas' => $finalizadas,
+            'practicasPendientes' => $pendientes
+        ];
     }
 
     /**
@@ -932,7 +1051,7 @@ class PracticasAdminController extends BaseController
                 CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as ESTUDIANTE_NOMBRE,
                 c.NOMBRE as CARRERA_NOMBRE,
                 ic.NOMBRE as INSTITUCION_NOMBRE,
-                ti.TIPO_INSTITUCION
+                ti.INSTITUCION as TIPO_INSTITUCION
             ')
             ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = pp.ID_ESTUDIANTE')
             ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
@@ -959,7 +1078,12 @@ class PracticasAdminController extends BaseController
         }
 
         if (!empty($filtros['carrera'])) {
-            $builder->like('c.NOMBRE', $filtros['carrera']);
+            $idCarrera = (int) $filtros['carrera'];
+            if ($idCarrera > 0) {
+                $builder->where('e.ID_CARRERA', $idCarrera);
+            } else {
+                $builder->like('c.NOMBRE', $filtros['carrera']);
+            }
         }
 
         return $builder->get()->getResultArray();
@@ -983,7 +1107,7 @@ class PracticasAdminController extends BaseController
                 CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as ESTUDIANTE_NOMBRE,
                 c.NOMBRE as CARRERA_NOMBRE,
                 ic.NOMBRE as INSTITUCION_NOMBRE,
-                ti.TIPO_INSTITUCION
+                ti.INSTITUCION as TIPO_INSTITUCION
             ')
             ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE')
             ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
@@ -1010,7 +1134,12 @@ class PracticasAdminController extends BaseController
         }
 
         if (!empty($filtros['carrera'])) {
-            $builder->like('c.NOMBRE', $filtros['carrera']);
+            $idCarrera = (int) $filtros['carrera'];
+            if ($idCarrera > 0) {
+                $builder->where('e.ID_CARRERA', $idCarrera);
+            } else {
+                $builder->like('c.NOMBRE', $filtros['carrera']);
+            }
         }
 
         return $builder->get()->getResultArray();

@@ -63,6 +63,9 @@ $routes->group('admin', ['namespace' => 'App\Controllers\admin'], function ($rou
     $routes->get('convenios', 'ConveniosAdminController::index');        // Ver la sección de convenios
     $routes->post('convenios/store', 'ConveniosAdminController::store'); // Guardar nuevo convenio
     $routes->post('convenios/storeInstitucion', 'ConveniosAdminController::storeInstitucion'); // Guardar nueva institución
+    $routes->post('convenios/actualizarPlazas/(:num)', 'ConveniosAdminController::actualizarPlazas/$1'); // Actualizar plazas disponibles
+    $routes->get('convenios/getConvenio/(:num)', 'ConveniosAdminController::getConvenio/$1'); // Obtener un convenio (edición)
+    $routes->post('convenios/update/(:num)', 'ConveniosAdminController::update/$1'); // Actualizar convenio
     $routes->get('convenios/getInstituciones', 'ConveniosAdminController::getInstituciones'); // Obtener instituciones
     $routes->get('convenios/getConvenios', 'ConveniosAdminController::getConvenios'); // Obtener convenios
     $routes->get('convenios/generarReporte', 'ConveniosAdminController::generarReporte'); // Generar reporte
@@ -72,6 +75,8 @@ $routes->group('admin', ['namespace' => 'App\Controllers\admin'], function ($rou
     //Rutas para la gestión de prácticas
     $routes->get('practicas', 'PracticasAdminController::index');                     // Ver la lista de prácticas
     $routes->get('practicas/getDatosModal', 'PracticasAdminController::getDatosModal'); // Obtener datos para modal
+    $routes->get('practicas/buscarEstudiantes', 'PracticasAdminController::buscarEstudiantes'); // Buscar estudiantes por nombre
+    $routes->get('practicas/institucionesPorCarrera', 'PracticasAdminController::getInstitucionesPorCarrera'); // Instituciones con convenio por carrera
     $routes->post('practicas/crear', 'PracticasAdminController::crearPractica');      // Crear nueva práctica
     $routes->get('practicas/detalle/(:num)/(:alpha)', 'PracticasAdminController::getDetallePractica/$1/$2'); // Obtener detalle
     $routes->post('practicas/registrar-asistencia', 'PracticasAdminController::registrarAsistencia'); // Registrar asistencia
@@ -166,6 +171,7 @@ $routes->group('admin', ['namespace' => 'App\Controllers\admin'], function ($rou
     $routes->get('backup', 'BackupAdminController::index');                         // Ver lista de backups
     $routes->post('backup/crear', 'BackupAdminController::crear');                  // Crear nuevo backup
     $routes->get('backup/detalle/(:num)', 'BackupAdminController::detalle/$1');     // Ver detalles de backup
+    $routes->get('backup/logs/(:num)', 'BackupAdminController::logs/$1');           // Ver logs de un backup
     $routes->post('backup/descargar/(:num)', 'BackupAdminController::descargar/$1'); // Descargar backup
     $routes->delete('backup/eliminar/(:num)', 'BackupAdminController::eliminar/$1'); // Eliminar backup
     $routes->post('backup/restaurar/(:num)', 'BackupAdminController::restaurar/$1'); // Restaurar desde backup
@@ -273,6 +279,7 @@ $routes->group('estudiante', ['namespace' => 'App\Controllers\estudiante'], func
     $routes->get('practicas/servicio-comunitario', 'PracticasEstudianteController::servicioComunitario'); // Prácticas de servicio comunitario
     $routes->get('practicas/detalle/(:num)/(:alpha)', 'PracticasEstudianteController::detalle/$1/$2'); // Detalle de práctica
     $routes->post('practicas/registrar-actividad', 'PracticasEstudianteController::registrarActividad'); // Registrar actividad
+    $routes->post('practicas/registrar-asistencia', 'PracticasEstudianteController::registrarAsistencia'); // Registrar asistencia (estudiante)
     $routes->post('practicas/subir-documento', 'PracticasEstudianteController::subirDocumento'); // Subir documento
     $routes->get('practicas/actividades/(:num)/(:alpha)', 'PracticasEstudianteController::obtenerActividades/$1/$2'); // Obtener actividades
     

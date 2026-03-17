@@ -290,23 +290,14 @@ $estadisticas = [
         </div>
 
         <!-- Acciones Rápidas en Tarjetas -->
-        <div class="row mb-4">
+        <div class="row mb-4 justify-content-center">
             <div class="col-md-3 col-sm-6 mb-3">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="showModal('modalNuevoBackup'); return false;" style="text-decoration: none; color: inherit;">
                             <i class="fas fa-plus-circle fa-2x mb-2" style="color: #28a745; text-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);"></i>
                             <div class="fw-bold">Generar Backup</div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm h-100" style="border: none;">
-                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="#" onclick="showModal('modalConfiguracion'); return false;" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-cog fa-2x mb-2" style="color: #007bff; text-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);"></i>
-                            <div class="fw-bold">Configuración</div>
+                            <small class="text-muted">y configuración</small>
                         </a>
                     </div>
                 </div>
@@ -342,9 +333,6 @@ $estadisticas = [
                             <i class="fas fa-history me-2"></i>
                             Historial de Backups
                         </span>
-                        <button class="btn btn-light btn-sm" onclick="showModal('modalFiltros')">
-                            <i class="fas fa-filter me-1"></i>Filtros
-                        </button>
                     </div>
                     <div class="card-body p-0">
                         <?php if (isset($exportaciones) && !empty($exportaciones)): ?>
@@ -530,18 +518,30 @@ $estadisticas = [
                         <div id="descripcion_help" class="form-text">Proporciona una descripción clara del propósito de este backup</div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <div class="mb-3">
-                                <label for="fecha_programada" class="form-label">Fecha Programada</label>
-                                <input type="datetime-local"
+                                <label for="fecha_programada" class="form-label">Fecha programada</label>
+                                <input type="date"
                                     class="form-control"
                                     name="fecha_programada"
                                     id="fecha_programada"
                                     aria-describedby="fecha_programada_help">
-                                <div id="fecha_programada_help" class="form-text">Deja vacío para ejecutar inmediatamente</div>
+                                <div id="fecha_programada_help" class="form-text">Día en que se ejecutará</div>
                             </div>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-4">
+                            <div class="mb-3">
+                                <label for="hora_programada" class="form-label">Hora programada</label>
+                                <input type="time"
+                                    class="form-control"
+                                    name="hora_programada"
+                                    id="hora_programada"
+                                    value="00:00"
+                                    aria-describedby="hora_programada_help">
+                                <div id="hora_programada_help" class="form-text">Hora exacta de ejecución</div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
                             <div class="mb-3">
                                 <label for="retencion" class="form-label">Retención (días)</label>
                                 <input type="number"
@@ -558,32 +558,14 @@ $estadisticas = [
                     </div>
                     <div class="alert alert-info" role="alert">
                         <i class="fas fa-info-circle me-2" aria-hidden="true"></i>
-                        <strong>Nota:</strong> El backup se ejecutará inmediatamente o en la fecha programada según tu selección.
+                        <strong>Nota:</strong> Deja fecha y hora vacías para ejecutar inmediatamente. Si defines fecha y hora, el backup se programará para ese momento.
                     </div>
                 </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="generarBackup()" aria-label="Generar backup">
-                    <i class="fas fa-play me-1"></i>Generar Backup
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Modal Configuración -->
-<div class="modal fade" id="modalConfiguracion" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title"><i class="fas fa-cog me-2"></i>Configuración de Backups</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
+                <hr class="my-4">
+                <h6 class="mb-3"><i class="fas fa-cog me-2"></i>Configuración</h6>
                 <div class="row">
                     <div class="col-md-6">
-                        <h6 class="mb-3">Configuración General</h6>
                         <div class="mb-3">
                             <label class="form-label">Backup Automático</label>
                             <div class="form-check form-switch">
@@ -593,7 +575,7 @@ $estadisticas = [
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Frecuencia</label>
-                            <select class="form-select">
+                            <select class="form-select" id="frecuenciaBackup">
                                 <option>Diario</option>
                                 <option>Semanal</option>
                                 <option>Mensual</option>
@@ -601,7 +583,6 @@ $estadisticas = [
                         </div>
                     </div>
                     <div class="col-md-6">
-                        <h6 class="mb-3">Almacenamiento</h6>
                         <div class="mb-3">
                             <label for="ubicacion_backup" class="form-label">Ubicación Local</label>
                             <div class="input-group">
@@ -610,7 +591,7 @@ $estadisticas = [
                                     id="ubicacion_backup"
                                     name="ubicacion_backup"
                                     value="/backups/"
-                                    placeholder="Selecciona la carpeta para backups"
+                                    placeholder="Carpeta para backups"
                                     onchange="validarCarpeta()">
                                 <button class="btn btn-outline-secondary"
                                     type="button"
@@ -636,9 +617,12 @@ $estadisticas = [
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-warning" onclick="guardarConfiguracion()">
-                    <i class="fas fa-save me-1"></i>Guardar Cambios
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-outline-primary" onclick="guardarConfiguracion()">
+                    <i class="fas fa-save me-1"></i>Guardar configuración
+                </button>
+                <button type="button" class="btn btn-primary" onclick="generarBackup()" aria-label="Generar backup">
+                    <i class="fas fa-play me-1"></i>Generar Backup
                 </button>
             </div>
         </div>
@@ -736,6 +720,24 @@ $estadisticas = [
                 <button type="button" class="btn btn-primary">
                     <i class="fas fa-edit me-1"></i>Editar Backup
                 </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Logs del Backup -->
+<div class="modal fade" id="modalLogsBackup" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-file-alt me-2"></i>Log del backup <span id="logsBackupIdTitle">#0</span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body p-0">
+                <pre id="logBackupContent" class="bg-dark text-light p-4 mb-0 small" style="max-height: 70vh; overflow: auto; white-space: pre-wrap; word-break: break-word;">Cargando...</pre>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
             </div>
         </div>
     </div>
@@ -992,7 +994,7 @@ $estadisticas = [
         setTimeout(() => {
             console.log('Configuración a guardar:', configuracion);
             showNotification('Configuración guardada exitosamente', 'success');
-            hideModal('modalConfiguracion');
+            hideModal('modalNuevoBackup');
         }, 1500);
     };
 
@@ -1062,8 +1064,25 @@ $estadisticas = [
     };
 
     window.verLogs = function(id) {
-        console.log('verLogs called with id:', id);
-        showNotification(`Mostrando logs del backup ${id}...`, 'info');
+        const logContent = document.getElementById('logBackupContent');
+        const logsTitle = document.getElementById('logsBackupIdTitle');
+        if (logsTitle) logsTitle.textContent = '#' + id;
+        if (logContent) logContent.textContent = 'Cargando...';
+        showModal('modalLogsBackup');
+        const url = '<?= base_url('admin/backup/logs/') ?>' + id;
+        fetch(url)
+            .then(function(r) { return r.json(); })
+            .then(function(res) {
+                if (res.success && res.data && res.data.log) {
+                    logContent.textContent = res.data.log;
+                } else {
+                    logContent.textContent = res.message || 'No se pudieron cargar los logs.';
+                }
+            })
+            .catch(function() {
+                if (logContent) logContent.textContent = 'Error de conexión al cargar los logs.';
+                showNotification('Error al cargar los logs', 'error');
+            });
     };
 
     // Variable global para el ID del backup actual
@@ -1162,12 +1181,17 @@ $estadisticas = [
                 return;
             }
 
+            // Combinar fecha y hora programadas en un solo valor (YYYY-MM-DDTHH:mm)
+            const fechaProg = formData.get('fecha_programada');
+            const horaProg = formData.get('hora_programada');
+            const fechaProgramada = (fechaProg && horaProg) ? (fechaProg + 'T' + horaProg) : (fechaProg || '');
+
             // Convertir FormData a JSON
             const data = {
                 descripcion: descripcion,
                 tipo_backup: tipoBackup,
                 prioridad: prioridad,
-                fecha_programada: formData.get('fecha_programada'),
+                fecha_programada: fechaProgramada,
                 retencion: formData.get('retencion')
             };
 
@@ -1228,10 +1252,6 @@ $estadisticas = [
         }
     };
 
-
-
-
-
     // Verificar que las funciones estén disponibles inmediatamente
     console.log('=== VERIFICACIÓN INMEDIATA ===');
     console.log('showModal disponible:', typeof window.showModal);
@@ -1273,17 +1293,22 @@ $estadisticas = [
                 enhanceActionCards();
                 console.log('✅ Tarjetas de acción mejoradas para accesibilidad');
 
-                // Set default date for new backup
+                // Set default date and time for new backup
                 const fechaInput = document.querySelector('input[name="fecha_programada"]');
+                const horaInput = document.querySelector('input[name="hora_programada"]');
                 if (fechaInput) {
                     const now = new Date();
-                    now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-                    fechaInput.value = now.toISOString().slice(0, 16);
+                    fechaInput.value = now.toISOString().slice(0, 10);
                     console.log('✅ Fecha por defecto establecida');
+                }
+                if (horaInput) {
+                    const now = new Date();
+                    horaInput.value = now.toTimeString().slice(0, 5);
+                    console.log('✅ Hora por defecto establecida');
                 }
 
                 // Verificar que los modales existan y mejorar su accesibilidad
-                const modales = ['modalNuevoBackup', 'modalConfiguracion', 'modalDetalleBackup', 'modalFiltros'];
+                const modales = ['modalNuevoBackup', 'modalDetalleBackup', 'modalLogsBackup', 'modalFiltros'];
                 modales.forEach(function(modalId) {
                     const modal = document.getElementById(modalId);
                     if (modal) {
@@ -1351,9 +1376,6 @@ $estadisticas = [
         };
 
         console.log('Funciones de prueba disponibles: testModal() y testNotification()');
-
-        // Mostrar notificación de bienvenida
-        showNotification('Sistema de backup cargado correctamente', 'success', 3000);
     }, 100);
 </script>
 <?= $this->endSection() ?>

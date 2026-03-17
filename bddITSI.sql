@@ -137,6 +137,7 @@ create table TAB_DETALLES_CONVENIOS
    ID_DETALLE_CONVENIO  int not null auto_increment,
    ID_TIPO_CONVENIO     int,
    ID_INSTITUCION_CONVENIO int,
+   ID_CARRERA           int not null,
    FECHA_INICIO         date not null,
    FECHA_FIN            date not null,
    DURACION             varchar(20) not null,
@@ -144,6 +145,7 @@ create table TAB_DETALLES_CONVENIOS
    OBSERVACIONES        text not null,
    ARCHIVO_CONVENIO     varchar(255) not null,
    RENOVABLE            boolean not null,
+   PLAZAS_DISPONIBLES   int default 0,
    primary key (ID_DETALLE_CONVENIO)
 );
 
@@ -850,6 +852,9 @@ alter table TAB_DETALLES_CONVENIOS add constraint FK_REFERENCE_34 foreign key (I
 
 alter table TAB_DETALLES_CONVENIOS add constraint FK_REFERENCE_35 foreign key (ID_INSTITUCION_CONVENIO)
       references TAB_INSTITUCIONES_CONVENIOS (ID_INSTITUCION_CONVENIO) on delete restrict on update restrict;
+
+alter table TAB_DETALLES_CONVENIOS add constraint FK_DETALLES_CONVENIOS_CARRERA foreign key (ID_CARRERA)
+      references TAB_CARRERAS (ID_CARRERA) on delete restrict on update restrict;
 
 alter table TAB_EMPLEADOS add constraint FK_REFERENCE_19 foreign key (ID_DATO_PERSONA)
       references TAB_DATOS_PERSONAS (ID_DATO_PERSONA) on delete restrict on update restrict;
@@ -2584,3 +2589,29 @@ CREATE TABLE IF NOT EXISTS `TAB_NOTIFICACIONES` (
 CREATE INDEX `idx_notificaciones_usuario_tipo` ON `TAB_NOTIFICACIONES` (`ID_USUARIO_DESTINATARIO`, `TIPO_NOTIFICACION`, `ACTIVA`);
 CREATE INDEX `idx_notificaciones_usuario_leida` ON `TAB_NOTIFICACIONES` (`ID_USUARIO_DESTINATARIO`, `LEIDA`, `ACTIVA`);
 CREATE INDEX `idx_notificaciones_fecha_tipo` ON `TAB_NOTIFICACIONES` (`FECHA_CREACION`, `TIPO_NOTIFICACION`, `ACTIVA`);
+
+/*==============================================================*/
+/* MIGRACIONES - Scripts para bases de datos existentes         */
+/* Ejecutar solo si la base ya estaba creada antes del cambio   */
+/*==============================================================*/
+
+-- ---------------------------------------------------------------
+-- Convenios: agregar columna ID_CARRERA a TAB_DETALLES_CONVENIOS
+-- (convenio destinado a una carrera). Ejecutar solo si la tabla
+-- ya existe y no tiene la columna ID_CARRERA.
+-- ---------------------------------------------------------------
+-- ALTER TABLE TAB_DETALLES_CONVENIOS
+-- ADD COLUMN ID_CARRERA INT NULL AFTER ID_INSTITUCION_CONVENIO;
+
+-- Opcional: asignar una carrera por defecto a convenios existentes (reemplazar 1 por un ID_CARRERA válido de TAB_CARRERAS).
+-- UPDATE TAB_DETALLES_CONVENIOS SET ID_CARRERA = 1 WHERE ID_CARRERA IS NULL;
+
+-- Hacer obligatoria la columna para nuevos registros (descomentar si ya no hay NULL):
+-- ALTER TABLE TAB_DETALLES_CONVENIOS MODIFY COLUMN ID_CARRERA INT NOT NULL;
+
+-- ALTER TABLE TAB_DETALLES_CONVENIOS
+-- ADD CONSTRAINT FK_DETALLES_CONVENIOS_CARRERA
+-- FOREIGN KEY (ID_CARRERA) REFERENCES TAB_CARRERAS (ID_CARRERA) ON DELETE RESTRICT ON UPDATE RESTRICT;
+
+-- Convenios: agregar plazas disponibles para prácticas (estudiantes por convenio).
+-- ALTER TABLE TAB_DETALLES_CONVENIOS ADD COLUMN PLAZAS_DISPONIBLES INT NOT NULL DEFAULT 0 AFTER RENOVABLE;

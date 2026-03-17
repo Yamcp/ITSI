@@ -9,10 +9,37 @@ $estadisticas = $estadisticas ?? [
 $practicasPreprofesionales = $practicasPreprofesionales ?? [];
 $serviciosComunitarios = $serviciosComunitarios ?? [];
 $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
+$carreras = $carreras ?? [];
 ?>
 <?= $this->section('styles') ?>
-<!-- CSS personalizado para prácticas -->
-<link rel="stylesheet" href="<?= base_url('sistema/assets/css/practicas.css') ?>" />
+<!-- CSS personalizado para prácticas y pestañas -->
+<style>
+    /* Pestañas: inactivas legibles, activa destacada */
+    #practicasTabs.nav-tabs {
+        border: none;
+        gap: 0.5rem;
+    }
+    #practicasTabs .nav-link {
+        border: none;
+        color: #495057 !important;
+        background-color: #e9ecef;
+        padding: 0.6rem 1.1rem;
+        border-radius: 2rem;
+        font-weight: 600;
+        transition: background-color 0.2s, color 0.2s;
+    }
+    #practicasTabs .nav-link:hover {
+        background-color: #dee2e6;
+        color: #212529 !important;
+    }
+    #practicasTabs .nav-link.active {
+        background-color: #0d6efd !important;
+        color: #fff !important;
+    }
+    #practicasTabs .nav-link i {
+        opacity: 0.95;
+    }
+</style>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
@@ -65,23 +92,13 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
         </div>
 
         <!-- Acciones Rápidas en Tarjetas Separadas -->
-        <div class="row mb-4">
+        <div class="row mb-4 justify-content-center">
             <div class="col-md-3 col-sm-6 mb-3">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="showModal('modalNuevaPractica')" style="text-decoration: none; color: inherit;">
                             <i class="fas fa-plus-circle fa-2x mb-2" style="color: #28a745; text-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);"></i>
                             <div class="fw-bold">Nueva Práctica</div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm h-100" style="border: none;">
-                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="#" onclick="showModal('modalAsignarEstudiante')" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-user-plus fa-2x mb-2" style="color: #007bff; text-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);"></i>
-                            <div class="fw-bold">Asignar Estudiante</div>
                         </a>
                     </div>
                 </div>
@@ -106,6 +123,32 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
                     </div>
                 </div>
             </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card text-center shadow-sm h-100" style="border: none;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                        <a href="#" onclick="showModal('modalFiltros')" style="text-decoration: none; color: inherit;">
+                            <i class="fas fa-filter fa-2x mb-2" style="color: #0dcaf0; text-shadow: 0 2px 4px rgba(13, 202, 240, 0.3);"></i>
+                            <div class="fw-bold">Filtros</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Buscador por estudiante (espacio entre acciones y pestañas) -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-body py-3">
+                        <label class="form-label small text-muted mb-2">Buscar estudiante</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light"><i class="fas fa-search text-muted"></i></span>
+                            <input type="text" class="form-control" id="busquedaEstudiante" placeholder="Nombre o número de cédula..." autocomplete="off">
+                            <button class="btn btn-outline-secondary" type="button" id="btnLimpiarBusqueda" title="Limpiar"><i class="fas fa-times"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Tabs Navigation -->
@@ -113,21 +156,21 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
             <div class="col-12">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body pb-0">
-                        <ul class="nav nav-tabs nav-justified rounded-pill bg-light px-2 py-1" id="practicasTabs" role="tablist" style="gap: 0.5rem;">
+                        <ul class="nav nav-tabs nav-justified px-2 py-2 bg-light rounded-3" id="practicasTabs" role="tablist">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active rounded-pill fw-semibold text-primary" id="preprofesionales-tab" data-bs-toggle="tab" data-bs-target="#preprofesionales" type="button" role="tab" aria-selected="true" style="transition: background 0.2s;">
+                                <button class="nav-link active" id="preprofesionales-tab" data-bs-toggle="tab" data-bs-target="#preprofesionales" type="button" role="tab" aria-selected="true">
                                     <i class="fas fa-building me-2"></i>
                                     Prácticas Preprofesionales
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-pill fw-semibold text-success" id="servicio-tab" data-bs-toggle="tab" data-bs-target="#servicio" type="button" role="tab" aria-selected="false" style="transition: background 0.2s;">
+                                <button class="nav-link" id="servicio-tab" data-bs-toggle="tab" data-bs-target="#servicio" type="button" role="tab" aria-selected="false">
                                     <i class="fas fa-heart me-2"></i>
                                     Servicio Comunitario
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-pill fw-semibold text-info" id="seguimiento-tab" data-bs-toggle="tab" data-bs-target="#seguimiento" type="button" role="tab" aria-selected="false" style="transition: background 0.2s;">
+                                <button class="nav-link" id="seguimiento-tab" data-bs-toggle="tab" data-bs-target="#seguimiento" type="button" role="tab" aria-selected="false">
                                     <i class="fas fa-chart-line me-2"></i>
                                     Seguimiento
                                 </button>
@@ -141,15 +184,6 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
                             <!-- Prácticas Preprofesionales -->
                             <div class="tab-pane fade show active" id="preprofesionales" role="tabpanel">
                                 <div class="card shadow-sm border-0">
-                                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                                        <span>
-                                            <i class="fas fa-building me-2"></i>
-                                            Prácticas Preprofesionales
-                                        </span>
-                                        <button class="btn btn-light btn-sm" onclick="showModal('modalFiltros')">
-                                            <i class="fas fa-filter me-1"></i>Filtros
-                                        </button>
-                                    </div>
                                     <div class="card-body p-0">
                                         <div class="table-responsive">
                                             <table class="table table-striped align-middle mb-0">
@@ -168,13 +202,14 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
                                                 <tbody id="tablaPreprofesionales">
                                                     <?php if (!empty($practicasPreprofesionales)): ?>
                                                         <?php foreach ($practicasPreprofesionales as $index => $practica): ?>
-                                                            <tr>
+                                                            <tr class="fila-busqueda" data-estudiante-nombre="<?= esc(strtolower($practica['ESTUDIANTE_NOMBRE'] ?? '')) ?>" data-estudiante-cedula="<?= esc(preg_replace('/\s+/', '', $practica['ESTUDIANTE_CEDULA'] ?? '')) ?>">
                                                                 <td><?= str_pad($practica['ID_PRACTICA_PREPROFESIONAL'], 3, '0', STR_PAD_LEFT) ?></td>
                                                                 <td>
                                                                     <div class="d-flex align-items-center">
                                                                         <img src="https://ui-avatars.com/api/?name=<?= urlencode($practica['ESTUDIANTE_NOMBRE']) ?>&background=0d6efd&color=fff&size=32" class="rounded-circle me-2" alt="<?= substr($practica['ESTUDIANTE_NOMBRE'], 0, 2) ?>">
                                                                         <div>
-                                                                            <div class="fw-semibold"><?= $practica['ESTUDIANTE_NOMBRE'] ?></div>
+                                                                            <?php $idEst = (int) ($practica['ID_ESTUDIANTE'] ?? 0); ?>
+                                                                            <div class="fw-semibold"><?php if ($idEst): ?><a href="<?= base_url('admin/documentos/practicas?estudiante=' . $idEst) ?>" class="text-decoration-none"><?= esc($practica['ESTUDIANTE_NOMBRE']) ?></a><?php else: ?><?= esc($practica['ESTUDIANTE_NOMBRE']) ?><?php endif; ?></div>
                                                                             <small class="text-muted"><?= $practica['CARRERA_NOMBRE'] ?></small>
                                                                         </div>
                                                                     </div>
@@ -223,9 +258,6 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
                                                                         <button class="btn btn-outline-warning" onclick="editarPractica(<?= $practica['ID_PRACTICA_PREPROFESIONAL'] ?>)" title="Editar">
                                                                             <i class="fas fa-edit"></i>
                                                                         </button>
-                                                                        <button class="btn btn-outline-info" onclick="registrarAsistencia(<?= $practica['ID_PRACTICA_PREPROFESIONAL'] ?>, 'preprofesional')" title="Asistencia">
-                                                                            <i class="fas fa-clock"></i>
-                                                                        </button>
                                                                     </div>
                                                                 </td>
                                                             </tr>
@@ -248,15 +280,6 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
                             <!-- Servicio Comunitario -->
                             <div class="tab-pane fade" id="servicio" role="tabpanel">
                                 <div class="card shadow-sm border-0">
-                                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                                        <span>
-                                            <i class="fas fa-heart me-2"></i>
-                                            Prácticas de Servicio Comunitario
-                                        </span>
-                                        <button class="btn btn-light btn-sm" onclick="showModal('modalFiltros')">
-                                            <i class="fas fa-filter me-1"></i>Filtros
-                                        </button>
-                                    </div>
                                     <div class="card-body p-0">
                                         <div class="table-responsive">
                                             <table class="table table-striped align-middle mb-0">
@@ -264,7 +287,7 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
                                                     <tr>
                                                         <th>#</th>
                                                         <th>Estudiante</th>
-                                                        <th>Comunidad/Organización</th>
+                                                        <th>Institución</th>
                                                         <th>Período</th>
                                                         <th>Horas</th>
                                                         <th>Estado</th>
@@ -275,13 +298,14 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
                                                 <tbody id="tablaServicio">
                                                     <?php if (!empty($serviciosComunitarios)): ?>
                                                         <?php foreach ($serviciosComunitarios as $index => $servicio): ?>
-                                                            <tr>
-                                                                <td>SC<?= str_pad($servicio['ID_SERVICIO_COMUNITARIO'], 3, '0', STR_PAD_LEFT) ?></td>
+                                                            <tr class="fila-busqueda" data-estudiante-nombre="<?= esc(strtolower($servicio['ESTUDIANTE_NOMBRE'] ?? '')) ?>" data-estudiante-cedula="<?= esc(preg_replace('/\s+/', '', $servicio['ESTUDIANTE_CEDULA'] ?? '')) ?>">
+                                                                <td><?= str_pad($servicio['ID_SERVICIO_COMUNITARIO'], 3, '0', STR_PAD_LEFT) ?></td>
                                                                 <td>
                                                                     <div class="d-flex align-items-center">
-                                                                        <img src="https://ui-avatars.com/api/?name=<?= urlencode($servicio['ESTUDIANTE_NOMBRE']) ?>&background=198754&color=fff&size=32" class="rounded-circle me-2" alt="<?= substr($servicio['ESTUDIANTE_NOMBRE'], 0, 2) ?>">
+                                                                        <img src="https://ui-avatars.com/api/?name=<?= urlencode($servicio['ESTUDIANTE_NOMBRE']) ?>&background=0d6efd&color=fff&size=32" class="rounded-circle me-2" alt="<?= substr($servicio['ESTUDIANTE_NOMBRE'], 0, 2) ?>">
                                                                         <div>
-                                                                            <div class="fw-semibold"><?= $servicio['ESTUDIANTE_NOMBRE'] ?></div>
+                                                                            <?php $idEstSc = (int) ($servicio['ID_ESTUDIANTE'] ?? 0); ?>
+                                                                            <div class="fw-semibold"><?php if ($idEstSc): ?><a href="<?= base_url('admin/documentos/servicio?estudiante=' . $idEstSc) ?>" class="text-decoration-none"><?= esc($servicio['ESTUDIANTE_NOMBRE']) ?></a><?php else: ?><?= esc($servicio['ESTUDIANTE_NOMBRE']) ?><?php endif; ?></div>
                                                                             <small class="text-muted"><?= $servicio['CARRERA_NOMBRE'] ?></small>
                                                                         </div>
                                                                     </div>
@@ -295,7 +319,7 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
                                                                     <small class="text-muted"><?= $servicio['HORAS_SERVICIO'] ?>h</small>
                                                                 </td>
                                                                 <td>
-                                                                    <span class="badge bg-info text-dark"><?= $servicio['HORAS_SERVICIO'] ?>h</span>
+                                                                    <span class="badge bg-info"><?= $servicio['HORAS_SERVICIO'] ?>h</span>
                                                                 </td>
                                                                 <td>
                                                                     <?php
@@ -330,9 +354,6 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
                                                                         <button class="btn btn-outline-warning" onclick="editarPractica(<?= $servicio['ID_SERVICIO_COMUNITARIO'] ?>)" title="Editar">
                                                                             <i class="fas fa-edit"></i>
                                                                         </button>
-                                                                        <button class="btn btn-outline-info" onclick="registrarAsistencia(<?= $servicio['ID_SERVICIO_COMUNITARIO'] ?>, 'servicio')" title="Asistencia">
-                                                                            <i class="fas fa-clock"></i>
-                                                                        </button>
                                                                     </div>
                                                                 </td>
                                                             </tr>
@@ -355,103 +376,44 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
                             <!-- Seguimiento -->
                             <div class="tab-pane fade" id="seguimiento" role="tabpanel">
                                 <div class="card shadow-sm border-0">
-                                    <div class="card-header bg-info text-white">
-                                        <i class="fas fa-chart-line me-2"></i>
-                                        Seguimiento de Prácticas
-                                    </div>
-                                    <div class="card-body p-0">
-                                        <div class="row g-0">
-                                            <div class="col-md-8 border-end">
-                                                <div class="table-responsive">
-                                                    <table class="table table-striped align-middle mb-0">
-                                                        <thead class="table-light">
-                                                            <tr>
-                                                                <th>Estudiante</th>
-                                                                <th>Tipo</th>
-                                                                <th>Horas Cumplidas</th>
-                                                                <th>Última Actividad</th>
-                                                                <th>Estado</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <?php if (!empty($seguimiento['actividadesRecientes'])): ?>
-                                                                <?php foreach ($seguimiento['actividadesRecientes'] as $actividad): ?>
-                                                                    <tr>
-                                                                        <td>
-                                                                            <div class="d-flex align-items-center">
-                                                                                <img src="https://ui-avatars.com/api/?name=<?= urlencode($actividad['ESTUDIANTE_NOMBRE']) ?>&background=0d6efd&color=fff&size=32" class="rounded-circle me-2" alt="<?= substr($actividad['ESTUDIANTE_NOMBRE'], 0, 2) ?>">
-                                                                                <?= $actividad['ESTUDIANTE_NOMBRE'] ?>
-                                                                            </div>
-                                                                        </td>
-                                                                        <td><span class="badge bg-primary"><?= $actividad['TIPO_PRACTICA'] ?></span></td>
-                                                                        <td><?= $actividad['HORAS_CUMPLIDAS'] ?>/<?= $actividad['HORAS_TOTALES'] ?>h</td>
-                                                                        <td><?= tiempo_transcurrido($actividad['FECHA_REPORTE']) ?></td>
-                                                                        <td>
-                                                                            <?php
-                                                                            $estadoClass = '';
-                                                                            switch($actividad['ESTADO_PRACTICA']) {
-                                                                                case 'Completada':
-                                                                                    $estadoClass = 'bg-success text-white';
-                                                                                    break;
-                                                                                case 'En Progreso':
-                                                                                    $estadoClass = 'bg-warning text-dark';
-                                                                                    break;
-                                                                                case 'Pendiente':
-                                                                                    $estadoClass = 'bg-info text-dark';
-                                                                                    break;
-                                                                                default:
-                                                                                    $estadoClass = 'bg-secondary text-white';
-                                                                            }
-                                                                            ?>
-                                                                            <span class="badge <?= $estadoClass ?>"><?= $actividad['ESTADO_PRACTICA'] ?></span>
-                                                                        </td>
-                                                                    </tr>
-                                                                <?php endforeach; ?>
-                                                            <?php else: ?>
-                                                                <tr>
-                                                                    <td colspan="5" class="text-center text-muted py-4">
-                                                                        <i class="fas fa-inbox fa-2x mb-2"></i><br>
-                                                                        No hay actividades recientes
-                                                                    </td>
-                                                                </tr>
-                                                            <?php endif; ?>
-                                                        </tbody>
-                                                    </table>
-                                                </div>
+                                    <div class="card-body">
+                                        <?php if (!empty($seguimiento['actividadesRecientes'])): ?>
+                                            <ul class="list-group list-group-flush">
+                                                <?php foreach ($seguimiento['actividadesRecientes'] as $actividad): ?>
+                                                    <?php
+                                                    $estado = $actividad['ESTADO_PRACTICA'] ?? '';
+                                                    $esCompletada = (strtoupper($estado) === 'COMPLETADA' || $estado === 'Completada');
+                                                    $esPendiente = (strtoupper($estado) === 'PENDIENTE' || $estado === 'Pendiente');
+                                                    if ($esCompletada) {
+                                                        $dotClass = 'bg-success';
+                                                        $titulo = 'Práctica Completada';
+                                                        $descripcion = esc($actividad['ESTUDIANTE_NOMBRE']) . ' finalizó su práctica preprofesional';
+                                                    } elseif ($esPendiente) {
+                                                        $dotClass = 'bg-warning';
+                                                        $titulo = 'Documento Pendiente';
+                                                        $descripcion = esc($actividad['ESTUDIANTE_NOMBRE']) . ' debe subir informe semanal';
+                                                    } else {
+                                                        $dotClass = 'bg-info';
+                                                        $titulo = 'Nuevo Seguimiento';
+                                                        $descripcion = esc($actividad['ESTUDIANTE_NOMBRE']) . ' registró ' . (int)($actividad['HORAS_CUMPLIDAS'] ?? 0) . ' horas de práctica';
+                                                    }
+                                                    ?>
+                                                    <li class="list-group-item d-flex align-items-start border-0 px-0">
+                                                        <span class="badge rounded-pill <?= $dotClass ?> me-3 mt-1 flex-shrink-0" style="width: 12px; height: 12px;">&nbsp;</span>
+                                                        <div class="flex-grow-1">
+                                                            <div class="fw-semibold"><?= $titulo ?></div>
+                                                            <div class="text-muted small"><?= $descripcion ?></div>
+                                                            <small class="text-muted"><?= tiempo_transcurrido($actividad['FECHA_REPORTE']) ?></small>
+                                                        </div>
+                                                    </li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        <?php else: ?>
+                                            <div class="text-center text-muted py-5">
+                                                <i class="fas fa-inbox fa-2x mb-2"></i>
+                                                <p class="mb-0">No hay actividades recientes</p>
                                             </div>
-                                            <div class="col-md-4 p-3">
-                                                <h6 class="mb-3">
-                                                    <i class="fas fa-calendar-alt me-2"></i>
-                                                    Actividades Recientes
-                                                </h6>
-                                                <ul class="list-group list-group-flush">
-                                                    <li class="list-group-item d-flex align-items-start">
-                                                        <span class="badge rounded-pill bg-success me-3 mt-1" style="width: 12px; height: 12px;">&nbsp;</span>
-                                                        <div>
-                                                            <div class="fw-semibold">Práctica Completada</div>
-                                                            <div class="text-muted small">Yamilex Campues finalizó su práctica preprofesional</div>
-                                                            <small class="text-muted">Hace 2 días</small>
-                                                        </div>
-                                                    </li>
-                                                    <li class="list-group-item d-flex align-items-start">
-                                                        <span class="badge rounded-pill bg-info me-3 mt-1" style="width: 12px; height: 12px;">&nbsp;</span>
-                                                        <div>
-                                                            <div class="fw-semibold">Nuevo Seguimiento</div>
-                                                            <div class="text-muted small">Ana Yandun registró 8 horas de práctica</div>
-                                                            <small class="text-muted">Hoy</small>
-                                                        </div>
-                                                    </li>
-                                                    <li class="list-group-item d-flex align-items-start">
-                                                        <span class="badge rounded-pill bg-warning me-3 mt-1" style="width: 12px; height: 12px;">&nbsp;</span>
-                                                        <div>
-                                                            <div class="fw-semibold">Documento Pendiente</div>
-                                                            <div class="text-muted small">Pedro Aguirre debe subir informe semanal</div>
-                                                            <small class="text-muted">Hace 1 día</small>
-                                                        </div>
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </div>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>
@@ -487,15 +449,16 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Estudiante <span class="text-danger">*</span></label>
-                                <select class="form-select" name="estudiante" required>
-                                    <option value="">Seleccionar estudiante...</option>
-                                    <option value="1">Yamilex Campues - Sistemas</option>
-                                    <option value="2">Ana Yandun - Desarrollo</option>
-                                    <option value="3">Pedro Aguirre - Desarrollo</option>
-                                </select>
-                                <div class="invalid-feedback">
-                                    Por favor selecciona un estudiante.
+                                <input type="hidden" name="estudiante" id="estudiante_id" value="">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="buscar_estudiante_nombre" placeholder="Buscar por nombre..." autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();buscarEstudiantesModal();}">
+                                    <button type="button" class="btn btn-outline-primary" onclick="buscarEstudiantesModal()" title="Buscar">
+                                        <i class="fas fa-search"></i>
+                                    </button>
                                 </div>
+                                <div id="estudiante_seleccionado_display" class="mt-2 small text-success fw-semibold" style="display: none;"></div>
+                                <div id="resultados_busqueda_estudiantes" class="list-group mt-2 shadow-sm" style="max-height: 220px; overflow-y: auto; display: none;"></div>
+                                <div class="invalid-feedback" id="error_estudiante">Seleccione un estudiante: busque por nombre y elija de la lista.</div>
                             </div>
                         </div>
                     </div>
@@ -787,130 +750,6 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
     </div>
 </div>
 
-<!-- Modal Asignar Estudiante -->
-<div class="modal fade" id="modalAsignarEstudiante" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="fas fa-user-plus me-2"></i>
-                    Asignar Estudiante a Práctica
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="formAsignarEstudiante" novalidate>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Estudiante <span class="text-danger">*</span></label>
-                                <select class="form-select" name="estudiante_asignar" required>
-                                    <option value="">Seleccionar estudiante...</option>
-                                </select>
-                                <div class="invalid-feedback">
-                                    Por favor selecciona un estudiante.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Tipo de Práctica <span class="text-danger">*</span></label>
-                                <select class="form-select" name="tipo_practica_asignar" required>
-                                    <option value="">Seleccionar tipo...</option>
-                                </select>
-                                <div class="invalid-feedback">
-                                    Por favor selecciona un tipo de práctica.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Institución <span class="text-danger">*</span></label>
-                                <select class="form-select" name="institucion_asignar" required>
-                                    <option value="">Seleccionar institución...</option>
-                                </select>
-                                <div class="invalid-feedback">
-                                    Por favor selecciona una institución.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Estado <span class="text-danger">*</span></label>
-                                <select class="form-select" name="estado_asignar" required>
-                                    <option value="">Seleccionar estado...</option>
-                                </select>
-                                <div class="invalid-feedback">
-                                    Por favor selecciona un estado.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Fecha Inicio <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" name="fecha_inicio_asignar" required>
-                                <div class="invalid-feedback">
-                                    Por favor selecciona una fecha de inicio.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Fecha Fin <span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" name="fecha_fin_asignar" required>
-                                <div class="invalid-feedback">
-                                    Por favor selecciona una fecha de fin.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Horas Totales <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" name="horas_total_asignar" id="horas_total_asignar" min="1" max="1000" value="" readonly required>
-                                <div class="form-text">Preprofesionales: 240 h (una vez). Servicio comunitario: 60 h (una vez).</div>
-                                <div class="invalid-feedback">
-                                    Seleccione el tipo de práctica para asignar las horas correspondientes.
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Cronograma <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="cronograma_asignar" placeholder="Ej: Lunes a Viernes 8:00-17:00" minlength="10" maxlength="100" required>
-                                <div class="invalid-feedback">
-                                    Por favor ingresa un cronograma válido (mínimo 10 caracteres).
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Descripción <span class="text-danger">*</span></label>
-                        <textarea class="form-control" name="descripcion_asignar" rows="4" placeholder="Describe las actividades a realizar..." minlength="20" maxlength="500" required></textarea>
-                        <div class="invalid-feedback">
-                            Por favor ingresa una descripción detallada (mínimo 20 caracteres).
-                        </div>
-                        <div class="form-text">
-                            <span id="descripcion-asignar-count">0</span>/500 caracteres
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-success" onclick="asignarEstudiante()">
-                    <i class="fas fa-user-plus me-1"></i>Asignar Estudiante
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <!-- Modal Filtros -->
 <div class="modal fade" id="modalFiltros" tabindex="-1">
     <div class="modal-dialog">
@@ -960,9 +799,11 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
                         <label class="form-label">Carrera</label>
                         <select class="form-select" name="filtro_carrera">
                             <option value="">Todas las carreras</option>
-                            <option value="1">Sistemas de Información</option>
-                            <option value="2">Desarrollo de Software</option>
-                            <option value="3">Redes y Telecomunicaciones</option>
+                            <?php if (!empty($carreras)): ?>
+                                <?php foreach ($carreras as $c): ?>
+                                    <option value="<?= (int) $c['ID_CARRERA'] ?>"><?= esc($c['NOMBRE']) ?></option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </select>
                     </div>
                 </form>
@@ -979,11 +820,42 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
 
 <script>
     // Variables globales
+    const baseUrlPracticas = '<?= base_url('admin/practicas/') ?>';
     let datosModal = null;
+
+    // Buscar estudiante por nombre o cédula (filtra la tabla del tab visible)
+    function aplicarBusquedaEstudiante() {
+        const term = (document.getElementById('busquedaEstudiante').value || '').trim().toLowerCase().replace(/\s+/g, '');
+        const panes = document.querySelectorAll('#practicasTabContent .tab-pane');
+        let visiblesPorPane = {};
+        panes.forEach(function(pane) {
+            const rows = pane.querySelectorAll('tbody tr.fila-busqueda');
+            let visibles = 0;
+            rows.forEach(function(row) {
+                const nombre = (row.getAttribute('data-estudiante-nombre') || '').replace(/\s+/g, '');
+                const cedula = (row.getAttribute('data-estudiante-cedula') || '').replace(/\s+/g, '');
+                const coincide = !term || nombre.indexOf(term) !== -1 || cedula.indexOf(term) !== -1;
+                row.style.display = coincide ? '' : 'none';
+                if (coincide) visibles++;
+            });
+            visiblesPorPane[pane.id] = visibles;
+        });
+        // Si hay búsqueda y el tab activo no tiene resultados, pasar al tab que sí tenga (Preprofesional primero, luego Servicio)
+        if (term) {
+            const paneActivo = document.querySelector('#practicasTabContent .tab-pane.active');
+            if (paneActivo && visiblesPorPane[paneActivo.id] === 0) {
+                if (visiblesPorPane['preprofesionales'] > 0) {
+                    document.querySelector('[data-bs-target="#preprofesionales"]').click();
+                } else if (visiblesPorPane['servicio'] > 0) {
+                    document.querySelector('[data-bs-target="#servicio"]').click();
+                }
+            }
+        }
+    }
 
     // Funciones principales
     function showModal(modalId) {
-        if (modalId === 'modalNuevaPractica' || modalId === 'modalAsignarEstudiante') {
+        if (modalId === 'modalNuevaPractica') {
             cargarDatosModal();
         }
         const modal = new bootstrap.Modal(document.getElementById(modalId));
@@ -997,9 +869,14 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
         }
 
         console.log('Cargando datos del modal...');
-        fetch('/admin/practicas/getDatosModal')
+        fetch(baseUrlPracticas + 'getDatosModal')
             .then(response => {
-                console.log('Respuesta recibida:', response);
+                const contentType = response.headers.get('Content-Type') || '';
+                if (!contentType.includes('application/json')) {
+                    return response.text().then(text => {
+                        throw new Error('El servidor devolvió una respuesta no válida (no JSON). Comprueba que la URL base de la aplicación sea correcta.');
+                    });
+                }
                 return response.json();
             })
             .then(data => {
@@ -1020,26 +897,7 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
 
     function poblarModal() {
         console.log('Poblando modal con datos:', datosModal);
-        
-        // Poblar estudiantes
-        const selectEstudiantes = document.querySelector('select[name="estudiante"]');
-        selectEstudiantes.innerHTML = '<option value="">Seleccionar estudiante...</option>';
-        
-        if (datosModal.estudiantes && datosModal.estudiantes.length > 0) {
-            console.log('Estudiantes encontrados:', datosModal.estudiantes);
-            datosModal.estudiantes.forEach(estudiante => {
-                const option = document.createElement('option');
-                option.value = estudiante.ID_ESTUDIANTE;
-                option.textContent = `${estudiante.NOMBRE_COMPLETO} - ${estudiante.CARRERA}`;
-                selectEstudiantes.appendChild(option);
-            });
-        } else {
-            console.log('No se encontraron estudiantes');
-            const option = document.createElement('option');
-            option.value = '';
-            option.textContent = 'No hay estudiantes disponibles';
-            selectEstudiantes.appendChild(option);
-        }
+        limpiarBusquedaEstudiante();
 
         // Poblar instituciones
         const selectInstituciones = document.querySelector('select[name="institucion"]');
@@ -1101,9 +959,111 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
             selectEstados.appendChild(option);
         }
 
-        // Poblar también el modal de asignar estudiante
-        poblarModalAsignarEstudiante();
         configurarHorasPorTipoPractica();
+    }
+
+    function limpiarBusquedaEstudiante() {
+        document.getElementById('estudiante_id').value = '';
+        document.getElementById('buscar_estudiante_nombre').value = '';
+        const disp = document.getElementById('estudiante_seleccionado_display');
+        disp.textContent = '';
+        disp.style.display = 'none';
+        document.getElementById('resultados_busqueda_estudiantes').innerHTML = '';
+        document.getElementById('resultados_busqueda_estudiantes').style.display = 'none';
+        document.getElementById('estudiante_id').classList.remove('is-invalid');
+        restaurarInstitucionesCompletas();
+    }
+
+    function restaurarInstitucionesCompletas() {
+        const selectInst = document.querySelector('select[name="institucion"]');
+        if (!selectInst || !datosModal || !datosModal.instituciones) return;
+        selectInst.innerHTML = '<option value="">Seleccionar institución...</option>';
+        datosModal.instituciones.forEach(function(inst) {
+            const opt = document.createElement('option');
+            opt.value = inst.ID_INSTITUCION_CONVENIO;
+            opt.textContent = inst.NOMBRE;
+            selectInst.appendChild(opt);
+        });
+    }
+
+    function actualizarInstitucionesPorCarrera(carreraId) {
+        const selectInst = document.querySelector('select[name="institucion"]');
+        if (!selectInst) return;
+        selectInst.innerHTML = '<option value="">Cargando...</option>';
+        selectInst.value = '';
+        if (!carreraId) {
+            restaurarInstitucionesCompletas();
+            return;
+        }
+        fetch(baseUrlPracticas + 'institucionesPorCarrera?carrera_id=' + encodeURIComponent(carreraId))
+            .then(function(r) { return r.json(); })
+            .then(function(res) {
+                selectInst.innerHTML = '<option value="">Seleccionar institución...</option>';
+                if (res.success && res.data && res.data.length > 0) {
+                    res.data.forEach(function(inst) {
+                        const opt = document.createElement('option');
+                        opt.value = inst.ID_INSTITUCION_CONVENIO;
+                        opt.textContent = inst.NOMBRE;
+                        selectInst.appendChild(opt);
+                    });
+                } else {
+                    const opt = document.createElement('option');
+                    opt.value = '';
+                    opt.textContent = 'No hay instituciones con convenio vigente para esta carrera';
+                    selectInst.appendChild(opt);
+                }
+            })
+            .catch(function() {
+                selectInst.innerHTML = '<option value="">Error al cargar. Intente de nuevo.</option>';
+            });
+    }
+
+    function buscarEstudiantesModal() {
+        const q = document.getElementById('buscar_estudiante_nombre').value.trim();
+        const cont = document.getElementById('resultados_busqueda_estudiantes');
+        cont.innerHTML = '';
+        cont.style.display = 'none';
+        if (!q) {
+            showNotification('Escriba al menos un carácter para buscar', 'info');
+            return;
+        }
+        cont.innerHTML = '<div class="list-group-item text-muted"><i class="fas fa-spinner fa-spin me-2"></i>Buscando...</div>';
+        cont.style.display = 'block';
+        fetch(baseUrlPracticas + 'buscarEstudiantes?q=' + encodeURIComponent(q))
+            .then(function(r) { return r.json(); })
+            .then(function(res) {
+                cont.innerHTML = '';
+                if (res.success && res.data && res.data.length > 0) {
+                    res.data.forEach(function(est) {
+                        const item = document.createElement('button');
+                        item.type = 'button';
+                        item.className = 'list-group-item list-group-item-action text-start';
+                        item.textContent = est.NOMBRE_COMPLETO + ' - ' + (est.CARRERA || '');
+                        item.dataset.id = est.ID_ESTUDIANTE;
+                        item.dataset.nombre = est.NOMBRE_COMPLETO + ' - ' + (est.CARRERA || '');
+                        item.dataset.carreraId = est.ID_CARRERA || '';
+                        item.addEventListener('click', function() {
+                            document.getElementById('estudiante_id').value = this.dataset.id;
+                            document.getElementById('estudiante_seleccionado_display').textContent = '✓ ' + this.dataset.nombre;
+                            document.getElementById('estudiante_seleccionado_display').style.display = 'block';
+                            document.getElementById('buscar_estudiante_nombre').value = '';
+                            cont.innerHTML = '';
+                            cont.style.display = 'none';
+                            document.getElementById('estudiante_id').classList.remove('is-invalid');
+                            actualizarInstitucionesPorCarrera(this.dataset.carreraId);
+                        });
+                        cont.appendChild(item);
+                    });
+                    cont.style.display = 'block';
+                } else {
+                    cont.innerHTML = '<div class="list-group-item text-muted">No se encontraron estudiantes. Pruebe con otro nombre.</div>';
+                    cont.style.display = 'block';
+                }
+            })
+            .catch(function() {
+                cont.innerHTML = '<div class="list-group-item text-danger">Error de conexión.</div>';
+                cont.style.display = 'block';
+            });
     }
 
     function configurarHorasPorTipoPractica() {
@@ -1124,100 +1084,10 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
             selectTipo.addEventListener('change', selectTipo._horasHandler);
             setHorasPorTipo(selectTipo.value, inputHorasNueva);
         }
-        const selectTipoAsignar = document.querySelector('select[name="tipo_practica_asignar"]');
-        const inputHorasAsignar = document.getElementById('horas_total_asignar');
-        if (selectTipoAsignar && inputHorasAsignar) {
-            selectTipoAsignar.removeEventListener('change', selectTipoAsignar._horasHandler);
-            selectTipoAsignar._horasHandler = function() { setHorasPorTipo(selectTipoAsignar.value, inputHorasAsignar); };
-            selectTipoAsignar.addEventListener('change', selectTipoAsignar._horasHandler);
-            setHorasPorTipo(selectTipoAsignar.value, inputHorasAsignar);
-        }
-    }
-
-    function poblarModalAsignarEstudiante() {
-        // Poblar estudiantes en modal de asignar
-        const selectEstudiantesAsignar = document.querySelector('select[name="estudiante_asignar"]');
-        if (selectEstudiantesAsignar) {
-            selectEstudiantesAsignar.innerHTML = '<option value="">Seleccionar estudiante...</option>';
-            
-            if (datosModal.estudiantes && datosModal.estudiantes.length > 0) {
-                datosModal.estudiantes.forEach(estudiante => {
-                    const option = document.createElement('option');
-                    option.value = estudiante.ID_ESTUDIANTE;
-                    option.textContent = `${estudiante.NOMBRE_COMPLETO} - ${estudiante.CARRERA}`;
-                    selectEstudiantesAsignar.appendChild(option);
-                });
-            } else {
-                const option = document.createElement('option');
-                option.value = '';
-                option.textContent = 'No hay estudiantes disponibles';
-                selectEstudiantesAsignar.appendChild(option);
-            }
-        }
-
-        // Poblar instituciones en modal de asignar
-        const selectInstitucionesAsignar = document.querySelector('select[name="institucion_asignar"]');
-        if (selectInstitucionesAsignar) {
-            selectInstitucionesAsignar.innerHTML = '<option value="">Seleccionar institución...</option>';
-            
-            if (datosModal.instituciones && datosModal.instituciones.length > 0) {
-                datosModal.instituciones.forEach(institucion => {
-                    const option = document.createElement('option');
-                    option.value = institucion.ID_INSTITUCION_CONVENIO;
-                    option.textContent = institucion.NOMBRE;
-                    selectInstitucionesAsignar.appendChild(option);
-                });
-            } else {
-                const option = document.createElement('option');
-                option.value = '';
-                option.textContent = 'No hay instituciones disponibles';
-                selectInstitucionesAsignar.appendChild(option);
-            }
-        }
-
-        // Poblar tipos de prácticas en modal de asignar
-        const selectTiposAsignar = document.querySelector('select[name="tipo_practica_asignar"]');
-        if (selectTiposAsignar) {
-            selectTiposAsignar.innerHTML = '<option value="">Seleccionar tipo...</option>';
-            
-            if (datosModal.tiposPracticas && datosModal.tiposPracticas.length > 0) {
-                datosModal.tiposPracticas.forEach(tipo => {
-                    const option = document.createElement('option');
-                    option.value = tipo.ID_TIPO_PRACTICA;
-                    option.textContent = tipo.PRACTICA;
-                    selectTiposAsignar.appendChild(option);
-                });
-            } else {
-                const option = document.createElement('option');
-                option.value = '';
-                option.textContent = 'No hay tipos disponibles';
-                selectTiposAsignar.appendChild(option);
-            }
-        }
-
-        // Poblar estados en modal de asignar
-        const selectEstadosAsignar = document.querySelector('select[name="estado_asignar"]');
-        if (selectEstadosAsignar) {
-            selectEstadosAsignar.innerHTML = '<option value="">Seleccionar estado...</option>';
-            
-            if (datosModal.estadosPracticas && datosModal.estadosPracticas.length > 0) {
-                datosModal.estadosPracticas.forEach(estado => {
-                    const option = document.createElement('option');
-                    option.value = estado.ID_ESTADO_PRACTICAS;
-                    option.textContent = estado.ESTADO;
-                    selectEstadosAsignar.appendChild(option);
-                });
-            } else {
-                const option = document.createElement('option');
-                option.value = '';
-                option.textContent = 'No hay estados disponibles';
-                selectEstadosAsignar.appendChild(option);
-            }
-        }
     }
 
     function verDetalle(id, tipo) {
-        fetch(`/admin/practicas/detalle/${id}/${tipo}`)
+        fetch(`${baseUrlPracticas}detalle/${id}/${tipo}`)
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
@@ -1276,7 +1146,7 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
 
         const formData = new FormData(form);
 
-        fetch('/admin/practicas/crear', {
+        fetch(baseUrlPracticas + 'crear', {
             method: 'POST',
             body: formData
         })
@@ -1286,6 +1156,7 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
                 showNotification('Práctica guardada exitosamente', 'success');
                 bootstrap.Modal.getInstance(document.getElementById('modalNuevaPractica')).hide();
                 form.reset();
+                limpiarBusquedaEstudiante();
                 // Recargar la página para mostrar los nuevos datos
                 setTimeout(() => {
                     location.reload();
@@ -1321,7 +1192,7 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
         formData.append('practica_id', form.getAttribute('data-practica-id'));
         formData.append('tipo_practica', form.getAttribute('data-tipo-practica'));
 
-        fetch('/admin/practicas/registrar-asistencia', {
+        fetch(baseUrlPracticas + 'registrar-asistencia', {
             method: 'POST',
             body: formData
         })
@@ -1351,50 +1222,9 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
         showNotification('Filtros limpiados', 'info');
     }
 
-    function asignarEstudiante() {
-        const form = document.getElementById('formAsignarEstudiante');
-        
-        // Validar formulario antes de enviar
-        if (!validarFormularioAsignarEstudiante(form)) {
-            showNotification('Por favor completa todos los campos obligatorios correctamente', 'error');
-            return;
-        }
-
-        // Validar fechas
-        if (!validarFechasAsignarEstudiante(form)) {
-            showNotification('La fecha de fin debe ser posterior a la fecha de inicio', 'error');
-            return;
-        }
-
-        const formData = new FormData(form);
-
-        fetch('/admin/practicas/crear', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showNotification('Estudiante asignado exitosamente', 'success');
-                bootstrap.Modal.getInstance(document.getElementById('modalAsignarEstudiante')).hide();
-                form.reset();
-                // Recargar la página para mostrar los nuevos datos
-                setTimeout(() => {
-                    location.reload();
-                }, 1500);
-            } else {
-                showNotification(data.message || 'Error al asignar el estudiante', 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showNotification('Error de conexión', 'error');
-        });
-    }
-
     function generateReport() {
-        // Redirigir a la vista de reportes
-        window.location.href = '/admin/practicas/reportes';
+        // Redirigir a la vista de reportes (usar base_url por si la app está en subcarpeta)
+        window.location.href = '<?= base_url('admin/practicas/reportes') ?>';
     }
 
     function exportData() {
@@ -1463,7 +1293,7 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
         showNotification(`Generando archivo ${formato.toUpperCase()}...`, 'info');
 
         // Realizar la exportación
-        fetch(`/admin/practicas/exportar-datos/${formato}`)
+        fetch(`${baseUrlPracticas}exportar-datos/${formato}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error('Error en la respuesta del servidor');
@@ -1618,8 +1448,31 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
             if (target === '#seguimiento') {
                 setTimeout(() => drawProgressChart(75), 100);
             }
+            aplicarBusquedaEstudiante();
         });
     });
+
+    // Buscador por estudiante (nombre o cédula)
+    const busquedaEstudianteEl = document.getElementById('busquedaEstudiante');
+    const btnLimpiarBusqueda = document.getElementById('btnLimpiarBusqueda');
+    if (busquedaEstudianteEl) {
+        busquedaEstudianteEl.addEventListener('input', aplicarBusquedaEstudiante);
+        busquedaEstudianteEl.addEventListener('keyup', function(e) {
+            if (e.key === 'Escape') {
+                busquedaEstudianteEl.value = '';
+                aplicarBusquedaEstudiante();
+            }
+        });
+    }
+    if (btnLimpiarBusqueda) {
+        btnLimpiarBusqueda.addEventListener('click', function() {
+            if (busquedaEstudianteEl) {
+                busquedaEstudianteEl.value = '';
+                aplicarBusquedaEstudiante();
+                busquedaEstudianteEl.focus();
+            }
+        });
+    }
 
     // Auto-calculate hours when time changes
     document.addEventListener('change', function(e) {
@@ -1688,6 +1541,15 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
             esValido = false;
         }
 
+        // Validar estudiante (búsqueda por nombre: debe estar seleccionado)
+        const estudianteId = document.getElementById('estudiante_id');
+        if (!estudianteId || !estudianteId.value.trim()) {
+            if (estudianteId) estudianteId.classList.add('is-invalid');
+            esValido = false;
+        } else if (estudianteId) {
+            estudianteId.classList.add('is-valid');
+        }
+
         form.classList.add('was-validated');
         return esValido;
     }
@@ -1746,77 +1608,11 @@ $seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
         return salidaMinutos > entradaMinutos;
     }
 
-    // Funciones de validación para asignar estudiante
-    function validarFormularioAsignarEstudiante(form) {
-        let esValido = true;
-        
-        // Limpiar validaciones previas
-        form.classList.remove('was-validated');
-        const campos = form.querySelectorAll('input, select, textarea');
-        campos.forEach(campo => {
-            campo.classList.remove('is-invalid', 'is-valid');
-        });
-
-        // Validar cada campo requerido
-        const camposRequeridos = form.querySelectorAll('[required]');
-        camposRequeridos.forEach(campo => {
-            if (!campo.value.trim()) {
-                campo.classList.add('is-invalid');
-                esValido = false;
-            } else {
-                campo.classList.add('is-valid');
-            }
-        });
-
-        // Validar longitud mínima de descripción
-        const descripcion = form.querySelector('textarea[name="descripcion_asignar"]');
-        if (descripcion.value.length < 20) {
-            descripcion.classList.add('is-invalid');
-            esValido = false;
-        }
-
-        // Validar longitud mínima de cronograma
-        const cronograma = form.querySelector('input[name="cronograma_asignar"]');
-        if (cronograma.value.length < 10) {
-            cronograma.classList.add('is-invalid');
-            esValido = false;
-        }
-
-        // Validar rango de horas
-        const horas = form.querySelector('input[name="horas_total_asignar"]');
-        if (horas.value < 1 || horas.value > 1000) {
-            horas.classList.add('is-invalid');
-            esValido = false;
-        }
-
-        form.classList.add('was-validated');
-        return esValido;
-    }
-
-    function validarFechasAsignarEstudiante(form) {
-        const fechaInicio = new Date(form.querySelector('input[name="fecha_inicio_asignar"]').value);
-        const fechaFin = new Date(form.querySelector('input[name="fecha_fin_asignar"]').value);
-        
-        return fechaFin > fechaInicio;
-    }
-
     // Contadores de caracteres
     document.addEventListener('input', function(e) {
         if (e.target.name === 'descripcion') {
             const count = e.target.value.length;
             document.getElementById('descripcion-count').textContent = count;
-            
-            if (count > 500) {
-                e.target.classList.add('is-invalid');
-            } else if (count >= 20) {
-                e.target.classList.remove('is-invalid');
-                e.target.classList.add('is-valid');
-            }
-        }
-        
-        if (e.target.name === 'descripcion_asignar') {
-            const count = e.target.value.length;
-            document.getElementById('descripcion-asignar-count').textContent = count;
             
             if (count > 500) {
                 e.target.classList.add('is-invalid');

@@ -59,7 +59,7 @@
             <div class="col-md-3 col-sm-6 mb-3">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="#" onclick="showModal('modalNuevoConvenio')" style="text-decoration: none; color: inherit;">
+                        <a href="#" onclick="abrirModalNuevoConvenio(); return false;" style="text-decoration: none; color: inherit;">
                             <i class="fas fa-plus-circle fa-2x mb-2" style="color: #28a745; text-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);"></i>
                             <div class="fw-bold">Nuevo Convenio</div>
                         </a>
@@ -147,9 +147,11 @@
                                                 <tr>
                                                     <th>#</th>
                                                     <th>Institución</th>
+                                                    <th>Carrera</th>
                                                     <th>RUC</th>
                                                     <th>Período</th>
                                                     <th>Duración</th>
+                                                    <th>Plazas</th>
                                                     <th>Estado</th>
                                                     <th>Renovable</th>
                                                     <th>Acciones</th>
@@ -162,7 +164,7 @@
                                                 });
                                                 if (empty($preprofesionales)): ?>
                                                     <tr>
-                                                        <td colspan="8" class="text-center text-muted py-4">
+                                                        <td colspan="10" class="text-center text-muted py-4">
                                                             <i class="fas fa-inbox fa-2x mb-2"></i><br>
                                                             No hay convenios preprofesionales registrados
                                                         </td>
@@ -180,6 +182,7 @@
                                                                     </div>
                                                                 </div>
                                                             </td>
+                                                            <td><span class="badge bg-secondary"><?= esc($convenio['CARRERA_NOMBRE'] ?? '-') ?></span></td>
                                                             <td><?= $convenio['RUC'] ?></td>
                                                             <td>
                                                                 <div><?= date('M Y', strtotime($convenio['FECHA_INICIO'])) ?> - <?= date('M Y', strtotime($convenio['FECHA_FIN'])) ?></div>
@@ -187,6 +190,10 @@
                                                             </td>
                                                             <td>
                                                                 <span class="badge bg-info"><?= $convenio['DURACION'] ?> meses</span>
+                                                            </td>
+                                                            <td>
+                                                                <span class="badge bg-secondary"><?= (int)($convenio['PLAZAS_DISPONIBLES'] ?? 0) ?></span>
+                                                                <button type="button" class="btn btn-link btn-sm p-0 ms-1" onclick="abrirModalPlazas(<?= $convenio['ID_DETALLE_CONVENIO'] ?>, <?= (int)($convenio['PLAZAS_DISPONIBLES'] ?? 0) ?>)" title="Actualizar plazas"><i class="fas fa-edit small"></i></button>
                                                             </td>
                                                             <td>
                                                                 <?php
@@ -252,9 +259,11 @@
                                                 <tr>
                                                     <th>#</th>
                                                     <th>Institución</th>
+                                                    <th>Carrera</th>
                                                     <th>RUC</th>
                                                     <th>Período</th>
                                                     <th>Duración</th>
+                                                    <th>Plazas</th>
                                                     <th>Estado</th>
                                                     <th>Renovable</th>
                                                     <th>Acciones</th>
@@ -267,7 +276,7 @@
                                                 });
                                                 if (empty($servicio)): ?>
                                                     <tr>
-                                                        <td colspan="8" class="text-center text-muted py-4">
+                                                        <td colspan="10" class="text-center text-muted py-4">
                                                             <i class="fas fa-inbox fa-2x mb-2"></i><br>
                                                             No hay convenios de servicio comunitario registrados
                                                         </td>
@@ -285,6 +294,7 @@
                                                                     </div>
                                                                 </div>
                                                             </td>
+                                                            <td><span class="badge bg-secondary"><?= esc($convenio['CARRERA_NOMBRE'] ?? '-') ?></span></td>
                                                             <td><?= $convenio['RUC'] ?></td>
                                                             <td>
                                                                 <div><?= date('M Y', strtotime($convenio['FECHA_INICIO'])) ?> - <?= date('M Y', strtotime($convenio['FECHA_FIN'])) ?></div>
@@ -292,6 +302,10 @@
                                                             </td>
                                                             <td>
                                                                 <span class="badge bg-info"><?= $convenio['DURACION'] ?> meses</span>
+                                                            </td>
+                                                            <td>
+                                                                <span class="badge bg-secondary"><?= (int)($convenio['PLAZAS_DISPONIBLES'] ?? 0) ?></span>
+                                                                <button type="button" class="btn btn-link btn-sm p-0 ms-1" onclick="abrirModalPlazas(<?= $convenio['ID_DETALLE_CONVENIO'] ?>, <?= (int)($convenio['PLAZAS_DISPONIBLES'] ?? 0) ?>)" title="Actualizar plazas"><i class="fas fa-edit small"></i></button>
                                                             </td>
                                                             <td>
                                                                 <?php
@@ -357,9 +371,11 @@
                                                 <tr>
                                                     <th>#</th>
                                                     <th>Institución</th>
+                                                    <th>Carrera</th>
                                                     <th>RUC</th>
                                                     <th>Período</th>
                                                     <th>Duración</th>
+                                                    <th>Plazas</th>
                                                     <th>Estado</th>
                                                     <th>Renovable</th>
                                                     <th>Acciones</th>
@@ -372,7 +388,7 @@
                                                 });
                                                 if (empty($mixta)): ?>
                                                     <tr>
-                                                        <td colspan="8" class="text-center text-muted py-4">
+                                                        <td colspan="10" class="text-center text-muted py-4">
                                                             <i class="fas fa-inbox fa-2x mb-2"></i><br>
                                                             No hay convenios mixtos registrados
                                                         </td>
@@ -390,6 +406,7 @@
                                                                     </div>
                                                                 </div>
                                                             </td>
+                                                            <td><span class="badge bg-secondary"><?= esc($convenio['CARRERA_NOMBRE'] ?? '-') ?></span></td>
                                                             <td><?= $convenio['RUC'] ?></td>
                                                             <td>
                                                                 <div><?= date('M Y', strtotime($convenio['FECHA_INICIO'])) ?> - <?= date('M Y', strtotime($convenio['FECHA_FIN'])) ?></div>
@@ -397,6 +414,10 @@
                                                             </td>
                                                             <td>
                                                                 <span class="badge bg-info"><?= $convenio['DURACION'] ?> meses</span>
+                                                            </td>
+                                                            <td>
+                                                                <span class="badge bg-secondary"><?= (int)($convenio['PLAZAS_DISPONIBLES'] ?? 0) ?></span>
+                                                                <button type="button" class="btn btn-link btn-sm p-0 ms-1" onclick="abrirModalPlazas(<?= $convenio['ID_DETALLE_CONVENIO'] ?>, <?= (int)($convenio['PLAZAS_DISPONIBLES'] ?? 0) ?>)" title="Actualizar plazas"><i class="fas fa-edit small"></i></button>
                                                             </td>
                                                             <td>
                                                                 <?php
@@ -450,12 +471,36 @@
 </div>
 </div>
 
+<!-- Modal Actualizar Plazas -->
+<div class="modal fade" id="modalPlazas" tabindex="-1">
+    <div class="modal-dialog modal-sm">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-users me-2"></i>Plazas disponibles</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="plazas_id_convenio" value="">
+                <div class="mb-3">
+                    <label class="form-label">Número de plazas</label>
+                    <input type="number" class="form-control" id="plazas_input" min="0" value="0">
+                    <small class="text-muted">Plazas para que estudiantes de la carrera generen prácticas</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarPlazas()"><i class="fas fa-save me-1"></i>Guardar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Nuevo Convenio -->
 <div class="modal fade" id="modalNuevoConvenio" tabindex="-1">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">
+                <h5 class="modal-title" id="modalNuevoConvenioTitle">
                     <i class="fas fa-plus-circle me-2"></i>
                     Nuevo Convenio
                 </h5>
@@ -467,6 +512,7 @@
                     <strong>Nota:</strong> Los campos marcados con <span class="text-danger">*</span> son obligatorios.
                 </div>
                 <form id="formNuevoConvenio" enctype="multipart/form-data">
+                    <input type="hidden" name="id_convenio_edicion" id="id_convenio_edicion" value="">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
@@ -512,6 +558,19 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Carrera destinada<span class="text-danger">*</span></label>
+                                <select class="form-select" name="carrera" id="carrera" required>
+                                    <option value="">Seleccionar carrera...</option>
+                                    <?php if (!empty($carreras)): foreach ($carreras as $car): ?>
+                                        <option value="<?= $car['ID_CARRERA'] ?>"><?= esc($car['NOMBRE']) ?></option>
+                                    <?php endforeach; endif; ?>
+                                </select>
+                                <small class="text-muted">Carrera a la que está destinado el convenio</small>
+                                <div class="invalid-feedback" id="error_carrera"></div>
+                            </div>
+                        </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
@@ -549,6 +608,14 @@
                                 <div class="invalid-feedback" id="error_renovable"></div>
                             </div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Plazas disponibles</label>
+                                <input type="number" class="form-control" name="plazas_disponibles" id="plazas_disponibles" min="0" value="0" placeholder="0">
+                                <small class="text-muted">Número de plazas para que estudiantes de la carrera generen prácticas</small>
+                                <div class="invalid-feedback" id="error_plazas_disponibles"></div>
+                            </div>
+                        </div>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Objetivo del Convenio<span class="text-danger">*</span></label>
@@ -569,7 +636,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" onclick="guardarConvenio()">
+                <button type="button" class="btn btn-primary" id="btnGuardarConvenio" onclick="guardarConvenio()">
                     <i class="fas fa-save me-1"></i>Guardar Convenio
                 </button>
             </div>
@@ -754,12 +821,14 @@
                                     </div>
                                     <div class="col">
                                         <p><strong>Institución:</strong> <span id="detalleInstitucion">-</span></p>
+                                        <p><strong>Carrera destinada:</strong> <span id="detalleCarrera">-</span></p>
                                         <p><strong>Tipo de Convenio:</strong> <span id="detalleTipo">-</span></p>
                                         <p><strong>RUC:</strong> <span id="detalleRUC">-</span></p>
                                     </div>
                                     <div class="col-md-6">
                                         <p><strong>Período:</strong> <span id="detallePeriodo">-</span></p>
                                         <p><strong>Duración:</strong> <span id="detalleDuracion">-</span></p>
+                                        <p><strong>Plazas disponibles:</strong> <span id="detallePlazas">-</span></p>
                                         <p><strong>Estado:</strong> <span id="detalleEstado">-</span></p>
                                     </div>
                                 </div>
@@ -941,10 +1010,12 @@
         }
 
         document.getElementById('detalleInstitucion').textContent = convenio.NOMBRE || '-';
+        document.getElementById('detalleCarrera').textContent = convenio.CARRERA_NOMBRE || '-';
         document.getElementById('detalleTipo').textContent = convenio.TIPO_CONVENIO || '-';
         document.getElementById('detalleRUC').textContent = convenio.RUC || '-';
         document.getElementById('detallePeriodo').textContent = `${convenio.FECHA_INICIO || '-'} - ${convenio.FECHA_FIN || '-'}`;
         document.getElementById('detalleDuracion').textContent = (convenio.DURACION != null ? convenio.DURACION + ' meses' : '-');
+        document.getElementById('detallePlazas').textContent = (convenio.PLAZAS_DISPONIBLES != null ? convenio.PLAZAS_DISPONIBLES : '0');
         document.getElementById('detalleObjetivo').textContent = convenio.OBJETIVO || '-';
         document.getElementById('detalleRepresentante').textContent = convenio.REPRESENTANTE_LEGAL || '-';
         document.getElementById('detalleTelefono').textContent = convenio.TELEFONO || '-';
@@ -973,8 +1044,47 @@
         showModal('modalDetalleConvenio');
     }
 
+    function abrirModalNuevoConvenio() {
+        document.getElementById('id_convenio_edicion').value = '';
+        document.getElementById('formNuevoConvenio').reset();
+        document.getElementById('id_convenio_edicion').value = '';
+        document.getElementById('archivo_convenio').setAttribute('required', 'required');
+        document.getElementById('modalNuevoConvenioTitle').innerHTML = '<i class="fas fa-plus-circle me-2"></i> Nuevo Convenio';
+        document.getElementById('btnGuardarConvenio').innerHTML = '<i class="fas fa-save me-1"></i> Guardar Convenio';
+        limpiarErrores();
+        showModal('modalNuevoConvenio');
+    }
+
     function editarConvenio(id) {
-        showNotification('Edición de convenio en desarrollo. Por ahora use la opción de descarga.', 'info');
+        const url = '<?= base_url('admin/convenios/getConvenio/') ?>' + id;
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success || !data.data) {
+                    showNotification(data.message || 'No se pudo cargar el convenio', 'error');
+                    return;
+                }
+                const c = data.data;
+                document.getElementById('id_convenio_edicion').value = id;
+                document.getElementById('tipo_convenio').value = c.ID_TIPO_CONVENIO || '';
+                document.getElementById('selectInstitucion').value = c.ID_INSTITUCION_CONVENIO || '';
+                const carreraEl = document.getElementById('carrera');
+                if (carreraEl) carreraEl.value = c.ID_CARRERA || '';
+                document.getElementById('fecha_inicio').value = c.FECHA_INICIO || '';
+                document.getElementById('fecha_fin').value = c.FECHA_FIN || '';
+                document.getElementById('duracion').value = c.DURACION || '';
+                document.getElementById('objetivo').value = c.OBJETIVO || '';
+                document.getElementById('observaciones').value = c.OBSERVACIONES || '';
+                document.getElementById('renovable').value = c.RENOVABLE !== undefined && c.RENOVABLE !== null && c.RENOVABLE !== '' ? String(c.RENOVABLE) : '';
+                const plazasEl = document.getElementById('plazas_disponibles');
+                if (plazasEl) plazasEl.value = (c.PLAZAS_DISPONIBLES != null && c.PLAZAS_DISPONIBLES !== '') ? c.PLAZAS_DISPONIBLES : 0;
+                document.getElementById('archivo_convenio').removeAttribute('required');
+                document.getElementById('modalNuevoConvenioTitle').innerHTML = '<i class="fas fa-edit me-2"></i> Editar Convenio';
+                document.getElementById('btnGuardarConvenio').innerHTML = '<i class="fas fa-save me-1"></i> Actualizar Convenio';
+                limpiarErrores();
+                showModal('modalNuevoConvenio');
+            })
+            .catch(() => showNotification('Error al cargar el convenio', 'error'));
     }
 
     function renovarConvenio(id) {
@@ -985,20 +1095,56 @@
         showNotification('Descargando convenio...', 'success');
     }
 
+    function abrirModalPlazas(idConvenio, plazasActuales) {
+        document.getElementById('plazas_id_convenio').value = idConvenio;
+        document.getElementById('plazas_input').value = plazasActuales >= 0 ? plazasActuales : 0;
+        const modal = new bootstrap.Modal(document.getElementById('modalPlazas'));
+        modal.show();
+    }
+
+    function guardarPlazas() {
+        const id = document.getElementById('plazas_id_convenio').value;
+        const plazas = parseInt(document.getElementById('plazas_input').value, 10) || 0;
+        if (plazas < 0) {
+            showNotification('Las plazas no pueden ser negativas', 'error');
+            return;
+        }
+        const formData = new FormData();
+        formData.append('plazas_disponibles', plazas);
+        fetch('<?= base_url('admin/convenios/actualizarPlazas/') ?>' + id, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                showNotification(data.message, 'success');
+                bootstrap.Modal.getInstance(document.getElementById('modalPlazas')).hide();
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                showNotification(data.message || 'Error al actualizar', 'error');
+            }
+        })
+        .catch(() => showNotification('Error de conexión', 'error'));
+    }
+
     function guardarConvenio() {
         const form = document.getElementById('formNuevoConvenio');
         const formData = new FormData(form);
+        const idEdicion = document.getElementById('id_convenio_edicion').value;
+        const esEdicion = !!idEdicion;
 
         // Limpiar errores previos
         limpiarErrores();
 
-        // Validar campos obligatorios
-        const camposObligatorios = ['tipo_convenio', 'institucion', 'fecha_inicio', 'fecha_fin', 'duracion', 'objetivo', 'archivo_convenio'];
+        // Validar campos obligatorios (en edición el archivo es opcional)
+        const camposObligatorios = ['tipo_convenio', 'institucion', 'carrera', 'fecha_inicio', 'fecha_fin', 'duracion', 'objetivo'];
+        if (!esEdicion) camposObligatorios.push('archivo_convenio');
         let hayErrores = false;
 
         camposObligatorios.forEach(campo => {
             const valor = formData.get(campo);
-            if (!valor || valor.trim() === '') {
+            if (!valor || (typeof valor === 'string' && valor.trim() === '')) {
                 mostrarError(campo, 'Este campo es obligatorio');
                 hayErrores = true;
             }
@@ -1020,7 +1166,7 @@
             hayErrores = true;
         }
 
-        // Validar archivo PDF
+        // Validar archivo PDF (solo si se sube uno)
         const archivo = formData.get('archivo_convenio');
         if (archivo && archivo.size > 0) {
             const extension = archivo.name.toLowerCase().split('.').pop();
@@ -1042,8 +1188,11 @@
             return;
         }
 
-        // Enviar datos al servidor
-        fetch('<?= base_url('admin/convenios/store') ?>', {
+        const url = esEdicion
+            ? '<?= base_url('admin/convenios/update/') ?>' + idEdicion
+            : '<?= base_url('admin/convenios/store') ?>';
+
+        fetch(url, {
                 method: 'POST',
                 body: formData
             })
@@ -1053,17 +1202,15 @@
                     showNotification(data.message, 'success');
                     bootstrap.Modal.getInstance(document.getElementById('modalNuevoConvenio')).hide();
                     form.reset();
-                    // Recargar la página para mostrar los nuevos datos
-                    setTimeout(() => {
-                        location.reload();
-                    }, 1500);
+                    document.getElementById('id_convenio_edicion').value = '';
+                    setTimeout(() => location.reload(), 1500);
                 } else {
                     if (data.errors) {
                         Object.keys(data.errors).forEach(campo => {
                             mostrarError(campo, data.errors[campo]);
                         });
                     }
-                    showNotification(data.message, 'error');
+                    showNotification(data.message || 'Error al guardar', 'error');
                 }
             })
             .catch(error => {
@@ -1142,7 +1289,7 @@
 
                     // Volver al modal de nuevo convenio y recargar instituciones
                     setTimeout(() => {
-                        showModal('modalNuevoConvenio');
+                        abrirModalNuevoConvenio();
                         // Seleccionar automáticamente la nueva institución
                         setTimeout(() => {
                             const selectInstitucion = document.getElementById('selectInstitucion');
@@ -1310,7 +1457,7 @@
 
         // Mostrar modal de nuevo convenio
         setTimeout(() => {
-            showModal('modalNuevoConvenio');
+            abrirModalNuevoConvenio();
         }, 300);
     }
 
@@ -1405,7 +1552,7 @@
     }
 
     function limpiarErrores() {
-        const campos = ['tipo_convenio', 'institucion', 'fecha_inicio', 'fecha_fin', 'duracion', 'renovable', 'objetivo', 'archivo_convenio'];
+        const campos = ['tipo_convenio', 'institucion', 'carrera', 'fecha_inicio', 'fecha_fin', 'duracion', 'renovable', 'objetivo', 'archivo_convenio'];
         campos.forEach(campo => {
             const elemento = document.getElementById(campo);
             const errorElement = document.getElementById(`error_${campo}`);

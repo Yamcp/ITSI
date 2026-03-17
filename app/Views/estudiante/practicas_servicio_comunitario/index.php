@@ -505,12 +505,15 @@
                                 <hr>
                                 <div class="row">
                                     <div class="col-12">
-                                        <div class="btn-group w-100" role="group">
+                                        <div class="btn-group w-100 flex-wrap" role="group">
                                             <button class="btn btn-outline-primary accion-btn" onclick="verDetallePractica(<?= (int)$servicio['ID_SERVICIO_COMUNITARIO'] ?>, 'servicio')">
                                                 <i class="fas fa-eye me-1"></i>Ver Detalle
                                             </button>
                                             <button class="btn btn-outline-success accion-btn" onclick="registrarActividadPractica(<?= (int)$servicio['ID_SERVICIO_COMUNITARIO'] ?>, 'servicio')">
-                                                <i class="fas fa-plus me-1"></i>Registrar
+                                                <i class="fas fa-plus me-1"></i>Registrar Actividad
+                                            </button>
+                                            <button class="btn btn-outline-warning accion-btn" onclick="abrirModalAsistencia(<?= (int)$servicio['ID_SERVICIO_COMUNITARIO'] ?>, 'servicio')">
+                                                <i class="fas fa-clock me-1"></i>Registrar Asistencia
                                             </button>
                                             <button class="btn btn-outline-info accion-btn" onclick="verDocumentos(<?= (int)$servicio['ID_SERVICIO_COMUNITARIO'] ?>, 'servicio')">
                                                 <i class="fas fa-file-alt me-1"></i>Documentos
@@ -653,6 +656,60 @@
     </div>
 </div>
 
+<!-- Modal Registrar Asistencia -->
+<div class="modal fade" id="modalAsistencia" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-clock me-2"></i>Registrar Asistencia</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formAsistencia" novalidate>
+                    <input type="hidden" name="practica_id" id="asistencia_practica_id" value="">
+                    <input type="hidden" name="tipo_practica" id="asistencia_tipo_practica" value="">
+                    <div class="mb-3">
+                        <label class="form-label">Fecha <span class="text-danger">*</span></label>
+                        <input type="date" class="form-control" name="fecha_asistencia" required>
+                        <div class="invalid-feedback">Selecciona una fecha válida.</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Hora de Entrada <span class="text-danger">*</span></label>
+                                <input type="time" class="form-control" name="hora_entrada" required>
+                                <div class="invalid-feedback">Hora de entrada requerida.</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Hora de Salida <span class="text-danger">*</span></label>
+                                <input type="time" class="form-control" name="hora_salida" required>
+                                <div class="invalid-feedback">Hora de salida requerida.</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Actividades del Día <span class="text-danger">*</span></label>
+                        <textarea class="form-control" name="actividades_dia" rows="4" placeholder="Describe las actividades realizadas durante el día..." minlength="10" maxlength="300" required></textarea>
+                        <div class="invalid-feedback">Describe las actividades (mínimo 10 caracteres).</div>
+                        <div class="form-text"><span id="asistencia-actividades-count">0</span>/300 caracteres</div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Observaciones</label>
+                        <textarea class="form-control" name="observaciones" rows="2" placeholder="Observaciones adicionales..." maxlength="200"></textarea>
+                        <div class="form-text"><span id="asistencia-observaciones-count">0</span>/200 caracteres</div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" onclick="guardarAsistencia()"><i class="fas fa-save me-1"></i>Registrar Asistencia</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Registrar Actividad -->
 <div class="modal fade" id="modalRegistrarActividad" tabindex="-1">
     <div class="modal-dialog">
@@ -787,6 +844,50 @@
         registrarActividad();
     }
 
+    function abrirModalAsistencia(id, tipo) {
+        document.getElementById('asistencia_practica_id').value = id;
+        document.getElementById('asistencia_tipo_practica').value = tipo;
+        document.getElementById('formAsistencia').reset();
+        document.getElementById('asistencia_practica_id').value = id;
+        document.getElementById('asistencia_tipo_practica').value = tipo;
+        var c1 = document.getElementById('asistencia-actividades-count');
+        var c2 = document.getElementById('asistencia-observaciones-count');
+        if (c1) c1.textContent = '0';
+        if (c2) c2.textContent = '0';
+        new bootstrap.Modal(document.getElementById('modalAsistencia')).show();
+    }
+
+    function guardarAsistencia() {
+        var form = document.getElementById('formAsistencia');
+        if (!form.checkValidity()) {
+            form.classList.add('was-validated');
+            return;
+        }
+        var horaEntrada = form.querySelector('input[name="hora_entrada"]').value;
+        var horaSalida = form.querySelector('input[name="hora_salida"]').value;
+        if (horaEntrada && horaSalida && horaSalida <= horaEntrada) {
+            showNotification('La hora de salida debe ser posterior a la de entrada', 'error');
+            return;
+        }
+        var url = '<?= base_url('estudiante/practicas/registrar-asistencia') ?>';
+        var formData = new FormData(form);
+        formData.append('practica_id', document.getElementById('asistencia_practica_id').value);
+        formData.append('tipo_practica', document.getElementById('asistencia_tipo_practica').value);
+        fetch(url, { method: 'POST', body: formData, headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    showNotification(data.message || 'Asistencia registrada exitosamente', 'success');
+                    bootstrap.Modal.getInstance(document.getElementById('modalAsistencia')).hide();
+                    form.reset();
+                    form.classList.remove('was-validated');
+                } else {
+                    showNotification(data.message || 'Error al registrar', 'error');
+                }
+            })
+            .catch(function() { showNotification('Error de conexión', 'error'); });
+    }
+
     function subirDocumento() {
         showNotification('Función de subida de documentos en desarrollo', 'info');
     }
@@ -851,6 +952,10 @@
         const today = new Date().toISOString().split('T')[0];
         const fechaInput = document.querySelector('input[name="fecha_actividad"]');
         if (fechaInput) fechaInput.value = today;
+        var actividadesDia = document.querySelector('#formAsistencia textarea[name="actividades_dia"]');
+        var observacionesAsist = document.querySelector('#formAsistencia textarea[name="observaciones"]');
+        if (actividadesDia) actividadesDia.addEventListener('input', function() { document.getElementById('asistencia-actividades-count').textContent = this.value.length; });
+        if (observacionesAsist) observacionesAsist.addEventListener('input', function() { document.getElementById('asistencia-observaciones-count').textContent = this.value.length; });
         document.querySelectorAll('[id^="progresoServ"]').forEach(function(canvas) {
             const ctx = canvas.getContext('2d');
             const centerX = canvas.width / 2,

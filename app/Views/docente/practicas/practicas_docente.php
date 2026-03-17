@@ -459,25 +459,13 @@
                             </div>
 
                             <div class="card">
-                                <div class="card-header">
-                                    <h6 class="mb-0">Actividades Recientes</h6>
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h6 class="mb-0"><i class="fas fa-clock me-2"></i>Registro de asistencias</h6>
+                                    <small class="text-muted">Lo que el estudiante ha registrado</small>
                                 </div>
                                 <div class="card-body">
-                                    <div class="timeline">
-                                        <div class="timeline-item">
-                                            <div class="timeline-marker"></div>
-                                            <div>
-                                                <div class="fw-semibold">Desarrollo de módulo de usuarios</div>
-                                                <div class="text-muted small">8 horas - 30/08/2025</div>
-                                            </div>
-                                        </div>
-                                        <div class="timeline-item">
-                                            <div class="timeline-marker"></div>
-                                            <div>
-                                                <div class="fw-semibold">Análisis de requerimientos</div>
-                                                <div class="text-muted small">6 horas - 29/08/2025</div>
-                                            </div>
-                                        </div>
+                                    <div id="listaAsistenciasEstudiante" class="timeline">
+                                        <p class="text-muted small mb-0">Cargando...</p>
                                     </div>
                                 </div>
                             </div>
@@ -619,25 +607,52 @@
             document.getElementById('detallePeriodo').textContent = '';
             document.getElementById('detalleEstado').textContent = '';
             document.getElementById('detalleProgreso').textContent = '';
+            document.getElementById('listaAsistenciasEstudiante').innerHTML = '<p class="text-muted small mb-0">Cargando...</p>';
             fetch(baseUrlPracticas + '/detalle-estudiante/' + id)
                 .then(r => r.json())
                 .then(data => {
                     if (data.success && data.data) {
                         const e = data.data.estudiante || {};
                         const prog = data.data.progreso || 0;
+                        const actividades = data.data.actividades || [];
                         document.getElementById('detalleNombre').textContent = e.NOMBRE_COMPLETO || e.NOMBRE || '—';
                         document.getElementById('detalleCarrera').textContent = e.CARRERA_NOMBRE || '—';
-                        document.getElementById('detalleInstitucion').textContent = '—';
-                        document.getElementById('detallePeriodo').textContent = '—';
-                        document.getElementById('detalleEstado').textContent = 'En Progreso';
+                        document.getElementById('detalleInstitucion').textContent = e.INSTITUCION_NOMBRE || '—';
+                        document.getElementById('detallePeriodo').textContent = (e.FECHA_INICIO || '—') + ' a ' + (e.FECHA_FIN || '—');
+                        document.getElementById('detalleEstado').textContent = e.ESTADO_PRACTICA || e.ESTADO_SERVICIO || 'En Progreso';
                         document.getElementById('detalleProgreso').textContent = prog + '%';
                         setTimeout(() => drawProgressChart(prog), 100);
+                        // Lista de asistencias registradas por el estudiante (control docente)
+                        const cont = document.getElementById('listaAsistenciasEstudiante');
+                        if (actividades.length === 0) {
+                            cont.innerHTML = '<p class="text-muted small mb-0">Aún no hay asistencias registradas.</p>';
+                        } else {
+                            function esc(s) {
+                                if (!s) return '';
+                                var d = document.createElement('div');
+                                d.textContent = s;
+                                return d.innerHTML;
+                            }
+                        cont.innerHTML = actividades.map(function(a) {
+                                var fecha = a.FECHA_ASISTENCIA || '';
+                                var ent = (a.HORA_ENTRADA || '').substring(0, 5);
+                                var sal = (a.HORA_SALIDA || '').substring(0, 5);
+                                var horas = (ent && sal) ? (ent + ' - ' + sal) : '';
+                                var act = (a.ACTIVIDADES_DIA || '').substring(0, 120);
+                                if ((a.ACTIVIDADES_DIA || '').length > 120) act += '...';
+                                var obs = (a.OBSERVACIONES || '').trim();
+                                var obsHtml = obs ? '<div class="text-muted small mt-1"><strong>Obs.:</strong> ' + esc(obs.substring(0, 80)) + (obs.length > 80 ? '...' : '') + '</div>' : '';
+                                return '<div class="timeline-item"><div class="timeline-marker"></div><div><div class="fw-semibold">' + esc(fecha) + (horas ? ' · ' + esc(horas) : '') + '</div><div class="small">' + (act ? esc(act) : '—') + '</div>' + obsHtml + '</div></div>';
+                            }).join('');
+                        }
                     } else {
                         document.getElementById('detalleNombre').textContent = 'Error al cargar';
+                        document.getElementById('listaAsistenciasEstudiante').innerHTML = '<p class="text-muted small mb-0">No se pudieron cargar las asistencias.</p>';
                     }
                 })
                 .catch(() => {
                     document.getElementById('detalleNombre').textContent = 'Error al cargar';
+                    document.getElementById('listaAsistenciasEstudiante').innerHTML = '<p class="text-muted small mb-0">Error al cargar.</p>';
                 });
         }
 

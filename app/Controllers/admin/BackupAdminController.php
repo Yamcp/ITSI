@@ -128,6 +128,74 @@ class BackupAdminController extends BaseController
     }
 
     /**
+     * Obtener logs de un backup (registro de la operación)
+     */
+    public function logs($id): ResponseInterface
+    {
+        try {
+            $id = (int) $id;
+            $backup = $this->exportacionesModel->getBackupWithUser($id);
+
+            if (!$backup) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Backup no encontrado'
+                ])->setStatusCode(404);
+            }
+
+            $fecha = $backup['FECHA_EXPORTACION'] ?? date('Y-m-d H:i:s');
+            $usuario = trim(($backup['NOMBRE'] ?? '') . ' ' . ($backup['APELLIDO'] ?? ''));
+            if ($usuario === '') {
+                $usuario = $backup['USUARIO'] ?? 'Usuario #' . ($backup['ID_USUARIO'] ?? '');
+            }
+            $archivo = $backup['ARCHIVO_EXPORTACION'] ?? 'backup_' . $id . '.sql';
+            $tamano = isset($backup['TAMANO_ARCHIVO']) ? (int) $backup['TAMANO_ARCHIVO'] : 0;
+            $tamanoKb = $tamano > 0 ? round($tamano / 1024, 2) . ' KB' : 'N/A';
+            $estado = $backup['ESTADO_EXPORTACION'] ?? 'completado';
+
+            $lineas = [];
+            $lineas[] = '========== LOG DE BACKUP #' . $id . ' ==========';
+            $lineas[] = '';
+            $lineas[] = 'Fecha de generación: ' . $fecha;
+            $lineas[] = 'Usuario: ' . $usuario;
+            $lineas[] = 'Descripción: ' . ($backup['DESCRIPCION_EXPORTACION'] ?? '-');
+            $lineas[] = 'Tipo: ' . ($backup['TIPO_EXPORTACION'] ?? 'backup');
+            $lineas[] = 'Estado: ' . $estado;
+            $lineas[] = 'Archivo: ' . $archivo;
+            $lineas[] = 'Tamaño: ' . $tamanoKb;
+            $lineas[] = '';
+            $lineas[] = '--- Registro del proceso ---';
+            $lineas[] = '[' . $fecha . '] Inicio del proceso de exportación.';
+            $lineas[] = '[' . $fecha . '] Usuario solicitante: ' . $usuario . '.';
+            $lineas[] = '[' . $fecha . '] Exportando tablas de la base de datos...';
+            if ($estado === 'completado') {
+                $lineas[] = '[' . $fecha . '] Exportación completada correctamente.';
+                $lineas[] = '[' . $fecha . '] Backup finalizado. Archivo generado: ' . $archivo . ' (' . $tamanoKb . ')';
+            } else {
+                $lineas[] = '[' . $fecha . '] Estado del backup: ' . $estado . '.';
+            }
+            $lineas[] = '';
+            $lineas[] = '========== Fin del log ==========';
+
+            $log = implode("\n", $lineas);
+
+            return $this->response->setJSON([
+                'success' => true,
+                'data' => [
+                    'log' => $log,
+                    'backup_id' => $id,
+                    'fecha' => $fecha
+                ]
+            ]);
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error al obtener logs: ' . $e->getMessage()
+            ])->setStatusCode(500);
+        }
+    }
+
+    /**
      * Descargar un backup
      */
     public function descargar($id): ResponseInterface
