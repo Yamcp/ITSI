@@ -204,6 +204,7 @@
                         <small class="text-muted">Vista previa:</small>
                         <img id="preview-nueva" class="img-thumbnail mt-1" style="max-width: 100px; max-height: 100px;">
                     </div>
+                    <div id="imagen-alerta" class="alert mt-3 d-none" role="alert"></div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -222,7 +223,23 @@
     var csrfTokenValue = <?= json_encode(csrf_token()) ?>;
     var uploadUrl = <?= json_encode(base_url('estudiante/perfil/upload-image')) ?>;
 
+    function mostrarAlertaImagen(tipo, mensaje) {
+        var alerta = document.getElementById('imagen-alerta');
+        if (!alerta) return;
+        alerta.className = 'alert mt-3 alert-' + tipo;
+        alerta.textContent = mensaje;
+        alerta.classList.remove('d-none');
+    }
+
+    function limpiarAlertaImagen() {
+        var alerta = document.getElementById('imagen-alerta');
+        if (!alerta) return;
+        alerta.className = 'alert mt-3 d-none';
+        alerta.textContent = '';
+    }
+
     function previewImage(input) {
+        limpiarAlertaImagen();
         if (input.files && input.files[0]) {
             var r = new FileReader();
             r.onload = function(e) {
@@ -236,16 +253,17 @@
     function subirImagen() {
         var fileInput = document.getElementById('foto_perfil');
         var file = fileInput.files[0];
+        limpiarAlertaImagen();
         if (!file) {
-            alert('Selecciona una imagen');
+            mostrarAlertaImagen('warning', 'Selecciona una imagen.');
             return;
         }
         if (file.size > 2 * 1024 * 1024) {
-            alert('Máximo 2MB');
+            mostrarAlertaImagen('warning', 'El tamaño máximo permitido es 2MB.');
             return;
         }
         if (['image/jpeg', 'image/png', 'image/gif'].indexOf(file.type) === -1) {
-            alert('Solo JPG, PNG o GIF');
+            mostrarAlertaImagen('warning', 'Solo se permiten archivos JPG, PNG o GIF.');
             return;
         }
         var fd = new FormData();
@@ -280,14 +298,14 @@
                     if (m) m.hide();
                     document.getElementById('formImagen').reset();
                     document.getElementById('preview-container').style.display = 'none';
-                    alert('Imagen actualizada');
+                    limpiarAlertaImagen();
                     window.location.reload();
                 } else {
                     if (btn) {
                         btn.innerHTML = orig;
                         btn.disabled = false;
                     }
-                    alert(data.message || 'Error al subir');
+                    mostrarAlertaImagen('danger', data.message || 'Error al subir la imagen.');
                 }
             })
             .catch(function() {
@@ -295,7 +313,7 @@
                     btn.innerHTML = orig;
                     btn.disabled = false;
                 }
-                alert('Error');
+                mostrarAlertaImagen('danger', 'Ocurrió un error al procesar la solicitud.');
             });
     }
 </script>

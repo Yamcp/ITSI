@@ -18,7 +18,7 @@
         </div>
 
         <!-- Estadísticas Rápidas -->
-        <div class="row mb-4">
+        <div class="row mb-4 justify-content-center">
             <div class="col-md-3 col-sm-6">
                 <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #007bff 80%, #0056b3 100%); color: #fff; border: none;">
                     <div class="card-body">

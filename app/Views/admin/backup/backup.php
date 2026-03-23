@@ -297,7 +297,6 @@ $estadisticas = [
                         <a href="#" onclick="showModal('modalNuevoBackup'); return false;" style="text-decoration: none; color: inherit;">
                             <i class="fas fa-plus-circle fa-2x mb-2" style="color: #28a745; text-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);"></i>
                             <div class="fw-bold">Generar Backup</div>
-                            <small class="text-muted">y configuración</small>
                         </a>
                     </div>
                 </div>

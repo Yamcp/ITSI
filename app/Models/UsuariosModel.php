@@ -24,6 +24,7 @@ class UsuariosModel extends Model
                     dp.NOMBRE as nombre,
                     dp.APELLIDO as apellido,
                     dp.EMAIL as email,
+                    dp.FOTO_URL as foto_perfil,
                     dp.CEDULA as cedula,
                     tr.ID_TIPOS_ROLES as rol,
                     tr.ROL as nombre_rol
@@ -65,6 +66,7 @@ class UsuariosModel extends Model
                         'nombre' => $user->nombre,
                         'apellido' => $user->apellido,
                         'email' => $user->email,
+                        'foto_perfil' => $user->foto_perfil ?? null,
                         'rol' => $user->rol,
                         'nombre_rol' => $user->nombre_rol,
                         'estado' => $user->estado,

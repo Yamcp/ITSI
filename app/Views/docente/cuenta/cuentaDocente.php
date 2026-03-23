@@ -29,6 +29,14 @@
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         <?php endif; ?>
+        
+        <?php if (session('info')): ?>
+            <div class="alert alert-info alert-dismissible fade show" role="alert">
+                <i class="fa-solid fa-circle-info me-2"></i>
+                <?= session('info') ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        <?php endif; ?>
 
         <?php if (session('errors')): ?>
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -137,9 +145,9 @@
                                             <i class="fa-solid fa-save me-2"></i>
                                             Cambiar Contraseña
                                         </button>
-                                        <a href="<?= base_url('docente/dashboard') ?>" class="btn btn-secondary">
+                                        <a href="<?= base_url('auth/cerrar-sesion') ?>" class="btn btn-secondary">
                                             <i class="fa-solid fa-times me-2"></i>
-                                            Cancelar
+                                            Cancelar y salir
                                         </a>
                                     </div>
                                 </div>

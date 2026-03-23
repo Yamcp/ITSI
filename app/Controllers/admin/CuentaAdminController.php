@@ -106,6 +106,7 @@ class CuentaAdminController extends BaseController
         ];
 
         if ($this->usuariosModel->update($userId, $datosUsuario)) {
+            session()->set('requiere_cambio_password', false);
             return redirect()->back()->with('success', 'Contraseña actualizada exitosamente');
         } else {
             return redirect()->back()->withInput()->with('error', 'Error al actualizar la contraseña');

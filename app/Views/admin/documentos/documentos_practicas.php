@@ -1,7 +1,7 @@
 <?= $this->extend('admin/layouts/mainAdmin') ?>
 
 <?= $this->section('styles') ?>
-<link rel="stylesheet" href="<?= base_url('sistema/assets/css/practicas.css') ?>" />
+<link rel="stylesheet" href="<?= base_url('sistema/assets/css/documentos.css') ?>" />
 <style>
     .text-truncate {
         white-space: nowrap;
@@ -12,6 +12,50 @@
     .estado-badge {
         font-size: 0.75rem;
         padding: 0.25rem 0.5rem;
+    }
+
+    .filtros-bar {
+        border: 1px solid #e9ecef;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+
+    /* Barra de pestañas: mismo estilo que Documentos - Servicio Comunitario (anula practicas.css) */
+    #documentosTabs.nav-tabs {
+        border: none !important;
+        border-bottom: none !important;
+        gap: 0.5rem;
+        border-radius: 50rem;
+        background-color: #f8f9fa;
+        padding: 0.25rem 0.5rem;
+        margin-bottom: 0 !important;
+    }
+    #documentosTabs .nav-link {
+        border: none !important;
+        border-bottom: none !important;
+        background-color: transparent;
+        padding: 0.6rem 1.1rem;
+        border-radius: 50rem !important;
+        font-weight: 600;
+        transition: background-color 0.2s, color 0.2s;
+        color: inherit;
+    }
+    #documentosTabs .nav-link:hover {
+        background-color: #e9ecef;
+    }
+    #documentosTabs .nav-link.active {
+        background-color: #fff !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        border-bottom: none !important;
+    }
+    #documentosTabs #documentos-tipo-tab.active,
+    #documentosTabs #documentos-tipo-tab.active i {
+        color: #0d6efd !important;
+    }
+    #documentosTabs #formatos-docs-tab,
+    #documentosTabs #formatos-docs-tab i,
+    #documentosTabs #formatos-docs-tab.active,
+    #documentosTabs #formatos-docs-tab.active i {
+        color: #198754 !important;
     }
 </style>
 <?= $this->endSection() ?>
@@ -109,7 +153,35 @@
             </div>
         </div>
 
-        <!-- Tabs -->
+        <!-- Filtros (entre Acciones Rápidas y la card de pestañas) -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="filtros-bar rounded-pill bg-light px-3 py-2 d-flex flex-wrap align-items-center gap-2">
+                    <span class="fw-semibold text-muted"><i class="fas fa-filter me-1"></i>Filtros</span>
+                    <select class="form-select form-select-sm" id="filtroEstado" onchange="aplicarFiltros()" style="width: auto; max-width: 160px;">
+                        <option value="">Todos los estados</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="En Revisión">En Revisión</option>
+                        <option value="Aprobado">Aprobado</option>
+                        <option value="Rechazado">Rechazado</option>
+                        <option value="Requiere Corrección">Requiere Corrección</option>
+                    </select>
+                    <select class="form-select form-select-sm" id="filtroTipo" onchange="aplicarFiltros()" style="width: auto; max-width: 200px;">
+                        <option value="">Todos los tipos</option>
+                        <?php if (isset($tiposDocumentos)): ?>
+                            <?php foreach ($tiposDocumentos as $tipo): ?>
+                                <option value="<?= $tipo['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?>"><?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?></option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                    <input type="text" class="form-control form-control-sm" id="buscarEstudiante" placeholder="Estudiante o cédula..." onkeyup="aplicarFiltros()" style="width: 180px;">
+                    <button class="btn btn-outline-secondary btn-sm" onclick="limpiarFiltros()"><i class="fas fa-times me-1"></i>Limpiar</button>
+                    <button class="btn btn-outline-primary btn-sm" onclick="showModal('modalFiltrosPracticas')"><i class="fas fa-sliders-h me-1"></i>Más filtros</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabs (igual que Documentos - Servicio Comunitario) -->
         <div class="row">
             <div class="col-12">
                 <div class="card border-0 shadow-sm">
@@ -131,34 +203,6 @@
                         <div class="tab-content mt-3" id="documentosTabContent">
                             <!-- Pestaña: Documentos por tipo -->
                             <div class="tab-pane fade show active" id="documentos-por-tipo" role="tabpanel">
-                                <!-- Filtros rápidos (colapsables visualmente alineados con card) -->
-                                <div class="card shadow-sm border-0 mb-3">
-                                    <div class="card-header bg-light d-flex justify-content-between align-items-center flex-wrap gap-2">
-                                        <span class="fw-semibold"><i class="fas fa-filter me-1"></i>Filtros</span>
-                                        <div class="d-flex flex-wrap gap-2 align-items-center">
-                                            <select class="form-select form-select-sm" id="filtroEstado" onchange="aplicarFiltros()" style="width: auto;">
-                                                <option value="">Todos los estados</option>
-                                                <option value="Pendiente">Pendiente</option>
-                                                <option value="En Revisión">En Revisión</option>
-                                                <option value="Aprobado">Aprobado</option>
-                                                <option value="Rechazado">Rechazado</option>
-                                                <option value="Requiere Corrección">Requiere Corrección</option>
-                                            </select>
-                                            <select class="form-select form-select-sm" id="filtroTipo" onchange="aplicarFiltros()" style="width: auto;">
-                                                <option value="">Todos los tipos</option>
-                                                <?php if (isset($tiposDocumentos)): ?>
-                                                    <?php foreach ($tiposDocumentos as $tipo): ?>
-                                                        <option value="<?= $tipo['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?>"><?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?></option>
-                                                    <?php endforeach; ?>
-                                                <?php endif; ?>
-                                            </select>
-                                            <input type="text" class="form-control form-control-sm" id="buscarEstudiante" placeholder="Estudiante o cédula..." onkeyup="aplicarFiltros()" style="width: 180px;">
-                                            <button class="btn btn-outline-secondary btn-sm" onclick="limpiarFiltros()"><i class="fas fa-times me-1"></i>Limpiar</button>
-                                            <button class="btn btn-light btn-sm" onclick="showModal('modalFiltrosPracticas')"><i class="fas fa-sliders-h me-1"></i>Más filtros</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Tablas por tipo -->
                                 <div id="vistaGrid">
                                     <?php if (!empty($tiposDocumentos)): ?>
                                         <?php foreach ($tiposDocumentos as $tipo): ?>
@@ -169,7 +213,7 @@
                                                 </div>
                                                 <div class="card-body p-0">
                                                     <div class="table-responsive">
-                                                        <table class="table table-striped align-middle mb-0" id="tabla-<?= $tipo['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?>">
+                                                        <table class="table table-striped align-middle mb-0 table-documentos" id="tabla-<?= $tipo['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?>">
                                                             <thead class="table-light">
                                                                 <tr>
                                                                     <th>#</th>
@@ -229,7 +273,7 @@
                                             </div>
                                         </div>
                                         <div class="table-responsive">
-                                            <table class="table table-sm table-hover">
+                                            <table class="table table-sm table-hover table-documentos">
                                                 <thead class="table-light">
                                                     <tr>
                                                         <th>#</th>
@@ -1114,6 +1158,15 @@
     // Inicialización al cargar la página
     document.addEventListener('DOMContentLoaded', function() {
         console.log('Vista de documentos de prácticas cargada');
+
+        // Si se llegó con hash #formatos-documentos, activar esa pestaña
+        if (window.location.hash === '#formatos-documentos') {
+            const tabFormatos = document.getElementById('formatos-docs-tab');
+            if (tabFormatos && typeof bootstrap !== 'undefined') {
+                const tab = new bootstrap.Tab(tabFormatos);
+                tab.show();
+            }
+        }
 
         // Cargar documentos inicialmente
         cargarDocumentosGrid();

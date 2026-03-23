@@ -3,6 +3,10 @@
 /* Created on:     31/8/2025 10:46:53                           */
 /*==============================================================*/
 
+-- Crear y usar la base de datos (compatible con XAMPP)
+CREATE DATABASE IF NOT EXISTS `itsi` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `itsi`;
+
 -- Eliminar tablas dependientes primero (en orden inverso de dependencias)
 drop table if exists TAB_ASISTENCIAS_SERVICIO_COMUNITARIO;
 drop table if exists TAB_ASISTENCIAS_PRACTICAS_PREPROFESIONALES;
@@ -212,6 +216,7 @@ create table TAB_INSTITUCIONES_CONVENIOS
 (
    ID_INSTITUCION_CONVENIO int not null auto_increment,
    ID_TIPO_INSTITUCION  int,
+   ID_ENTIDAD_RECEPTORA int,
    NOMBRE               varchar(200) not null,
    RUC                  varchar(20) not null,
    DIRECCION            text not null,
@@ -890,6 +895,9 @@ alter table TAB_EXPORTACIONES add constraint FK_REFERENCE_17 foreign key (ID_USU
 
 alter table TAB_INSTITUCIONES_CONVENIOS add constraint FK_REFERENCE_33 foreign key (ID_TIPO_INSTITUCION)
       references TAB_TIPOS_INSTITUCION (ID_TIPO_INSTITUCION) on delete restrict on update restrict;
+
+alter table TAB_INSTITUCIONES_CONVENIOS add constraint FK_INSTITUCION_ENTIDAD_RECEPTORA foreign key (ID_ENTIDAD_RECEPTORA)
+      references TAB_ENTIDADES_RECEPTORAS (ID_ENTIDAD_RECEPTORA) on delete restrict on update restrict;
 
 alter table TAB_INSTITUCION_CARRERA add constraint FK_REFERENCE_39 foreign key (ID_CARRERA)
       references TAB_CARRERAS (ID_CARRERA) on delete restrict on update restrict;

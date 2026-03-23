@@ -54,5 +54,61 @@ abstract class BaseController extends Controller
         // Preload any models, libraries, etc, here.
 
         // E.g.: $this->session = service('session');
+        $session = session();
+        if (!$session->get('logged_in') || !$session->get('requiere_cambio_password')) {
+            return;
+        }
+
+        $path = trim(service('uri')->getPath(), '/');
+        if ($path === 'index.php') {
+            $path = '';
+        }
+
+        $posIndex = strpos($path, 'index.php/');
+        if ($posIndex !== false) {
+            $path = substr($path, $posIndex + strlen('index.php/'));
+        }
+
+        foreach (['auth/', 'admin/', 'docente/', 'estudiante/'] as $prefijoRuta) {
+            $posPrefijo = strpos($path, $prefijoRuta);
+            if ($posPrefijo !== false) {
+                $path = substr($path, $posPrefijo);
+                break;
+            }
+        }
+
+        $path = trim($path, '/');
+        $rol = (int) $session->get('rol');
+
+        $rutasPermitidas = ['auth/cerrar-sesion'];
+
+        switch ($rol) {
+            case 1:
+                $rutasPermitidas[] = 'admin/cuenta';
+                $rutasPermitidas[] = 'admin/cuenta/cambiar-password';
+                $rutaCuenta = 'admin/cuenta';
+                break;
+            case 2:
+                $rutasPermitidas[] = 'docente/cuenta';
+                $rutasPermitidas[] = 'docente/cuenta/cambiar-password';
+                $rutaCuenta = 'docente/cuenta';
+                break;
+            case 3:
+                $rutasPermitidas[] = 'estudiante/cuenta';
+                $rutasPermitidas[] = 'estudiante/cuenta/cambiar-password';
+                $rutaCuenta = 'estudiante/cuenta';
+                break;
+            default:
+                $session->destroy();
+                redirect()->to('/')->send();
+                exit;
+        }
+
+        if (!in_array($path, $rutasPermitidas, true)) {
+            redirect()->to($rutaCuenta)
+                ->with('info', 'Debe cambiar su contraseña inicial antes de continuar o cerrar sesión.')
+                ->send();
+            exit;
+        }
     }
 }

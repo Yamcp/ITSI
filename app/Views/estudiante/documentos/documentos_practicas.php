@@ -68,6 +68,27 @@
         border-color: #007bff;
         background-color: #e3f2fd;
     }
+
+    .view-mode-toggle {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 1rem;
+    }
+
+    .view-mode-label {
+        font-size: 0.9rem;
+        color: #6c757d;
+        margin: 0 0.5rem;
+        font-weight: 600;
+    }
+
+    .document-view {
+        display: none;
+    }
+
+    .document-view.active {
+        display: block;
+    }
 </style>
 <?= $this->endSection() ?>
 
@@ -141,122 +162,220 @@
                         </h5>
                     </div>
                     <div class="card-body">
-                        <div class="row g-3">
-                            <?php foreach ($tipos_documentos as $index => $tipo): ?>
-                                <?php
-                                $documentoEstudiante = null;
-                                foreach ($progreso as $doc) {
-                                    if ($doc['ID_TIPO_DOCUMENTO'] == $tipo['ID_TIPO_DOCUMENTO'] && $doc['ID_DOCUMENTO_PRACTICA']) {
-                                        $documentoEstudiante = $doc;
-                                        break;
+                        <div class="view-mode-toggle">
+                            <span class="view-mode-label">Cards</span>
+                            <div class="form-check form-switch m-0">
+                                <input class="form-check-input" type="checkbox" id="switchVistaDocumentos">
+                            </div>
+                            <span class="view-mode-label">Tabla</span>
+                        </div>
+
+                        <div id="vistaCards" class="document-view active">
+                            <div class="row g-3">
+                                <?php foreach ($tipos_documentos as $index => $tipo): ?>
+                                    <?php
+                                    $documentoEstudiante = null;
+                                    foreach ($progreso as $doc) {
+                                        if ($doc['ID_TIPO_DOCUMENTO'] == $tipo['ID_TIPO_DOCUMENTO'] && $doc['ID_DOCUMENTO_PRACTICA']) {
+                                            $documentoEstudiante = $doc;
+                                            break;
+                                        }
                                     }
-                                }
 
-                                $estado = $documentoEstudiante ? $documentoEstudiante['ESTADO_REVISION'] : 'No subido';
-                                $claseCard = '';
-                                $iconoEstado = '';
-                                $colorEstado = '';
+                                    $estado = $documentoEstudiante ? $documentoEstudiante['ESTADO_REVISION'] : 'No subido';
+                                    $claseCard = '';
+                                    $iconoEstado = '';
+                                    $colorEstado = '';
 
-                                switch ($estado) {
-                                    case 'Aprobado':
-                                        $claseCard = 'aprobado';
-                                        $iconoEstado = 'fas fa-check-circle';
-                                        $colorEstado = 'success';
-                                        break;
-                                    case 'Rechazado':
-                                        $claseCard = 'rechazado';
-                                        $iconoEstado = 'fas fa-times-circle';
-                                        $colorEstado = 'danger';
-                                        break;
-                                    case 'En Revisión':
-                                        $claseCard = 'pendiente';
-                                        $iconoEstado = 'fas fa-eye';
-                                        $colorEstado = 'info';
-                                        break;
-                                    case 'Pendiente':
-                                        $claseCard = 'pendiente';
-                                        $iconoEstado = 'fas fa-clock';
-                                        $colorEstado = 'warning';
-                                        break;
-                                    default:
-                                        $claseCard = '';
-                                        $iconoEstado = 'fas fa-upload';
-                                        $colorEstado = 'secondary';
-                                }
-                                ?>
+                                    switch ($estado) {
+                                        case 'Aprobado':
+                                            $claseCard = 'aprobado';
+                                            $iconoEstado = 'fas fa-check-circle';
+                                            $colorEstado = 'success';
+                                            break;
+                                        case 'Rechazado':
+                                            $claseCard = 'rechazado';
+                                            $iconoEstado = 'fas fa-times-circle';
+                                            $colorEstado = 'danger';
+                                            break;
+                                        case 'En Revisión':
+                                            $claseCard = 'pendiente';
+                                            $iconoEstado = 'fas fa-eye';
+                                            $colorEstado = 'info';
+                                            break;
+                                        case 'Pendiente':
+                                            $claseCard = 'pendiente';
+                                            $iconoEstado = 'fas fa-clock';
+                                            $colorEstado = 'warning';
+                                            break;
+                                        default:
+                                            $claseCard = '';
+                                            $iconoEstado = 'fas fa-upload';
+                                            $colorEstado = 'secondary';
+                                    }
+                                    ?>
 
-                                <div class="col-md-6 col-lg-4">
-                                    <div class="card document-card <?= $claseCard ?> h-100">
-                                        <div class="card-body">
-                                            <div class="d-flex align-items-start mb-3">
-                                                <div class="file-icon bg-primary me-3" style="width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                                                    <i class="fas fa-file-alt text-white"></i>
+                                    <div class="col-md-6 col-lg-4">
+                                        <div class="card document-card <?= $claseCard ?> h-100">
+                                            <div class="card-body">
+                                                <div class="d-flex align-items-start mb-3">
+                                                    <div class="file-icon bg-primary me-3" style="width: 50px; height: 50px; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                                                        <i class="fas fa-file-alt text-white"></i>
+                                                    </div>
+                                                    <div class="flex-grow-1">
+                                                        <h6 class="mb-1"><?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?></h6>
+                                                        <small class="text-muted"><?= $tipo['DESCRIPCION'] ?></small>
+                                                    </div>
                                                 </div>
-                                                <div class="flex-grow-1">
-                                                    <h6 class="mb-1"><?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?></h6>
-                                                    <small class="text-muted"><?= $tipo['DESCRIPCION'] ?></small>
-                                                </div>
-                                            </div>
 
-                                            <div class="mb-3">
-                                                <span class="status-badge bg-<?= $colorEstado ?> text-white">
-                                                    <i class="<?= $iconoEstado ?> me-1"></i>
-                                                    <?= $estado ?>
-                                                </span>
-                                                <?php if ($tipo['REQUERIDO']): ?>
-                                                    <span class="badge bg-danger ms-2">Requerido</span>
-                                                <?php endif; ?>
-                                            </div>
-
-                                            <?php if ($documentoEstudiante): ?>
                                                 <div class="mb-3">
-                                                    <small class="text-muted">
-                                                        <i class="fas fa-calendar me-1"></i>
-                                                        Subido: <?= date('d/m/Y', strtotime($documentoEstudiante['FECHA_SUBIDA'])) ?>
-                                                    </small>
-                                                    <?php if ($documentoEstudiante['OBSERVACIONES_REVISOR']): ?>
-                                                        <div class="mt-2">
-                                                            <small class="text-muted">
-                                                                <strong>Observaciones:</strong><br>
-                                                                <?= $documentoEstudiante['OBSERVACIONES_REVISOR'] ?>
-                                                            </small>
-                                                        </div>
+                                                    <span class="status-badge bg-<?= $colorEstado ?> text-white">
+                                                        <i class="<?= $iconoEstado ?> me-1"></i>
+                                                        <?= $estado ?>
+                                                    </span>
+                                                    <?php if ($tipo['REQUERIDO']): ?>
+                                                        <span class="badge bg-danger ms-2">Requerido</span>
                                                     <?php endif; ?>
                                                 </div>
-                                            <?php endif; ?>
 
-                                            <div class="d-flex gap-2">
                                                 <?php if ($documentoEstudiante): ?>
-                                                    <button class="btn btn-outline-primary btn-sm"
-                                                        onclick="verDocumento(<?= $documentoEstudiante['ID_DOCUMENTO_PRACTICA'] ?>)"
-                                                        title="Ver Documento">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                    <button class="btn btn-outline-success btn-sm"
-                                                        onclick="descargarDocumento(<?= $documentoEstudiante['ID_DOCUMENTO_PRACTICA'] ?>)"
-                                                        title="Descargar">
-                                                        <i class="fas fa-download"></i>
-                                                    </button>
-                                                    <?php if ($estado != 'Aprobado'): ?>
-                                                        <button class="btn btn-outline-danger btn-sm"
-                                                            onclick="eliminarDocumento(<?= $documentoEstudiante['ID_DOCUMENTO_PRACTICA'] ?>)"
-                                                            title="Eliminar">
-                                                            <i class="fas fa-trash"></i>
+                                                    <div class="mb-3">
+                                                        <small class="text-muted">
+                                                            <i class="fas fa-calendar me-1"></i>
+                                                            Subido: <?= date('d/m/Y', strtotime($documentoEstudiante['FECHA_SUBIDA'])) ?>
+                                                        </small>
+                                                        <?php if ($documentoEstudiante['OBSERVACIONES_REVISOR']): ?>
+                                                            <div class="mt-2">
+                                                                <small class="text-muted">
+                                                                    <strong>Observaciones:</strong><br>
+                                                                    <?= $documentoEstudiante['OBSERVACIONES_REVISOR'] ?>
+                                                                </small>
+                                                            </div>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                <?php endif; ?>
+
+                                                <div class="d-flex gap-2">
+                                                    <?php if ($documentoEstudiante): ?>
+                                                        <button class="btn btn-outline-primary btn-sm"
+                                                            onclick="verDocumento(<?= $documentoEstudiante['ID_DOCUMENTO_PRACTICA'] ?>)"
+                                                            title="Ver Documento">
+                                                            <i class="fas fa-eye"></i>
+                                                        </button>
+                                                        <button class="btn btn-outline-success btn-sm"
+                                                            onclick="descargarDocumento(<?= $documentoEstudiante['ID_DOCUMENTO_PRACTICA'] ?>)"
+                                                            title="Descargar">
+                                                            <i class="fas fa-download"></i>
+                                                        </button>
+                                                        <?php if ($estado != 'Aprobado'): ?>
+                                                            <button class="btn btn-outline-danger btn-sm"
+                                                                onclick="eliminarDocumento(<?= $documentoEstudiante['ID_DOCUMENTO_PRACTICA'] ?>)"
+                                                                title="Eliminar">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        <?php endif; ?>
+                                                    <?php else: ?>
+                                                        <button class="btn btn-primary btn-sm"
+                                                            onclick="mostrarModalSubir(<?= $tipo['ID_TIPO_DOCUMENTO'] ?>, '<?= $tipo['NOMBRE'] ?>')"
+                                                            title="Subir Documento">
+                                                            <i class="fas fa-upload me-1"></i>
+                                                            Subir
                                                         </button>
                                                     <?php endif; ?>
-                                                <?php else: ?>
-                                                    <button class="btn btn-primary btn-sm"
-                                                        onclick="mostrarModalSubir(<?= $tipo['ID_TIPO_DOCUMENTO'] ?>, '<?= $tipo['NOMBRE'] ?>')"
-                                                        title="Subir Documento">
-                                                        <i class="fas fa-upload me-1"></i>
-                                                        Subir
-                                                    </button>
-                                                <?php endif; ?>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            <?php endforeach; ?>
+                                <?php endforeach; ?>
+                            </div>
+                        </div>
+
+                        <div id="vistaTabla" class="document-view">
+                            <div class="table-responsive">
+                                <table class="table table-hover table-bordered align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th class="text-center" style="width: 70px;">#</th>
+                                            <th>Documento</th>
+                                            <th class="text-center" style="width: 180px;">Estado</th>
+                                            <th class="text-center" style="width: 160px;">Fecha</th>
+                                            <th class="text-center" style="width: 220px;">Acción</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php foreach ($tipos_documentos as $index => $tipo): ?>
+                                            <?php
+                                            $documentoEstudiante = null;
+                                            foreach ($progreso as $doc) {
+                                                if ($doc['ID_TIPO_DOCUMENTO'] == $tipo['ID_TIPO_DOCUMENTO'] && $doc['ID_DOCUMENTO_PRACTICA']) {
+                                                    $documentoEstudiante = $doc;
+                                                    break;
+                                                }
+                                            }
+
+                                            $estado = $documentoEstudiante ? $documentoEstudiante['ESTADO_REVISION'] : 'No subido';
+                                            $badgeEstado = 'secondary';
+                                            if ($estado === 'Aprobado') {
+                                                $badgeEstado = 'success';
+                                            } elseif ($estado === 'Rechazado') {
+                                                $badgeEstado = 'danger';
+                                            } elseif ($estado === 'En Revisión') {
+                                                $badgeEstado = 'info';
+                                            } elseif ($estado === 'Pendiente') {
+                                                $badgeEstado = 'warning text-dark';
+                                            }
+                                            ?>
+                                            <tr>
+                                                <td class="text-center fw-bold"><?= $index + 1 ?></td>
+                                                <td>
+                                                    <div class="fw-semibold"><?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?></div>
+                                                    <small class="text-muted"><?= $tipo['DESCRIPCION'] ?></small>
+                                                    <?php if ($tipo['REQUERIDO']): ?>
+                                                        <span class="badge bg-danger ms-2">Requerido</span>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td class="text-center">
+                                                    <span class="badge bg-<?= $badgeEstado ?>"><?= $estado ?></span>
+                                                </td>
+                                                <td class="text-center">
+                                                    <?php if ($documentoEstudiante): ?>
+                                                        <small><?= date('d/m/Y', strtotime($documentoEstudiante['FECHA_SUBIDA'])) ?></small>
+                                                    <?php else: ?>
+                                                        <small class="text-muted">-</small>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td class="text-center">
+                                                    <?php if ($documentoEstudiante): ?>
+                                                        <button class="btn btn-outline-primary btn-sm me-1"
+                                                            onclick="verDocumento(<?= $documentoEstudiante['ID_DOCUMENTO_PRACTICA'] ?>)"
+                                                            title="Ver Documento">
+                                                            <i class="fas fa-eye"></i>
+                                                        </button>
+                                                        <button class="btn btn-outline-success btn-sm me-1"
+                                                            onclick="descargarDocumento(<?= $documentoEstudiante['ID_DOCUMENTO_PRACTICA'] ?>)"
+                                                            title="Descargar">
+                                                            <i class="fas fa-download"></i>
+                                                        </button>
+                                                        <?php if ($estado != 'Aprobado'): ?>
+                                                            <button class="btn btn-outline-danger btn-sm"
+                                                                onclick="eliminarDocumento(<?= $documentoEstudiante['ID_DOCUMENTO_PRACTICA'] ?>)"
+                                                                title="Eliminar">
+                                                                <i class="fas fa-trash"></i>
+                                                            </button>
+                                                        <?php endif; ?>
+                                                    <?php else: ?>
+                                                        <button class="btn btn-primary btn-sm"
+                                                            onclick="mostrarModalSubir(<?= $tipo['ID_TIPO_DOCUMENTO'] ?>, '<?= $tipo['NOMBRE'] ?>')"
+                                                            title="Subir Documento">
+                                                            <i class="fas fa-upload me-1"></i>Subir
+                                                        </button>
+                                                    <?php endif; ?>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -446,6 +565,26 @@
 
     // Drag and Drop functionality
     document.addEventListener('DOMContentLoaded', function() {
+        const switchVista = document.getElementById('switchVistaDocumentos');
+        const vistaCards = document.getElementById('vistaCards');
+        const vistaTabla = document.getElementById('vistaTabla');
+
+        function aplicarVista(esTabla) {
+            if (!vistaCards || !vistaTabla || !switchVista) return;
+            vistaCards.classList.toggle('active', !esTabla);
+            vistaTabla.classList.toggle('active', esTabla);
+            switchVista.checked = esTabla;
+            localStorage.setItem('vistaDocumentosPracticas', esTabla ? 'tabla' : 'cards');
+        }
+
+        if (switchVista && vistaCards && vistaTabla) {
+            const vistaGuardada = localStorage.getItem('vistaDocumentosPracticas');
+            aplicarVista(vistaGuardada === 'tabla');
+            switchVista.addEventListener('change', function() {
+                aplicarVista(this.checked);
+            });
+        }
+
         const uploadArea = document.getElementById('uploadArea');
         const archivoInput = document.getElementById('archivoInput');
 

@@ -20,7 +20,7 @@ if (!$periodoNombre) {
 }
 ?>
 
-<header class="app-header w-100">
+<header class="app-header w-100" style="padding: 0;">
     <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #00367c;">
         <a class="navbar-brand d-flex align-items-center" href="<?= base_url('admin/inicio') ?>"></a>
 
@@ -57,11 +57,28 @@ if (!$periodoNombre) {
                     <a class="nav-link nav-icon-hover" href="javascript:void(0)" id="drop2" data-bs-toggle="dropdown" aria-expanded="false">
                         <?php
                         $foto_perfil = session('foto_perfil');
-                        $foto_url = ($foto_perfil && file_exists(FCPATH . 'sistema/assets/images/profile/' . $foto_perfil))
-                            ? base_url('sistema/assets/images/profile/' . $foto_perfil)
+                        if (!$foto_perfil && session()->get('id_usuario')) {
+                            try {
+                                $dbFoto = Database::connect();
+                                $fotoRow = $dbFoto->query(
+                                    "SELECT dp.FOTO_URL 
+                                     FROM TAB_USUARIOS u 
+                                     INNER JOIN TAB_DATOS_PERSONAS dp ON dp.ID_DATO_PERSONA = u.ID_DATO_PERSONA 
+                                     WHERE u.ID_USUARIO = ? LIMIT 1",
+                                    [session()->get('id_usuario')]
+                                )->getRowArray();
+                                $foto_perfil = $fotoRow['FOTO_URL'] ?? null;
+                                session()->set('foto_perfil', $foto_perfil);
+                            } catch (\Throwable $e) {
+                                log_message('error', 'Navbar admin - error obteniendo foto de perfil: ' . $e->getMessage());
+                            }
+                        }
+                        $foto_url = ($foto_perfil && file_exists(FCPATH . 'uploads/perfiles/' . $foto_perfil))
+                            ? base_url('uploads/perfiles/' . $foto_perfil)
                             : base_url('sistema/assets/images/profile/user-1.jpg');
+                        $foto_url_cache = $foto_url . '?v=' . urlencode((string) (session()->get('id_usuario') ?? '0')) . '_' . urlencode((string) ($foto_perfil ?: 'default'));
                         ?>
-                        <img src="<?= $foto_url ?>" alt="Foto de perfil" width="35" height="35" class="rounded-circle" style="object-fit: cover; background-color: white; border: 2px solid #ffffff;">
+                        <img src="<?= $foto_url_cache ?>" alt="Foto de perfil" width="35" height="35" class="rounded-circle" style="object-fit: cover; background-color: white; border: 2px solid #ffffff;">
                     </a>
                     <div class="dropdown-menu dropdown-menu-end dropdown-menu-animate-up" aria-labelledby="drop2">
                         <div class="message-body">

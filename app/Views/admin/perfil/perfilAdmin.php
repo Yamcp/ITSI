@@ -204,6 +204,7 @@
                         <small class="text-muted">Vista previa:</small>
                         <img id="preview-nueva" class="img-thumbnail mt-1" style="max-width: 100px; max-height: 100px;">
                     </div>
+                    <div id="imagen-alerta" class="alert mt-3 d-none" role="alert"></div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -228,8 +229,24 @@
     var uploadUrl = <?= json_encode(base_url('admin/perfil/upload-image')) ?>;
     var deleteImageUrl = <?= json_encode(base_url('admin/perfil/delete-image')) ?>;
 
+    function mostrarAlertaImagen(tipo, mensaje) {
+        var alerta = document.getElementById('imagen-alerta');
+        if (!alerta) return;
+        alerta.className = 'alert mt-3 alert-' + tipo;
+        alerta.textContent = mensaje;
+        alerta.classList.remove('d-none');
+    }
+
+    function limpiarAlertaImagen() {
+        var alerta = document.getElementById('imagen-alerta');
+        if (!alerta) return;
+        alerta.className = 'alert mt-3 d-none';
+        alerta.textContent = '';
+    }
+
     function eliminarFoto() {
         if (!confirm('¿Eliminar la foto de perfil?')) return;
+        limpiarAlertaImagen();
         var btn = document.getElementById('btnEliminarFoto');
         if (btn) {
             btn.disabled = true;
@@ -252,10 +269,10 @@
                 if (data.success) {
                     var m = bootstrap.Modal.getInstance(document.getElementById('modalImagen'));
                     if (m) m.hide();
-                    alert('Foto eliminada');
+                    limpiarAlertaImagen();
                     window.location.reload();
                 } else {
-                    alert(data.message || 'Error');
+                    mostrarAlertaImagen('danger', data.message || 'Error al eliminar la foto.');
                 }
             })
             .finally(function() {
@@ -267,6 +284,7 @@
     }
 
     function previewImage(input) {
+        limpiarAlertaImagen();
         if (input.files && input.files[0]) {
             var r = new FileReader();
             r.onload = function(e) {
@@ -280,16 +298,17 @@
     function subirImagen() {
         var fileInput = document.getElementById('foto_perfil');
         var file = fileInput.files[0];
+        limpiarAlertaImagen();
         if (!file) {
-            alert('Selecciona una imagen');
+            mostrarAlertaImagen('warning', 'Selecciona una imagen.');
             return;
         }
         if (file.size > 2 * 1024 * 1024) {
-            alert('Máximo 2MB');
+            mostrarAlertaImagen('warning', 'El tamaño máximo permitido es 2MB.');
             return;
         }
         if (['image/jpeg', 'image/png'].indexOf(file.type) === -1) {
-            alert('Solo JPG o PNG');
+            mostrarAlertaImagen('warning', 'Solo se permiten archivos JPG o PNG.');
             return;
         }
         var fd = new FormData();
@@ -324,14 +343,14 @@
                     if (m) m.hide();
                     document.getElementById('formImagen').reset();
                     document.getElementById('preview-container').style.display = 'none';
-                    alert('Imagen actualizada');
+                    limpiarAlertaImagen();
                     window.location.reload();
                 } else {
                     if (btn) {
                         btn.innerHTML = orig;
                         btn.disabled = false;
                     }
-                    alert(data.message || 'Error al subir');
+                    mostrarAlertaImagen('danger', data.message || 'Error al subir la imagen.');
                 }
             })
             .catch(function() {
@@ -339,7 +358,7 @@
                     btn.innerHTML = orig;
                     btn.disabled = false;
                 }
-                alert('Error');
+                mostrarAlertaImagen('danger', 'Ocurrió un error al procesar la solicitud.');
             });
     }
 </script>

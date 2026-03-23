@@ -191,6 +191,7 @@ class PerfilDocenteController extends BaseController
                 $resultado = $usuarioModel->actualizarPerfil($userId, $datosPersona, []);
                 
                 if ($resultado) {
+                    $session->set('foto_perfil', $newName);
                     return $this->response->setJSON([
                         'success' => true,
                         'message' => 'Imagen actualizada correctamente',

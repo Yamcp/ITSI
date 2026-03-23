@@ -53,6 +53,11 @@
         text-overflow: ellipsis;
     }
 
+    .filtros-bar {
+        border: 1px solid #e9ecef;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+
     .file-icon {
         display: flex;
         align-items: center;
@@ -190,6 +195,33 @@
             </div>
         </div>
 
+        <!-- Filtros (entre Acciones Rápidas y la card de pestañas) -->
+        <div class="row mb-3">
+            <div class="col-12">
+                <div class="filtros-bar rounded-pill bg-light px-3 py-2 d-flex flex-wrap align-items-center gap-2">
+                    <span class="fw-semibold text-muted"><i class="fas fa-filter me-1"></i>Filtros</span>
+                    <select class="form-select form-select-sm" id="filtroEstado" onchange="aplicarFiltros()" style="width: auto; max-width: 160px;">
+                        <option value="">Todos los estados</option>
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="En Revisión">En Revisión</option>
+                        <option value="Aprobado">Aprobado</option>
+                        <option value="Rechazado">Rechazado</option>
+                        <option value="Requiere Corrección">Requiere Corrección</option>
+                    </select>
+                    <select class="form-select form-select-sm" id="filtroTipo" onchange="aplicarFiltros()" style="width: auto; max-width: 200px;">
+                        <option value="">Todos los tipos</option>
+                        <?php if (isset($tiposDocumentos)): ?>
+                            <?php foreach ($tiposDocumentos as $tipo): ?>
+                                <option value="<?= $tipo['ID_TIPO_DOCUMENTO_SERVICIO'] ?>"><?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?></option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                    <input type="text" class="form-control form-control-sm" id="buscarEstudiante" placeholder="Estudiante o cédula..." onkeyup="aplicarFiltros()" style="width: 180px;">
+                    <button class="btn btn-outline-secondary btn-sm" onclick="limpiarFiltros()"><i class="fas fa-times me-1"></i>Limpiar</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Tabs (igual que en Documentos Preprofesionales) -->
         <div class="row">
             <div class="col-12">
@@ -212,33 +244,6 @@
                         <div class="tab-content mt-3" id="documentosTabContentServicio">
                             <!-- Pestaña: Documentos por tipo -->
                             <div class="tab-pane fade show active" id="documentos-por-tipo-servicio" role="tabpanel">
-                                <!-- Filtros rápidos -->
-                                <div class="card shadow-sm border-0 mb-3">
-                                    <div class="card-header bg-light d-flex justify-content-between align-items-center flex-wrap gap-2">
-                                        <span class="fw-semibold"><i class="fas fa-filter me-1"></i>Filtros</span>
-                                        <div class="d-flex flex-wrap gap-2 align-items-center">
-                                            <select class="form-select form-select-sm" id="filtroEstado" onchange="aplicarFiltros()" style="width: auto;">
-                                                <option value="">Todos los estados</option>
-                                                <option value="Pendiente">Pendiente</option>
-                                                <option value="En Revisión">En Revisión</option>
-                                                <option value="Aprobado">Aprobado</option>
-                                                <option value="Rechazado">Rechazado</option>
-                                                <option value="Requiere Corrección">Requiere Corrección</option>
-                                            </select>
-                                            <select class="form-select form-select-sm" id="filtroTipo" onchange="aplicarFiltros()" style="width: auto;">
-                                                <option value="">Todos los tipos</option>
-                                                <?php if (isset($tiposDocumentos)): ?>
-                                                    <?php foreach ($tiposDocumentos as $tipo): ?>
-                                                        <option value="<?= $tipo['ID_TIPO_DOCUMENTO_SERVICIO'] ?>"><?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?></option>
-                                                    <?php endforeach; ?>
-                                                <?php endif; ?>
-                                            </select>
-                                            <input type="text" class="form-control form-control-sm" id="buscarEstudiante" placeholder="Estudiante o cédula..." onkeyup="aplicarFiltros()" style="width: 180px;">
-                                            <button class="btn btn-outline-secondary btn-sm" onclick="limpiarFiltros()"><i class="fas fa-times me-1"></i>Limpiar</button>
-                                        </div>
-                                    </div>
-                                </div>
-                                <!-- Tablas por tipo -->
                                 <div id="vistaGrid">
                                     <?php if (!empty($tiposDocumentos)): ?>
                                         <?php foreach ($tiposDocumentos as $tipo): ?>
@@ -263,7 +268,7 @@
                                                         </div>
                                                         <div class="card-body p-0">
                                                             <div class="table-responsive">
-                                                                <table class="table table-hover mb-0" id="tabla-<?= $tipo['ID_TIPO_DOCUMENTO_SERVICIO'] ?>">
+                                                                <table class="table table-striped table-hover align-middle mb-0 table-documentos" id="tabla-<?= $tipo['ID_TIPO_DOCUMENTO_SERVICIO'] ?>">
                                                                     <thead class="table-light">
                                                                         <tr>
                                                                             <th width="5%">#</th>
@@ -329,7 +334,7 @@
                                             </div>
                                         </div>
                                         <div class="table-responsive">
-                                            <table class="table table-sm table-hover">
+                                            <table class="table table-sm table-hover table-documentos">
                                                 <thead class="table-light">
                                                     <tr>
                                                         <th>#</th>

@@ -280,7 +280,9 @@ class AuthController extends BaseController
                 'apellido' => $userData['apellido'],
                 'rol' => (int)$userData['rol'], // Asegurar que sea entero
                 'estado' => $userData['estado'],
-                'logged_in' => TRUE
+                'foto_perfil' => $userData['foto_perfil'] ?? null,
+                'logged_in' => TRUE,
+                'requiere_cambio_password' => $requiereCambioPassword
             ];
 
             // Intentar obtener el período académico actual y guardarlo en sesión
@@ -398,6 +400,7 @@ class AuthController extends BaseController
             'rol',
             'estado',
                 'logged_in',
+                'requiere_cambio_password',
                 'foto_perfil',
                 'periodo_academico_id',
                 'periodo_academico_nombre',

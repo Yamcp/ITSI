@@ -14,30 +14,71 @@ $carreras = $carreras ?? [];
 <?= $this->section('styles') ?>
 <!-- CSS personalizado para prácticas y pestañas -->
 <style>
-    /* Pestañas: inactivas legibles, activa destacada */
+    /* Pestañas estilo pill (igual que Documentos por tipo / Documentos de formato) */
     #practicasTabs.nav-tabs {
         border: none;
         gap: 0.5rem;
+        border-radius: 50rem;
+        background-color: #f8f9fa;
+        padding: 0.25rem 0.5rem;
     }
     #practicasTabs .nav-link {
         border: none;
         color: #495057 !important;
-        background-color: #e9ecef;
+        background-color: transparent;
         padding: 0.6rem 1.1rem;
-        border-radius: 2rem;
+        border-radius: 50rem;
         font-weight: 600;
         transition: background-color 0.2s, color 0.2s;
     }
     #practicasTabs .nav-link:hover {
-        background-color: #dee2e6;
+        background-color: #e9ecef;
         color: #212529 !important;
     }
     #practicasTabs .nav-link.active {
-        background-color: #0d6efd !important;
-        color: #fff !important;
+        background-color: #fff !important;
+        color: #0d6efd !important;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
     }
     #practicasTabs .nav-link i {
         opacity: 0.95;
+    }
+    /* Barra Documentos por tipo / Documentos de formato (centrada) */
+    #documentosPreprofesionalesBar.nav-tabs {
+        border: none;
+        gap: 0.5rem;
+        border-radius: 50rem;
+        background-color: #f8f9fa;
+        padding: 0.25rem 0.5rem;
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    #documentosPreprofesionalesBar .nav-link {
+        border: none;
+        background-color: transparent;
+        padding: 0.6rem 1.1rem;
+        border-radius: 50rem;
+        font-weight: 600;
+        transition: background-color 0.2s, color 0.2s;
+        text-decoration: none;
+    }
+    #documentosPreprofesionalesBar .nav-link:hover {
+        background-color: #e9ecef;
+    }
+    #documentosPreprofesionalesBar .nav-link.doc-tipo {
+        color: #0d6efd !important;
+    }
+    #documentosPreprofesionalesBar .nav-link.doc-tipo:hover {
+        background-color: #fff;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    #documentosPreprofesionalesBar .nav-link.doc-formato {
+        color: #198754 !important;
+    }
+    #documentosPreprofesionalesBar .nav-link.doc-formato:hover {
+        background-color: #fff;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.08);
     }
 </style>
 <?= $this->endSection() ?>
@@ -156,23 +197,20 @@ $carreras = $carreras ?? [];
             <div class="col-12">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body pb-0">
-                        <ul class="nav nav-tabs nav-justified px-2 py-2 bg-light rounded-3" id="practicasTabs" role="tablist">
+                        <ul class="nav nav-tabs nav-justified rounded-pill bg-light px-2 py-1" id="practicasTabs" role="tablist" style="gap: 0.5rem;">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="preprofesionales-tab" data-bs-toggle="tab" data-bs-target="#preprofesionales" type="button" role="tab" aria-selected="true">
-                                    <i class="fas fa-building me-2"></i>
-                                    Prácticas Preprofesionales
+                                <button class="nav-link active rounded-pill fw-semibold text-primary" id="preprofesionales-tab" data-bs-toggle="tab" data-bs-target="#preprofesionales" type="button" role="tab" aria-selected="true">
+                                    <i class="fas fa-building me-2" style="color: #0d6efd;"></i>Prácticas Preprofesionales
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="servicio-tab" data-bs-toggle="tab" data-bs-target="#servicio" type="button" role="tab" aria-selected="false">
-                                    <i class="fas fa-heart me-2"></i>
-                                    Servicio Comunitario
+                                <button class="nav-link rounded-pill fw-semibold text-success" id="servicio-tab" data-bs-toggle="tab" data-bs-target="#servicio" type="button" role="tab" aria-selected="false">
+                                    <i class="fas fa-heart me-2" style="color: #198754;"></i>Servicio Comunitario
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="seguimiento-tab" data-bs-toggle="tab" data-bs-target="#seguimiento" type="button" role="tab" aria-selected="false">
-                                    <i class="fas fa-chart-line me-2"></i>
-                                    Seguimiento
+                                <button class="nav-link rounded-pill fw-semibold text-info" id="seguimiento-tab" data-bs-toggle="tab" data-bs-target="#seguimiento" type="button" role="tab" aria-selected="false">
+                                    <i class="fas fa-chart-line me-2" style="color: #0dcaf0;"></i>Seguimiento
                                 </button>
                             </li>
                         </ul>
@@ -183,6 +221,21 @@ $carreras = $carreras ?? [];
                         <div class="tab-content mt-3" id="practicasTabContent">
                             <!-- Prácticas Preprofesionales -->
                             <div class="tab-pane fade show active" id="preprofesionales" role="tabpanel">
+                                <!-- Acceso rápido: Documentos por tipo / Documentos de formato (mismo estilo que vista Documentos) -->
+                                <div class="mb-4">
+                                    <ul class="nav nav-tabs rounded-pill bg-light px-2 py-1" id="documentosPreprofesionalesBar" role="tablist">
+                                        <li class="nav-item" role="presentation">
+                                            <a class="nav-link rounded-pill fw-semibold doc-tipo" href="<?= base_url('admin/documentos/practicas') ?>">
+                                                <i class="fas fa-folder-open me-2"></i>Documentos por tipo
+                                            </a>
+                                        </li>
+                                        <li class="nav-item" role="presentation">
+                                            <a class="nav-link rounded-pill fw-semibold doc-formato" href="<?= base_url('admin/documentos/practicas') ?>#formatos-documentos">
+                                                <i class="fas fa-file-upload me-2"></i>Documentos de formato
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
                                 <div class="card shadow-sm border-0">
                                     <div class="card-body p-0">
                                         <div class="table-responsive">

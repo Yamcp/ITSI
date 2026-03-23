@@ -69,7 +69,12 @@ class DashboardDocenteController extends BaseController
             'title' => 'Dashboard Docente',
             'instructor' => $instructor,
             'total_actividades' => $instructor ? $this->actividadesModel->where('ID_INSTRUCTOR', $instructor['ID_INSTRUCTOR'])->countAllResults() : 0,
-            'actividades_activas' => $instructor ? $this->actividadesModel->where('ID_INSTRUCTOR', $instructor['ID_INSTRUCTOR'])->where('ESTADO', '1')->countAllResults() : 0,
+            'actividades_activas' => $instructor
+                ? $this->actividadesModel
+                    ->where('ID_INSTRUCTOR', $instructor['ID_INSTRUCTOR'])
+                    ->where('FECHA_FIN >=', date('Y-m-d'))
+                    ->countAllResults()
+                : 0,
             'total_estudiantes' => $estudiantesAsignados,
         ];
 

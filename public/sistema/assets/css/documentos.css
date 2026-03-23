@@ -271,6 +271,79 @@
     transform: scale(1.01);
 }
 
+/* Tablas estilo documentos (preprofesionales y servicio comunitario) */
+.table-documentos {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.table-documentos thead tr {
+    border-top: 3px solid #0d6efd;
+}
+
+.table-documentos thead th {
+    background-color: #f8f9fa !important;
+    color: #212529 !important;
+    font-weight: 700 !important;
+    font-size: 0.9rem !important;
+    padding: 0.85rem 1rem !important;
+    border: none !important;
+    border-bottom: 1px solid #dee2e6 !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+}
+
+.table-documentos tbody td {
+    padding: 0.85rem 1rem !important;
+    vertical-align: middle !important;
+    color: #495057;
+    border-bottom: 1px solid #f1f3f5 !important;
+}
+
+.table-documentos tbody tr:nth-child(odd) {
+    background-color: #fff !important;
+}
+
+.table-documentos tbody tr:nth-child(even) {
+    background-color: #f8fafc !important;
+}
+
+.table-documentos tbody tr:hover {
+    background-color: #eef4fb !important;
+    transform: none !important;
+}
+
+.table-documentos tbody td:first-child {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.table-documentos .badge {
+    border-radius: 50rem;
+    padding: 0.35em 0.75em;
+    font-weight: 600;
+    font-size: 0.75rem;
+}
+
+.table-documentos .btn-group-sm {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    overflow: hidden;
+}
+
+.table-documentos .btn-group-sm .btn {
+    border-radius: 0 !important;
+    border: none !important;
+    border-right: 1px solid #dee2e6 !important;
+    padding: 0.35rem 0.5rem;
+}
+
+.table-documentos .btn-group-sm .btn:last-child {
+    border-right: none !important;
+}
+
 /* Notificaciones */
 .alert {
     border-radius: 10px;

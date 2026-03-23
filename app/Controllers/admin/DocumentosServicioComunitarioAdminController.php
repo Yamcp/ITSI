@@ -366,7 +366,7 @@ class DocumentosServicioComunitarioAdminController extends BaseController
         try {
             // Obtener ID del estado
             $estadoNombre = $this->request->getPost('estado');
-            $estado = $this->estadosRevisionesModel->where('ESTADO', $estadoNombre)->first();
+            $estado = $this->estadosRevisionesModel->getEstadoPorNombre($estadoNombre);
             
             if (!$estado) {
                 return $this->response->setJSON([
