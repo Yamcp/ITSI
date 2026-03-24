@@ -11,11 +11,13 @@ class DocumentosServicioComunitarioModel extends Model
     protected $allowedFields = [
         'ID_SERVICIO_COMUNITARIO',
         'ID_TIPO_DOCUMENTO',
+        'ID_ESTADO_REVISION',
         'NOMBRE_ARCHIVO',
         'TIPO_ARCHIVO',
         'FECHA_SUBIDA',
         'ESTADO_REVISION',
-        'OBSERVACIONES'
+        'OBSERVACIONES',
+        'OBSERVACIONES_REVISOR',
     ];
     protected $returnType = 'array';
     protected $useTimestamps = false;
@@ -185,6 +187,89 @@ class DocumentosServicioComunitarioModel extends Model
         return $this->where('ID_SERVICIO_COMUNITARIO', $idServicio)
             ->where('ID_TIPO_DOCUMENTO', $idTipoDocumento)
             ->countAllResults() > 0;
+    }
+
+    /**
+     * Progreso por tipo de documento PSC para el estudiante (todos sus servicios comunitarios).
+     */
+    public function getProgresoEstudianteServicio(int $idUsuario): array
+    {
+        $est = $this->db->table('TAB_ESTUDIANTES e')
+            ->select('e.ID_ESTUDIANTE')
+            ->join('TAB_USUARIOS u', 'u.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+            ->where('u.ID_USUARIO', $idUsuario)
+            ->get()
+            ->getRowArray();
+
+        if (!$est) {
+            return [];
+        }
+
+        $servicios = $this->db->table('TAB_SERVICIO_COMUNITARIO')
+            ->select('ID_SERVICIO_COMUNITARIO')
+            ->where('ID_ESTUDIANTE', $est['ID_ESTUDIANTE'])
+            ->get()
+            ->getResultArray();
+
+        $ids = array_map('intval', array_column($servicios, 'ID_SERVICIO_COMUNITARIO'));
+        if ($ids === []) {
+            return [];
+        }
+
+        $inList = implode(',', $ids);
+        $fields = $this->db->getFieldNames($this->table);
+        $hasObsRev = is_array($fields) && in_array('OBSERVACIONES_REVISOR', $fields, true);
+
+        $builder = $this->db->table('TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO t');
+        $builder->select(
+            't.ID_TIPO_DOCUMENTO_SERVICIO AS ID_TIPO_DOCUMENTO_SERVICIO, t.ID_TIPO_DOCUMENTO_SERVICIO AS ID_TIPO_DOCUMENTO, t.CODIGO, t.NOMBRE AS TIPO_DOCUMENTO_NOMBRE, MAX(d.ID_DOCUMENTO_SERVICIO) AS ID_DOCUMENTO_SERVICIO, MAX(d.ID_DOCUMENTO_SERVICIO) AS ID_DOCUMENTO_PRACTICA, MAX(d.FECHA_SUBIDA) AS FECHA_SUBIDA',
+            false
+        );
+        $builder->select(
+            "CASE MAX(d.ID_ESTADO_REVISION)
+                WHEN 1 THEN 'Pendiente'
+                WHEN 2 THEN 'En Revisión'
+                WHEN 3 THEN 'Aprobado'
+                WHEN 4 THEN 'Rechazado'
+                WHEN 5 THEN 'Requiere Corrección'
+                ELSE NULL END AS ESTADO_REVISION",
+            false
+        );
+        if ($hasObsRev) {
+            $builder->select('MAX(d.OBSERVACIONES_REVISOR) AS OBSERVACIONES_REVISOR', false);
+        }
+        $builder->join(
+            $this->table . ' d',
+            'd.ID_TIPO_DOCUMENTO = t.ID_TIPO_DOCUMENTO_SERVICIO AND d.ID_SERVICIO_COMUNITARIO IN (' . $inList . ')',
+            'left',
+            false
+        );
+        $builder->where('t.ACTIVO', 1);
+        $builder->groupBy('t.ID_TIPO_DOCUMENTO_SERVICIO, t.CODIGO, t.NOMBRE, t.ORDEN');
+        $builder->orderBy('t.ORDEN', 'ASC');
+        $builder->orderBy('t.CODIGO', 'ASC');
+
+        return $builder->get()->getResultArray();
+    }
+
+    /**
+     * Comprueba si el documento pertenece a un servicio del estudiante (por ID_USUARIO).
+     */
+    public function documentoPerteneceAEstudiante(int $idDocumento, int $idUsuario): bool
+    {
+        $doc = $this->find($idDocumento);
+        if (!$doc || empty($doc['ID_SERVICIO_COMUNITARIO'])) {
+            return false;
+        }
+
+        $row = $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
+            ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE')
+            ->join('TAB_USUARIOS u', 'u.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+            ->where('sc.ID_SERVICIO_COMUNITARIO', (int) $doc['ID_SERVICIO_COMUNITARIO'])
+            ->where('u.ID_USUARIO', $idUsuario)
+            ->countAllResults();
+
+        return $row > 0;
     }
 
     /**

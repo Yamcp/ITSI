@@ -124,6 +124,11 @@
                             </button>
                         </li>
                     </ul>
+                    <div class="d-flex justify-content-end mt-2">
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="showModal('modalFiltros')">
+                            <i class="fas fa-filter me-1"></i>Filtros
+                        </button>
+                    </div>
                     <hr class="mt-0 mb-2" style="border-top: 2px solid #e3e6f0;">
 
                     <!-- Contenido de las pestañas -->
@@ -131,15 +136,6 @@
                         <!-- Convenios Preprofesionales -->
                         <div class="tab-pane fade show active" id="preprofesionales" role="tabpanel">
                             <div class="card shadow-sm border-0">
-                                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                                    <span>
-                                        <i class="fas fa-building me-2"></i>
-                                        Convenios Preprofesionales
-                                    </span>
-                                    <button class="btn btn-light btn-sm" onclick="showModal('modalFiltros')">
-                                        <i class="fas fa-filter me-1"></i>Filtros
-                                    </button>
-                                </div>
                                 <div class="card-body p-0">
                                     <div class="table-responsive">
                                         <table class="table table-striped align-middle mb-0">
@@ -186,7 +182,6 @@
                                                             <td><?= $convenio['RUC'] ?></td>
                                                             <td>
                                                                 <div><?= date('M Y', strtotime($convenio['FECHA_INICIO'])) ?> - <?= date('M Y', strtotime($convenio['FECHA_FIN'])) ?></div>
-                                                                <small class="text-muted"><?= $convenio['DURACION'] ?> meses</small>
                                                             </td>
                                                             <td>
                                                                 <span class="badge bg-info"><?= $convenio['DURACION'] ?> meses</span>
@@ -243,15 +238,6 @@
                         <!-- Servicio Comunitario -->
                         <div class="tab-pane fade" id="servicio" role="tabpanel">
                             <div class="card shadow-sm border-0">
-                                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                                    <span>
-                                        <i class="fas fa-heart me-2"></i>
-                                        Convenios de Servicio Comunitario
-                                    </span>
-                                    <button class="btn btn-light btn-sm" onclick="showModal('modalFiltros')">
-                                        <i class="fas fa-filter me-1"></i>Filtros
-                                    </button>
-                                </div>
                                 <div class="card-body p-0">
                                     <div class="table-responsive">
                                         <table class="table table-striped align-middle mb-0">
@@ -298,7 +284,6 @@
                                                             <td><?= $convenio['RUC'] ?></td>
                                                             <td>
                                                                 <div><?= date('M Y', strtotime($convenio['FECHA_INICIO'])) ?> - <?= date('M Y', strtotime($convenio['FECHA_FIN'])) ?></div>
-                                                                <small class="text-muted"><?= $convenio['DURACION'] ?> meses</small>
                                                             </td>
                                                             <td>
                                                                 <span class="badge bg-info"><?= $convenio['DURACION'] ?> meses</span>
@@ -355,15 +340,6 @@
                         <!-- Convenios Mixtos -->
                         <div class="tab-pane fade" id="mixta" role="tabpanel">
                             <div class="card shadow-sm border-0">
-                                <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
-                                    <span>
-                                        <i class="fas fa-link me-2"></i>
-                                        Convenios Mixtos
-                                    </span>
-                                    <button class="btn btn-light btn-sm" onclick="showModal('modalFiltros')">
-                                        <i class="fas fa-filter me-1"></i>Filtros
-                                    </button>
-                                </div>
                                 <div class="card-body p-0">
                                     <div class="table-responsive">
                                         <table class="table table-striped align-middle mb-0">
@@ -410,7 +386,6 @@
                                                             <td><?= $convenio['RUC'] ?></td>
                                                             <td>
                                                                 <div><?= date('M Y', strtotime($convenio['FECHA_INICIO'])) ?> - <?= date('M Y', strtotime($convenio['FECHA_FIN'])) ?></div>
-                                                                <small class="text-muted"><?= $convenio['DURACION'] ?> meses</small>
                                                             </td>
                                                             <td>
                                                                 <span class="badge bg-info"><?= $convenio['DURACION'] ?> meses</span>
@@ -918,6 +893,7 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
+                <p class="text-muted small mb-3">Los filtros se aplican a las tres tablas (Preprofesionales, Servicio comunitario y Mixta).</p>
                 <form id="formFiltros">
                     <div class="mb-3">
                         <label class="form-label">Tipo de Convenio</label>
@@ -980,11 +956,64 @@
 
     // Funciones principales
     function showModal(modalId) {
+        const el = document.getElementById(modalId);
+        if (!el) {
+            console.warn('Modal no encontrado:', modalId);
+            return;
+        }
         if (modalId === 'modalNuevoConvenio') {
             cargarInstituciones(); // Cargar instituciones cuando se abre el modal
         }
-        const modal = new bootstrap.Modal(document.getElementById(modalId));
+        const modal = new bootstrap.Modal(el);
         modal.show();
+    }
+
+    function convenioEstadoSlug(fechaFin) {
+        const fin = (fechaFin || '').toString().slice(0, 10);
+        if (!fin) {
+            return '';
+        }
+        const hoyStr = new Date().toISOString().slice(0, 10);
+        const limite = new Date();
+        limite.setDate(limite.getDate() + 30);
+        const limiteStr = limite.toISOString().slice(0, 10);
+        if (fin < hoyStr) {
+            return 'vencido';
+        }
+        if (fin <= limiteStr) {
+            return 'por_vencer';
+        }
+        return 'vigente';
+    }
+
+    function convenioMapaPorId() {
+        const map = {};
+        const lista = Array.isArray(conveniosData) ? conveniosData : [];
+        lista.forEach((c) => {
+            const id = c.ID_DETALLE_CONVENIO;
+            if (id != null) {
+                map[Number(id)] = c;
+            }
+        });
+        return map;
+    }
+
+    function coincideTipoInstitucion(convenio, valorFiltro) {
+        if (!valorFiltro) {
+            return true;
+        }
+        const idTipo = convenio.ID_TIPO_INSTITUCION;
+        if (idTipo !== undefined && idTipo !== null && idTipo !== '') {
+            return String(idTipo) === String(valorFiltro);
+        }
+        const t = (convenio.TIPO_INSTITUCION || '').toLowerCase();
+        if (String(valorFiltro) === '1') {
+            return t.includes('públic') || t.includes('public');
+        }
+        if (String(valorFiltro) === '2') {
+            return t.includes('privad');
+        }
+        return true;
     }
 
     function verDetalle(id) {
@@ -1316,12 +1345,99 @@
     }
 
     function aplicarFiltros() {
+        const form = document.getElementById('formFiltros');
+        if (!form) {
+            return;
+        }
+        const fd = new FormData(form);
+        const filtroTipo = (fd.get('filtro_tipo') || '').toString();
+        const filtroEstado = (fd.get('filtro_estado') || '').toString();
+        const fechaDesde = (fd.get('fecha_desde') || '').toString().slice(0, 10);
+        const fechaHasta = (fd.get('fecha_hasta') || '').toString().slice(0, 10);
+        const filtroTipoInst = (fd.get('filtro_tipo_institucion') || '').toString();
+
+        const hasFilters = Boolean(filtroTipo || filtroEstado || fechaDesde || fechaHasta || filtroTipoInst);
+        const mapa = convenioMapaPorId();
+
+        const tablas = [
+            { id: 'tablaPreprofesionales', tipoTabla: 1 },
+            { id: 'tablaServicio', tipoTabla: 2 },
+            { id: 'tablaMixta', tipoTabla: 3 },
+        ];
+
+        tablas.forEach(({ id, tipoTabla }) => {
+            const tbody = document.getElementById(id);
+            if (!tbody) {
+                return;
+            }
+            tbody.querySelectorAll('tr').forEach((tr) => {
+                const emptyCell = tr.querySelector('td[colspan]');
+                if (emptyCell) {
+                    tr.style.display = hasFilters ? 'none' : '';
+                    return;
+                }
+                const firstTd = tr.querySelector('td');
+                if (!firstTd) {
+                    return;
+                }
+                const idDet = parseInt(firstTd.textContent.trim(), 10);
+                if (!Number.isFinite(idDet)) {
+                    tr.style.display = 'none';
+                    return;
+                }
+                const c = mapa[idDet];
+                if (!c) {
+                    tr.style.display = 'none';
+                    return;
+                }
+
+                let show = true;
+                if (filtroTipo && Number(filtroTipo) !== tipoTabla) {
+                    show = false;
+                }
+                if (show && filtroEstado) {
+                    const slug = convenioEstadoSlug(c.FECHA_FIN);
+                    if (slug !== filtroEstado) {
+                        show = false;
+                    }
+                }
+                if (show && fechaDesde && (c.FECHA_FIN || '').toString().slice(0, 10) < fechaDesde) {
+                    show = false;
+                }
+                if (show && fechaHasta && (c.FECHA_INICIO || '').toString().slice(0, 10) > fechaHasta) {
+                    show = false;
+                }
+                if (show && filtroTipoInst && !coincideTipoInstitucion(c, filtroTipoInst)) {
+                    show = false;
+                }
+                tr.style.display = show ? '' : 'none';
+            });
+        });
+
+        const modalEl = document.getElementById('modalFiltros');
+        if (modalEl) {
+            const inst = bootstrap.Modal.getInstance(modalEl);
+            if (inst) {
+                inst.hide();
+            }
+        }
         showNotification('Filtros aplicados', 'info');
-        bootstrap.Modal.getInstance(document.getElementById('modalFiltros')).hide();
     }
 
     function limpiarFiltros() {
-        document.getElementById('formFiltros').reset();
+        const form = document.getElementById('formFiltros');
+        if (form) {
+            form.reset();
+        }
+        ['tablaPreprofesionales', 'tablaServicio', 'tablaMixta'].forEach((tbodyId) => {
+            const tbody = document.getElementById(tbodyId);
+            if (!tbody) {
+                return;
+            }
+            tbody.querySelectorAll('tr').forEach((tr) => {
+                tr.style.display = '';
+            });
+        });
         showNotification('Filtros limpiados', 'info');
     }
 

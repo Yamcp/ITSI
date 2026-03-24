@@ -32,12 +32,14 @@ class DocumentosPracticasEstudianteController extends BaseController
     {
         $idUsuario = session()->get('id_usuario');
         
+        $tipos = $this->tiposDocumentosModel->getAllTipos();
         $data = [
             'title' => 'Documentos de Prácticas Preprofesionales',
-            'tipos_documentos' => $this->tiposDocumentosModel->getAllTipos(),
+            'tipos_documentos' => $tipos,
             'estados_revision' => $this->estadosRevisionesModel->getAllEstados(),
             'progreso' => $this->getProgresoEstudiante($idUsuario),
-            'estadisticas' => $this->getEstadisticasEstudiante($idUsuario)
+            'estadisticas' => $this->getEstadisticasEstudiante($idUsuario, count($tipos)),
+            'total_tipos_documentos' => count($tipos),
         ];
 
         return view('estudiante/documentos/documentos_practicas', $data);
@@ -192,8 +194,7 @@ class DocumentosPracticasEstudianteController extends BaseController
             throw new \CodeIgniter\Exceptions\PageNotFoundException('Documento no encontrado');
         }
 
-        // Verificar que el documento pertenece al estudiante
-        if ($documento['ID_USUARIO'] != $idUsuario) {
+        if (!$this->documentosModel->documentoPerteneceAUsuario((int) $id, $idUsuario)) {
             throw new \CodeIgniter\Exceptions\PageNotFoundException('No tienes permisos para acceder a este documento');
         }
 
@@ -221,16 +222,15 @@ class DocumentosPracticasEstudianteController extends BaseController
             ]);
         }
 
-        // Verificar que el documento pertenece al estudiante
-        if ($documento['ID_USUARIO'] != $idUsuario) {
+        if (!$this->documentosModel->documentoPerteneceAUsuario((int) $id, $idUsuario)) {
             return $this->response->setJSON([
                 'success' => false,
                 'message' => 'No tienes permisos para eliminar este documento'
             ]);
         }
 
-        // Verificar que el documento no esté aprobado
-        if ($documento['ID_ESTADO_REVISION'] == 2) { // Aprobado
+        // Aprobado = ID 3 en TAB_ESTADOS_REVISIONES
+        if (!empty($documento['ID_ESTADO_REVISION']) && (int) $documento['ID_ESTADO_REVISION'] === 3) {
             return $this->response->setJSON([
                 'success' => false,
                 'message' => 'No puedes eliminar un documento que ya ha sido aprobado'
@@ -268,32 +268,33 @@ class DocumentosPracticasEstudianteController extends BaseController
     /**
      * Obtener estadísticas del estudiante
      */
-    private function getEstadisticasEstudiante($idUsuario)
+    private function getEstadisticasEstudiante($idUsuario, int $totalTiposConfigurados = 12)
     {
         $documentos = $this->documentosModel->getDocumentosPorEstudiante($idUsuario);
-        
+
         $total = count($documentos);
         $aprobados = 0;
         $pendientes = 0;
         $rechazados = 0;
         $en_revision = 0;
+        $requiere = 0;
 
         foreach ($documentos as $documento) {
-            switch ($documento['ESTADO_REVISION']) {
-                case 'Aprobado':
-                    $aprobados++;
-                    break;
-                case 'Pendiente':
-                    $pendientes++;
-                    break;
-                case 'Rechazado':
-                    $rechazados++;
-                    break;
-                case 'En Revisión':
-                    $en_revision++;
-                    break;
+            $est = $documento['ESTADO_REVISION'] ?? '';
+            if ($est === 'Aprobado' || (!empty($documento['ID_ESTADO_REVISION']) && (int) $documento['ID_ESTADO_REVISION'] === 3)) {
+                $aprobados++;
+            } elseif ($est === 'Pendiente' || (!empty($documento['ID_ESTADO_REVISION']) && (int) $documento['ID_ESTADO_REVISION'] === 1)) {
+                $pendientes++;
+            } elseif ($est === 'Rechazado' || (!empty($documento['ID_ESTADO_REVISION']) && (int) $documento['ID_ESTADO_REVISION'] === 4)) {
+                $rechazados++;
+            } elseif ($est === 'En Revisión' || (!empty($documento['ID_ESTADO_REVISION']) && (int) $documento['ID_ESTADO_REVISION'] === 2)) {
+                $en_revision++;
+            } elseif ($est === 'Requiere Corrección' || (!empty($documento['ID_ESTADO_REVISION']) && (int) $documento['ID_ESTADO_REVISION'] === 5)) {
+                $requiere++;
             }
         }
+
+        $den = $totalTiposConfigurados > 0 ? $totalTiposConfigurados : 12;
 
         return [
             'total' => $total,
@@ -301,7 +302,8 @@ class DocumentosPracticasEstudianteController extends BaseController
             'pendientes' => $pendientes,
             'rechazados' => $rechazados,
             'en_revision' => $en_revision,
-            'porcentaje_completado' => $total > 0 ? round(($aprobados / 12) * 100, 2) : 0
+            'requiere_correccion' => $requiere,
+            'porcentaje_completado' => $den > 0 ? round(($aprobados / $den) * 100, 1) : 0,
         ];
     }
 

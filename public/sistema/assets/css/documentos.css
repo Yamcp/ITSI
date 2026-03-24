@@ -245,61 +245,58 @@
     box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
 }
 
-/* Tablas */
-.table {
-    border-radius: 10px;
-    overflow: hidden;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+/* Tablas en páginas que cargan este CSS: sin gradiente ni “tarjeta” redondeada (deja actuar Bootstrap + .table-light) */
+.table:not(.table-documentos) {
+    border-radius: 0;
+    overflow: visible;
+    box-shadow: none;
 }
 
-.table thead th {
-    background: linear-gradient(135deg, #007bff, #0056b3);
-    color: white;
-    border: none;
+.table:not(.table-documentos) thead th {
+    background-image: none !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    border-radius: 0 !important;
+    text-transform: none;
+    letter-spacing: normal;
     font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    font-size: 0.85rem;
 }
 
-.table tbody tr {
-    transition: all 0.3s ease;
+.table:not(.table-documentos) tbody tr:hover {
+    transform: none;
 }
 
-.table tbody tr:hover {
-    background-color: #f8f9fa;
-    transform: scale(1.01);
+/* Tablas admin documentos: como instructores — gris plano, rejilla, sin inset ni redondeos en <th> */
+.table.table-documentos {
+    border-collapse: collapse !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+    border: 1px solid #dee2e6;
+    box-shadow: none !important;
 }
 
-/* Tablas estilo documentos (preprofesionales y servicio comunitario) */
-.table-documentos {
-    border-radius: 10px;
-    overflow: hidden;
-    border: 1px solid #e9ecef;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-}
-
-.table-documentos thead tr {
-    border-top: 3px solid #0d6efd;
-}
-
-.table-documentos thead th {
-    background-color: #f8f9fa !important;
+.table.table-documentos > :not(caption) > thead > tr > th {
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    background: #e9ecef !important;
+    background-color: #e9ecef !important;
+    background-image: none !important;
     color: #212529 !important;
-    font-weight: 700 !important;
-    font-size: 0.9rem !important;
-    padding: 0.85rem 1rem !important;
-    border: none !important;
-    border-bottom: 1px solid #dee2e6 !important;
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    padding: 0.65rem 0.75rem !important;
+    border: 1px solid #dee2e6 !important;
     text-transform: none !important;
     letter-spacing: normal !important;
+    vertical-align: middle !important;
+    border-radius: 0 !important;
 }
 
 .table-documentos tbody td {
-    padding: 0.85rem 1rem !important;
+    padding: 0.65rem 0.75rem !important;
     vertical-align: middle !important;
     color: #495057;
-    border-bottom: 1px solid #f1f3f5 !important;
+    border: 1px solid #dee2e6 !important;
 }
 
 .table-documentos tbody tr:nth-child(odd) {

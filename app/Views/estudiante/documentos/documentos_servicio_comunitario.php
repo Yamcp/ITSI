@@ -99,10 +99,10 @@
         <div class="row">
             <div class="col-12">
                 <h3 class="text-center my-3">
-                    <i class="fas fa-file-alt me-2"></i>
-                    Documentos de Prácticas Preprofesionales
+                    <i class="fas fa-hands-helping me-2"></i>
+                    Documentos de Servicio Comunitario
                 </h3>
-                <p class="text-center text-muted">Sube los documentos requeridos conforme avances en tus prácticas</p>
+                <p class="text-center text-muted">Sube los documentos que te solicita coordinación según tu servicio comunitario</p>
             </div>
         </div>
 
@@ -162,6 +162,27 @@
                         </h5>
                     </div>
                     <div class="card-body">
+                        <?php if (empty($id_servicio_default)): ?>
+                            <div class="alert alert-warning">
+                                <i class="fas fa-info-circle me-2"></i>
+                                Aún no tienes un <strong>servicio comunitario</strong> registrado en el sistema. Cuando esté asignado, podrás subir aquí la documentación PSC.
+                                Puedes revisar el avance en <a href="<?= base_url('estudiante/practicas/servicio-comunitario') ?>">Prácticas — Servicio comunitario</a>.
+                            </div>
+                        <?php elseif (!empty($servicios_comunitarios) && count($servicios_comunitarios) > 1): ?>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold" for="selectServicioComunitarioDoc">Servicio comunitario (donde se subirán los archivos)</label>
+                                <select class="form-select" id="selectServicioComunitarioDoc">
+                                    <?php foreach ($servicios_comunitarios as $sc): ?>
+                                        <option value="<?= (int) $sc['ID_SERVICIO_COMUNITARIO'] ?>">
+                                            <?= esc($sc['PROYECTO_SOCIAL'] ?: 'Servicio #' . $sc['ID_SERVICIO_COMUNITARIO']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        <?php else: ?>
+                            <input type="hidden" id="id_servicio_hidden" value="<?= (int) $id_servicio_default ?>">
+                        <?php endif; ?>
+
                         <div class="view-mode-toggle">
                             <span class="view-mode-label">Cards</span>
                             <div class="form-check form-switch m-0">
@@ -174,12 +195,12 @@
                             <div class="row g-3">
                                 <?php foreach ($tipos_documentos as $index => $tipo): ?>
                                     <?php
-                                    $idTipoFila = (int) ($tipo['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?? $tipo['ID_TIPO_DOCUMENTO'] ?? 0);
                                     $documentoEstudiante = null;
                                     foreach ($progreso as $doc) {
-                                        $tid = (int) ($doc['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?? $doc['ID_TIPO_DOCUMENTO'] ?? 0);
-                                        $idDocP = $doc['ID_DOCUMENTO_PREPROFESIONAL'] ?? $doc['ID_DOCUMENTO_PRACTICA'] ?? null;
-                                        if ($tid === $idTipoFila && $idDocP) {
+                                        $tid = (int) ($doc['ID_TIPO_DOCUMENTO_SERVICIO'] ?? $doc['ID_TIPO_DOCUMENTO'] ?? 0);
+                                        $idTipoT = (int) ($tipo['ID_TIPO_DOCUMENTO_SERVICIO'] ?? $tipo['ID_TIPO_DOCUMENTO'] ?? 0);
+                                        $idDoc = $doc['ID_DOCUMENTO_SERVICIO'] ?? $doc['ID_DOCUMENTO_PRACTICA'] ?? null;
+                                        if ($tid === $idTipoT && $idDoc) {
                                             $documentoEstudiante = $doc;
                                             break;
                                         }
@@ -201,15 +222,15 @@
                                             $iconoEstado = 'fas fa-times-circle';
                                             $colorEstado = 'danger';
                                             break;
-                                        case 'En Revisión':
-                                            $claseCard = 'pendiente';
-                                            $iconoEstado = 'fas fa-eye';
-                                            $colorEstado = 'info';
-                                            break;
                                         case 'Requiere Corrección':
                                             $claseCard = 'pendiente';
                                             $iconoEstado = 'fas fa-exclamation-circle';
                                             $colorEstado = 'warning';
+                                            break;
+                                        case 'En Revisión':
+                                            $claseCard = 'pendiente';
+                                            $iconoEstado = 'fas fa-eye';
+                                            $colorEstado = 'info';
                                             break;
                                         case 'Pendiente':
                                             $claseCard = 'pendiente';
@@ -221,9 +242,6 @@
                                             $iconoEstado = 'fas fa-upload';
                                             $colorEstado = 'secondary';
                                     }
-                                    $idDocCard = $documentoEstudiante
-                                        ? (int) ($documentoEstudiante['ID_DOCUMENTO_PREPROFESIONAL'] ?? $documentoEstudiante['ID_DOCUMENTO_PRACTICA'] ?? 0)
-                                        : 0;
                                     ?>
 
                                     <div class="col-md-6 col-lg-4">
@@ -244,8 +262,8 @@
                                                         <i class="<?= $iconoEstado ?> me-1"></i>
                                                         <?= $estado ?>
                                                     </span>
-                                                    <?php if ($tipo['REQUERIDO']): ?>
-                                                        <span class="badge bg-danger ms-2">Requerido</span>
+                                                    <?php if (!empty($tipo['OBLIGATORIO'])): ?>
+                                                        <span class="badge bg-danger ms-2">Obligatorio</span>
                                                     <?php endif; ?>
                                                 </div>
 
@@ -267,31 +285,37 @@
                                                 <?php endif; ?>
 
                                                 <div class="d-flex gap-2">
-                                                    <?php if ($documentoEstudiante): ?>
+                                                    <?php if ($documentoEstudiante):
+                                                        $idDocRow = (int) ($documentoEstudiante['ID_DOCUMENTO_SERVICIO'] ?? $documentoEstudiante['ID_DOCUMENTO_PRACTICA'] ?? 0);
+                                                        ?>
                                                         <button class="btn btn-outline-primary btn-sm"
-                                                            onclick="verDocumento(<?= $idDocCard ?>)"
+                                                            onclick="verDocumento(<?= $idDocRow ?>)"
                                                             title="Ver Documento">
                                                             <i class="fas fa-eye"></i>
                                                         </button>
                                                         <button class="btn btn-outline-success btn-sm"
-                                                            onclick="descargarDocumento(<?= $idDocCard ?>)"
+                                                            onclick="descargarDocumento(<?= $idDocRow ?>)"
                                                             title="Descargar">
                                                             <i class="fas fa-download"></i>
                                                         </button>
-                                                        <?php if ($estado != 'Aprobado'): ?>
+                                                        <?php if ($estado !== 'Aprobado' && $id_servicio_default): ?>
                                                             <button class="btn btn-outline-danger btn-sm"
-                                                                onclick="eliminarDocumento(<?= $idDocCard ?>)"
+                                                                onclick="eliminarDocumento(<?= $idDocRow ?>)"
                                                                 title="Eliminar">
                                                                 <i class="fas fa-trash"></i>
                                                             </button>
                                                         <?php endif; ?>
                                                     <?php else: ?>
-                                                        <button class="btn btn-primary btn-sm"
-                                                            onclick="mostrarModalSubir(<?= $idTipoFila ?>, '<?= esc($tipo['NOMBRE'], 'js') ?>')"
-                                                            title="Subir Documento">
-                                                            <i class="fas fa-upload me-1"></i>
-                                                            Subir
-                                                        </button>
+                                                        <?php if (!empty($id_servicio_default)): ?>
+                                                            <button class="btn btn-primary btn-sm"
+                                                                onclick="mostrarModalSubir(<?= (int) ($tipo['ID_TIPO_DOCUMENTO_SERVICIO'] ?? $tipo['ID_TIPO_DOCUMENTO'] ?? 0) ?>, '<?= esc($tipo['NOMBRE'], 'js') ?>')"
+                                                                title="Subir Documento">
+                                                                <i class="fas fa-upload me-1"></i>
+                                                                Subir
+                                                            </button>
+                                                        <?php else: ?>
+                                                            <span class="text-muted small">Requiere servicio comunitario registrado</span>
+                                                        <?php endif; ?>
                                                     <?php endif; ?>
                                                 </div>
                                             </div>
@@ -316,12 +340,12 @@
                                     <tbody>
                                         <?php foreach ($tipos_documentos as $index => $tipo): ?>
                                             <?php
-                                            $idTipoFilaT = (int) ($tipo['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?? $tipo['ID_TIPO_DOCUMENTO'] ?? 0);
                                             $documentoEstudiante = null;
                                             foreach ($progreso as $doc) {
-                                                $tid = (int) ($doc['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?? $doc['ID_TIPO_DOCUMENTO'] ?? 0);
-                                                $idDocP = $doc['ID_DOCUMENTO_PREPROFESIONAL'] ?? $doc['ID_DOCUMENTO_PRACTICA'] ?? null;
-                                                if ($tid === $idTipoFilaT && $idDocP) {
+                                                $tid = (int) ($doc['ID_TIPO_DOCUMENTO_SERVICIO'] ?? $doc['ID_TIPO_DOCUMENTO'] ?? 0);
+                                                $idTipoT = (int) ($tipo['ID_TIPO_DOCUMENTO_SERVICIO'] ?? $tipo['ID_TIPO_DOCUMENTO'] ?? 0);
+                                                $idDoc = $doc['ID_DOCUMENTO_SERVICIO'] ?? $doc['ID_DOCUMENTO_PRACTICA'] ?? null;
+                                                if ($tid === $idTipoT && $idDoc) {
                                                     $documentoEstudiante = $doc;
                                                     break;
                                                 }
@@ -335,20 +359,19 @@
                                                 $badgeEstado = 'danger';
                                             } elseif ($estado === 'En Revisión') {
                                                 $badgeEstado = 'info';
-                                            } elseif ($estado === 'Pendiente' || $estado === 'Requiere Corrección') {
+                                            } elseif ($estado === 'Pendiente') {
+                                                $badgeEstado = 'warning text-dark';
+                                            } elseif ($estado === 'Requiere Corrección') {
                                                 $badgeEstado = 'warning text-dark';
                                             }
-                                            $idDocTabla = $documentoEstudiante
-                                                ? (int) ($documentoEstudiante['ID_DOCUMENTO_PREPROFESIONAL'] ?? $documentoEstudiante['ID_DOCUMENTO_PRACTICA'] ?? 0)
-                                                : 0;
                                             ?>
                                             <tr>
                                                 <td class="text-center fw-bold"><?= $index + 1 ?></td>
                                                 <td>
                                                     <div class="fw-semibold"><?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?></div>
                                                     <small class="text-muted"><?= $tipo['DESCRIPCION'] ?></small>
-                                                    <?php if ($tipo['REQUERIDO']): ?>
-                                                        <span class="badge bg-danger ms-2">Requerido</span>
+                                                    <?php if (!empty($tipo['OBLIGATORIO'])): ?>
+                                                        <span class="badge bg-danger ms-2">Obligatorio</span>
                                                     <?php endif; ?>
                                                 </td>
                                                 <td class="text-center">
@@ -362,7 +385,9 @@
                                                     <?php endif; ?>
                                                 </td>
                                                 <td class="text-center">
-                                                    <?php if ($documentoEstudiante): ?>
+                                                    <?php if ($documentoEstudiante):
+                                                        $idDocTabla = (int) ($documentoEstudiante['ID_DOCUMENTO_SERVICIO'] ?? $documentoEstudiante['ID_DOCUMENTO_PRACTICA'] ?? 0);
+                                                        ?>
                                                         <button class="btn btn-outline-primary btn-sm me-1"
                                                             onclick="verDocumento(<?= $idDocTabla ?>)"
                                                             title="Ver Documento">
@@ -373,19 +398,23 @@
                                                             title="Descargar">
                                                             <i class="fas fa-download"></i>
                                                         </button>
-                                                        <?php if ($estado != 'Aprobado'): ?>
-                                                            <button class="btn btn-outline-danger btn-sm"
+                                                        <?php if ($estado !== 'Aprobado' && $id_servicio_default): ?>
+                                                                <button class="btn btn-outline-danger btn-sm"
                                                                 onclick="eliminarDocumento(<?= $idDocTabla ?>)"
                                                                 title="Eliminar">
                                                                 <i class="fas fa-trash"></i>
                                                             </button>
                                                         <?php endif; ?>
                                                     <?php else: ?>
-                                                        <button class="btn btn-primary btn-sm"
-                                                            onclick="mostrarModalSubir(<?= $idTipoFilaT ?>, '<?= esc($tipo['NOMBRE'], 'js') ?>')"
-                                                            title="Subir Documento">
-                                                            <i class="fas fa-upload me-1"></i>Subir
-                                                        </button>
+                                                        <?php if (!empty($id_servicio_default)): ?>
+                                                            <button class="btn btn-primary btn-sm"
+                                                                onclick="mostrarModalSubir(<?= (int) ($tipo['ID_TIPO_DOCUMENTO_SERVICIO'] ?? $tipo['ID_TIPO_DOCUMENTO'] ?? 0) ?>, '<?= esc($tipo['NOMBRE'], 'js') ?>')"
+                                                                title="Subir Documento">
+                                                                <i class="fas fa-upload me-1"></i>Subir
+                                                            </button>
+                                                        <?php else: ?>
+                                                            <span class="text-muted small">—</span>
+                                                        <?php endif; ?>
                                                     <?php endif; ?>
                                                 </td>
                                             </tr>
@@ -421,21 +450,9 @@
                         <input type="text" class="form-control" id="tipo_documento_nombre" readonly>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Entidad Receptora</label>
-                                <input type="text" class="form-control" name="entidad_receptora"
-                                    placeholder="Ej: Instituto Tecnológico Superior Ibarra">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Docente Tutor</label>
-                                <input type="text" class="form-control" name="docente_tutor"
-                                    placeholder="Nombre del docente tutor">
-                            </div>
-                        </div>
+                    <div class="mb-3">
+                        <label class="form-label">Notas para coordinación (opcional)</label>
+                        <textarea class="form-control" name="observaciones" rows="2" placeholder="Ej: referencia al proyecto o aclaración del archivo"></textarea>
                     </div>
 
                     <div class="mb-3">
@@ -450,11 +467,6 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <label class="form-label">Observaciones (Opcional)</label>
-                        <textarea class="form-control" name="observaciones" rows="3"
-                            placeholder="Observaciones adicionales sobre el documento..."></textarea>
-                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -468,7 +480,26 @@
 </div>
 
 <script>
+    function getIdServicioComunitarioSeleccionado() {
+        const sel = document.getElementById('selectServicioComunitarioDoc');
+        const hid = document.getElementById('id_servicio_hidden');
+        if (sel) {
+            const v = parseInt(sel.value, 10);
+            return Number.isFinite(v) ? v : 0;
+        }
+        if (hid) {
+            const v = parseInt(hid.value, 10);
+            return Number.isFinite(v) ? v : 0;
+        }
+        return 0;
+    }
+
     function mostrarModalSubir(tipoId, tipoNombre) {
+        const idServ = getIdServicioComunitarioSeleccionado();
+        if (!idServ) {
+            showNotification('Necesitas un servicio comunitario registrado para subir archivos.', 'error');
+            return;
+        }
         document.getElementById('tipo_documento_id').value = tipoId;
         document.getElementById('tipo_documento_nombre').value = tipoNombre;
 
@@ -486,13 +517,20 @@
             return;
         }
 
+        const idServicio = getIdServicioComunitarioSeleccionado();
+        if (!idServicio) {
+            showNotification('Selecciona el servicio comunitario al que corresponde el archivo.', 'error');
+            return;
+        }
+        formData.append('id_servicio', String(idServicio));
+
         // Mostrar loading
         const btnSubir = document.querySelector('#modalSubirDocumento .btn-primary');
         const textoOriginal = btnSubir.innerHTML;
         btnSubir.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Subiendo...';
         btnSubir.disabled = true;
 
-        fetch('<?= base_url('estudiante/documentos-practicas/subir') ?>', {
+        fetch('<?= base_url('estudiante/documentos-servicio-comunitario/subir') ?>', {
                 method: 'POST',
                 body: formData
             })
@@ -521,16 +559,16 @@
     }
 
     function verDocumento(id) {
-        window.open('<?= base_url('estudiante/documentos-practicas/descargar') ?>/' + id, '_blank');
+        window.open('<?= base_url('estudiante/documentos-servicio-comunitario/descargar') ?>/' + id, '_blank');
     }
 
     function descargarDocumento(id) {
-        window.location.href = '<?= base_url('estudiante/documentos-practicas/descargar') ?>/' + id;
+        window.location.href = '<?= base_url('estudiante/documentos-servicio-comunitario/descargar') ?>/' + id;
     }
 
     function eliminarDocumento(id) {
         if (confirm('¿Estás seguro de que quieres eliminar este documento?')) {
-            fetch('<?= base_url('estudiante/documentos-practicas/eliminar') ?>/' + id, {
+            fetch('<?= base_url('estudiante/documentos-servicio-comunitario/eliminar') ?>/' + id, {
                     method: 'POST'
                 })
                 .then(response => response.json())
@@ -591,11 +629,11 @@
             vistaCards.classList.toggle('active', !esTabla);
             vistaTabla.classList.toggle('active', esTabla);
             switchVista.checked = esTabla;
-            localStorage.setItem('vistaDocumentosPracticas', esTabla ? 'tabla' : 'cards');
+            localStorage.setItem('vistaDocumentosServicio', esTabla ? 'tabla' : 'cards');
         }
 
         if (switchVista && vistaCards && vistaTabla) {
-            const vistaGuardada = localStorage.getItem('vistaDocumentosPracticas');
+            const vistaGuardada = localStorage.getItem('vistaDocumentosServicio');
             aplicarVista(vistaGuardada === 'tabla');
             switchVista.addEventListener('change', function() {
                 aplicarVista(this.checked);

@@ -164,6 +164,11 @@
                                 </button>
                             </li>
                         </ul>
+                        <div class="d-flex justify-content-end mt-2">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="showModal('modalFiltros')">
+                                <i class="fas fa-filter me-1"></i>Filtros
+                            </button>
+                        </div>
                         <hr class="mt-0 mb-2" style="border-top: 2px solid #e3e6f0;">
 
                         <!-- Contenido de las pestañas -->
@@ -171,12 +176,6 @@
                             <!-- Cursos -->
                             <div class="tab-pane fade show active" id="cursos" role="tabpanel">
                                 <div class="card shadow-sm border-0">
-                                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                                        <span><i class="fas fa-book me-2"></i>Cursos</span>
-                                        <button class="btn btn-light btn-sm" onclick="showModal('modalFiltros')">
-                                            <i class="fas fa-filter me-1"></i>Filtros
-                                        </button>
-                                    </div>
                                     <div class="card-body p-0">
                                         <div class="table-responsive">
                                             <table class="table table-striped align-middle mb-0">
@@ -274,12 +273,6 @@
                             <!-- Talleres -->
                             <div class="tab-pane fade" id="talleres" role="tabpanel">
                                 <div class="card shadow-sm border-0">
-                                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                                        <span><i class="fas fa-tools me-2"></i>Talleres</span>
-                                        <button class="btn btn-light btn-sm" onclick="showModal('modalFiltros')">
-                                            <i class="fas fa-filter me-1"></i>Filtros
-                                        </button>
-                                    </div>
                                     <div class="card-body p-0">
                                         <div class="table-responsive">
                                             <table class="table table-striped align-middle mb-0">
@@ -375,12 +368,6 @@
                             <!-- Seminarios -->
                             <div class="tab-pane fade" id="seminarios" role="tabpanel">
                                 <div class="card shadow-sm border-0">
-                                    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
-                                        <span><i class="fas fa-users me-2"></i>Seminarios</span>
-                                        <button class="btn btn-light btn-sm" onclick="showModal('modalFiltros')">
-                                            <i class="fas fa-filter me-1"></i>Filtros
-                                        </button>
-                                    </div>
                                     <div class="card-body p-0">
                                         <div class="table-responsive">
                                             <table class="table table-striped align-middle mb-0">
@@ -475,6 +462,63 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Filtros (listados por pestaña) -->
+<div class="modal fade" id="modalFiltros" tabindex="-1" aria-labelledby="modalFiltrosLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalFiltrosLabel">
+                    <i class="fas fa-filter me-2"></i>Filtros
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted small mb-3">Los filtros se aplican a las tablas de Cursos, Talleres y Seminarios en esta página.</p>
+                <div class="mb-3">
+                    <label class="form-label" for="filtroBusqueda">Buscar</label>
+                    <input type="search" class="form-control" id="filtroBusqueda" placeholder="Nombre o descripción de la actividad" autocomplete="off">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="filtroInstructor">Instructor</label>
+                    <select class="form-select" id="filtroInstructor">
+                        <option value="">Todos</option>
+                        <?php if (!empty($instructores)): ?>
+                            <?php foreach ($instructores as $instructor): ?>
+                                <option value="<?= esc(trim($instructor['NOMBRE'] . ' ' . $instructor['APELLIDO'])) ?>">
+                                    <?= esc($instructor['NOMBRE'] . ' ' . $instructor['APELLIDO']) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="filtroModalidad">Modalidad</label>
+                    <select class="form-select" id="filtroModalidad">
+                        <option value="">Todas</option>
+                        <?php if (!empty($modalidades)): ?>
+                            <?php foreach ($modalidades as $modalidad): ?>
+                                <option value="<?= esc($modalidad['MODALIDAD']) ?>"><?= esc($modalidad['MODALIDAD']) ?></option>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
+                    </select>
+                </div>
+                <div class="mb-0">
+                    <label class="form-label" for="filtroEstado">Estado</label>
+                    <select class="form-select" id="filtroEstado">
+                        <option value="">Todos</option>
+                        <option value="activo">Activo</option>
+                        <option value="finalizado">Finalizado</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" id="btnLimpiarFiltrosActividades">Limpiar</button>
+                <button type="button" class="btn btn-primary" id="btnAplicarFiltrosActividades">Aplicar</button>
             </div>
         </div>
     </div>
@@ -801,9 +845,104 @@
     let estadisticas = {};
 
     function showModal(modalId) {
-        const modal = new bootstrap.Modal(document.getElementById(modalId));
+        const el = document.getElementById(modalId);
+        if (!el) {
+            console.warn('Modal no encontrado:', modalId);
+            return;
+        }
+        const modal = new bootstrap.Modal(el);
         modal.show();
     }
+
+    function aplicarFiltrosActividadesTablas() {
+        const q = (document.getElementById('filtroBusqueda')?.value || '').trim().toLowerCase();
+        const ins = (document.getElementById('filtroInstructor')?.value || '').trim();
+        const mod = (document.getElementById('filtroModalidad')?.value || '').trim();
+        const est = (document.getElementById('filtroEstado')?.value || '').trim();
+        const ids = ['tablaCursos', 'tablaTalleres', 'tablaSeminarios'];
+
+        ids.forEach((tbodyId) => {
+            const tbody = document.getElementById(tbodyId);
+            if (!tbody) {
+                return;
+            }
+            const hasFilters = Boolean(q || ins || mod || est);
+            tbody.querySelectorAll('tr').forEach((tr) => {
+                const emptyCell = tr.querySelector('td[colspan]');
+                if (emptyCell) {
+                    tr.style.display = hasFilters ? 'none' : '';
+                    return;
+                }
+                const cells = tr.querySelectorAll('td');
+                if (cells.length < 7) {
+                    return;
+                }
+                const actividadText = (cells[1]?.innerText || '').toLowerCase();
+                const instructorText = (cells[2]?.innerText || '').trim();
+                const modalidadText = (cells[3]?.innerText || '').trim();
+                const estadoText = (cells[6]?.innerText || '').toLowerCase();
+
+                let show = true;
+                if (q && !actividadText.includes(q) && !(tr.innerText || '').toLowerCase().includes(q)) {
+                    show = false;
+                }
+                if (ins && !instructorText.includes(ins)) {
+                    show = false;
+                }
+                if (mod && modalidadText.replace(/\s+/g, ' ') !== mod.replace(/\s+/g, ' ')) {
+                    show = false;
+                }
+                if (est === 'activo' && !estadoText.includes('activo')) {
+                    show = false;
+                }
+                if (est === 'finalizado' && !estadoText.includes('finalizado')) {
+                    show = false;
+                }
+                tr.style.display = show ? '' : 'none';
+            });
+        });
+
+        const modalEl = document.getElementById('modalFiltros');
+        if (modalEl) {
+            const instance = bootstrap.Modal.getInstance(modalEl);
+            if (instance) {
+                instance.hide();
+            }
+        }
+    }
+
+    function limpiarFiltrosActividadesTablas() {
+        const b = document.getElementById('filtroBusqueda');
+        const i = document.getElementById('filtroInstructor');
+        const m = document.getElementById('filtroModalidad');
+        const e = document.getElementById('filtroEstado');
+        if (b) {
+            b.value = '';
+        }
+        if (i) {
+            i.value = '';
+        }
+        if (m) {
+            m.value = '';
+        }
+        if (e) {
+            e.value = '';
+        }
+        ['tablaCursos', 'tablaTalleres', 'tablaSeminarios'].forEach((tbodyId) => {
+            const tbody = document.getElementById(tbodyId);
+            if (!tbody) {
+                return;
+            }
+            tbody.querySelectorAll('tr').forEach((tr) => {
+                tr.style.display = '';
+            });
+        });
+    }
+
+    document.getElementById('btnAplicarFiltrosActividades')?.addEventListener('click', aplicarFiltrosActividadesTablas);
+    document.getElementById('btnLimpiarFiltrosActividades')?.addEventListener('click', () => {
+        limpiarFiltrosActividadesTablas();
+    });
 
     function verCalendario() {
         showModal('modalCalendario');

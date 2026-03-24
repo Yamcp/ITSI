@@ -38,35 +38,17 @@ class DocumentosAdminController extends BaseController
         return view('admin/documentos/documentos_practicas');
     }
 
+    /**
+     * URL histórica del menú lateral. La vista y el AJAX usan admin/documentos/servicio/* ;
+     * el método getTiposOrdenados() no existe en TiposDocumentosServicioComunitarioModel (solo en prácticas),
+     * por eso la lista por tipo quedaba vacía o fallaba. Redirigimos al controlador dedicado.
+     */
     public function documentosServicioComunitario()
     {
-        try {
-            // Obtener estadísticas de documentos
-            $estadisticas = $this->documentosServicioModel->getEstadisticasDocumentos();
-            
-            // Obtener tipos de documentos disponibles
-            $tiposDocumentos = $this->tiposDocumentosModel->getTiposOrdenados();
-            
-            // Obtener documentos recientes
-            $documentosRecientes = $this->documentosServicioModel->getDocumentosRecientes(20);
-            
-            $data = [
-                'estadisticas' => $estadisticas ?: ['total' => 0, 'pendientes' => 0, 'aprobados' => 0, 'rechazados' => 0],
-                'tiposDocumentos' => $tiposDocumentos ?: [],
-                'documentosRecientes' => $documentosRecientes ?: []
-            ];
-            
-            return view('admin/documentos/documentos_servicio_comunitario', $data);
-        } catch (\Exception $e) {
-            // En caso de error, mostrar datos vacíos
-            $data = [
-                'estadisticas' => ['total' => 0, 'pendientes' => 0, 'aprobados' => 0, 'rechazados' => 0],
-                'tiposDocumentos' => [],
-                'documentosRecientes' => []
-            ];
-            
-            return view('admin/documentos/documentos_servicio_comunitario', $data);
-        }
+        $idEstudiante = (int) $this->request->getGet('estudiante');
+        $suffix = $idEstudiante > 0 ? '?estudiante=' . $idEstudiante : '';
+
+        return redirect()->to('admin/documentos/servicio' . $suffix);
     }
 
     public function subirDocumento()

@@ -77,7 +77,7 @@
                     </a>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link" href="<?= base_url('admin/documentos/servicio-comunitario') ?>" aria-expanded="false">
+                    <a class="sidebar-link" href="<?= base_url('admin/documentos/servicio') ?>" aria-expanded="false">
                         <span>
                             <i class="fa-solid fa-hands-helping fs-6"></i>
                         </span>

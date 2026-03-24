@@ -1,17 +1,12 @@
 <?= $this->extend('admin/layouts/mainAdmin') ?>
 
 <?= $this->section('styles') ?>
-<!-- CSS personalizado para documentos de servicio comunitario -->
 <link rel="stylesheet" href="<?= base_url('sistema/assets/css/documentos.css') ?>" />
 <style>
-    .documento-card {
-        transition: all 0.3s ease;
-        border-left: 4px solid #17a2b8;
-    }
-
-    .documento-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    .text-truncate {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .estado-badge {
@@ -19,85 +14,48 @@
         padding: 0.25rem 0.5rem;
     }
 
-    .tipo-documento-header {
-        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
-        color: white;
-        border-radius: 8px 8px 0 0;
-    }
-
-    .filtros-rapidos {
-        background: #f8f9fa;
-        border-radius: 8px;
-        padding: 1rem;
-        margin-bottom: 1rem;
-    }
-
-    .estadistica-card {
-        background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);
-        color: white;
-        border-radius: 10px;
-        transition: transform 0.3s ease;
-    }
-
-    .estadistica-card:hover {
-        transform: scale(1.05);
-    }
-
-    .table-responsive {
-        font-size: 0.9rem;
-    }
-
-    .text-truncate {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
     .filtros-bar {
         border: 1px solid #e9ecef;
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
     }
 
-    .file-icon {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 8px;
-        color: white;
+    /* Misma barra de pestañas que Documentos - Prácticas Preprofesionales */
+    #documentosTabsServicio.nav-tabs {
+        border: none !important;
+        border-bottom: none !important;
+        gap: 0.5rem;
+        border-radius: 50rem;
+        background-color: #f8f9fa;
+        padding: 0.25rem 0.5rem;
+        margin-bottom: 0 !important;
     }
-
-    .badge {
-        font-size: 0.75rem;
-        padding: 0.35em 0.65em;
+    #documentosTabsServicio .nav-link {
+        border: none !important;
+        border-bottom: none !important;
+        background-color: transparent;
+        padding: 0.6rem 1.1rem;
+        border-radius: 50rem !important;
+        font-weight: 600;
+        transition: background-color 0.2s, color 0.2s;
+        color: inherit;
     }
-
-    .form-select option {
-        padding: 8px 12px;
+    #documentosTabsServicio .nav-link:hover {
+        background-color: #e9ecef;
     }
-
-    .form-select option.text-success {
-        background-color: #d4edda;
-        color: #155724;
+    #documentosTabsServicio .nav-link.active {
+        background-color: #fff !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        border-bottom: none !important;
     }
-
-    .form-select option.text-danger {
-        background-color: #f8d7da;
-        color: #721c24;
+    #documentosTabsServicio #documentos-tipo-tab-servicio.active,
+    #documentosTabsServicio #documentos-tipo-tab-servicio.active i {
+        color: #0d6efd !important;
     }
-
-    .form-select option.text-info {
-        background-color: #d1ecf1;
-        color: #0c5460;
-    }
-
-    .form-select option.text-warning {
-        background-color: #fff3cd;
-        color: #856404;
-    }
-
-    .form-select option.text-secondary {
-        background-color: #e2e3e5;
-        color: #383d41;
+    #documentosTabsServicio #formatos-docs-tab-servicio,
+    #documentosTabsServicio #formatos-docs-tab-servicio i,
+    #documentosTabsServicio #formatos-docs-tab-servicio.active,
+    #documentosTabsServicio #formatos-docs-tab-servicio.active i {
+        color: #198754 !important;
     }
 </style>
 <?= $this->endSection() ?>
@@ -109,43 +67,43 @@
         <div class="row">
             <div class="col-12">
                 <h3 class="text-center my-3">
-                    <i class="fas fa-hands-helping me-2"></i>
+                    <i class="fas fa-folder-open me-2"></i>
                     Documentos - Servicio Comunitario
                 </h3>
             </div>
         </div>
 
-        <!-- Estadísticas Generales -->
+        <!-- Estadísticas (mismo orden y estilo que Prácticas Preprofesionales) -->
         <div class="row mb-4">
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #17a2b8 0%, #138496 100%); border: none; border-radius: 10px;">
+            <div class="col-md-3 col-sm-6">
+                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #007bff 80%, #0056b3 100%); color: #fff; border: none;">
                     <div class="card-body">
-                        <h2 class="card-title mb-2" id="Aprobados" style="font-size:2.5rem; color: #fff; text-shadow: 0 2px 4px rgba(23, 162, 184, 0.3);"><?= $estadisticas['Aprobados'] ?? 0 ?></h2>
-                        <p class="card-text fw-bold" style="color: #fff;">Aprobados</p>
+                        <h2 class="card-title mb-2" id="Pendientes" style="font-size:2.5rem;"><?= $estadisticas['pendientes'] ?? 0 ?></h2>
+                        <p class="card-text fw-bold" style="color: #e0e0e0;">Pendientes</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #007bff 0%, #0056b3 100%); border: none; border-radius: 10px;">
+            <div class="col-md-3 col-sm-6">
+                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #28a745 80%, #155724 100%); color: #fff; border: none;">
                     <div class="card-body">
-                        <h2 class="card-title mb-2" id="Pendientes" style="font-size:2.5rem; color: #fff; text-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);"><?= $estadisticas['pendientes'] ?? 0 ?></h2>
-                        <p class="card-text fw-bold" style="color: #fff;">Pendientes</p>
+                        <h2 class="card-title mb-2" id="Aprobados" style="font-size:2.5rem;"><?= $estadisticas['Aprobados'] ?? 0 ?></h2>
+                        <p class="card-text fw-bold" style="color: #e0e0e0;">Aprobados</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%); border: none; border-radius: 10px;">
+            <div class="col-md-3 col-sm-6">
+                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #ffc107 80%, #b38600 100%); color: #fff; border: none;">
                     <div class="card-body">
-                        <h2 class="card-title mb-2" id="RequiereCorreccion" style="font-size:2.5rem; color: #fff; text-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);"><?= $estadisticas['requiere_correccion'] ?? 0 ?></h2>
-                        <p class="card-text fw-bold" style="color: #fff;">Requiere Corrección</p>
+                        <h2 class="card-title mb-2" id="RequiereCorreccion" style="font-size:2.5rem;"><?= $estadisticas['requiere_correccion'] ?? 0 ?></h2>
+                        <p class="card-text fw-bold" style="color: #fffbe6;">Requiere Corrección</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); border: none; border-radius: 10px;">
+            <div class="col-md-3 col-sm-6">
+                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #dc3545 80%, #c82333 100%); color: #fff; border: none;">
                     <div class="card-body">
-                        <h2 class="card-title mb-2" id="Rechazados" style="font-size:2.5rem; color: #fff; text-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);"><?= $estadisticas['rechazados'] ?? 0 ?></h2>
-                        <p class="card-text fw-bold" style="color: #fff;">Rechazados</p>
+                        <h2 class="card-title mb-2" id="Rechazados" style="font-size:2.5rem;"><?= $estadisticas['rechazados'] ?? 0 ?></h2>
+                        <p class="card-text fw-bold" style="color: #ffe0e0;">Rechazados</p>
                     </div>
                 </div>
             </div>
@@ -157,7 +115,7 @@
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="showModal('modalSubirDocumentoServicio')" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-cloud-upload-alt fa-2x mb-2" style="color: #17a2b8; text-shadow: 0 2px 4px rgba(23, 162, 184, 0.3);"></i>
+                            <i class="fas fa-cloud-upload-alt fa-2x mb-2" style="color: #28a745; text-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);"></i>
                             <div class="fw-bold">Nuevo Documento</div>
                         </a>
                     </div>
@@ -218,6 +176,7 @@
                     </select>
                     <input type="text" class="form-control form-control-sm" id="buscarEstudiante" placeholder="Estudiante o cédula..." onkeyup="aplicarFiltros()" style="width: 180px;">
                     <button class="btn btn-outline-secondary btn-sm" onclick="limpiarFiltros()"><i class="fas fa-times me-1"></i>Limpiar</button>
+                    <button class="btn btn-outline-primary btn-sm" onclick="showModal('modalFiltrosServicio')"><i class="fas fa-sliders-h me-1"></i>Más filtros</button>
                 </div>
             </div>
         </div>
@@ -247,57 +206,46 @@
                                 <div id="vistaGrid">
                                     <?php if (!empty($tiposDocumentos)): ?>
                                         <?php foreach ($tiposDocumentos as $tipo): ?>
-                                            <div class="row mb-4">
-                                                <div class="col-12">
-                                                    <div class="card shadow-sm">
-                                                        <div class="tipo-documento-header p-3">
-                                                            <div class="d-flex justify-content-between align-items-center">
-                                                                <div>
-                                                                    <h5 class="mb-1">
-                                                                        <i class="fas fa-hands-helping me-2"></i>
-                                                                        <?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?>
-                                                                    </h5>
-                                                                    <small class="opacity-75"><?= $tipo['DESCRIPCION'] ?></small>
-                                                                </div>
-                                                                <div class="text-end">
-                                                                    <span class="badge bg-light text-dark">
-                                                                        <?= $tipo['OBLIGATORIO'] ? 'Obligatorio' : 'Opcional' ?>
-                                                                    </span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="card-body p-0">
-                                                            <div class="table-responsive">
-                                                                <table class="table table-striped table-hover align-middle mb-0 table-documentos" id="tabla-<?= $tipo['ID_TIPO_DOCUMENTO_SERVICIO'] ?>">
-                                                                    <thead class="table-light">
-                                                                        <tr>
-                                                                            <th width="5%">#</th>
-                                                                            <th width="20%">Estudiante</th>
-                                                                            <th width="15%">Cédula</th>
-                                                                            <th width="20%">Proyecto Social</th>
-                                                                            <th width="15%">Archivo</th>
-                                                                            <th width="10%">Estado</th>
-                                                                            <th width="10%">Fecha</th>
-                                                                            <th width="15%">Acciones</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody id="documentos-<?= $tipo['ID_TIPO_DOCUMENTO_SERVICIO'] ?>">
-                                                                        <!-- Los documentos de este tipo se cargarán aquí -->
-                                                                    </tbody>
-                                                                </table>
-                                                            </div>
-                                                        </div>
+                                            <div class="card shadow-sm border-0 mb-4" id="card-tipo-<?= (int) $tipo['ID_TIPO_DOCUMENTO_SERVICIO'] ?>">
+                                                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                                    <span class="tipo-titulo flex-grow-1"><i class="fas fa-file-alt me-2"></i><?= esc($tipo['CODIGO']) ?>. <?= esc($tipo['NOMBRE']) ?></span>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <button type="button" class="btn btn-sm btn-light text-primary" onclick="abrirEditarTipoServicio(<?= (int) $tipo['ID_TIPO_DOCUMENTO_SERVICIO'] ?>)" title="Editar nombre, descripción y demás datos del tipo">
+                                                            <i class="fas fa-pen me-1"></i>Editar tipo
+                                                        </button>
+                                                        <span class="badge bg-light text-dark tipo-badge-oblig"><?= $tipo['OBLIGATORIO'] ? 'Obligatorio' : 'Opcional' ?></span>
+                                                    </div>
+                                                </div>
+                                                <?php
+                                                $descTipo = trim((string) ($tipo['DESCRIPCION'] ?? ''));
+                                                ?>
+                                                <div class="px-3 py-2 bg-light border-bottom small text-muted tipo-detalle"><?php if ($descTipo !== ''): ?><?= nl2br(esc($descTipo)) ?><?php else: ?><span class="fst-italic">Sin descripción. Use «Editar tipo» para añadir el detalle visible para estudiantes y coordinación.</span><?php endif; ?></div>
+                                                <div class="card-body p-0">
+                                                    <div class="table-responsive">
+                                                        <table class="table table-bordered table-striped align-middle mb-0 table-documentos" id="tabla-<?= $tipo['ID_TIPO_DOCUMENTO_SERVICIO'] ?>">
+                                                            <thead class="table-light">
+                                                                <tr>
+                                                                    <th>#</th>
+                                                                    <th>Estudiante</th>
+                                                                    <th>Cédula</th>
+                                                                    <th>Proyecto Social</th>
+                                                                    <th>Archivo</th>
+                                                                    <th>Estado</th>
+                                                                    <th>Fecha</th>
+                                                                    <th>Acciones</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody id="documentos-<?= $tipo['ID_TIPO_DOCUMENTO_SERVICIO'] ?>"></tbody>
+                                                        </table>
                                                     </div>
                                                 </div>
                                             </div>
                                         <?php endforeach; ?>
                                     <?php else: ?>
-                                        <div class="row">
-                                            <div class="col-12 text-center">
-                                                <div class="alert alert-info">
-                                                    <i class="fas fa-info-circle me-2"></i>
-                                                    No hay tipos de documentos configurados
-                                                </div>
+                                        <div class="card shadow-sm border-0">
+                                            <div class="card-body text-center py-4">
+                                                <i class="fas fa-inbox fa-2x text-muted mb-2"></i>
+                                                <p class="text-muted mb-0">No hay tipos de documentos configurados</p>
                                             </div>
                                         </div>
                                     <?php endif; ?>
@@ -311,7 +259,7 @@
                                         <span><i class="fas fa-file-upload me-2"></i>Documentos de formato – Servicio Comunitario</span>
                                     </div>
                                     <div class="card-body">
-                                        <p class="text-muted small mb-3">Estos documentos se muestran en el perfil del estudiante (Servicio Comunitario) para que puedan descargarlos.</p>
+                                        <p class="text-muted small mb-3">Estos documentos se muestran en el perfil del estudiante (Formatos - Servicio Comunitario) para que puedan descargarlos.</p>
                                         <div class="row mb-4">
                                             <div class="col-md-8">
                                                 <form id="formDocumentoFormatoServicio" enctype="multipart/form-data">
@@ -334,7 +282,7 @@
                                             </div>
                                         </div>
                                         <div class="table-responsive">
-                                            <table class="table table-sm table-hover table-documentos">
+                                            <table class="table table-sm table-bordered table-hover table-documentos">
                                                 <thead class="table-light">
                                                     <tr>
                                                         <th>#</th>
@@ -375,6 +323,71 @@
             </div>
         </div>
 
+    </div>
+</div>
+
+<!-- Modal filtros avanzados (misma idea que Prácticas Preprofesionales) -->
+<div class="modal fade" id="modalFiltrosServicio" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-filter me-2"></i>
+                    Filtros de Búsqueda
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formFiltrosServicio">
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Documento</label>
+                        <select class="form-select" name="filtro_tipo_documento">
+                            <option value="">Todos los tipos</option>
+                            <?php if (isset($tipos_documentos)): ?>
+                                <?php foreach ($tipos_documentos as $tipo): ?>
+                                    <option value="<?= $tipo['ID_TIPO_DOCUMENTO_SERVICIO'] ?>"><?= esc($tipo['CODIGO']) ?>. <?= esc($tipo['NOMBRE']) ?></option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Estado de Revisión</label>
+                        <select class="form-select" name="filtro_estado">
+                            <option value="">Todos los estados</option>
+                            <?php if (isset($estados_revision)): ?>
+                                <?php foreach ($estados_revision as $estado): ?>
+                                    <option value="<?= $estado['ID_ESTADO_REVISION'] ?>"><?= esc($estado['ESTADO']) ?></option>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Proyecto social (texto)</label>
+                        <input type="text" class="form-control" name="filtro_proyecto" placeholder="Buscar por proyecto...">
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Fecha Desde</label>
+                                <input type="date" class="form-control" name="fecha_desde">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label">Fecha Hasta</label>
+                                <input type="date" class="form-control" name="fecha_hasta">
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="limpiarFiltrosServicioModal()">Limpiar</button>
+                <button type="button" class="btn btn-primary" onclick="aplicarFiltrosServicioModal()">
+                    <i class="fas fa-search me-1"></i>Aplicar Filtros
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -443,6 +456,68 @@
     </div>
 </div>
 
+<!-- Modal editar tipo de documento PSC -->
+<div class="modal fade" id="modalEditarTipoServicio" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-pen me-2"></i>
+                    Editar tipo de documento
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formEditarTipoServicio">
+                    <input type="hidden" id="edit_tipo_id_serv" name="id">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="edit_codigo_serv">Código</label>
+                                <input type="text" class="form-control" id="edit_codigo_serv" pattern="PSC-\d{3}" required>
+                                <div class="form-text">Formato: PSC-XXX</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="edit_nombre_serv">Nombre del documento</label>
+                                <input type="text" class="form-control" id="edit_nombre_serv" maxlength="255" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="edit_descripcion_serv">Descripción / detalle</label>
+                        <textarea class="form-control" id="edit_descripcion_serv" rows="4" placeholder="Texto que explica qué es este documento."></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="edit_orden_serv">Orden</label>
+                                <input type="number" class="form-control" id="edit_orden_serv" min="1" max="99" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="edit_obligatorio_serv">Tipo</label>
+                                <select class="form-select" id="edit_obligatorio_serv">
+                                    <option value="1">Obligatorio</option>
+                                    <option value="0">Opcional</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarEditarTipoServicio()">
+                    <i class="fas fa-save me-1"></i>Guardar cambios
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Cambiar Estado del Documento -->
 <div class="modal fade" id="modalCambiarEstado" tabindex="-1">
     <div class="modal-dialog">
@@ -465,10 +540,11 @@
                         <label class="form-label">Nuevo Estado</label>
                         <select class="form-select" name="nuevo_estado" id="selectNuevoEstado" required>
                             <option value="">Seleccionar nuevo estado...</option>
-                            <option value="1">Aprobado</option>
-                            <option value="2">Rechazado</option>
-                            <option value="4">Requiere Corrección</option>
-                            <option value="5">Pendiente</option>
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="En Revisión">En Revisión</option>
+                            <option value="Aprobado">Aprobado</option>
+                            <option value="Rechazado">Rechazado</option>
+                            <option value="Requiere Corrección">Requiere Corrección</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -519,9 +595,13 @@
 </div>
 
 <script>
-    // Variables globales
+    const tiposDocumentosCatalogoServicio = <?= json_encode($tiposDocumentos ?? [], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+
     let documentosServicio = [];
     let documentoActualId = null;
+    let filtroExtraProyecto = '';
+    let filtroExtraDesde = '';
+    let filtroExtraHasta = '';
 
     // Funciones principales
     function showModal(modalId) {
@@ -530,49 +610,34 @@
     }
 
     function cargarDocumentosGrid() {
-        console.log('Iniciando carga de documentos...');
         const urlEstudiante = <?= json_encode(!empty($estudiante_filtro) ? (int)$estudiante_filtro : null) ?>;
         const url = '<?= base_url('admin/documentos/servicio/obtenerDocumentos') ?>' + (urlEstudiante ? '?estudiante=' + urlEstudiante : '');
         fetch(url)
-            .then(response => {
-                console.log('Respuesta recibida:', response.status);
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
-                console.log('Datos recibidos:', data);
                 if (data.success) {
                     documentosServicio = data.documentos || data.data || [];
-                    console.log('Documentos cargados:', documentosServicio);
-                    console.log('Cantidad de documentos:', documentosServicio.length);
                     mostrarDocumentosPorTipo();
                 } else {
-                    console.error('Error en respuesta:', data.message);
                     showNotification('Error al cargar documentos: ' + data.message, 'error');
                 }
             })
             .catch(error => {
-                console.error('Error en fetch:', error);
                 showNotification('Error al cargar documentos: ' + error.message, 'error');
             });
     }
 
     function mostrarDocumentosPorTipo() {
-        const tiposDocumentos = <?= json_encode($tiposDocumentos ?? []) ?>;
-        console.log('Tipos de documentos disponibles:', tiposDocumentos);
-        console.log('Documentos a procesar:', documentosServicio);
+        const tiposDocumentos = tiposDocumentosCatalogoServicio;
 
         tiposDocumentos.forEach(tipo => {
-            console.log(`Procesando tipo: ${tipo.CODIGO} - ${tipo.NOMBRE}`);
             const contenedor = document.getElementById(`documentos-${tipo.ID_TIPO_DOCUMENTO_SERVICIO}`);
             if (contenedor) {
                 contenedor.innerHTML = '';
 
-                // Filtrar documentos de este tipo
                 const documentosTipo = documentosServicio.filter(doc =>
                     doc.ID_TIPO_DOCUMENTO == tipo.ID_TIPO_DOCUMENTO_SERVICIO
                 );
-
-                console.log(`Documentos encontrados para tipo ${tipo.CODIGO}:`, documentosTipo.length);
 
                 if (documentosTipo.length === 0) {
                     contenedor.innerHTML = `
@@ -591,8 +656,6 @@
                         contenedor.appendChild(filaTabla);
                     });
                 }
-            } else {
-                console.error(`No se encontró el contenedor para tipo ${tipo.ID_TIPO_DOCUMENTO_SERVICIO}`);
             }
         });
     }
@@ -600,7 +663,7 @@
     function crearFilaTabla(doc, numero) {
         const fila = document.createElement('tr');
 
-        const estadoInfo = obtenerEstadoInfo(doc.ESTADO_REVISION);
+        const estadoInfo = obtenerEstadoInfo(doc.ESTADO_REVISION != null && doc.ESTADO_REVISION !== '' ? doc.ESTADO_REVISION : doc.ID_ESTADO_REVISION);
         const fecha = new Date(doc.FECHA_SUBIDA).toLocaleDateString('es-ES');
 
         fila.innerHTML = `
@@ -609,7 +672,7 @@
                 <div class="fw-bold">${doc.NOMBRE_ESTUDIANTE} ${doc.APELLIDO_ESTUDIANTE}</div>
             </td>
             <td>
-                <span class="text-muted">${doc.CEDULA_ESTUDIANTE}</span>
+                <span class="text-muted">${doc.CEDULA_ESTUDIANTE || doc.CEDULA || ''}</span>
             </td>
             <td>
                 <div class="text-truncate" style="max-width: 200px;" title="${doc.PROYECTO_SOCIAL || 'No especificado'}">
@@ -648,40 +711,17 @@
     }
 
     function obtenerEstadoInfo(estado) {
-        // Mapeo de estados (tanto números como texto)
         const estadosMap = {
-            '1': {
-                texto: 'Aprobado',
-                clase: 'bg-success text-white'
-            },
-            '2': {
-                texto: 'Rechazado',
-                clase: 'bg-danger text-white'
-            },
-            '4': {
-                texto: 'Requiere Corrección',
-                clase: 'bg-warning text-dark'
-            },
-            '5': {
-                texto: 'Pendiente',
-                clase: 'bg-secondary text-white'
-            },
-            'Aprobado': {
-                texto: 'Aprobado',
-                clase: 'bg-success text-white'
-            },
-            'Rechazado': {
-                texto: 'Rechazado',
-                clase: 'bg-danger text-white'
-            },
-            'Requiere Corrección': {
-                texto: 'Requiere Corrección',
-                clase: 'bg-warning text-dark'
-            },
-            'Pendiente': {
-                texto: 'Pendiente',
-                clase: 'bg-secondary text-white'
-            }
+            '1': { texto: 'Pendiente', clase: 'bg-secondary text-white' },
+            '2': { texto: 'En Revisión', clase: 'bg-info text-white' },
+            '3': { texto: 'Aprobado', clase: 'bg-success text-white' },
+            '4': { texto: 'Rechazado', clase: 'bg-danger text-white' },
+            '5': { texto: 'Requiere Corrección', clase: 'bg-warning text-dark' },
+            'Pendiente': { texto: 'Pendiente', clase: 'bg-secondary text-white' },
+            'En Revisión': { texto: 'En Revisión', clase: 'bg-info text-white' },
+            'Aprobado': { texto: 'Aprobado', clase: 'bg-success text-white' },
+            'Rechazado': { texto: 'Rechazado', clase: 'bg-danger text-white' },
+            'Requiere Corrección': { texto: 'Requiere Corrección', clase: 'bg-warning text-dark' }
         };
 
         return estadosMap[estado] || {
@@ -702,7 +742,10 @@
         let documentosFiltrados = [...documentosServicio];
 
         if (filtroEstado) {
-            documentosFiltrados = documentosFiltrados.filter(doc => doc.ESTADO_REVISION === filtroEstado);
+            documentosFiltrados = documentosFiltrados.filter(doc => {
+                const nombre = doc.ESTADO_REVISION || obtenerEstadoInfo(doc.ID_ESTADO_REVISION).texto;
+                return nombre === filtroEstado;
+            });
         }
 
         if (filtroTipo) {
@@ -713,8 +756,30 @@
             documentosFiltrados = documentosFiltrados.filter(doc =>
                 doc.NOMBRE_ESTUDIANTE.toLowerCase().includes(buscarEstudiante) ||
                 doc.APELLIDO_ESTUDIANTE.toLowerCase().includes(buscarEstudiante) ||
-                doc.CEDULA_ESTUDIANTE.includes(buscarEstudiante)
+                String(doc.CEDULA_ESTUDIANTE || doc.CEDULA || '').includes(buscarEstudiante)
             );
+        }
+
+        if (filtroExtraProyecto) {
+            documentosFiltrados = documentosFiltrados.filter(doc =>
+                (doc.PROYECTO_SOCIAL || '').toLowerCase().includes(filtroExtraProyecto)
+            );
+        }
+        if (filtroExtraDesde) {
+            const desde = new Date(filtroExtraDesde);
+            desde.setHours(0, 0, 0, 0);
+            documentosFiltrados = documentosFiltrados.filter(doc => {
+                const d = new Date(doc.FECHA_SUBIDA);
+                return !isNaN(d) && d >= desde;
+            });
+        }
+        if (filtroExtraHasta) {
+            const hasta = new Date(filtroExtraHasta);
+            hasta.setHours(23, 59, 59, 999);
+            documentosFiltrados = documentosFiltrados.filter(doc => {
+                const d = new Date(doc.FECHA_SUBIDA);
+                return !isNaN(d) && d <= hasta;
+            });
         }
 
         // Actualizar la vista con los documentos filtrados
@@ -731,8 +796,46 @@
         document.getElementById('filtroEstado').value = '';
         document.getElementById('filtroTipo').value = '';
         document.getElementById('buscarEstudiante').value = '';
+        filtroExtraProyecto = '';
+        filtroExtraDesde = '';
+        filtroExtraHasta = '';
+        const formModal = document.getElementById('formFiltrosServicio');
+        if (formModal) formModal.reset();
 
         cargarDocumentosGrid();
+    }
+
+    function limpiarFiltrosServicioModal() {
+        document.getElementById('formFiltrosServicio').reset();
+        filtroExtraProyecto = '';
+        filtroExtraDesde = '';
+        filtroExtraHasta = '';
+        showNotification('Formulario de filtros limpiado', 'info');
+    }
+
+    function aplicarFiltrosServicioModal() {
+        const form = document.getElementById('formFiltrosServicio');
+        const tipo = form.querySelector('[name="filtro_tipo_documento"]').value;
+        document.getElementById('filtroTipo').value = tipo || '';
+
+        const estadoSel = form.querySelector('[name="filtro_estado"]');
+        if (estadoSel.value) {
+            const opt = estadoSel.selectedOptions[0];
+            document.getElementById('filtroEstado').value = opt ? opt.textContent.trim() : '';
+        } else {
+            document.getElementById('filtroEstado').value = '';
+        }
+
+        filtroExtraProyecto = (form.querySelector('[name="filtro_proyecto"]').value || '').trim().toLowerCase();
+        filtroExtraDesde = form.querySelector('[name="fecha_desde"]').value || '';
+        filtroExtraHasta = form.querySelector('[name="fecha_hasta"]').value || '';
+
+        const modalEl = document.getElementById('modalFiltrosServicio');
+        const inst = bootstrap.Modal.getInstance(modalEl);
+        if (inst) inst.hide();
+
+        aplicarFiltros();
+        showNotification('Filtros aplicados', 'success');
     }
 
     function verDocumento(id) {
@@ -796,7 +899,7 @@
 
         const formData = new FormData();
         formData.append('estado', nuevoEstado);
-        formData.append('observaciones_revisor', comentarios);
+        formData.append('observaciones', comentarios);
 
         fetch(`<?= base_url('admin/documentos/servicio/cambiar-estado') ?>/${documentoId}`, {
                 method: 'POST',
@@ -874,6 +977,69 @@
 
     function revisionMasiva() {
         showNotification('Función de revisión masiva en desarrollo. Permite cambiar el estado de múltiples documentos a la vez.', 'info');
+    }
+
+    function abrirEditarTipoServicio(id) {
+        const tipo = tiposDocumentosCatalogoServicio.find(t => String(t.ID_TIPO_DOCUMENTO_SERVICIO) === String(id));
+        if (!tipo) {
+            showNotification('No se encontró el tipo de documento', 'error');
+            return;
+        }
+        document.getElementById('edit_tipo_id_serv').value = tipo.ID_TIPO_DOCUMENTO_SERVICIO;
+        document.getElementById('edit_codigo_serv').value = tipo.CODIGO || '';
+        document.getElementById('edit_nombre_serv').value = tipo.NOMBRE || '';
+        document.getElementById('edit_descripcion_serv').value = tipo.DESCRIPCION || '';
+        document.getElementById('edit_orden_serv').value = tipo.ORDEN != null ? tipo.ORDEN : '';
+        const obl = tipo.OBLIGATORIO === 1 || tipo.OBLIGATORIO === true || tipo.OBLIGATORIO === '1';
+        document.getElementById('edit_obligatorio_serv').value = obl ? '1' : '0';
+        showModal('modalEditarTipoServicio');
+    }
+
+    function guardarEditarTipoServicio() {
+        const id = document.getElementById('edit_tipo_id_serv').value;
+        const codigo = document.getElementById('edit_codigo_serv').value.trim();
+        const nombre = document.getElementById('edit_nombre_serv').value.trim();
+        const descripcion = document.getElementById('edit_descripcion_serv').value.trim();
+        const orden = document.getElementById('edit_orden_serv').value;
+        const obligatorio = document.getElementById('edit_obligatorio_serv').value;
+
+        if (!codigo || !/^PSC-\d{3}$/.test(codigo)) {
+            showNotification('El código debe tener el formato PSC-XXX', 'error');
+            return;
+        }
+        if (!nombre) {
+            showNotification('El nombre es requerido', 'error');
+            return;
+        }
+        if (!orden) {
+            showNotification('El orden es requerido', 'error');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('codigo', codigo);
+        formData.append('nombre', nombre);
+        formData.append('descripcion', descripcion);
+        formData.append('orden', orden);
+        formData.append('obligatorio', obligatorio);
+
+        fetch('<?= base_url('admin/documentos/servicio/actualizar-tipo/') ?>' + encodeURIComponent(id), {
+                method: 'POST',
+                body: formData
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    const modalEl = document.getElementById('modalEditarTipoServicio');
+                    const inst = bootstrap.Modal.getInstance(modalEl);
+                    if (inst) inst.hide();
+                    setTimeout(() => location.reload(), 600);
+                } else {
+                    showNotification(data.message || 'No se pudo guardar', 'error');
+                }
+            })
+            .catch(() => showNotification('Error de conexión al guardar', 'error'));
     }
 
     // Funciones para manejar nuevo tipo de servicio comunitario
@@ -1074,18 +1240,17 @@
 
     // Inicialización al cargar la página
     document.addEventListener('DOMContentLoaded', function() {
-        console.log('Vista de documentos de servicio comunitario cargada');
+        if (window.location.hash === '#formatos-documentos-servicio') {
+            const tabFormatos = document.getElementById('formatos-docs-tab-servicio');
+            if (tabFormatos && typeof bootstrap !== 'undefined') {
+                new bootstrap.Tab(tabFormatos).show();
+            }
+        }
 
-        // Verificar tipos de documentos disponibles
-        const tiposDocumentos = <?= json_encode($tiposDocumentos ?? []) ?>;
-        console.log('Tipos de documentos desde PHP:', tiposDocumentos);
-
-        if (!tiposDocumentos || tiposDocumentos.length === 0) {
-            console.warn('No hay tipos de documentos configurados');
+        if (!tiposDocumentosCatalogoServicio || tiposDocumentosCatalogoServicio.length === 0) {
             showNotification('No hay tipos de documentos configurados. Contacte al administrador.', 'warning');
         }
 
-        // Cargar documentos inicialmente
         cargarDocumentosGrid();
 
         // Limpiar iframe cuando se cierre el modal de ver documento

@@ -121,6 +121,7 @@ $routes->group('admin', ['namespace' => 'App\Controllers\admin'], function ($rou
     $routes->get('documentos/practicas/obtenerDocumentos', 'DocumentosPracticasAdminController::obtenerDocumentos'); // Obtener documentos de prácticas
     $routes->get('documentos/practicas/test-datos', 'DocumentosPracticasAdminController::testDatos'); // Prueba de datos
     $routes->post('documentos/practicas/crear-tipo', 'DocumentosPracticasAdminController::crearTipo'); // Crear nuevo tipo PPR
+    $routes->post('documentos/practicas/actualizar-tipo/(:num)', 'DocumentosPracticasAdminController::actualizarTipo/$1'); // Editar tipo PPR (descripción, etc.)
     $routes->post('documentos/practicas/subir', 'DocumentosPracticasAdminController::store'); // Subir documento de práctica
     $routes->get('documentos/practicas/ver/(:num)', 'DocumentosPracticasAdminController::ver/$1'); // Ver documento
     $routes->get('documentos/practicas/download/(:num)', 'DocumentosPracticasAdminController::descargar/$1'); // Descargar documento
@@ -141,8 +142,9 @@ $routes->group('admin', ['namespace' => 'App\Controllers\admin'], function ($rou
     $routes->get('documentos/servicio/reportes', 'DocumentosServicioComunitarioAdminController::reportes'); // Reportes de servicio
     $routes->post('documentos/servicio/subir-formato', 'DocumentosServicioComunitarioAdminController::subirDocumentoFormato');
     $routes->post('documentos/servicio/eliminar-formato/(:segment)', 'DocumentosServicioComunitarioAdminController::eliminarDocumentoFormato/$1');
+    $routes->post('documentos/servicio/crear-tipo', 'DocumentosServicioComunitarioAdminController::crearTipo');
+    $routes->post('documentos/servicio/actualizar-tipo/(:num)', 'DocumentosServicioComunitarioAdminController::actualizarTipo/$1');
     $routes->post('documentos/crear-carpeta', 'DocumentosAdminController::crearCarpeta'); // Crear carpeta
-
     
     //Rutas para la gestión de evaluaciones
     $routes->get('evaluaciones', 'EvaluacionesAdminController::index'); // Ver evaluaciones
@@ -178,17 +180,6 @@ $routes->group('admin', ['namespace' => 'App\Controllers\admin'], function ($rou
 });
 
 //----------------------------------------------------------------------------------------------------------------------
-//RUTAS API PARA NOTIFICACIONES
-$routes->group('notificaciones', ['namespace' => 'App\Controllers'], function ($routes) {
-    $routes->get('/', 'NotificacionesController::index');                           // Obtener notificaciones del usuario
-    $routes->get('no-leidas', 'NotificacionesController::noLeidas');               // Obtener notificaciones no leídas
-    $routes->post('marcar-leida/(:num)', 'NotificacionesController::marcarLeida/$1'); // Marcar notificación como leída
-    $routes->post('marcar-todas-leidas', 'NotificacionesController::marcarTodasLeidas'); // Marcar todas como leídas
-    $routes->post('eliminar/(:num)', 'NotificacionesController::eliminar/$1');     // Eliminar notificación
-    $routes->get('contador', 'NotificacionesController::contador');                // Obtener contador de no leídas
-    $routes->get('por-tipo/(:alpha)', 'NotificacionesController::porTipo/$1');     // Obtener por tipo
-});
-//----------------------------------------------------------------------------------------------------------------------
 //RUTAS DOCENTE
 $routes->group('docente', ['namespace' => 'App\Controllers\docente'], function ($routes) {
      $routes->get('dashboard', 'DashboardDocenteController::index');     // Permitir GET
@@ -200,7 +191,8 @@ $routes->group('docente', ['namespace' => 'App\Controllers\docente'], function (
     //Rutas para la cuenta
     $routes->get('cuenta', 'CuentaDocenteController::index');          // Ver la cuenta del docente
     $routes->post('cuenta/cambiar-password', 'CuentaDocenteController::cambiarPassword'); // Cambiar contraseña
-    
+  
+    //Rutas para la educación continua
     $routes->get('educacion', 'ActividadesEducacionDocenteController::index');    // Ver la sección de educación
     
     // Rutas para actividades educativas del docente
@@ -223,6 +215,7 @@ $routes->group('docente', ['namespace' => 'App\Controllers\docente'], function (
     $routes->post('actividades-educacion/participantes/quitar', 'ActividadesEducacionDocenteController::quitarParticipante');
     $routes->get('actividades-educacion/test-insert', 'ActividadesEducacionDocenteController::testInsert');    // Prueba de inserción
     
+    //Rutas para la gestión de convenios
     $routes->get('convenios', 'InstitucionesConveniosController::index');        // Ver la sección de convenios
     
     // Rutas para notificaciones
@@ -257,6 +250,7 @@ $routes->group('estudiante', ['namespace' => 'App\Controllers\estudiante'], func
     $routes->get('cuenta', 'CuentaEstudianteController::index');          // Ver la cuenta del estudiante
     $routes->post('cuenta/cambiar-password', 'CuentaEstudianteController::cambiarPassword'); // Cambiar contraseña
     
+    //Rutas para la educación continua
     $routes->get('educacion', 'ActividadesEducacionEstudianteController::index');    // Ver la sección de educación (Mis cursos)
     $routes->get('actividades-educacion/detalle/(:num)', 'ActividadesEducacionEstudianteController::detalle/$1');
     $routes->get('actividades-educacion/calendario', 'ActividadesEducacionEstudianteController::calendario');
@@ -281,6 +275,7 @@ $routes->group('estudiante', ['namespace' => 'App\Controllers\estudiante'], func
     
     // Rutas para documentos de prácticas
     $routes->get('documentos-practicas', 'DocumentosPracticasEstudianteController::index'); // Ver documentos de prácticas
+    $routes->get('documentos-servicio-comunitario', 'DocumentosServicioComunitarioEstudianteController::index'); // Documentos PSC
     $routes->post('documentos-practicas/subir', 'DocumentosPracticasEstudianteController::subirDocumento'); // Subir documento
     $routes->get('documentos-practicas/mis-documentos', 'DocumentosPracticasEstudianteController::misDocumentos'); // Mis documentos
     $routes->get('documentos-practicas/progreso', 'DocumentosPracticasEstudianteController::verProgreso'); // Ver progreso
@@ -294,4 +289,16 @@ $routes->group('estudiante', ['namespace' => 'App\Controllers\estudiante'], func
     
     // Rutas para notificaciones
     $routes->get('notificaciones', 'NotificacionesController::vistaEstudiante');    // Ver notificaciones del estudiante
+});
+
+//----------------------------------------------------------------------------------------------------------------------
+//RUTAS API PARA NOTIFICACIONES
+$routes->group('notificaciones', ['namespace' => 'App\Controllers'], function ($routes) {
+    $routes->get('/', 'NotificacionesController::index');                           // Obtener notificaciones del usuario
+    $routes->get('no-leidas', 'NotificacionesController::noLeidas');               // Obtener notificaciones no leídas
+    $routes->post('marcar-leida/(:num)', 'NotificacionesController::marcarLeida/$1'); // Marcar notificación como leída
+    $routes->post('marcar-todas-leidas', 'NotificacionesController::marcarTodasLeidas'); // Marcar todas como leídas
+    $routes->post('eliminar/(:num)', 'NotificacionesController::eliminar/$1');     // Eliminar notificación
+    $routes->get('contador', 'NotificacionesController::contador');                // Obtener contador de no leídas
+    $routes->get('por-tipo/(:alpha)', 'NotificacionesController::porTipo/$1');     // Obtener por tipo
 });

@@ -86,6 +86,20 @@
                         <p class="mb-0"><strong>Fecha ingreso:</strong> <?= $usuario['FECHA_INGRESO'] ? date('d/m/Y', strtotime($usuario['FECHA_INGRESO'])) : '—' ?></p>
                     </div>
                 </div>
+                <div class="card mt-3">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0"><i class="fas fa-folder-open me-2"></i>Documentación de vinculación</h5>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-muted small mb-3">Sube PDF y revisa el estado de lo que solicita coordinación.</p>
+                        <a href="<?= base_url('estudiante/documentos-practicas') ?>" class="btn btn-outline-primary w-100 mb-2">
+                            <i class="fas fa-briefcase me-2"></i>Prácticas preprofesionales
+                        </a>
+                        <a href="<?= base_url('estudiante/documentos-servicio-comunitario') ?>" class="btn btn-outline-secondary w-100">
+                            <i class="fas fa-hands-helping me-2"></i>Servicio comunitario
+                        </a>
+                    </div>
+                </div>
             </div>
             <div class="col-lg-8">
                 <div class="card">

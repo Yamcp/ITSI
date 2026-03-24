@@ -46,19 +46,14 @@ class DocumentosServicioComunitarioAdminController extends BaseController
             }
 
             $idEstFiltro = $idEstudiante > 0 ? $idEstudiante : null;
-            // Verificar si hay documentos, si no, crear algunos de ejemplo (solo cuando no hay filtro)
-            if ($idEstFiltro === null) {
-                $documentos = $this->getDocumentosCompletos(null);
-                if (empty($documentos)) {
-                    $this->crearDocumentosEjemplo();
-                }
-            }
+            // La grilla y obtenerDocumentos leen siempre de la BD; no se insertan datos de demostración automáticamente.
 
             $data = [
                 'title' => 'Gestión de Documentos de Servicio Comunitario',
                 'documentos' => $this->getDocumentosCompletos($idEstFiltro),
                 'estadisticas' => $this->getEstadisticas(),
                 'tiposDocumentos' => $tiposDocumentos,
+                'tipos_documentos' => $tiposDocumentos,
                 'estados_revision' => $this->estadosRevisionesModel->getAllEstados(),
                 'estudiantes' => $this->getEstudiantes(),
                 'documentos_formatos_servicio' => $this->getListaFormatosServicio(),
@@ -74,6 +69,7 @@ class DocumentosServicioComunitarioAdminController extends BaseController
                 'documentos' => [],
                 'estadisticas' => ['Aprobados' => 0, 'pendientes' => 0, 'requiere_correccion' => 0, 'rechazados' => 0],
                 'tiposDocumentos' => [],
+                'tipos_documentos' => [],
                 'estados_revision' => [],
                 'estudiantes' => [],
                 'documentos_formatos_servicio' => $this->getListaFormatosServicio(),
@@ -419,24 +415,28 @@ class DocumentosServicioComunitarioAdminController extends BaseController
     public function getEstadisticas()
     {
         try {
-            $total = $this->documentosModel->countAllResults();
-            $aprobados = $this->documentosModel->where('ID_ESTADO_REVISION', 3)->countAllResults(); // Aprobado
-            $pendientes = $this->documentosModel->where('ID_ESTADO_REVISION', 1)->countAllResults(); // Pendiente
-            $rechazados = $this->documentosModel->where('ID_ESTADO_REVISION', 4)->countAllResults(); // Rechazado
+            // Misma convención que TAB_ESTADOS_REVISIONES y vista de prácticas preprofesionales
+            $aprobados = $this->documentosModel->where('ID_ESTADO_REVISION', 3)->countAllResults();
+            $pendientes = $this->documentosModel->where('ID_ESTADO_REVISION', 1)->countAllResults();
+            $rechazados = $this->documentosModel->where('ID_ESTADO_REVISION', 4)->countAllResults();
+            $requiereCorreccion = $this->documentosModel->where('ID_ESTADO_REVISION', 5)->countAllResults();
 
             return [
-                'total' => $total,
+                'total' => $this->documentosModel->countAllResults(),
+                'Aprobados' => $aprobados,
                 'aprobados' => $aprobados,
                 'pendientes' => $pendientes,
-                'rechazados' => $rechazados
+                'rechazados' => $rechazados,
+                'requiere_correccion' => $requiereCorreccion,
             ];
         } catch (\Exception $e) {
-            // Si hay error, devolver estadísticas de ejemplo
             return [
                 'total' => 0,
+                'Aprobados' => 0,
                 'aprobados' => 0,
                 'pendientes' => 0,
-                'rechazados' => 0
+                'rechazados' => 0,
+                'requiere_correccion' => 0,
             ];
         }
     }
@@ -487,60 +487,6 @@ class DocumentosServicioComunitarioAdminController extends BaseController
         ];
 
         return view('admin/documentos/reportes_servicio_comunitario', $data);
-    }
-
-    /**
-     * Crear documentos de ejemplo para demostración
-     */
-    private function crearDocumentosEjemplo()
-    {
-        // Solo crear ejemplos si no hay documentos
-        $documentosExistentes = $this->documentosModel->countAllResults();
-        if ($documentosExistentes > 0) {
-            return;
-        }
-
-        // Obtener tipos de documentos
-        $tipos = $this->tiposDocumentosModel->getAllTipos();
-        if (empty($tipos)) {
-            return;
-        }
-
-        // Datos de ejemplo
-        $documentosEjemplo = [
-            [
-                'ID_SERVICIO_COMUNITARIO' => 1,
-                'ID_TIPO_DOCUMENTO' => $tipos[0]['ID_TIPO_DOCUMENTO_SERVICIO'],
-                'NOMBRE_ARCHIVO' => 'plan_trabajo_ejemplo.pdf',
-                'TIPO_ARCHIVO' => 'application/pdf',
-                'FECHA_SUBIDA' => date('Y-m-d H:i:s'),
-                'ESTADO_REVISION' => 'Pendiente',
-                'OBSERVACIONES' => 'Documento de ejemplo para demostración'
-            ],
-            [
-                'ID_SERVICIO_COMUNITARIO' => 1,
-                'ID_TIPO_DOCUMENTO' => $tipos[1]['ID_TIPO_DOCUMENTO_SERVICIO'],
-                'NOMBRE_ARCHIVO' => 'cronograma_actividades_ejemplo.pdf',
-                'TIPO_ARCHIVO' => 'application/pdf',
-                'FECHA_SUBIDA' => date('Y-m-d H:i:s', strtotime('-1 day')),
-                'ESTADO_REVISION' => 'Aprobado',
-                'OBSERVACIONES' => 'Cronograma aprobado correctamente'
-            ],
-            [
-                'ID_SERVICIO_COMUNITARIO' => 2,
-                'ID_TIPO_DOCUMENTO' => $tipos[0]['ID_TIPO_DOCUMENTO_SERVICIO'],
-                'NOMBRE_ARCHIVO' => 'plan_trabajo_estudiante2.pdf',
-                'TIPO_ARCHIVO' => 'application/pdf',
-                'FECHA_SUBIDA' => date('Y-m-d H:i:s', strtotime('-2 days')),
-                'ESTADO_REVISION' => 'Requiere Corrección',
-                'OBSERVACIONES' => 'Faltan detalles en el plan de trabajo'
-            ]
-        ];
-
-        // Insertar documentos de ejemplo
-        foreach ($documentosEjemplo as $documento) {
-            $this->documentosModel->insert($documento);
-        }
     }
 
     /**
@@ -599,6 +545,177 @@ class DocumentosServicioComunitarioAdminController extends BaseController
                 // Continuar con el siguiente si hay error
                 continue;
             }
+        }
+    }
+
+    /**
+     * Crear nuevo tipo de documento PSC
+     */
+    public function crearTipo()
+    {
+        try {
+            $validation = \Config\Services::validation();
+            $validation->setRules([
+                'codigo' => 'required|max_length[10]|regex_match[/^PSC-\d{3}$/]',
+                'nombre' => 'required|max_length[255]',
+                'descripcion' => 'permit_empty|max_length[5000]',
+                'orden' => 'required|integer|greater_than[0]|less_than[100]',
+                'obligatorio' => 'required|in_list[0,1]',
+            ]);
+
+            if (!$validation->withRequest($this->request)->run()) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Datos inválidos',
+                    'errors' => $validation->getErrors(),
+                ]);
+            }
+
+            $codigo = $this->request->getPost('codigo');
+            $nombre = $this->request->getPost('nombre');
+            $descripcion = $this->request->getPost('descripcion') ?? '';
+            $orden = (int) $this->request->getPost('orden');
+            $obligatorio = (int) $this->request->getPost('obligatorio');
+
+            if ($this->tiposDocumentosModel->existeTipo($codigo)) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'El código PSC ya existe. Use otro código.',
+                ]);
+            }
+
+            $tipoConOrden = $this->tiposDocumentosModel->where('ORDEN', $orden)->where('ACTIVO', 1)->first();
+            if ($tipoConOrden) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'El orden ya está en uso. Elija otro número.',
+                ]);
+            }
+
+            $data = [
+                'CODIGO' => $codigo,
+                'NOMBRE' => $nombre,
+                'DESCRIPCION' => $descripcion,
+                'ORDEN' => $orden,
+                'OBLIGATORIO' => $obligatorio,
+                'ACTIVO' => 1,
+            ];
+
+            if ($this->tiposDocumentosModel->skipValidation(true)->insert($data)) {
+                $nuevo = $this->tiposDocumentosModel->where('CODIGO', $codigo)->first();
+
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Tipo de documento PSC creado correctamente',
+                    'tipo' => $nuevo,
+                ]);
+            }
+
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error al crear el tipo de documento',
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'crearTipo servicio: ' . $e->getMessage());
+
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error interno: ' . $e->getMessage(),
+            ]);
+        }
+    }
+
+    /**
+     * Actualizar tipo de documento PSC (descripción, nombre, código, orden, obligatorio)
+     */
+    public function actualizarTipo($id = null)
+    {
+        try {
+            $id = (int) $id;
+            if ($id <= 0) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Identificador de tipo no válido',
+                ]);
+            }
+
+            $actual = $this->tiposDocumentosModel->find($id);
+            if (!$actual) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Tipo de documento no encontrado',
+                ]);
+            }
+
+            $validation = \Config\Services::validation();
+            $validation->setRules([
+                'codigo' => 'required|max_length[10]|regex_match[/^PSC-\d{3}$/]',
+                'nombre' => 'required|max_length[255]',
+                'descripcion' => 'permit_empty|max_length[5000]',
+                'orden' => 'required|integer|greater_than[0]|less_than[100]',
+                'obligatorio' => 'required|in_list[0,1]',
+            ]);
+
+            if (!$validation->withRequest($this->request)->run()) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Datos inválidos',
+                    'errors' => $validation->getErrors(),
+                ]);
+            }
+
+            $codigo = $this->request->getPost('codigo');
+            $nombre = $this->request->getPost('nombre');
+            $descripcion = $this->request->getPost('descripcion') ?? '';
+            $orden = (int) $this->request->getPost('orden');
+            $obligatorio = (int) $this->request->getPost('obligatorio');
+
+            if ($this->tiposDocumentosModel->existeTipo($codigo, $id)) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'El código PSC ya está en uso por otro tipo.',
+                ]);
+            }
+
+            $duplicadoOrden = $this->tiposDocumentosModel
+                ->where('ORDEN', $orden)
+                ->where('ACTIVO', 1)
+                ->where('ID_TIPO_DOCUMENTO_SERVICIO !=', $id)
+                ->first();
+            if ($duplicadoOrden) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'El orden ya está en uso. Elija otro número.',
+                ]);
+            }
+
+            $data = [
+                'CODIGO' => $codigo,
+                'NOMBRE' => $nombre,
+                'DESCRIPCION' => $descripcion,
+                'ORDEN' => $orden,
+                'OBLIGATORIO' => $obligatorio,
+            ];
+
+            if ($this->tiposDocumentosModel->skipValidation(true)->update($id, $data)) {
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Tipo de documento actualizado correctamente',
+                    'tipo' => $this->tiposDocumentosModel->find($id),
+                ]);
+            }
+
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'No se pudo guardar el tipo de documento',
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'actualizarTipo servicio: ' . $e->getMessage());
+
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error interno: ' . $e->getMessage(),
+            ]);
         }
     }
 }

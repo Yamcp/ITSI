@@ -4,13 +4,9 @@
 <link rel="stylesheet" href="<?= base_url('sistema/assets/css/practicas.css') ?>" />
 <style>
     :root {
-        --dashboard-radius: 16px;
-        --dashboard-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
-        --dashboard-shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.12);
-        --gradient-pre: linear-gradient(145deg, #0ea5e9 0%, #06b6d4 100%);
-        --gradient-serv: linear-gradient(145deg, #ec4899 0%, #f59e0b 100%);
-        --gradient-active: linear-gradient(145deg, #10b981 0%, #14b8a6 100%);
-        --gradient-actividades: linear-gradient(145deg, #6366f1 0%, #8b5cf6 100%);
+        --dashboard-radius: 0.5rem;
+        --dashboard-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+        --dashboard-shadow-hover: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
 
     .practicas-page {
@@ -18,30 +14,24 @@
     }
 
     .page-header-practicas {
-        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
-        border-radius: var(--dashboard-radius);
         padding: 1.5rem 1.75rem;
         margin-bottom: 1.75rem;
-        border: 1px solid rgba(0, 0, 0, 0.04);
     }
 
     .page-header-practicas .title-page {
         font-weight: 700;
         font-size: 1.5rem;
-        color: #0f172a;
-        letter-spacing: -0.02em;
+        color: #212529;
     }
 
     .metric-card-practicas {
-        border: none;
         border-radius: var(--dashboard-radius);
         box-shadow: var(--dashboard-shadow);
-        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        transition: box-shadow 0.2s ease;
         overflow: hidden;
     }
 
     .metric-card-practicas:hover {
-        transform: translateY(-4px);
         box-shadow: var(--dashboard-shadow-hover);
     }
 
@@ -81,17 +71,13 @@
     }
 
     .card-dash {
-        border: none;
         border-radius: var(--dashboard-radius);
         box-shadow: var(--dashboard-shadow);
     }
 
     .card-dash .card-header {
-        background: #fff;
-        border-bottom: 1px solid #f1f5f9;
         padding: 1rem 1.35rem;
         font-weight: 600;
-        color: #0f172a;
         font-size: 1.05rem;
     }
 
@@ -131,22 +117,19 @@
     }
 
     .practica-card {
-        border: none;
         border-radius: var(--dashboard-radius);
         box-shadow: var(--dashboard-shadow);
-        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        transition: box-shadow 0.2s ease;
         margin-bottom: 1.5rem;
         overflow: hidden;
     }
 
     .practica-card:hover {
-        transform: translateY(-4px);
         box-shadow: var(--dashboard-shadow-hover);
     }
 
     .practica-header {
-        background: var(--gradient-serv);
-        color: white;
+        color: #fff;
         border-radius: 0;
         padding: 1.25rem 1.5rem;
     }
@@ -186,8 +169,7 @@
     }
 
     .accion-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        filter: brightness(0.97);
     }
 
     .timeline-item {
@@ -233,9 +215,9 @@
         <!-- Métricas (mismo diseño que dashboard) -->
         <div class="row g-3 mb-4">
             <div class="col-md-3 col-sm-6">
-                <div class="card metric-card-practicas text-white" style="background: var(--gradient-serv);">
+                <div class="card metric-card-practicas">
                     <div class="card-body text-center">
-                        <div class="metric-icon" style="background: rgba(255,255,255,0.25);">
+                        <div class="metric-icon">
                             <i class="fas fa-hands-helping"></i>
                         </div>
                         <h3 class="mb-0"><?= $estadisticas['totalPracticas'] ?? 0 ?></h3>
@@ -245,9 +227,9 @@
                 </div>
             </div>
             <div class="col-md-3 col-sm-6">
-                <div class="card metric-card-practicas text-white" style="background: var(--gradient-active);">
+                <div class="card metric-card-practicas">
                     <div class="card-body text-center">
-                        <div class="metric-icon" style="background: rgba(255,255,255,0.25);">
+                        <div class="metric-icon">
                             <i class="fas fa-play-circle"></i>
                         </div>
                         <h3 class="mb-0"><?= $estadisticas['practicasActivas'] ?? 0 ?></h3>
@@ -257,9 +239,9 @@
                 </div>
             </div>
             <div class="col-md-3 col-sm-6">
-                <div class="card metric-card-practicas text-white" style="background: var(--gradient-pre);">
+                <div class="card metric-card-practicas">
                     <div class="card-body text-center">
-                        <div class="metric-icon" style="background: rgba(255,255,255,0.25);">
+                        <div class="metric-icon">
                             <i class="fas fa-check-circle"></i>
                         </div>
                         <h3 class="mb-0"><?= $estadisticas['practicasFinalizadas'] ?? 0 ?></h3>
@@ -269,9 +251,9 @@
                 </div>
             </div>
             <div class="col-md-3 col-sm-6">
-                <div class="card metric-card-practicas text-white" style="background: var(--gradient-actividades);">
+                <div class="card metric-card-practicas">
                     <div class="card-body text-center">
-                        <div class="metric-icon" style="background: rgba(255,255,255,0.25);">
+                        <div class="metric-icon">
                             <i class="fas fa-clock"></i>
                         </div>
                         <h3 class="mb-0"><?= $estadisticas['horasCompletadas'] ?? 0 ?></h3>
@@ -336,7 +318,7 @@
                 </p>
                 <?php $documentos_formatos_serv = $documentos_formatos_servicio ?? []; ?>
                 <?php if (!empty($documentos_formatos_serv)): ?>
-                    <ul class="list-group list-group-flush">
+                    <ul class="list-group">
                         <?php foreach ($documentos_formatos_serv as $item): ?>
                             <li class="list-group-item d-flex justify-content-between align-items-center">
                                 <span><i class="fas fa-file-pdf me-2 text-danger"></i><?= esc($item['nombre'] ?? 'Documento') ?></span>
@@ -388,7 +370,7 @@
         <div class="row mb-4">
             <div class="col-12">
                 <div class="card shadow-sm border-0">
-                    <div class="card-header text-white" style="background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);">
+                    <div class="card-header bg-primary text-white panel-bar-trad">
                         <h5 class="mb-0">
                             <i class="fas fa-file-export me-2"></i>
                             Documento final

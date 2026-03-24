@@ -1355,22 +1355,18 @@ INSERT INTO `TAB_TIPOS_MODALIDADES` (`ID_TIPO_MODALIDAD`, `MODALIDAD`) VALUES
 (2, 'Virtual'),
 (3, 'Híbrida');
 
--- Insertar tipos de instructores 
+-- Insertar tipos de instructor
 INSERT INTO `TAB_TIPOS_INSTRUCTORES` (`ID_TIPO_INSTRUCTOR`, `TIPO`) VALUES
-(1, 'Docente'),
-(2, 'Especialista'),
-(3, 'Consultor'),
-(4, 'Investigador');
+(1, 'Interno'),
+(2, 'Externo');
 
--- Instructores (personas 4–6 ya cargadas arriba)
+-- Insertar instructores
 INSERT INTO `TAB_INSTRUCTORES` (`ID_INSTRUCTOR`, `ID_TIPO_INSTRUCTOR`, `ID_DATO_PERSONA`, `ESPECIALIDAD`, `TITULO_PROFESIONAL`) VALUES
 (1, 1, 4, 'Desarrollo de Software', 'Ingeniero en Sistemas'),
-(2, 2, 5, 'Hardware y Redes', 'Técnico en Electrónica'),
-(3, 3, 6, 'Inteligencia Artificial', 'Doctora en Ciencias de la Computación');
+(2, 1, 5, 'Hardware y Redes', 'Técnico en Electrónica'),
+(3, 2, 6, 'Inteligencia Artificial', 'Doctora en Ciencias de la Computación');
 
--- ==============================================================
--- INSERTAR DATOS DE PERÍODOS ACADÉMICOS (antes de actividades y asignaciones con FK)
--- ==============================================================
+-- Insertar datos de períodos académicos
 INSERT INTO `TAB_PERIODOS_ACADEMICOS` (`ID_PERIODO_ACADEMICO`, `MES_INICIO`, `AÑO_INICIO`, `MES_FIN`, `AÑO_FIN`) VALUES
 (1, 1, 2024, 6, 2024),
 (2, 7, 2024, 12, 2024),
@@ -1407,7 +1403,7 @@ INSERT INTO `TAB_DOCENTES_TUTORES` (`ID_USUARIO`, `ID_DATO_PERSONA`, `ESPECIALID
 (5, 5, 'Hardware y Redes', 'Técnico en Electrónica', 'Infraestructura de TI', 8),
 (6, 6, 'Inteligencia Artificial', 'Doctora en Ciencias de la Computación', 'Investigación aplicada', 12);
 
--- Entidades receptoras (antes de convenios: FK ID_ENTIDAD_RECEPTORA en TAB_INSTITUCIONES_CONVENIOS)
+-- Insertar entidades receptoras 
 INSERT INTO `TAB_ENTIDADES_RECEPTORAS` (`ID_ENTIDAD_RECEPTORA`, `NOMBRE`, `RUC`, `DIRECCION`, `CIUDAD`, `TELEFONO`, `EMAIL`, `REPRESENTANTE_LEGAL`, `CONTACTO_DIRECTO`, `TELEFONO_CONTACTO`, `EMAIL_CONTACTO`, `TIPO_ENTIDAD`, `ACTIVO`, `FECHA_CREACION`, `FECHA_ACTUALIZACION`) VALUES
 (1, 'Hospital San Vicente de Paúl', '1234567890001', 'Av. 17 de Julio, Ibarra', 'Ibarra', '062-123456', 'contacto@hospitalsanvicente.com', 'Dr. Juan Pérez', 'Lic. María González', '0987654321', 'maria.gonzalez@hospitalsanvicente.com', 'Pública', 1, '2025-09-04 11:59:17', '2025-09-04 11:59:17'),
 (2, 'Banco del Pacífico', '0987654321001', 'Av. Amazonas, Quito', 'Quito', '022-987654', 'info@bancodelpacifico.com', 'Sr. Carlos Mendoza', 'Ing. Ana Ruiz', '0912345678', 'ana.ruiz@bancodelpacifico.com', 'Privada', 1, '2025-09-04 11:59:17', '2025-09-04 11:59:17'),

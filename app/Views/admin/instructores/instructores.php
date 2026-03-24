@@ -93,6 +93,11 @@
                                 </button>
                             </li>
                         </ul>
+                        <div class="d-flex justify-content-end mt-2">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="showModal('modalFiltros')">
+                                <i class="fas fa-filter me-1"></i>Filtros
+                            </button>
+                        </div>
                         <hr class="mt-0 mb-2" style="border-top: 2px solid #e3e6f0;">
 
                         <!-- Contenido de las pestañas -->
@@ -100,12 +105,6 @@
                             <!-- Todos los Instructores -->
                             <div class="tab-pane fade show active" id="todos" role="tabpanel">
                                 <div class="card shadow-sm border-0">
-                                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                                        <span><i class="fas fa-users me-2"></i>Todos los Instructores</span>
-                                        <button class="btn btn-light btn-sm" onclick="showModal('modalFiltros')">
-                                            <i class="fas fa-filter me-1"></i>Filtros
-                                        </button>
-                                    </div>
                                     <div class="card-body p-0">
                                         <div class="table-responsive">
                                             <table class="table table-striped align-middle mb-0">
@@ -226,12 +225,6 @@
                             <!-- Instructores Internos -->
                             <div class="tab-pane fade" id="internos" role="tabpanel">
                                 <div class="card shadow-sm border-0">
-                                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                                        <span><i class="fas fa-building me-2"></i>Instructores Internos</span>
-                                        <button class="btn btn-light btn-sm" onclick="showModal('modalFiltros')">
-                                            <i class="fas fa-filter me-1"></i>Filtros
-                                        </button>
-                                    </div>
                                     <div class="card-body p-0">
                                         <div class="table-responsive">
                                             <table class="table table-striped align-middle mb-0">
@@ -308,12 +301,6 @@
                             <!-- Instructores Externos -->
                             <div class="tab-pane fade" id="externos" role="tabpanel">
                                 <div class="card shadow-sm border-0">
-                                    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
-                                        <span><i class="fas fa-user-tie me-2"></i>Instructores Externos</span>
-                                        <button class="btn btn-light btn-sm" onclick="showModal('modalFiltros')">
-                                            <i class="fas fa-filter me-1"></i>Filtros
-                                        </button>
-                                    </div>
                                     <div class="card-body p-0">
                                         <div class="table-responsive">
                                             <table class="table table-striped align-middle mb-0">
@@ -389,6 +376,47 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Filtros (listados por pestaña) -->
+<div class="modal fade" id="modalFiltros" tabindex="-1" aria-labelledby="modalFiltrosInstructoresLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalFiltrosInstructoresLabel">
+                    <i class="fas fa-filter me-2"></i>Filtros
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted small mb-3">Los filtros se aplican a las tablas Todos, Internos y Externos en esta página.</p>
+                <div class="mb-3">
+                    <label class="form-label" for="filtroBusquedaInstructor">Buscar</label>
+                    <input type="search" class="form-control" id="filtroBusquedaInstructor" placeholder="Nombre, correo o texto en la fila" autocomplete="off">
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="filtroTipoInstructor">Tipo</label>
+                    <select class="form-select" id="filtroTipoInstructor">
+                        <option value="">Todos</option>
+                        <option value="interno">Interno</option>
+                        <option value="externo">Externo</option>
+                    </select>
+                </div>
+                <div class="mb-0">
+                    <label class="form-label" for="filtroEstadoInstructor">Estado</label>
+                    <select class="form-select" id="filtroEstadoInstructor">
+                        <option value="">Todos</option>
+                        <option value="activo">Activo</option>
+                        <option value="inactivo">Inactivo</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" id="btnLimpiarFiltrosInstructores">Limpiar</button>
+                <button type="button" class="btn btn-primary" id="btnAplicarFiltrosInstructores">Aplicar</button>
             </div>
         </div>
     </div>
@@ -851,9 +879,111 @@
     }
 
     function showModal(modalId) {
-        const modal = new bootstrap.Modal(document.getElementById(modalId));
+        const el = document.getElementById(modalId);
+        if (!el) {
+            console.warn('Modal no encontrado:', modalId);
+            return;
+        }
+        const modal = new bootstrap.Modal(el);
         modal.show();
     }
+
+    function aplicarFiltrosInstructoresTablas() {
+        const q = (document.getElementById('filtroBusquedaInstructor')?.value || '').trim().toLowerCase();
+        const tipo = (document.getElementById('filtroTipoInstructor')?.value || '').trim();
+        const est = (document.getElementById('filtroEstadoInstructor')?.value || '').trim();
+        const hasFilters = Boolean(q || tipo || est);
+
+        const tablas = [
+            { id: 'tablaTodos', kind: 'todos' },
+            { id: 'tablaInternos', kind: 'internos' },
+            { id: 'tablaExternos', kind: 'externos' },
+        ];
+
+        tablas.forEach(({ id, kind }) => {
+            const tbody = document.getElementById(id);
+            if (!tbody) {
+                return;
+            }
+            tbody.querySelectorAll('tr').forEach((tr) => {
+                const emptyCell = tr.querySelector('td[colspan]');
+                if (emptyCell) {
+                    tr.style.display = hasFilters ? 'none' : '';
+                    return;
+                }
+                const cells = tr.querySelectorAll('td');
+                if (cells.length < 7) {
+                    return;
+                }
+                const instructorText = (cells[1]?.innerText || '').toLowerCase();
+                const tipoText = (cells[2]?.innerText || '').toLowerCase();
+                const estadoText = (cells[6]?.innerText || '').toLowerCase();
+
+                let show = true;
+                if (q && !instructorText.includes(q) && !(tr.innerText || '').toLowerCase().includes(q)) {
+                    show = false;
+                }
+                if (tipo === 'interno') {
+                    if (kind === 'externos') {
+                        show = false;
+                    } else if (kind === 'todos' && !tipoText.includes('interno')) {
+                        show = false;
+                    }
+                }
+                if (tipo === 'externo') {
+                    if (kind === 'internos') {
+                        show = false;
+                    } else if (kind === 'todos' && !tipoText.includes('externo')) {
+                        show = false;
+                    }
+                }
+                if (est === 'activo' && !estadoText.includes('activo')) {
+                    show = false;
+                }
+                if (est === 'inactivo' && !estadoText.includes('inactiv')) {
+                    show = false;
+                }
+                tr.style.display = show ? '' : 'none';
+            });
+        });
+
+        const modalEl = document.getElementById('modalFiltros');
+        if (modalEl) {
+            const instance = bootstrap.Modal.getInstance(modalEl);
+            if (instance) {
+                instance.hide();
+            }
+        }
+    }
+
+    function limpiarFiltrosInstructoresTablas() {
+        const b = document.getElementById('filtroBusquedaInstructor');
+        const t = document.getElementById('filtroTipoInstructor');
+        const e = document.getElementById('filtroEstadoInstructor');
+        if (b) {
+            b.value = '';
+        }
+        if (t) {
+            t.value = '';
+        }
+        if (e) {
+            e.value = '';
+        }
+        ['tablaTodos', 'tablaInternos', 'tablaExternos'].forEach((tbodyId) => {
+            const tbody = document.getElementById(tbodyId);
+            if (!tbody) {
+                return;
+            }
+            tbody.querySelectorAll('tr').forEach((tr) => {
+                tr.style.display = '';
+            });
+        });
+    }
+
+    document.getElementById('btnAplicarFiltrosInstructores')?.addEventListener('click', aplicarFiltrosInstructoresTablas);
+    document.getElementById('btnLimpiarFiltrosInstructores')?.addEventListener('click', () => {
+        limpiarFiltrosInstructoresTablas();
+    });
 
     async function verDetalle(id) {
         try {

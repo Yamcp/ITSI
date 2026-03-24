@@ -639,7 +639,7 @@ class DocumentosPracticasAdminController extends BaseController
             $validation->setRules([
                 'codigo' => 'required|max_length[50]|regex_match[/^PPR-\d{3}$/]',
                 'nombre' => 'required|max_length[150]',
-                'descripcion' => 'permit_empty|max_length[500]',
+                'descripcion' => 'permit_empty|max_length[5000]',
                 'orden' => 'required|integer|greater_than[0]|less_than[100]',
                 'obligatorio' => 'required|in_list[0,1]'
             ]);
@@ -703,6 +703,105 @@ class DocumentosPracticasAdminController extends BaseController
             return $this->response->setJSON([
                 'success' => false,
                 'message' => 'Error interno del servidor: ' . $e->getMessage()
+            ]);
+        }
+    }
+
+    /**
+     * Actualizar tipo de documento PPR (descripción, nombre, código, orden, obligatorio)
+     */
+    public function actualizarTipo($id = null)
+    {
+        try {
+            $id = (int) $id;
+            if ($id <= 0) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Identificador de tipo no válido',
+                ]);
+            }
+
+            $actual = $this->tiposDocumentosModel->find($id);
+            if (!$actual) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Tipo de documento no encontrado',
+                ]);
+            }
+
+            $validation = \Config\Services::validation();
+            $validation->setRules([
+                'codigo' => 'required|max_length[50]|regex_match[/^PPR-\d{3}$/]',
+                'nombre' => 'required|max_length[150]',
+                'descripcion' => 'permit_empty|max_length[5000]',
+                'orden' => 'required|integer|greater_than[0]|less_than[100]',
+                'obligatorio' => 'required|in_list[0,1]',
+            ]);
+
+            if (!$validation->withRequest($this->request)->run()) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Datos inválidos',
+                    'errors' => $validation->getErrors(),
+                ]);
+            }
+
+            $codigo = $this->request->getPost('codigo');
+            $nombre = $this->request->getPost('nombre');
+            $descripcion = $this->request->getPost('descripcion') ?? '';
+            $orden = (int) $this->request->getPost('orden');
+            $obligatorio = $this->request->getPost('obligatorio');
+
+            $duplicadoCodigo = $this->tiposDocumentosModel
+                ->where('CODIGO', $codigo)
+                ->where('ID_TIPO_DOCUMENTO_PREPROFESIONAL !=', $id)
+                ->first();
+            if ($duplicadoCodigo) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'El código PPR ya está en uso por otro tipo.',
+                ]);
+            }
+
+            $duplicadoOrden = $this->tiposDocumentosModel
+                ->where('ORDEN', $orden)
+                ->where('ID_TIPO_DOCUMENTO_PREPROFESIONAL !=', $id)
+                ->first();
+            if ($duplicadoOrden) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'El orden ya está en uso. Elija otro número de orden.',
+                ]);
+            }
+
+            $data = [
+                'CODIGO' => $codigo,
+                'NOMBRE' => $nombre,
+                'DESCRIPCION' => $descripcion,
+                'ORDEN' => $orden,
+                'OBLIGATORIO' => (int) $obligatorio,
+            ];
+
+            if ($this->tiposDocumentosModel->skipValidation(true)->update($id, $data)) {
+                $actualizado = $this->tiposDocumentosModel->find($id);
+
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Tipo de documento actualizado correctamente',
+                    'tipo' => $actualizado,
+                ]);
+            }
+
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'No se pudo guardar el tipo de documento',
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Error al actualizar tipo PPR: ' . $e->getMessage());
+
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error interno del servidor: ' . $e->getMessage(),
             ]);
         }
     }

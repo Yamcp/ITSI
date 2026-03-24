@@ -57,7 +57,7 @@
                     <span class="hide-menu">PRÁCTICAS PROFESIONALES</span>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link" href="<?= base_url('estudiante/practicas') ?>" aria-expanded="false">
+                    <a class="sidebar-link" href="<?= base_url('estudiante/documentos-practicas') ?>" aria-expanded="false">
                         <span>
                             <i class="fa-solid fa-user-graduate fs-6"></i>
                         </span>
@@ -77,7 +77,7 @@
                     <span class="hide-menu">PRÁCTICAS DE SERVICIO COMUNITARIO</span>
                 </li>
                 <li class="sidebar-item">
-                    <a class="sidebar-link" href="<?= base_url('estudiante/practicas/servicio-comunitario') ?>" aria-expanded="false">
+                    <a class="sidebar-link" href="<?= base_url('estudiante/documentos-servicio-comunitario') ?>" aria-expanded="false">
                         <span>
                             <i class="fa-solid fa-hands-helping fs-6"></i>
                         </span>

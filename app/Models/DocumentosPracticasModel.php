@@ -469,6 +469,35 @@ class DocumentosPracticasModel extends Model
     }
 
     /**
+     * El documento pertenece a una práctica del estudiante (por ID_USUARIO de sesión).
+     */
+    public function documentoPerteneceAUsuario(int $idDocumento, int $idUsuario): bool
+    {
+        $doc = $this->find($idDocumento);
+        if (!$doc || empty($doc['ID_PRACTICA_PREPROFESIONAL'])) {
+            return false;
+        }
+
+        $est = $this->db->table('TAB_ESTUDIANTES e')
+            ->select('e.ID_ESTUDIANTE')
+            ->join('TAB_USUARIOS u', 'u.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+            ->where('u.ID_USUARIO', $idUsuario)
+            ->get()
+            ->getRowArray();
+
+        if (!$est) {
+            return false;
+        }
+
+        $n = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES')
+            ->where('ID_PRACTICA_PREPROFESIONAL', (int) $doc['ID_PRACTICA_PREPROFESIONAL'])
+            ->where('ID_ESTUDIANTE', $est['ID_ESTUDIANTE'])
+            ->countAllResults();
+
+        return $n > 0;
+    }
+
+    /**
      * Buscar documentos con filtros
      */
     public function buscarDocumentos($filtros = [])

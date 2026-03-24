@@ -206,14 +206,23 @@
                                 <div id="vistaGrid">
                                     <?php if (!empty($tiposDocumentos)): ?>
                                         <?php foreach ($tiposDocumentos as $tipo): ?>
-                                            <div class="card shadow-sm border-0 mb-4">
-                                                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                                                    <span><i class="fas fa-file-alt me-2"></i><?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?></span>
-                                                    <span class="badge bg-light text-dark"><?= $tipo['OBLIGATORIO'] ? 'Obligatorio' : 'Opcional' ?></span>
+                                            <div class="card shadow-sm border-0 mb-4" id="card-tipo-<?= (int) $tipo['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?>">
+                                                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                                    <span class="tipo-titulo flex-grow-1"><i class="fas fa-file-alt me-2"></i><?= esc($tipo['CODIGO']) ?>. <?= esc($tipo['NOMBRE']) ?></span>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <button type="button" class="btn btn-sm btn-light text-primary" onclick="abrirEditarTipoPractica(<?= (int) $tipo['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?>)" title="Editar nombre, descripción y demás datos del tipo">
+                                                            <i class="fas fa-pen me-1"></i>Editar tipo
+                                                        </button>
+                                                        <span class="badge bg-light text-dark tipo-badge-oblig"><?= $tipo['OBLIGATORIO'] ? 'Obligatorio' : 'Opcional' ?></span>
+                                                    </div>
                                                 </div>
+                                                <?php
+                                                $descTipo = trim((string) ($tipo['DESCRIPCION'] ?? ''));
+                                                ?>
+                                                <div class="px-3 py-2 bg-light border-bottom small text-muted tipo-detalle"><?php if ($descTipo !== ''): ?><?= nl2br(esc($descTipo)) ?><?php else: ?><span class="fst-italic">Sin descripción. Use «Editar tipo» para añadir el detalle visible para estudiantes y coordinación.</span><?php endif; ?></div>
                                                 <div class="card-body p-0">
                                                     <div class="table-responsive">
-                                                        <table class="table table-striped align-middle mb-0 table-documentos" id="tabla-<?= $tipo['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?>">
+                                                        <table class="table table-bordered table-striped align-middle mb-0 table-documentos" id="tabla-<?= $tipo['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?>">
                                                             <thead class="table-light">
                                                                 <tr>
                                                                     <th>#</th>
@@ -273,7 +282,7 @@
                                             </div>
                                         </div>
                                         <div class="table-responsive">
-                                            <table class="table table-sm table-hover table-documentos">
+                                            <table class="table table-sm table-bordered table-hover table-documentos">
                                                 <thead class="table-light">
                                                     <tr>
                                                         <th>#</th>
@@ -380,6 +389,68 @@
         </div>
     </div>
 </div>
+</div>
+
+<!-- Modal editar tipo de documento PPR (descripción / detalle) -->
+<div class="modal fade" id="modalEditarTipoPractica" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-pen me-2"></i>
+                    Editar tipo de documento
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formEditarTipoPractica">
+                    <input type="hidden" id="edit_tipo_id" name="id">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="edit_codigo">Código</label>
+                                <input type="text" class="form-control" id="edit_codigo" pattern="PPR-\d{3}" required>
+                                <div class="form-text">Formato: PPR-XXX</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="edit_nombre">Nombre del documento</label>
+                                <input type="text" class="form-control" id="edit_nombre" maxlength="150" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="edit_descripcion">Descripción / detalle</label>
+                        <textarea class="form-control" id="edit_descripcion" rows="4" placeholder="Texto que explica qué es este documento (se muestra en administración y perfil del estudiante)."></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="edit_orden">Orden</label>
+                                <input type="number" class="form-control" id="edit_orden" min="1" max="99" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label class="form-label" for="edit_obligatorio">Tipo</label>
+                                <select class="form-select" id="edit_obligatorio">
+                                    <option value="1">Obligatorio</option>
+                                    <option value="0">Opcional</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="guardarEditarTipoPractica()">
+                    <i class="fas fa-save me-1"></i>Guardar cambios
+                </button>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Modal Filtros -->
@@ -533,6 +604,8 @@
 </div>
 
 <script>
+    const tiposDocumentosCatalogoPracticas = <?= json_encode($tiposDocumentos ?? [], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+
     // Variables globales
     let documentosPracticas = [];
     let documentoActualId = null;
@@ -567,7 +640,7 @@
     }
 
     function mostrarDocumentosPorTipo() {
-        const tiposDocumentos = <?= json_encode($tiposDocumentos ?? []) ?>;
+        const tiposDocumentos = tiposDocumentosCatalogoPracticas;
 
         tiposDocumentos.forEach(tipo => {
             const contenedor = document.getElementById(`documentos-${tipo.ID_TIPO_DOCUMENTO_PREPROFESIONAL}`);
@@ -956,6 +1029,69 @@
 
     function revisionMasiva() {
         showNotification('Función de revisión masiva en desarrollo. Permite cambiar el estado de múltiples documentos a la vez.', 'info');
+    }
+
+    function abrirEditarTipoPractica(id) {
+        const tipo = tiposDocumentosCatalogoPracticas.find(t => String(t.ID_TIPO_DOCUMENTO_PREPROFESIONAL) === String(id));
+        if (!tipo) {
+            showNotification('No se encontró el tipo de documento', 'error');
+            return;
+        }
+        document.getElementById('edit_tipo_id').value = tipo.ID_TIPO_DOCUMENTO_PREPROFESIONAL;
+        document.getElementById('edit_codigo').value = tipo.CODIGO || '';
+        document.getElementById('edit_nombre').value = tipo.NOMBRE || '';
+        document.getElementById('edit_descripcion').value = tipo.DESCRIPCION || '';
+        document.getElementById('edit_orden').value = tipo.ORDEN != null ? tipo.ORDEN : '';
+        const obl = tipo.OBLIGATORIO === 1 || tipo.OBLIGATORIO === true || tipo.OBLIGATORIO === '1';
+        document.getElementById('edit_obligatorio').value = obl ? '1' : '0';
+        showModal('modalEditarTipoPractica');
+    }
+
+    function guardarEditarTipoPractica() {
+        const id = document.getElementById('edit_tipo_id').value;
+        const codigo = document.getElementById('edit_codigo').value.trim();
+        const nombre = document.getElementById('edit_nombre').value.trim();
+        const descripcion = document.getElementById('edit_descripcion').value.trim();
+        const orden = document.getElementById('edit_orden').value;
+        const obligatorio = document.getElementById('edit_obligatorio').value;
+
+        if (!codigo || !/^PPR-\d{3}$/.test(codigo)) {
+            showNotification('El código debe tener el formato PPR-XXX', 'error');
+            return;
+        }
+        if (!nombre) {
+            showNotification('El nombre es requerido', 'error');
+            return;
+        }
+        if (!orden) {
+            showNotification('El orden es requerido', 'error');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('codigo', codigo);
+        formData.append('nombre', nombre);
+        formData.append('descripcion', descripcion);
+        formData.append('orden', orden);
+        formData.append('obligatorio', obligatorio);
+
+        fetch('<?= base_url('admin/documentos/practicas/actualizar-tipo/') ?>' + encodeURIComponent(id), {
+                method: 'POST',
+                body: formData
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    const modalEl = document.getElementById('modalEditarTipoPractica');
+                    const inst = bootstrap.Modal.getInstance(modalEl);
+                    if (inst) inst.hide();
+                    setTimeout(() => location.reload(), 600);
+                } else {
+                    showNotification(data.message || 'No se pudo guardar', 'error');
+                }
+            })
+            .catch(() => showNotification('Error de conexión al guardar', 'error'));
     }
 
     // Funciones para manejar nuevo tipo PPR

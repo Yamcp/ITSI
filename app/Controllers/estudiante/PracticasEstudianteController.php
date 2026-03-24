@@ -353,13 +353,13 @@ class PracticasEstudianteController extends BaseController
         $datos = [
             'ID_SERVICIO_COMUNITARIO' => $idServicio,
             'ID_TIPO_DOCUMENTO' => $idTipo,
+            'ID_ESTADO_REVISION' => 1,
             'NOMBRE_ARCHIVO' => $nombreArchivo,
             'TIPO_ARCHIVO' => $archivo->getClientMimeType() ?: 'application/pdf',
             'FECHA_SUBIDA' => date('Y-m-d H:i:s'),
-            'ESTADO_REVISION' => 'Pendiente',
             'OBSERVACIONES' => $this->request->getPost('observaciones') ?? '',
         ];
-        if ($this->documentosServicioComunitarioModel->insert($datos)) {
+        if ($this->documentosServicioComunitarioModel->skipValidation(true)->insert($datos)) {
             return $this->response->setJSON(['success' => true, 'message' => 'Documento subido correctamente. Será revisado por el coordinador.']);
         }
         @unlink($dir . $nombreArchivo);
@@ -398,6 +398,9 @@ class PracticasEstudianteController extends BaseController
         $doc = $this->documentosServicioComunitarioModel->find($id);
         if (!$doc || !$this->perteneceServicioAlEstudiante($doc['ID_SERVICIO_COMUNITARIO'], $userId)) {
             return $this->response->setJSON(['success' => false, 'message' => 'Documento no encontrado']);
+        }
+        if (!empty($doc['ID_ESTADO_REVISION']) && (int) $doc['ID_ESTADO_REVISION'] === 3) {
+            return $this->response->setJSON(['success' => false, 'message' => 'No puedes eliminar un documento ya aprobado']);
         }
         $ruta = WRITEPATH . 'uploads/documentos-servicio/' . $doc['NOMBRE_ARCHIVO'];
         if (file_exists($ruta)) {
