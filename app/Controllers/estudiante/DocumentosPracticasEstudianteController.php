@@ -4,8 +4,9 @@ namespace App\Controllers\estudiante;
 
 use App\Controllers\BaseController;
 use App\Models\DocumentosPracticasModel;
-use App\Models\TiposDocumentosPracticasModel;
 use App\Models\EstadosRevisionesModel;
+use App\Models\TiposDocumentosPracticasModel;
+use App\Services\EstudianteAsistenciaService;
 
 class DocumentosPracticasEstudianteController extends BaseController
 {
@@ -30,9 +31,17 @@ class DocumentosPracticasEstudianteController extends BaseController
      */
     public function index()
     {
-        $idUsuario = session()->get('id_usuario');
-        
+        $idUsuario = (int) session()->get('id_usuario');
+
         $tipos = $this->tiposDocumentosModel->getAllTipos();
+        $pendAsist = EstudianteAsistenciaService::pendientesAsistenciaHoy($idUsuario);
+        $itemsPp = array_values(array_filter(
+            $pendAsist['items'],
+            static fn (array $i): bool => ($i['tipo'] ?? '') === 'preprofesional'
+        ));
+        $tienePpActiva = EstudianteAsistenciaService::tienePracticaPreprofesionalEnProgreso($idUsuario);
+        $practicasDocumentacion = $this->obtenerPracticasDocumentacionEstudiante($idUsuario);
+
         $data = [
             'title' => 'Documentos de Prácticas Preprofesionales',
             'tipos_documentos' => $tipos,
@@ -40,9 +49,61 @@ class DocumentosPracticasEstudianteController extends BaseController
             'progreso' => $this->getProgresoEstudiante($idUsuario),
             'estadisticas' => $this->getEstadisticasEstudiante($idUsuario, count($tipos)),
             'total_tipos_documentos' => count($tipos),
+            'asistencia_items' => $itemsPp,
+            'asistencia_fecha' => $pendAsist['fecha'],
+            'asistencia_tiene_activa' => $tienePpActiva,
+            'asistencia_mostrar_tarjeta' => $tienePpActiva,
+            'asistencia_modal_automatico' => false,
+            'asistencia_titulo_tarjeta' => 'Asistencia — prácticas preprofesionales',
+            'practicas_documentacion' => $practicasDocumentacion,
         ];
 
         return view('estudiante/documentos/documentos_practicas', $data);
+    }
+
+    /**
+     * Prácticas del estudiante con entidad convenio y nombre del instructor (para pantalla de documentos).
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function obtenerPracticasDocumentacionEstudiante(int $idUsuario): array
+    {
+        try {
+            $db = \Config\Database::connect();
+
+            $est = $db->table('TAB_ESTUDIANTES e')
+                ->select('e.ID_ESTUDIANTE')
+                ->join('TAB_USUARIOS u', 'u.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+                ->where('u.ID_USUARIO', $idUsuario)
+                ->get()
+                ->getRowArray();
+
+            if (empty($est['ID_ESTUDIANTE'])) {
+                return [];
+            }
+
+            $idEst = (int) $est['ID_ESTUDIANTE'];
+
+            $tblInst = 'TAB_INSTITUCIONES_CONVENIOS';
+            if (!$db->tableExists('TAB_INSTITUCIONES_CONVENIOS')) {
+                $tblInst = 'instituciones_convenios';
+            }
+
+            // Mismo criterio que admin/prácticas: convenio + instructor vía TAB_INSTRUCTORES → datos persona
+            return $db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
+                ->select('pp.ID_PRACTICA_PREPROFESIONAL, ic.NOMBRE as INSTITUCION_NOMBRE, CONCAT(COALESCE(dpi.NOMBRE,\'\'), \' \', COALESCE(dpi.APELLIDO,\'\')) as SUPERVISOR_NOMBRE', false)
+                ->join($tblInst . ' ic', 'ic.ID_INSTITUCION_CONVENIO = pp.ID_INSTITUCION_CONVENIO', 'left')
+                ->join('TAB_INSTRUCTORES ins', 'ins.ID_INSTRUCTOR = pp.ID_INSTRUCTOR', 'left')
+                ->join('TAB_DATOS_PERSONAS dpi', 'dpi.ID_DATO_PERSONA = ins.ID_DATO_PERSONA', 'left')
+                ->where('pp.ID_ESTUDIANTE', $idEst)
+                ->orderBy('pp.FECHA_INICIO', 'DESC')
+                ->get()
+                ->getResultArray();
+        } catch (\Throwable $e) {
+            log_message('error', 'obtenerPracticasDocumentacionEstudiante: ' . $e->getMessage());
+
+            return [];
+        }
     }
 
     /**

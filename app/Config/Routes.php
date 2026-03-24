@@ -239,7 +239,7 @@ $routes->group('docente', ['namespace' => 'App\Controllers\docente'], function (
 
 //----------------------------------------------------------------------------------------------------------------------
 //RUTAS ESTUDIANTE
-$routes->group('estudiante', ['namespace' => 'App\Controllers\estudiante'], function ($routes) {
+$routes->group('estudiante', ['namespace' => 'App\Controllers\estudiante', 'filter' => 'estudiante_asistencia'], function ($routes) {
      $routes->get('dashboard', 'DashboardEstudianteController::index');     // Permitir GET
     $routes->post('dashboard', 'DashboardEstudianteController::index');    // El dashboard del estudiante
     $routes->get('perfil', 'PerfilEstudianteController::index');          // Ver el perfil del estudiante
@@ -261,12 +261,11 @@ $routes->group('estudiante', ['namespace' => 'App\Controllers\estudiante'], func
     $routes->get('convenios', 'InstitucionesConveniosController::index');        // Ver la sección de convenios
     
     // Rutas para prácticas (más específicas primero)
+    $routes->get('practicas/servicio-comunitario/formatos/descargar/(:segment)', 'PracticasEstudianteController::descargarFormatoServicio/$1');
     $routes->get('practicas/servicio-comunitario/formatos', 'PracticasEstudianteController::formatosServicioComunitario');
     $routes->get('practicas/formatos', 'PracticasEstudianteController::formatos');
     $routes->get('practicas/formatos/descargar/(:segment)', 'PracticasEstudianteController::descargarFormatoPracticas/$1');
-    $routes->get('practicas/servicio-comunitario/formatos/descargar/(:segment)', 'PracticasEstudianteController::descargarFormatoServicio/$1');
     $routes->get('practicas', 'PracticasEstudianteController::index'); // Prácticas preprofesionales
-    $routes->get('practicas/servicio-comunitario', 'PracticasEstudianteController::servicioComunitario'); // Prácticas de servicio comunitario
     $routes->get('practicas/detalle/(:num)/(:alpha)', 'PracticasEstudianteController::detalle/$1/$2'); // Detalle de práctica
     $routes->post('practicas/registrar-actividad', 'PracticasEstudianteController::registrarActividad'); // Registrar actividad
     $routes->post('practicas/registrar-asistencia', 'PracticasEstudianteController::registrarAsistencia'); // Registrar asistencia (estudiante)

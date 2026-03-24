@@ -54,7 +54,7 @@
                 </li>
                 <li class="nav-small-cap">
                     <i class="fa-solid fa-briefcase nav-small-cap-icon fs-6"></i>
-                    <span class="hide-menu">PRÁCTICAS PROFESIONALES</span>
+                    <span class="hide-menu">PRÁCTICAS PREPROFESIONALES</span>
                 </li>
                 <li class="sidebar-item">
                     <a class="sidebar-link" href="<?= base_url('estudiante/documentos-practicas') ?>" aria-expanded="false">

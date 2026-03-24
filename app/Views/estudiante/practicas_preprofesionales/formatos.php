@@ -29,10 +29,13 @@
 <?= $this->section('content') ?>
 <div class="body-wrapper practicas-page">
     <div class="container-fluid px-3 px-md-4 pb-4">
-        <div class="page-header-formatos">
-            <h1 class="title-page">
-                <i class="fas fa-file-alt me-2 text-primary"></i>Formatos (Prácticas Laborales)
-            </h1>
+    <div class="row">
+            <div class="col-12">
+                <h3 class="text-center my-3">
+                    <i class="fas fa-file-alt me-2"></i>
+                    Formatos (Prácticas Preprofesionales)
+                </h3>
+            </div>
         </div>
 
         <p class="formatos-aviso">

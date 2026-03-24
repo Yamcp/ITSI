@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Models\DocumentosServicioComunitarioModel;
 use App\Models\EstadosRevisionesModel;
 use App\Models\TiposDocumentosServicioComunitarioModel;
+use App\Services\EstudianteAsistenciaService;
 
 class DocumentosServicioComunitarioEstudianteController extends BaseController
 {
@@ -31,6 +32,14 @@ class DocumentosServicioComunitarioEstudianteController extends BaseController
         $servicios = $this->obtenerServiciosDelEstudiante($idUsuario);
         $progreso = $this->documentosModel->getProgresoEstudianteServicio($idUsuario);
 
+        $pendAsist = EstudianteAsistenciaService::pendientesAsistenciaHoy($idUsuario);
+        $itemsSc = array_values(array_filter(
+            $pendAsist['items'],
+            static fn (array $i): bool => ($i['tipo'] ?? '') === 'servicio'
+        ));
+        $tieneScActiva = EstudianteAsistenciaService::tieneServicioComunitarioEnProgreso($idUsuario);
+        $serviciosDocumentacion = $this->obtenerServiciosDocumentacionEstudiante($idUsuario);
+
         $data = [
             'title' => 'Documentos de Servicio Comunitario',
             'tipos_documentos' => $tipos,
@@ -40,9 +49,60 @@ class DocumentosServicioComunitarioEstudianteController extends BaseController
             'id_servicio_default' => !empty($servicios) ? (int) $servicios[0]['ID_SERVICIO_COMUNITARIO'] : 0,
             'estadisticas' => $this->calcularEstadisticas($progreso, count($tipos)),
             'total_tipos_documentos' => count($tipos),
+            'asistencia_items' => $itemsSc,
+            'asistencia_fecha' => $pendAsist['fecha'],
+            'asistencia_tiene_activa' => $tieneScActiva,
+            'asistencia_mostrar_tarjeta' => $tieneScActiva,
+            'asistencia_modal_automatico' => false,
+            'asistencia_titulo_tarjeta' => 'Asistencia — servicio comunitario',
+            'servicios_documentacion' => $serviciosDocumentacion,
         ];
 
         return view('estudiante/documentos/documentos_servicio_comunitario', $data);
+    }
+
+    /**
+     * Servicios del estudiante con institución convenio e instructor (pantalla documentación PSC).
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function obtenerServiciosDocumentacionEstudiante(int $idUsuario): array
+    {
+        try {
+            $db = \Config\Database::connect();
+
+            $est = $db->table('TAB_ESTUDIANTES e')
+                ->select('e.ID_ESTUDIANTE')
+                ->join('TAB_USUARIOS u', 'u.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+                ->where('u.ID_USUARIO', $idUsuario)
+                ->get()
+                ->getRowArray();
+
+            if (empty($est['ID_ESTUDIANTE'])) {
+                return [];
+            }
+
+            $idEst = (int) $est['ID_ESTUDIANTE'];
+
+            $tblInst = 'TAB_INSTITUCIONES_CONVENIOS';
+            if (!$db->tableExists('TAB_INSTITUCIONES_CONVENIOS')) {
+                $tblInst = 'instituciones_convenios';
+            }
+
+            return $db->table('TAB_SERVICIO_COMUNITARIO sc')
+                ->select('sc.ID_SERVICIO_COMUNITARIO, sc.PROYECTO_SOCIAL, ic.NOMBRE as INSTITUCION_NOMBRE, CONCAT(COALESCE(dpi.NOMBRE,\'\'), \' \', COALESCE(dpi.APELLIDO,\'\')) as SUPERVISOR_NOMBRE', false)
+                ->join($tblInst . ' ic', 'ic.ID_INSTITUCION_CONVENIO = sc.ID_INSTITUCION_CONVENIO', 'left')
+                ->join('TAB_INSTRUCTORES ins', 'ins.ID_INSTRUCTOR = sc.ID_INSTRUCTOR', 'left')
+                ->join('TAB_DATOS_PERSONAS dpi', 'dpi.ID_DATO_PERSONA = ins.ID_DATO_PERSONA', 'left')
+                ->where('sc.ID_ESTUDIANTE', $idEst)
+                ->orderBy('sc.FECHA_INICIO', 'DESC')
+                ->get()
+                ->getResultArray();
+        } catch (\Throwable $e) {
+            log_message('error', 'obtenerServiciosDocumentacionEstudiante: ' . $e->getMessage());
+
+            return [];
+        }
     }
 
     /**

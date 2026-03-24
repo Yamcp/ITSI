@@ -4,14 +4,6 @@
 <!-- CSS personalizado para documentos de prácticas -->
 <link rel="stylesheet" href="<?= base_url('sistema/assets/css/documentos.css') ?>" />
 <style>
-    .progress-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-radius: 15px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-    }
-
     .document-card {
         transition: all 0.3s ease;
         border: 2px solid transparent;
@@ -93,6 +85,19 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
+<?php
+$serviciosDocJs = array_map(static function (array $s): array {
+    return [
+        'id' => (int) ($s['ID_SERVICIO_COMUNITARIO'] ?? 0),
+        'entidad' => (string) ($s['INSTITUCION_NOMBRE'] ?? ''),
+        'tutor' => trim((string) ($s['SUPERVISOR_NOMBRE'] ?? '')),
+    ];
+}, $servicios_documentacion ?? []);
+$docScMetaById = [];
+foreach ($servicios_documentacion ?? [] as $row) {
+    $docScMetaById[(int) ($row['ID_SERVICIO_COMUNITARIO'] ?? 0)] = $row;
+}
+?>
 <div class="body-wrapper">
     <div class="container-fluid">
         <!-- Header -->
@@ -106,50 +111,115 @@
             </div>
         </div>
 
-        <!-- Progreso General -->
         <div class="row mb-4">
             <div class="col-12">
-                <div class="progress-card">
-                    <div class="row align-items-center">
-                        <div class="col-md-8">
-                            <h4 class="mb-2">
-                                <i class="fas fa-chart-line me-2"></i>
-                                Progreso de Documentos
-                            </h4>
-                            <div class="progress mb-2" style="height: 20px;">
-                                <div class="progress-bar bg-light" role="progressbar"
-                                    style="width: <?= $estadisticas['porcentaje_completado'] ?>%"
-                                    aria-valuenow="<?= $estadisticas['porcentaje_completado'] ?>"
-                                    aria-valuemin="0" aria-valuemax="100">
-                                    <?= $estadisticas['porcentaje_completado'] ?>%
+                <div class="card documentos-resumen-panel border shadow-sm">
+                    <div class="card-body p-0">
+                        <div class="documentos-resumen-seccion documentos-resumen-progreso px-3 px-md-4 py-3">
+                            <h6 class="documentos-resumen-seccion-title mb-3">
+                                <i class="fas fa-chart-line text-primary" aria-hidden="true"></i>
+                                Progreso de documentos
+                            </h6>
+                            <div class="row align-items-center g-3">
+                                <div class="col-lg-7">
+                                    <div class="progress documentos-resumen-progress mb-2">
+                                        <div class="progress-bar" role="progressbar"
+                                            style="width: <?= (int) ($estadisticas['porcentaje_completado'] ?? 0) ?>%"
+                                            aria-valuenow="<?= (int) ($estadisticas['porcentaje_completado'] ?? 0) ?>"
+                                            aria-valuemin="0" aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                    <p class="small text-muted mb-0"><?= (int) ($estadisticas['aprobados'] ?? 0) ?> de <?= (int) ($total_tipos_documentos ?? 0) ?> tipos aprobados · <span class="fw-medium text-body"><?= (int) ($estadisticas['porcentaje_completado'] ?? 0) ?>%</span></p>
+                                </div>
+                                <div class="col-lg-5">
+                                    <div class="row g-2 text-center">
+                                        <div class="col-3 documentos-resumen-stat">
+                                            <div class="documentos-resumen-stat-num"><?= (int) ($estadisticas['total'] ?? 0) ?></div>
+                                            <small>Total</small>
+                                        </div>
+                                        <div class="col-3 documentos-resumen-stat">
+                                            <div class="documentos-resumen-stat-num text-success"><?= (int) ($estadisticas['aprobados'] ?? 0) ?></div>
+                                            <small>Aprobados</small>
+                                        </div>
+                                        <div class="col-3 documentos-resumen-stat">
+                                            <div class="documentos-resumen-stat-num text-warning"><?= (int) ($estadisticas['pendientes'] ?? 0) ?></div>
+                                            <small>Pendientes</small>
+                                        </div>
+                                        <div class="col-3 documentos-resumen-stat">
+                                            <div class="documentos-resumen-stat-num text-danger"><?= (int) ($estadisticas['rechazados'] ?? 0) ?></div>
+                                            <small>Rechazados</small>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <p class="mb-0"><?= (int) ($estadisticas['aprobados'] ?? 0) ?> de <?= (int) ($total_tipos_documentos ?? 0) ?> tipos aprobados</p>
+                            <?php if (!empty($id_servicio_default) && (empty($servicios_comunitarios) || count($servicios_comunitarios) <= 1)): ?>
+                                <input type="hidden" id="id_servicio_hidden" value="<?= (int) $id_servicio_default ?>">
+                            <?php endif; ?>
                         </div>
-                        <div class="col-md-4 text-end">
-                            <div class="row text-center">
-                                <div class="col-3">
-                                    <h5 class="mb-0"><?= $estadisticas['total'] ?></h5>
-                                    <small>Total</small>
-                                </div>
-                                <div class="col-3">
-                                    <h5 class="mb-0 text-success"><?= $estadisticas['aprobados'] ?></h5>
-                                    <small>Aprobados</small>
-                                </div>
-                                <div class="col-3">
-                                    <h5 class="mb-0 text-warning"><?= $estadisticas['pendientes'] ?></h5>
-                                    <small>Pendientes</small>
-                                </div>
-                                <div class="col-3">
-                                    <h5 class="mb-0 text-danger"><?= $estadisticas['rechazados'] ?></h5>
-                                    <small>Rechazados</small>
-                                </div>
+
+                        <?php if (!empty($id_servicio_default) && !empty($servicios_comunitarios) && count($servicios_comunitarios) > 1): ?>
+                            <hr class="documentos-resumen-hr">
+                            <div class="documentos-resumen-seccion px-3 px-md-4 py-3">
+                                <label class="form-label fw-semibold small mb-2" for="selectServicioComunitarioDoc">Servicio (archivos se asocian a esta vinculación)</label>
+                                <select class="form-select form-select-sm" id="selectServicioComunitarioDoc">
+                                    <?php foreach ($servicios_comunitarios as $sc):
+                                        $sid = (int) $sc['ID_SERVICIO_COMUNITARIO'];
+                                        $m = $docScMetaById[$sid] ?? null;
+                                        ?>
+                                        <option value="<?= $sid ?>"
+                                            data-entidad="<?= esc($m['INSTITUCION_NOMBRE'] ?? '', 'attr') ?>"
+                                            data-tutor="<?= esc(trim($m['SUPERVISOR_NOMBRE'] ?? ''), 'attr') ?>">
+                                            <?= esc($sc['PROYECTO_SOCIAL'] ?: 'Servicio #' . $sid) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
                             </div>
+                        <?php endif; ?>
+
+                        <hr class="documentos-resumen-hr">
+
+                        <div class="documentos-resumen-seccion px-3 px-md-4 py-3">
+                            <h6 class="documentos-resumen-seccion-title mb-2">
+                                <i class="fas fa-clipboard-list text-primary" aria-hidden="true"></i>
+                                Datos de documentación del servicio comunitario
+                            </h6>
+                            <p class="small text-muted mb-3">Institución convenio e instructor de tu vinculación.</p>
+                            <?php if (empty($servicios_documentacion)): ?>
+                                <div class="alert alert-light border small mb-0 py-2">
+                                    <i class="fas fa-info-circle text-primary me-1"></i>
+                                    <?php if (empty($id_servicio_default)): ?>
+                                        Aún no tienes <strong>servicio comunitario</strong> registrado. Cuando coordinación asigne tu servicio, verás institución e instructor aquí.
+                                    <?php else: ?>
+                                        Tu servicio está registrado; si no ves <strong>institución</strong> o <strong>instructor</strong>, solicita a coordinación que complete los datos.
+                                    <?php endif; ?>
+                                </div>
+                            <?php else: ?>
+                                <div class="row g-2 g-md-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small mb-1">Institución convenio</label>
+                                        <div class="form-control form-control-sm bg-light border rounded px-3 py-2" id="doc_sc_vis_entidad" style="min-height: 38px;">—</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small mb-1">Instructor</label>
+                                        <div class="form-control form-control-sm bg-light border rounded px-3 py-2" id="doc_sc_vis_tutor" style="min-height: 38px;">—</div>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
                         </div>
+
+                        <hr class="documentos-resumen-hr">
+
+                        <?php
+                            $documentos_aviso_tipo = 'servicio';
+                            $documentos_aviso_integrado = true;
+                            echo $this->include('estudiante/partials/documentos_aviso_importante');
+                        ?>
                     </div>
                 </div>
             </div>
         </div>
+
+        <?= $this->include('estudiante/partials/asistencia_registro_estudiante') ?>
 
         <!-- Documentos Requeridos -->
         <div class="row">
@@ -166,21 +236,8 @@
                             <div class="alert alert-warning">
                                 <i class="fas fa-info-circle me-2"></i>
                                 Aún no tienes un <strong>servicio comunitario</strong> registrado en el sistema. Cuando esté asignado, podrás subir aquí la documentación PSC.
-                                Puedes revisar el avance en <a href="<?= base_url('estudiante/practicas/servicio-comunitario') ?>">Prácticas — Servicio comunitario</a>.
+                                Revisa el estado de tus archivos en la lista inferior o consulta con coordinación.
                             </div>
-                        <?php elseif (!empty($servicios_comunitarios) && count($servicios_comunitarios) > 1): ?>
-                            <div class="mb-3">
-                                <label class="form-label fw-semibold" for="selectServicioComunitarioDoc">Servicio comunitario (donde se subirán los archivos)</label>
-                                <select class="form-select" id="selectServicioComunitarioDoc">
-                                    <?php foreach ($servicios_comunitarios as $sc): ?>
-                                        <option value="<?= (int) $sc['ID_SERVICIO_COMUNITARIO'] ?>">
-                                            <?= esc($sc['PROYECTO_SOCIAL'] ?: 'Servicio #' . $sc['ID_SERVICIO_COMUNITARIO']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                        <?php else: ?>
-                            <input type="hidden" id="id_servicio_hidden" value="<?= (int) $id_servicio_default ?>">
                         <?php endif; ?>
 
                         <div class="view-mode-toggle">
@@ -427,6 +484,7 @@
                 </div>
             </div>
         </div>
+
     </div>
 </div>
 
@@ -480,6 +538,31 @@
 </div>
 
 <script>
+    var serviciosDocMetaList = <?= json_encode($serviciosDocJs ?? [], JSON_UNESCAPED_UNICODE) ?>;
+
+    function syncServicioDocMetaDesdeDom() {
+        var ve = document.getElementById('doc_sc_vis_entidad');
+        var vt = document.getElementById('doc_sc_vis_tutor');
+        if (!ve || !vt) {
+            return;
+        }
+        var sel = document.getElementById('selectServicioComunitarioDoc');
+        var ent = '';
+        var tut = '';
+        if (sel) {
+            var opt = sel.options[sel.selectedIndex];
+            if (opt) {
+                ent = opt.getAttribute('data-entidad') || '';
+                tut = opt.getAttribute('data-tutor') || '';
+            }
+        } else if (serviciosDocMetaList && serviciosDocMetaList.length === 1) {
+            ent = serviciosDocMetaList[0].entidad || '';
+            tut = serviciosDocMetaList[0].tutor || '';
+        }
+        ve.textContent = ent.trim() ? ent : '—';
+        vt.textContent = tut.trim() ? tut : '—';
+    }
+
     function getIdServicioComunitarioSeleccionado() {
         const sel = document.getElementById('selectServicioComunitarioDoc');
         const hid = document.getElementById('id_servicio_hidden');
@@ -620,6 +703,12 @@
 
     // Drag and Drop functionality
     document.addEventListener('DOMContentLoaded', function() {
+        syncServicioDocMetaDesdeDom();
+        var selSc = document.getElementById('selectServicioComunitarioDoc');
+        if (selSc) {
+            selSc.addEventListener('change', syncServicioDocMetaDesdeDom);
+        }
+
         const switchVista = document.getElementById('switchVistaDocumentos');
         const vistaCards = document.getElementById('vistaCards');
         const vistaTabla = document.getElementById('vistaTabla');
@@ -686,4 +775,6 @@
         });
     });
 </script>
+<?= $this->include('estudiante/partials/asistencia_registro_estudiante_script') ?>
 <?= $this->endSection() ?>
+

@@ -4,14 +4,6 @@
 <!-- CSS personalizado para documentos de prácticas -->
 <link rel="stylesheet" href="<?= base_url('sistema/assets/css/documentos.css') ?>" />
 <style>
-    .progress-card {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        color: white;
-        border-radius: 15px;
-        padding: 2rem;
-        margin-bottom: 2rem;
-    }
-
     .document-card {
         transition: all 0.3s ease;
         border: 2px solid transparent;
@@ -93,6 +85,15 @@
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
+<?php
+$practicasDocJs = array_map(static function (array $p): array {
+    return [
+        'id' => (int) ($p['ID_PRACTICA_PREPROFESIONAL'] ?? 0),
+        'entidad' => (string) ($p['INSTITUCION_NOMBRE'] ?? ''),
+        'tutor' => trim((string) ($p['SUPERVISOR_NOMBRE'] ?? '')),
+    ];
+}, $practicas_documentacion ?? []);
+?>
 <div class="body-wrapper">
     <div class="container-fluid">
         <!-- Header -->
@@ -106,50 +107,109 @@
             </div>
         </div>
 
-        <!-- Progreso General -->
         <div class="row mb-4">
             <div class="col-12">
-                <div class="progress-card">
-                    <div class="row align-items-center">
-                        <div class="col-md-8">
-                            <h4 class="mb-2">
-                                <i class="fas fa-chart-line me-2"></i>
-                                Progreso de Documentos
-                            </h4>
-                            <div class="progress mb-2" style="height: 20px;">
-                                <div class="progress-bar bg-light" role="progressbar"
-                                    style="width: <?= $estadisticas['porcentaje_completado'] ?>%"
-                                    aria-valuenow="<?= $estadisticas['porcentaje_completado'] ?>"
-                                    aria-valuemin="0" aria-valuemax="100">
-                                    <?= $estadisticas['porcentaje_completado'] ?>%
+                <div class="card documentos-resumen-panel border shadow-sm">
+                    <div class="card-body p-0">
+                        <div class="documentos-resumen-seccion documentos-resumen-progreso px-3 px-md-4 py-3">
+                            <h6 class="documentos-resumen-seccion-title mb-3">
+                                <i class="fas fa-chart-line text-primary" aria-hidden="true"></i>
+                                Progreso de documentos
+                            </h6>
+                            <div class="row align-items-center g-3">
+                                <div class="col-lg-7">
+                                    <div class="progress documentos-resumen-progress mb-2">
+                                        <div class="progress-bar" role="progressbar"
+                                            style="width: <?= (int) ($estadisticas['porcentaje_completado'] ?? 0) ?>%"
+                                            aria-valuenow="<?= (int) ($estadisticas['porcentaje_completado'] ?? 0) ?>"
+                                            aria-valuemin="0" aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                    <p class="small text-muted mb-0"><?= (int) ($estadisticas['aprobados'] ?? 0) ?> de <?= (int) ($total_tipos_documentos ?? 0) ?> tipos aprobados · <span class="fw-medium text-body"><?= (int) ($estadisticas['porcentaje_completado'] ?? 0) ?>%</span></p>
+                                </div>
+                                <div class="col-lg-5">
+                                    <div class="row g-2 text-center">
+                                        <div class="col-3 documentos-resumen-stat">
+                                            <div class="documentos-resumen-stat-num"><?= (int) ($estadisticas['total'] ?? 0) ?></div>
+                                            <small>Total</small>
+                                        </div>
+                                        <div class="col-3 documentos-resumen-stat">
+                                            <div class="documentos-resumen-stat-num text-success"><?= (int) ($estadisticas['aprobados'] ?? 0) ?></div>
+                                            <small>Aprobados</small>
+                                        </div>
+                                        <div class="col-3 documentos-resumen-stat">
+                                            <div class="documentos-resumen-stat-num text-warning"><?= (int) ($estadisticas['pendientes'] ?? 0) ?></div>
+                                            <small>Pendientes</small>
+                                        </div>
+                                        <div class="col-3 documentos-resumen-stat">
+                                            <div class="documentos-resumen-stat-num text-danger"><?= (int) ($estadisticas['rechazados'] ?? 0) ?></div>
+                                            <small>Rechazados</small>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
-                            <p class="mb-0"><?= (int) ($estadisticas['aprobados'] ?? 0) ?> de <?= (int) ($total_tipos_documentos ?? 0) ?> tipos aprobados</p>
                         </div>
-                        <div class="col-md-4 text-end">
-                            <div class="row text-center">
-                                <div class="col-3">
-                                    <h5 class="mb-0"><?= $estadisticas['total'] ?></h5>
-                                    <small>Total</small>
-                                </div>
-                                <div class="col-3">
-                                    <h5 class="mb-0 text-success"><?= $estadisticas['aprobados'] ?></h5>
-                                    <small>Aprobados</small>
-                                </div>
-                                <div class="col-3">
-                                    <h5 class="mb-0 text-warning"><?= $estadisticas['pendientes'] ?></h5>
-                                    <small>Pendientes</small>
-                                </div>
-                                <div class="col-3">
-                                    <h5 class="mb-0 text-danger"><?= $estadisticas['rechazados'] ?></h5>
-                                    <small>Rechazados</small>
-                                </div>
+
+                        <?php if (!empty($practicas_documentacion) && count($practicas_documentacion) > 1): ?>
+                            <hr class="documentos-resumen-hr">
+                            <div class="documentos-resumen-seccion px-3 px-md-4 py-3">
+                                <label class="form-label fw-semibold small mb-2" for="selectorPracticaDocumentacion">Práctica (archivos se asocian a esta vinculación)</label>
+                                <select class="form-select form-select-sm" id="selectorPracticaDocumentacion">
+                                    <?php foreach ($practicas_documentacion as $pp): ?>
+                                        <option value="<?= (int) ($pp['ID_PRACTICA_PREPROFESIONAL'] ?? 0) ?>"
+                                            data-entidad="<?= esc($pp['INSTITUCION_NOMBRE'] ?? '', 'attr') ?>"
+                                            data-tutor="<?= esc(trim($pp['SUPERVISOR_NOMBRE'] ?? ''), 'attr') ?>">
+                                            <?= esc($pp['INSTITUCION_NOMBRE'] ?: ('Práctica #' . (int) ($pp['ID_PRACTICA_PREPROFESIONAL'] ?? 0))) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
                             </div>
+                        <?php endif; ?>
+
+                        <hr class="documentos-resumen-hr">
+
+                        <div class="documentos-resumen-seccion px-3 px-md-4 py-3">
+                            <h6 class="documentos-resumen-seccion-title mb-2">
+                                <i class="fas fa-clipboard-list text-primary" aria-hidden="true"></i>
+                                Datos de documentación de la práctica
+                            </h6>
+                            <p class="small text-muted mb-3">Entidad receptora y docente tutor; se envían al subir cada PDF si hay práctica registrada.</p>
+                            <?php if (empty($practicas_documentacion)): ?>
+                                <div class="alert alert-light border small mb-0 py-2">
+                                    <i class="fas fa-info-circle text-primary me-1"></i>
+                                    Aún no hay práctica vinculada o faltan datos de institución/instructor. Cuando el departamento registre tu asignación, verás la <strong>entidad</strong> y el <strong>tutor</strong>.
+                                    <a href="<?= site_url('estudiante/practicas') ?>" class="alert-link">Ver prácticas</a>.
+                                </div>
+                            <?php else: ?>
+                                <div class="row g-2 g-md-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small mb-1">Entidad receptora</label>
+                                        <div class="form-control form-control-sm bg-light border rounded px-3 py-2" id="doc_vis_entidad" style="min-height: 38px;">—</div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label text-muted small mb-1">Docente tutor</label>
+                                        <div class="form-control form-control-sm bg-light border rounded px-3 py-2" id="doc_vis_tutor" style="min-height: 38px;">—</div>
+                                    </div>
+                                </div>
+                                <input type="hidden" form="formSubirDocumento" name="id_practica" id="doc_meta_id_practica" value="">
+                                <input type="hidden" form="formSubirDocumento" name="entidad_receptora" id="doc_meta_entidad" value="">
+                                <input type="hidden" form="formSubirDocumento" name="docente_tutor" id="doc_meta_tutor" value="">
+                            <?php endif; ?>
                         </div>
+
+                        <hr class="documentos-resumen-hr">
+
+                        <?php
+                            $documentos_aviso_tipo = 'preprofesional';
+                            $documentos_aviso_integrado = true;
+                            echo $this->include('estudiante/partials/documentos_aviso_importante');
+                        ?>
                     </div>
                 </div>
             </div>
         </div>
+
+        <?= $this->include('estudiante/partials/asistencia_registro_estudiante') ?>
 
         <!-- Documentos Requeridos -->
         <div class="row">
@@ -244,7 +304,7 @@
                                                         <i class="<?= $iconoEstado ?> me-1"></i>
                                                         <?= $estado ?>
                                                     </span>
-                                                    <?php if ($tipo['REQUERIDO']): ?>
+                                                    <?php if (!empty($tipo['REQUERIDO'] ?? $tipo['OBLIGATORIO'] ?? null)): ?>
                                                         <span class="badge bg-danger ms-2">Requerido</span>
                                                     <?php endif; ?>
                                                 </div>
@@ -347,7 +407,7 @@
                                                 <td>
                                                     <div class="fw-semibold"><?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?></div>
                                                     <small class="text-muted"><?= $tipo['DESCRIPCION'] ?></small>
-                                                    <?php if ($tipo['REQUERIDO']): ?>
+                                                    <?php if (!empty($tipo['REQUERIDO'] ?? $tipo['OBLIGATORIO'] ?? null)): ?>
                                                         <span class="badge bg-danger ms-2">Requerido</span>
                                                     <?php endif; ?>
                                                 </td>
@@ -398,6 +458,7 @@
                 </div>
             </div>
         </div>
+
     </div>
 </div>
 
@@ -421,22 +482,13 @@
                         <input type="text" class="form-control" id="tipo_documento_nombre" readonly>
                     </div>
 
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Entidad Receptora</label>
-                                <input type="text" class="form-control" name="entidad_receptora"
-                                    placeholder="Ej: Instituto Tecnológico Superior Ibarra">
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Docente Tutor</label>
-                                <input type="text" class="form-control" name="docente_tutor"
-                                    placeholder="Nombre del docente tutor">
-                            </div>
-                        </div>
-                    </div>
+                    <p class="small text-muted mb-3">
+                        <?php if (!empty($practicas_documentacion)): ?>
+                            La entidad receptora y el docente tutor se envían según la información mostrada arriba («Datos de documentación de la práctica»).
+                        <?php else: ?>
+                            Aún no hay entidad ni tutor asociados a tu práctica en el sistema; revisa con vinculación si corresponde.
+                        <?php endif; ?>
+                    </p>
 
                     <div class="mb-3">
                         <label class="form-label">Archivo</label>
@@ -468,15 +520,55 @@
 </div>
 
 <script>
+    var practicasDocMetaList = <?= json_encode($practicasDocJs ?? [], JSON_UNESCAPED_UNICODE) ?>;
+
+    function syncDocPracticaMetaDesdeDom() {
+        var idIn = document.getElementById('doc_meta_id_practica');
+        var entIn = document.getElementById('doc_meta_entidad');
+        var tutIn = document.getElementById('doc_meta_tutor');
+        var ve = document.getElementById('doc_vis_entidad');
+        var vt = document.getElementById('doc_vis_tutor');
+        if (!idIn || !entIn || !tutIn) {
+            return;
+        }
+        var sel = document.getElementById('selectorPracticaDocumentacion');
+        var id = '';
+        var ent = '';
+        var tut = '';
+        if (sel) {
+            var opt = sel.options[sel.selectedIndex];
+            if (opt) {
+                id = opt.value || '';
+                ent = opt.getAttribute('data-entidad') || '';
+                tut = opt.getAttribute('data-tutor') || '';
+            }
+        } else if (practicasDocMetaList && practicasDocMetaList.length === 1) {
+            id = String(practicasDocMetaList[0].id || '');
+            ent = practicasDocMetaList[0].entidad || '';
+            tut = practicasDocMetaList[0].tutor || '';
+        }
+        idIn.value = id;
+        entIn.value = ent;
+        tutIn.value = tut;
+        if (ve) {
+            ve.textContent = ent.trim() ? ent : '—';
+        }
+        if (vt) {
+            vt.textContent = tut.trim() ? tut : '—';
+        }
+    }
+
     function mostrarModalSubir(tipoId, tipoNombre) {
         document.getElementById('tipo_documento_id').value = tipoId;
         document.getElementById('tipo_documento_nombre').value = tipoNombre;
+        syncDocPracticaMetaDesdeDom();
 
         const modal = new bootstrap.Modal(document.getElementById('modalSubirDocumento'));
         modal.show();
     }
 
     function subirDocumento() {
+        syncDocPracticaMetaDesdeDom();
         const form = document.getElementById('formSubirDocumento');
         const formData = new FormData(form);
 
@@ -582,6 +674,12 @@
 
     // Drag and Drop functionality
     document.addEventListener('DOMContentLoaded', function() {
+        syncDocPracticaMetaDesdeDom();
+        var selPr = document.getElementById('selectorPracticaDocumentacion');
+        if (selPr) {
+            selPr.addEventListener('change', syncDocPracticaMetaDesdeDom);
+        }
+
         const switchVista = document.getElementById('switchVistaDocumentos');
         const vistaCards = document.getElementById('vistaCards');
         const vistaTabla = document.getElementById('vistaTabla');
@@ -648,4 +746,6 @@
         });
     });
 </script>
+<?= $this->include('estudiante/partials/asistencia_registro_estudiante_script') ?>
 <?= $this->endSection() ?>
+

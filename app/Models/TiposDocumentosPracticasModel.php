@@ -106,8 +106,16 @@ class TiposDocumentosPracticasModel extends Model
         }
         
         $builder->orderBy('CODIGO', 'ASC');
-        
-        return $builder->get()->getResultArray();
+
+        $rows = $builder->get()->getResultArray();
+        foreach ($rows as &$row) {
+            if (!array_key_exists('REQUERIDO', $row) && array_key_exists('OBLIGATORIO', $row)) {
+                $row['REQUERIDO'] = $row['OBLIGATORIO'];
+            }
+        }
+        unset($row);
+
+        return $rows;
     }
 
     /**
@@ -125,7 +133,7 @@ class TiposDocumentosPracticasModel extends Model
      */
     public function getTiposRequeridos()
     {
-        return $this->where('REQUERIDO', 1)
+        return $this->where('OBLIGATORIO', 1)
                     ->where('ACTIVO', 1)
                     ->orderBy('ORDEN', 'ASC')
                     ->findAll();
@@ -136,7 +144,7 @@ class TiposDocumentosPracticasModel extends Model
      */
     public function getTiposOpcionales()
     {
-        return $this->where('REQUERIDO', 0)
+        return $this->where('OBLIGATORIO', 0)
                     ->where('ACTIVO', 1)
                     ->orderBy('ORDEN', 'ASC')
                     ->findAll();
@@ -165,20 +173,22 @@ class TiposDocumentosPracticasModel extends Model
     {
         $builder = $this->db->table($this->table . ' tdp');
         $builder->select('
-            tdp.ID_TIPO_DOCUMENTO,
+            tdp.ID_TIPO_DOCUMENTO_PREPROFESIONAL,
             tdp.CODIGO,
             tdp.NOMBRE,
             tdp.DESCRIPCION,
-            tdp.REQUERIDO,
+            tdp.OBLIGATORIO as REQUERIDO,
             tdp.ORDEN,
             tdp.ACTIVO,
             COUNT(dp.ID_DOCUMENTO_PREPROFESIONAL) as total_documentos,
-            SUM(CASE WHEN dp.ESTADO_REVISION = \"Pendiente\" THEN 1 ELSE 0 END) as pendientes,
-            SUM(CASE WHEN dp.ESTADO_REVISION = \"Aprobado\" THEN 1 ELSE 0 END) as aprobados,
-            SUM(CASE WHEN dp.ESTADO_REVISION = \"Rechazado\" THEN 1 ELSE 0 END) as rechazados
+            SUM(CASE WHEN dp.ID_ESTADO_REVISION = 1 THEN 1 ELSE 0 END) as pendientes,
+            SUM(CASE WHEN dp.ID_ESTADO_REVISION = 2 THEN 1 ELSE 0 END) as en_revision,
+            SUM(CASE WHEN dp.ID_ESTADO_REVISION = 3 THEN 1 ELSE 0 END) as aprobados,
+            SUM(CASE WHEN dp.ID_ESTADO_REVISION = 4 THEN 1 ELSE 0 END) as rechazados,
+            SUM(CASE WHEN dp.ID_ESTADO_REVISION = 5 THEN 1 ELSE 0 END) as requiere_correccion
         ');
-        $builder->join('TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES dp', 'tdp.ID_TIPO_DOCUMENTO = dp.ID_TIPO_DOCUMENTO', 'left');
-        $builder->groupBy('tdp.ID_TIPO_DOCUMENTO, tdp.CODIGO, tdp.NOMBRE, tdp.DESCRIPCION, tdp.REQUERIDO, tdp.ORDEN, tdp.ACTIVO');
+        $builder->join('TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES dp', 'tdp.ID_TIPO_DOCUMENTO_PREPROFESIONAL = dp.ID_TIPO_DOCUMENTO', 'left');
+        $builder->groupBy('tdp.ID_TIPO_DOCUMENTO_PREPROFESIONAL, tdp.CODIGO, tdp.NOMBRE, tdp.DESCRIPCION, tdp.OBLIGATORIO, tdp.ORDEN, tdp.ACTIVO');
         $builder->orderBy('tdp.ORDEN', 'ASC');
         $builder->orderBy('tdp.CODIGO', 'ASC');
         

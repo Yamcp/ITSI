@@ -272,6 +272,25 @@ $periodoRangoDashboard   = $p['rango'];
 <?= $this->section('content') ?>
 <div class="body-wrapper dashboard-page">
     <div class="container-fluid px-3 px-md-4 pb-4">
+        <?php if (session()->getFlashdata('warning')): ?>
+            <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
+                <i class="fas fa-exclamation-triangle me-2"></i><?= esc(session()->getFlashdata('warning')) ?>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+        <?php endif; ?>
+
+        <?php if (!empty($asistencia_pendiente)): ?>
+            <div class="alert alert-danger border-0 shadow-sm mt-3 mb-0" role="alert" style="border-radius: 12px;">
+                <h5 class="alert-heading mb-2"><i class="fas fa-user-clock me-2"></i>Asistencia obligatoria</h5>
+                <p class="mb-2">Debes registrar la asistencia de <strong>hoy</strong> para cada práctica o servicio comunitario que tengas en estado <strong>En progreso</strong>. Hasta entonces el acceso al resto del portal (cursos, perfil, convenios, etc.) permanece restringido; puedes usar el panel, la sección de prácticas y la documentación.</p>
+                <p class="mb-0 small">Usa el formulario que se muestra a continuación o entra a <a href="<?= site_url('estudiante/practicas') ?>" class="alert-link">Prácticas preprofesionales</a> o a <a href="<?= site_url('estudiante/documentos-servicio-comunitario') ?>" class="alert-link">Documentación de servicio comunitario</a> para registrar asistencia si aplica.</p>
+            </div>
+        <?php endif; ?>
+
+        <?php if (!empty($asistencia_items)): ?>
+            <?= $this->include('estudiante/partials/asistencia_registro_estudiante') ?>
+        <?php endif; ?>
+
         <!-- Header -->
         <div class="dashboard-header d-flex flex-wrap justify-content-between align-items-center gap-3">
             <div>
@@ -385,7 +404,7 @@ $periodoRangoDashboard   = $p['rango'];
                                         <td><?= esc($s['INSTITUCION_NOMBRE'] ?? '—') ?></td>
                                         <td><?= $fechaInicio ?></td>
                                         <td><span class="badge bg-<?= (isset($s['ESTADO_SERVICIO']) && $s['ESTADO_SERVICIO'] === 'En Progreso') ? 'success' : 'secondary' ?>"><?= esc($s['ESTADO_SERVICIO'] ?? '—') ?></span></td>
-                                        <td><a href="<?= site_url('estudiante/practicas/servicio-comunitario') ?>" class="btn btn-sm btn-outline-warning text-dark">Ver</a></td>
+                                        <td><a href="<?= site_url('estudiante/documentos-servicio-comunitario') ?>" class="btn btn-sm btn-outline-warning text-dark">Ver</a></td>
                                     </tr>
                                 <?php endforeach;
                             endif;
@@ -464,4 +483,5 @@ $periodoRangoDashboard   = $p['rango'];
     setInterval(actualizarHora, 1000);
     actualizarHora();
 </script>
+<?= $this->include('estudiante/partials/asistencia_registro_estudiante_script') ?>
 <?= $this->endSection() ?>

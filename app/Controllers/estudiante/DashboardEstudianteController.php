@@ -5,6 +5,7 @@ namespace App\Controllers\estudiante;
 use App\Controllers\BaseController;
 use App\Models\ActividadesEducacionModel;
 use App\Models\EstudiantesModel;
+use App\Services\EstudianteAsistenciaService;
 use CodeIgniter\Database\BaseConnection;
 
 class DashboardEstudianteController extends BaseController
@@ -56,7 +57,13 @@ class DashboardEstudianteController extends BaseController
                 'servicio_comunitario_activos' => 0,
                 'practicas_preprofesionales' => [],
                 'servicios_comunitarios' => [],
+                'asistencia_pendiente' => false,
+                'asistencia_items' => [],
+                'asistencia_fecha' => date('Y-m-d'),
+                'asistencia_modal_automatico' => false,
+                'asistencia_mostrar_tarjeta' => false,
             ];
+
             return view('estudiante/dashboard/dashboardEstudiante', $data);
         }
 
@@ -122,6 +129,8 @@ class DashboardEstudianteController extends BaseController
         $totalPracticas = $totalPreprofesionales + $totalServicioComunitario;
         $practicasActivas = $preprofesionalesActivas + $servicioComunitarioActivos;
 
+        $pendAsist = EstudianteAsistenciaService::pendientesAsistenciaHoy((int) $idUsuario);
+
         $data = [
             'title' => 'Dashboard Estudiante - Prácticas Preprofesionales y Servicio Comunitario',
             'estudiante' => $estudiante,
@@ -134,6 +143,11 @@ class DashboardEstudianteController extends BaseController
             'servicio_comunitario_activos' => $servicioComunitarioActivos,
             'practicas_preprofesionales' => $practicasPreprofesionales,
             'servicios_comunitarios' => $serviciosComunitarios,
+            'asistencia_pendiente' => $pendAsist['debe_registrar'],
+            'asistencia_items' => $pendAsist['items'],
+            'asistencia_fecha' => $pendAsist['fecha'],
+            'asistencia_modal_automatico' => $pendAsist['debe_registrar'],
+            'asistencia_mostrar_tarjeta' => false,
         ];
 
         return view('estudiante/dashboard/dashboardEstudiante', $data);

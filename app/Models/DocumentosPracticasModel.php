@@ -117,13 +117,12 @@ class DocumentosPracticasModel extends Model
             dp.TIPO_ARCHIVO,
             dp.FECHA_SUBIDA,
             dp.OBSERVACIONES,
-            er.ID_ESTADO_REVISION,
-            dp.ESTADO_REVISION,
+            dp.ID_ESTADO_REVISION,
+            er.ESTADO as ESTADO_REVISION,
             tdp.ID_TIPO_DOCUMENTO_PREPROFESIONAL,
             tdp.CODIGO as CODIGO_DOCUMENTO,
             tdp.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
             u.ID_USUARIO,
-,
             dp_persona.EMAIL as EMAIL_USUARIO
         ';
         
@@ -153,12 +152,14 @@ class DocumentosPracticasModel extends Model
         }
         
         $builder->select($selectFields);
-        // No hay tabla de estados, usar campo directo
         $builder->join('TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES tdp', 'dp.ID_TIPO_DOCUMENTO = tdp.ID_TIPO_DOCUMENTO_PREPROFESIONAL', 'left');
-        // No hay tabla de usuarios en documentos, usar práctica
-        // Usar join con prácticas para obtener datos del estudiante
+        $builder->join('TAB_ESTADOS_REVISIONES er', 'dp.ID_ESTADO_REVISION = er.ID_ESTADO_REVISION', 'left');
+        $builder->join('TAB_PRACTICAS_PREPROFESIONALES pp', 'dp.ID_PRACTICA_PREPROFESIONAL = pp.ID_PRACTICA_PREPROFESIONAL', 'left');
+        $builder->join('TAB_ESTUDIANTES est', 'pp.ID_ESTUDIANTE = est.ID_ESTUDIANTE', 'left');
+        $builder->join('TAB_USUARIOS u', 'u.ID_DATO_PERSONA = est.ID_DATO_PERSONA', 'left');
+        $builder->join('TAB_DATOS_PERSONAS dp_persona', 'est.ID_DATO_PERSONA = dp_persona.ID_DATO_PERSONA', 'left');
         $builder->orderBy('dp.FECHA_SUBIDA', 'DESC');
-        
+
         return $builder->get()->getResultArray();
     }
 
@@ -176,7 +177,8 @@ class DocumentosPracticasModel extends Model
             dp.TIPO_ARCHIVO,
             dp.FECHA_SUBIDA,
             dp.OBSERVACIONES,
-            dp.ESTADO_REVISION,
+            dp.ID_ESTADO_REVISION,
+            er.ESTADO as ESTADO_REVISION,
             tdp.CODIGO as CODIGO_DOCUMENTO,
             tdp.NOMBRE as TIPO_DOCUMENTO_NOMBRE
         ';
@@ -200,6 +202,7 @@ class DocumentosPracticasModel extends Model
         
         $builder->select($selectFields);
         $builder->join('TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES tdp', 'dp.ID_TIPO_DOCUMENTO = tdp.ID_TIPO_DOCUMENTO_PREPROFESIONAL', 'left');
+        $builder->join('TAB_ESTADOS_REVISIONES er', 'dp.ID_ESTADO_REVISION = er.ID_ESTADO_REVISION', 'left');
 
         // Filtrar por prácticas del estudiante (la tabla usa ID_PRACTICA_PREPROFESIONAL, no ID_USUARIO)
         $estudiante = $this->db->table('TAB_ESTUDIANTES e')
@@ -241,13 +244,10 @@ class DocumentosPracticasModel extends Model
             dp.TIPO_ARCHIVO,
             dp.FECHA_SUBIDA,
             dp.OBSERVACIONES,
-
-            dp.ESTADO_REVISION,
-
+            dp.ID_ESTADO_REVISION,
+            er.ESTADO as ESTADO_REVISION
         ');
-        // No hay tabla de estados, usar campo directo
-        // No hay tabla de usuarios en documentos, usar práctica
-        // Usar join con prácticas para obtener datos del estudiante
+        $builder->join('TAB_ESTADOS_REVISIONES er', 'dp.ID_ESTADO_REVISION = er.ID_ESTADO_REVISION', 'left');
         $builder->where('dp.ID_TIPO_DOCUMENTO', $idTipoDocumento);
         $builder->orderBy('dp.FECHA_SUBIDA', 'DESC');
         
@@ -266,16 +266,13 @@ class DocumentosPracticasModel extends Model
             dp.TIPO_ARCHIVO,
             dp.FECHA_SUBIDA,
             dp.OBSERVACIONES,
-
-            dp.ESTADO_REVISION,
-            tdp.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
-
+            dp.ID_ESTADO_REVISION,
+            er.ESTADO as ESTADO_REVISION,
+            tdp.NOMBRE as TIPO_DOCUMENTO_NOMBRE
         ');
-        // No hay tabla de estados, usar campo directo
         $builder->join('TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES tdp', 'dp.ID_TIPO_DOCUMENTO = tdp.ID_TIPO_DOCUMENTO_PREPROFESIONAL', 'left');
-        // No hay tabla de usuarios en documentos, usar práctica
-        // Usar join con prácticas para obtener datos del estudiante
-        $builder->where('dp.ESTADO_REVISION', $idEstadoRevision);
+        $builder->join('TAB_ESTADOS_REVISIONES er', 'dp.ID_ESTADO_REVISION = er.ID_ESTADO_REVISION', 'left');
+        $builder->where('dp.ID_ESTADO_REVISION', (int) $idEstadoRevision);
         $builder->orderBy('dp.FECHA_SUBIDA', 'DESC');
         
         return $builder->get()->getResultArray();
@@ -290,9 +287,10 @@ class DocumentosPracticasModel extends Model
         $builder->select('
             COUNT(*) as total,
             SUM(CASE WHEN dp.ID_ESTADO_REVISION = 1 THEN 1 ELSE 0 END) as pendientes,
-            SUM(CASE WHEN dp.ID_ESTADO_REVISION = 2 THEN 1 ELSE 0 END) as aprobados,
-            SUM(CASE WHEN dp.ID_ESTADO_REVISION = 3 THEN 1 ELSE 0 END) as rechazados,
-            SUM(CASE WHEN dp.ID_ESTADO_REVISION = 4 THEN 1 ELSE 0 END) as en_revision
+            SUM(CASE WHEN dp.ID_ESTADO_REVISION = 2 THEN 1 ELSE 0 END) as en_revision,
+            SUM(CASE WHEN dp.ID_ESTADO_REVISION = 3 THEN 1 ELSE 0 END) as aprobados,
+            SUM(CASE WHEN dp.ID_ESTADO_REVISION = 4 THEN 1 ELSE 0 END) as rechazados,
+            SUM(CASE WHEN dp.ID_ESTADO_REVISION = 5 THEN 1 ELSE 0 END) as requiere_correccion
         ');
         
         $result = $builder->get()->getRowArray();
@@ -301,7 +299,8 @@ class DocumentosPracticasModel extends Model
             'pendientes' => 0,
             'aprobados' => 0,
             'rechazados' => 0,
-            'en_revision' => 0
+            'en_revision' => 0,
+            'requiere_correccion' => 0,
         ];
     }
 
@@ -315,10 +314,12 @@ class DocumentosPracticasModel extends Model
             tdp.ID_TIPO_DOCUMENTO_PREPROFESIONAL,
             tdp.CODIGO,
             tdp.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
-            COUNT(dp.ID_DOCUMENTO_PRACTICA) as total_documentos,
+            COUNT(dp.ID_DOCUMENTO_PREPROFESIONAL) as total_documentos,
             SUM(CASE WHEN dp.ID_ESTADO_REVISION = 1 THEN 1 ELSE 0 END) as pendientes,
-            SUM(CASE WHEN dp.ID_ESTADO_REVISION = 2 THEN 1 ELSE 0 END) as aprobados,
-            SUM(CASE WHEN dp.ID_ESTADO_REVISION = 3 THEN 1 ELSE 0 END) as rechazados
+            SUM(CASE WHEN dp.ID_ESTADO_REVISION = 2 THEN 1 ELSE 0 END) as en_revision,
+            SUM(CASE WHEN dp.ID_ESTADO_REVISION = 3 THEN 1 ELSE 0 END) as aprobados,
+            SUM(CASE WHEN dp.ID_ESTADO_REVISION = 4 THEN 1 ELSE 0 END) as rechazados,
+            SUM(CASE WHEN dp.ID_ESTADO_REVISION = 5 THEN 1 ELSE 0 END) as requiere_correccion
         ');
         $builder->join('TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES tdp', 'dp.ID_TIPO_DOCUMENTO = tdp.ID_TIPO_DOCUMENTO_PREPROFESIONAL', 'right');
         $builder->groupBy('tdp.ID_TIPO_DOCUMENTO_PREPROFESIONAL, tdp.CODIGO, tdp.NOMBRE');
@@ -339,15 +340,17 @@ class DocumentosPracticasModel extends Model
             dp.TIPO_ARCHIVO,
             dp.FECHA_SUBIDA,
             dp.OBSERVACIONES,
-            dp.ESTADO_REVISION,
+            dp.ID_ESTADO_REVISION,
+            er.ESTADO as ESTADO_REVISION,
             tdp.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
             dp_persona.NOMBRE as NOMBRE_USUARIO,
             dp_persona.APELLIDO as APELLIDO_USUARIO
         ');
-        // No hay tabla de estados, usar campo directo
         $builder->join('TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES tdp', 'dp.ID_TIPO_DOCUMENTO = tdp.ID_TIPO_DOCUMENTO_PREPROFESIONAL', 'left');
-        // No hay tabla de usuarios en documentos, usar práctica
-        // Usar join con prácticas para obtener datos del estudiante
+        $builder->join('TAB_ESTADOS_REVISIONES er', 'dp.ID_ESTADO_REVISION = er.ID_ESTADO_REVISION', 'left');
+        $builder->join('TAB_PRACTICAS_PREPROFESIONALES pp', 'dp.ID_PRACTICA_PREPROFESIONAL = pp.ID_PRACTICA_PREPROFESIONAL', 'left');
+        $builder->join('TAB_ESTUDIANTES est', 'pp.ID_ESTUDIANTE = est.ID_ESTUDIANTE', 'left');
+        $builder->join('TAB_DATOS_PERSONAS dp_persona', 'est.ID_DATO_PERSONA = dp_persona.ID_DATO_PERSONA', 'left');
         $builder->orderBy('dp.FECHA_SUBIDA', 'DESC');
         $builder->limit($limite);
         
@@ -446,9 +449,9 @@ class DocumentosPracticasModel extends Model
             MAX(dp.FECHA_SUBIDA) as FECHA_SUBIDA,
             CASE MAX(dp.ID_ESTADO_REVISION)
                 WHEN 1 THEN 'Pendiente'
-                WHEN 2 THEN 'Aprobado'
-                WHEN 3 THEN 'Rechazado'
-                WHEN 4 THEN 'En Revisión'
+                WHEN 2 THEN 'En Revisión'
+                WHEN 3 THEN 'Aprobado'
+                WHEN 4 THEN 'Rechazado'
                 WHEN 5 THEN 'Requiere Corrección'
                 ELSE 'Pendiente'
             END as ESTADO_REVISION
@@ -509,24 +512,26 @@ class DocumentosPracticasModel extends Model
             dp.TIPO_ARCHIVO,
             dp.FECHA_SUBIDA,
             dp.OBSERVACIONES,
-
-            dp.ESTADO_REVISION,
+            dp.ID_ESTADO_REVISION,
+            er.ESTADO as ESTADO_REVISION,
             tdp.CODIGO as CODIGO_DOCUMENTO,
-            tdp.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
-
+            tdp.NOMBRE as TIPO_DOCUMENTO_NOMBRE
         ');
-        // No hay tabla de estados, usar campo directo
         $builder->join('TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES tdp', 'dp.ID_TIPO_DOCUMENTO = tdp.ID_TIPO_DOCUMENTO_PREPROFESIONAL', 'left');
-        // No hay tabla de usuarios en documentos, usar práctica
-        // Usar join con prácticas para obtener datos del estudiante
+        $builder->join('TAB_ESTADOS_REVISIONES er', 'dp.ID_ESTADO_REVISION = er.ID_ESTADO_REVISION', 'left');
 
         // Aplicar filtros
         if (!empty($filtros['tipo_documento'])) {
             $builder->where('dp.ID_TIPO_DOCUMENTO', $filtros['tipo_documento']);
         }
-        
+
         if (!empty($filtros['estado'])) {
-            $builder->where('dp.ESTADO_REVISION', $filtros['estado']);
+            $est = $filtros['estado'];
+            if (is_numeric($est) || (is_string($est) && ctype_digit($est))) {
+                $builder->where('dp.ID_ESTADO_REVISION', (int) $est);
+            } else {
+                $builder->where('er.ESTADO', $est);
+            }
         }
         
         if (!empty($filtros['estudiante'])) {
@@ -600,8 +605,9 @@ class DocumentosPracticasModel extends Model
             dp_persona.EMAIL as EMAIL_USUARIO
         ');
         $builder->join('TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES tdp', 'dp.ID_TIPO_DOCUMENTO = tdp.ID_TIPO_DOCUMENTO_PREPROFESIONAL', 'left');
-        // No hay tabla de usuarios en documentos, usar práctica
-        // Usar join con prácticas para obtener datos del estudiante
+        $builder->join('TAB_PRACTICAS_PREPROFESIONALES pp', 'dp.ID_PRACTICA_PREPROFESIONAL = pp.ID_PRACTICA_PREPROFESIONAL', 'left');
+        $builder->join('TAB_ESTUDIANTES est', 'pp.ID_ESTUDIANTE = est.ID_ESTUDIANTE', 'left');
+        $builder->join('TAB_DATOS_PERSONAS dp_persona', 'est.ID_DATO_PERSONA = dp_persona.ID_DATO_PERSONA', 'left');
         $builder->where('dp.ID_ESTADO_REVISION', 1); // Pendiente
         $builder->where('DATE(dp.FECHA_SUBIDA) <=', $fechaVencimiento);
         $builder->orderBy('dp.FECHA_SUBIDA', 'ASC');

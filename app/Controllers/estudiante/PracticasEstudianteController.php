@@ -149,8 +149,8 @@ class PracticasEstudianteController extends BaseController
     }
 
     /**
-     * Vista exclusiva con los documentos de formato de Servicio Comunitario.
-     * Mismo formato y estructura (body-wrapper) que la página de formatos de prácticas preprofesionales.
+     * Formatos descargables de servicio comunitario (misma estructura que prácticas preprofesionales).
+     * Lista: WRITEPATH uploads/formatos_servicio/lista.json
      */
     public function formatosServicioComunitario()
     {
@@ -160,7 +160,7 @@ class PracticasEstudianteController extends BaseController
 
         $data = [
             'title' => 'Formatos de servicio comunitario - ITSI',
-            'documentos_formatos_servicio' => $this->getListaFormatosServicioEstudiante(),
+            'documentos_formatos' => $this->getListaFormatosServicioEstudiante(),
         ];
 
         return view('estudiante/practicas_servicio_comunitario/formatos', $data);
@@ -185,6 +185,7 @@ class PracticasEstudianteController extends BaseController
         }
         $json = file_get_contents($path);
         $lista = json_decode($json, true);
+
         return is_array($lista) ? $lista : [];
     }
 
@@ -245,65 +246,8 @@ class PracticasEstudianteController extends BaseController
         if (!file_exists($ruta) || !is_file($ruta)) {
             return $this->response->setStatusCode(404)->setBody('Archivo no encontrado');
         }
+
         return $this->response->download($ruta, $archivo);
-    }
-
-    /**
-     * Vista exclusiva de Prácticas de Servicio Comunitario (mismo lineamiento que Preprofesionales).
-     */
-    public function servicioComunitario()
-    {
-        if (!session()->get('logged_in')) {
-            return redirect()->to(base_url('/'));
-        }
-
-        $userId = session()->get('id_usuario');
-        $estadisticas = $this->obtenerEstadisticasServicioComunitario($userId);
-        $serviciosComunitarios = $this->obtenerServiciosComunitarios($userId);
-        $progresoServicios = [];
-        foreach ($serviciosComunitarios as $s) {
-            $progresoServicios[$s['ID_SERVICIO_COMUNITARIO']] = (int) $this->calcularProgreso($s['ID_SERVICIO_COMUNITARIO'], 'servicio');
-        }
-
-        $tiposDocumentosServicio = $this->tiposDocumentosServicioComunitarioModel->getAllTipos();
-        $progresoDocumentosServicio = [];
-        foreach ($serviciosComunitarios as $s) {
-            $docs = $this->documentosServicioComunitarioModel->getDocumentosPorServicio($s['ID_SERVICIO_COMUNITARIO']);
-            foreach ($docs as $d) {
-                $d['ID_TIPO_DOCUMENTO_SERVICIO'] = $d['ID_TIPO_DOCUMENTO'] ?? null;
-                $progresoDocumentosServicio[] = $d;
-            }
-        }
-
-        $idTipoDocumentoFinalServicio = null;
-        foreach ($tiposDocumentosServicio as $t) {
-            $nombre = $t['NOMBRE'] ?? '';
-            if (stripos($nombre, 'documento final') !== false || stripos($nombre, 'informe final') !== false) {
-                $idTipoDocumentoFinalServicio = (int) ($t['ID_TIPO_DOCUMENTO_SERVICIO'] ?? 0);
-                break;
-            }
-        }
-        if ($idTipoDocumentoFinalServicio === null && !empty($tiposDocumentosServicio)) {
-            $t = $tiposDocumentosServicio[count($tiposDocumentosServicio) - 1];
-            $idTipoDocumentoFinalServicio = (int) ($t['ID_TIPO_DOCUMENTO_SERVICIO'] ?? 0);
-        }
-
-        $alertaDocumentoFinalServicio = $this->calcularAlertaDocumentoFinalServicio($serviciosComunitarios, $progresoDocumentosServicio, $idTipoDocumentoFinalServicio);
-
-        $data = [
-            'title' => 'Prácticas de Servicio Comunitario - ITSI',
-            'estadisticas' => $estadisticas,
-            'serviciosComunitarios' => $serviciosComunitarios,
-            'progresoServicios' => $progresoServicios,
-            'documentos_formatos_servicio' => $this->getListaFormatosServicioEstudiante(),
-            'horas_requeridas_servicio' => self::HORAS_SERVICIO_COMUNITARIO,
-            'tipos_documentos_servicio' => $tiposDocumentosServicio,
-            'progreso_documentos_servicio' => $progresoDocumentosServicio,
-            'id_tipo_documento_final_servicio' => $idTipoDocumentoFinalServicio,
-            'alerta_documento_final_servicio' => $alertaDocumentoFinalServicio,
-        ];
-
-        return view('estudiante/practicas_servicio_comunitario/index', $data);
     }
 
     /**
@@ -571,22 +515,34 @@ class PracticasEstudianteController extends BaseController
             }
         }
 
-        $asistenciaData = [
-            'ID_PRACTICA_PREPROFESIONAL' => $tipoPractica === 'preprofesional' ? $practicaId : null,
-            'ID_SERVICIO_COMUNITARIO' => $tipoPractica === 'servicio' ? $practicaId : null,
-            'FECHA_ASISTENCIA' => $fechaAsistencia,
-            'HORA_ENTRADA' => $horaEntrada,
-            'HORA_SALIDA' => $horaSalida,
-            'ACTIVIDADES_DIA' => $actividadesDia,
-            'OBSERVACIONES' => $observaciones,
-            'FECHA_REGISTRO' => date('Y-m-d H:i:s')
-        ];
+        $obsText = trim((string) ($observaciones ?? ''));
+        if ($obsText === '') {
+            $obsText = '—';
+        }
+
+        $fechaReg = date('Y-m-d H:i:s');
 
         try {
             if ($tipoPractica === 'preprofesional') {
-                $this->db->table('TAB_ASISTENCIAS_PRACTICAS_PREPROFESIONALES')->insert($asistenciaData);
+                $this->db->table('TAB_ASISTENCIAS_PRACTICAS_PREPROFESIONALES')->insert([
+                    'ID_PRACTICA_PREPROFESIONAL' => $practicaId,
+                    'FECHA_ASISTENCIA' => $fechaAsistencia,
+                    'HORA_ENTRADA' => $horaEntrada,
+                    'HORA_SALIDA' => $horaSalida,
+                    'ACTIVIDADES_DIA' => $actividadesDia,
+                    'OBSERVACIONES' => $obsText,
+                    'FECHA_REGISTRO' => $fechaReg,
+                ]);
             } else {
-                $this->db->table('TAB_ASISTENCIAS_SERVICIO_COMUNITARIO')->insert($asistenciaData);
+                $this->db->table('TAB_ASISTENCIAS_SERVICIO_COMUNITARIO')->insert([
+                    'ID_SERVICIO_COMUNITARIO' => $practicaId,
+                    'FECHA_ASISTENCIA' => $fechaAsistencia,
+                    'HORA_ENTRADA' => $horaEntrada,
+                    'HORA_SALIDA' => $horaSalida,
+                    'ACTIVIDADES_DIA' => $actividadesDia,
+                    'OBSERVACIONES' => $obsText,
+                    'FECHA_REGISTRO' => $fechaReg,
+                ]);
             }
             return $this->response->setJSON([
                 'success' => true,
@@ -760,60 +716,6 @@ class PracticasEstudianteController extends BaseController
         }
     }
 
-    private function obtenerEstadisticasServicioComunitario($userId)
-    {
-        try {
-            $estudiante = $this->db->table('TAB_ESTUDIANTES e')
-                ->select('e.ID_ESTUDIANTE')
-                ->join('TAB_USUARIOS u', 'u.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
-                ->where('u.ID_USUARIO', $userId)
-                ->get()
-                ->getRowArray();
-            if (!$estudiante) {
-                return ['totalPracticas' => 0, 'practicasActivas' => 0, 'practicasFinalizadas' => 0, 'horasCompletadas' => 0];
-            }
-            $idEstudiante = (int) $estudiante['ID_ESTUDIANTE'];
-
-            $totalServicios = $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
-                ->where('sc.ID_ESTUDIANTE', $idEstudiante)
-                ->countAllResults();
-
-            $serviciosActivos = $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
-                ->where('sc.ID_ESTUDIANTE', $idEstudiante)
-                ->where('sc.ESTADO_SERVICIO', 'En Progreso')
-                ->countAllResults();
-
-            $horasAsist = $this->db->table('TAB_ASISTENCIAS_SERVICIO_COMUNITARIO as_')
-                ->selectSum('TIMESTAMPDIFF(HOUR, as_.HORA_ENTRADA, as_.HORA_SALIDA)', 'total_horas')
-                ->join('TAB_SERVICIO_COMUNITARIO sc', 'sc.ID_SERVICIO_COMUNITARIO = as_.ID_SERVICIO_COMUNITARIO')
-                ->where('sc.ID_ESTUDIANTE', $idEstudiante)
-                ->get()
-                ->getRow();
-            $horasSeg = $this->db->table('TAB_SEGUIMIENTO_SERVICIO_COMUNITARIO ss')
-                ->selectSum('ss.HORAS_CUMPLIDAS', 'total_horas')
-                ->join('TAB_SERVICIO_COMUNITARIO sc', 'sc.ID_SERVICIO_COMUNITARIO = ss.ID_SERVICIO_COMUNITARIO')
-                ->where('sc.ID_ESTUDIANTE', $idEstudiante)
-                ->get()
-                ->getRow();
-            $horasCompletadas = (int)($horasAsist->total_horas ?? 0) + (int)($horasSeg->total_horas ?? 0);
-
-            return [
-                'totalPracticas' => $totalServicios,
-                'practicasActivas' => $serviciosActivos,
-                'practicasFinalizadas' => $totalServicios - $serviciosActivos,
-                'horasCompletadas' => $horasCompletadas
-            ];
-        } catch (\Exception $e) {
-            log_message('error', 'Error al obtener estadísticas servicio comunitario: ' . $e->getMessage());
-            return [
-                'totalPracticas' => 0,
-                'practicasActivas' => 0,
-                'practicasFinalizadas' => 0,
-                'horasCompletadas' => 0
-            ];
-        }
-    }
-
     /**
      * Checklist: Informe de Prácticas Laborales (documentos requeridos)
      */
@@ -903,69 +805,6 @@ class PracticasEstudianteController extends BaseController
             $mensaje = 'Has superado el plazo de ' . self::DIAS_PLAZO_DOCUMENTO_FINAL . ' días para subir el documento final (la fecha límite era el ' . $fechaLimiteFormato . '). Por favor, súbelo lo antes posible.';
         } else {
             $mensaje = 'Una vez culminadas las horas de prácticas tienes un máximo de ' . self::DIAS_PLAZO_DOCUMENTO_FINAL . ' días para subir el documento final. <strong>Fecha límite: ' . $fechaLimiteFormato . '</strong>. Días restantes: <strong>' . $diasRestantes . '</strong>.';
-        }
-
-        return [
-            'mostrar' => true,
-            'fecha_limite' => $fechaLimiteFormato,
-            'dias_restantes' => $diasRestantes,
-            'superado_plazo' => $superadoPlazo,
-            'mensaje' => $mensaje,
-        ];
-    }
-
-    /**
-     * Alerta documento final para servicio comunitario (15 días desde FECHA_FIN).
-     *
-     * @param array $serviciosComunitarios
-     * @param array $progresoDocumentosServicio
-     * @param int $idTipoDocumentoFinal
-     * @return array
-     */
-    private function calcularAlertaDocumentoFinalServicio(array $serviciosComunitarios, array $progresoDocumentosServicio, int $idTipoDocumentoFinal): array
-    {
-        $default = ['mostrar' => false, 'fecha_limite' => null, 'dias_restantes' => null, 'superado_plazo' => false, 'mensaje' => ''];
-
-        if (empty($serviciosComunitarios) || $idTipoDocumentoFinal <= 0) {
-            return $default;
-        }
-
-        $tieneDocumentoFinalSubido = false;
-        foreach ($progresoDocumentosServicio as $doc) {
-            $docTipoId = (int) ($doc['ID_TIPO_DOCUMENTO_SERVICIO'] ?? $doc['ID_TIPO_DOCUMENTO'] ?? 0);
-            if ($docTipoId === $idTipoDocumentoFinal && !empty($doc['ID_DOCUMENTO_SERVICIO'] ?? null)) {
-                $tieneDocumentoFinalSubido = true;
-                break;
-            }
-        }
-        if ($tieneDocumentoFinalSubido) {
-            return $default;
-        }
-
-        $servicio = $serviciosComunitarios[0];
-        $fechaFin = $servicio['FECHA_FIN'] ?? null;
-        if (!$fechaFin) {
-            return $default;
-        }
-
-        $hoy = date('Y-m-d');
-        $fechaFinDate = date('Y-m-d', strtotime($fechaFin));
-        if ($fechaFinDate > $hoy) {
-            return $default;
-        }
-
-        $fechaLimite = date('Y-m-d', strtotime($fechaFin . ' + ' . self::DIAS_PLAZO_DOCUMENTO_FINAL . ' days'));
-        $superadoPlazo = $hoy > $fechaLimite;
-        $diasRestantes = null;
-        if (!$superadoPlazo) {
-            $diasRestantes = (int) ((strtotime($fechaLimite) - strtotime($hoy)) / 86400);
-        }
-
-        $fechaLimiteFormato = date('d/m/Y', strtotime($fechaLimite));
-        if ($superadoPlazo) {
-            $mensaje = 'Has superado el plazo de ' . self::DIAS_PLAZO_DOCUMENTO_FINAL . ' días para subir el documento final de servicio comunitario (la fecha límite era el ' . $fechaLimiteFormato . '). Por favor, súbelo lo antes posible.';
-        } else {
-            $mensaje = 'Una vez culminadas las horas de servicio comunitario tienes un máximo de ' . self::DIAS_PLAZO_DOCUMENTO_FINAL . ' días para subir el documento final. <strong>Fecha límite: ' . $fechaLimiteFormato . '</strong>. Días restantes: <strong>' . $diasRestantes . '</strong>.';
         }
 
         return [
