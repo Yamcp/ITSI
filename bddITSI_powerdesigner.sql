@@ -22,6 +22,7 @@ drop table if exists TAB_SERVICIO_COMUNITARIO;
 drop table if exists TAB_PRACTICAS_PREPROFESIONALES;
 drop table if exists TAB_ACTIVIDADES_EDUCACION;
 drop table if exists TAB_ASIGNACIONES_PRACTICAS;
+drop table if exists TAB_PERIODOS_ACADEMICOS;
 drop table if exists TAB_EMPLEADOS_INSTRUCTORES;
 drop table if exists TAB_EMPLEADOS;
 drop table if exists TAB_INSTRUCTORES;
@@ -51,6 +52,36 @@ drop table if exists TAB_ESTADOS_PRACTICAS_PREPROFESIONALES;
 drop table if exists TAB_ESTADOS_SERVICIO_COMUNITARIO;
 
 /*==============================================================*/
+/* Table: TAB_PERIODOS_ACADEMICOS                               */
+/*==============================================================*/
+create table TAB_PERIODOS_ACADEMICOS
+(
+   ID_PERIODO_ACADEMICO int not null auto_increment,
+   NOMBRE_PERIODO       varchar(100) not null,
+   AÑO_ACADEMICO        int not null comment 'Año de referencia del período (p. ej. año lectivo)',
+   MES_INICIO           tinyint unsigned not null comment 'Mes inicio 1-12',
+   AÑO_INICIO           int not null,
+   MES_FIN              tinyint unsigned not null comment 'Mes fin 1-12',
+   AÑO_FIN              int not null,
+   TIPO_PERIODO         enum('Semestre', 'Trimestre', 'Cuatrimestre', 'Anual') not null default 'Semestre',
+   NUMERO_PERIODO       int not null,
+   ESTADO               enum('Activo', 'Inactivo', 'Finalizado', 'Planificado') not null default 'Planificado',
+   DESCRIPCION          text,
+   FECHA_CREACION       timestamp default current_timestamp,
+   FECHA_ACTUALIZACION  timestamp default current_timestamp on update current_timestamp,
+   ACTIVO               boolean default true,
+   primary key (ID_PERIODO_ACADEMICO),
+   unique key UK_PERIODO_ANIO (AÑO_ACADEMICO, NUMERO_PERIODO, TIPO_PERIODO),
+   key IDX_AÑO_ACADEMICO (AÑO_ACADEMICO),
+   key IDX_ESTADO_PERIODO (ESTADO),
+   key IDX_PERIODO_MES_ANIO_INICIO (AÑO_INICIO, MES_INICIO),
+   key IDX_ACTIVO_PERIODO (ACTIVO),
+   check (MES_INICIO between 1 and 12),
+   check (MES_FIN between 1 and 12)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='Períodos académicos (inicio/fin por mes y año)';
+
+/*==============================================================*/
 /* Table: TAB_ACTIVIDADES_EDUCACION                             */
 /*==============================================================*/
 create table TAB_ACTIVIDADES_EDUCACION
@@ -60,6 +91,7 @@ create table TAB_ACTIVIDADES_EDUCACION
    ID_TIPO_MODALIDAD    int,
    ID_TIPO_ACTIVIDAD    int,
    ID_USUARIO           int,
+   ID_PERIODO_ACADEMICO int,
    NOMBRE_ACTIVIDAD     varchar(200) not null,
    DESCRIPCION          text not null,
    OBJETIVOS            text not null,
@@ -70,7 +102,8 @@ create table TAB_ACTIVIDADES_EDUCACION
    HORARIO              varchar(100) not null,
    INCLUYE_CERTIFICADO  boolean not null,
    PROGRAMA_DETALLADO   text not null,
-   primary key (ID_ACTIVIDAD_EDUCACION)
+   primary key (ID_ACTIVIDAD_EDUCACION),
+   key IDX_PERIODO_ACADEMICO (ID_PERIODO_ACADEMICO)
 );
 
 /*==============================================================*/
@@ -79,6 +112,7 @@ create table TAB_ACTIVIDADES_EDUCACION
 create table TAB_ASIGNACIONES_PRACTICAS
 (
    ID_ASIGNACION_PRACTICA int not null auto_increment,
+   ID_PERIODO_ACADEMICO int,
    ID_TIPO_PRACTICA     int,
    ID_USUARIO           int,
    ID_ESTADO_PRACTICAS  int,
@@ -88,7 +122,8 @@ create table TAB_ASIGNACIONES_PRACTICAS
    HORA_TOTAL           int not null,
    DESCRIPCION          text not null,
    CRONOGRAMA           varchar(255) not null,
-   primary key (ID_ASIGNACION_PRACTICA)
+   primary key (ID_ASIGNACION_PRACTICA),
+   key IDX_PERIODO_ACADEMICO (ID_PERIODO_ACADEMICO)
 );
 
 /*==============================================================*/
@@ -190,6 +225,22 @@ create table TAB_ESTUDIANTES
    SEMESTRE_ACTUAL      int not null,
    primary key (ID_ESTUDIANTE)
 );
+
+/*==============================================================*/
+/* Table: TAB_INSCRIPCIONES_ACTIVIDADES                         */
+/*==============================================================*/
+create table TAB_INSCRIPCIONES_ACTIVIDADES
+(
+   ID_INSCRIPCION       int not null auto_increment,
+   ID_ACTIVIDAD_EDUCACION int,
+   ID_ESTUDIANTE        int,
+   FECHA_INSCRIPCION    date,
+   ESTADO               varchar(30) default 'Inscrito',
+   primary key (ID_INSCRIPCION),
+   unique key UK_INSCRIPCION_ACTIVIDAD_ESTUDIANTE (ID_ACTIVIDAD_EDUCACION, ID_ESTUDIANTE),
+   key IDX_INSCRIPCION_ACTIVIDAD (ID_ACTIVIDAD_EDUCACION),
+   key IDX_INSCRIPCION_ESTUDIANTE (ID_ESTUDIANTE)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*==============================================================*/
 /* Table: TAB_EXPORTACIONES                                     */
@@ -375,7 +426,7 @@ create table TAB_USUARIOS
 create table TAB_RECUPERACION_CONTRASENA
 (
    ID_RECUPERACION      int unsigned not null auto_increment,
-   ID_USUARIO           int unsigned null,
+   ID_USUARIO           int null,
    TOKEN                varchar(64) null,
    EXPIRA_EN            datetime null,
    USADO                tinyint(1) default 0 null,
@@ -391,6 +442,7 @@ create table TAB_RECUPERACION_CONTRASENA
 create table TAB_PRACTICAS_PREPROFESIONALES
 (
    ID_PRACTICA_PREPROFESIONAL int not null auto_increment,
+   ID_PERIODO_ACADEMICO       int,
    ID_ASIGNACION_PRACTICA     int,
    ID_ESTUDIANTE             int,
    ID_INSTRUCTOR             int,
@@ -400,10 +452,12 @@ create table TAB_PRACTICAS_PREPROFESIONALES
    HORAS_PRACTICAS           int,
    FECHA_INICIO              date,
    FECHA_FIN                 date,
-   ESTADO_PRACTICA           varchar(50),
+   ESTADO_PRACTICA           varchar(50) comment 'Denormalizado (UI legado); fuente de verdad: ID_ESTADO_PREPROFESIONAL',
+   ID_ESTADO_PREPROFESIONAL  int,
    EVALUACION_FINAL          decimal(3,2),
    OBSERVACIONES             text,
-   primary key (ID_PRACTICA_PREPROFESIONAL)
+   primary key (ID_PRACTICA_PREPROFESIONAL),
+   key IDX_PERIODO_ACADEMICO (ID_PERIODO_ACADEMICO)
 );
 
 /*==============================================================*/
@@ -412,6 +466,7 @@ create table TAB_PRACTICAS_PREPROFESIONALES
 create table TAB_SERVICIO_COMUNITARIO
 (
    ID_SERVICIO_COMUNITARIO   int not null auto_increment,
+   ID_PERIODO_ACADEMICO      int,
    ID_ASIGNACION_PRACTICA    int,
    ID_ESTUDIANTE             int,
    ID_INSTRUCTOR             int,
@@ -421,10 +476,12 @@ create table TAB_SERVICIO_COMUNITARIO
    HORAS_SERVICIO            int,
    FECHA_INICIO              date,
    FECHA_FIN                 date,
-   ESTADO_SERVICIO           varchar(50),
+   ESTADO_SERVICIO           varchar(50) comment 'Denormalizado (UI legado); fuente de verdad: ID_ESTADO_SERVICIO',
+   ID_ESTADO_SERVICIO        int,
    IMPACTO_SOCIAL            text,
    OBSERVACIONES             text,
-   primary key (ID_SERVICIO_COMUNITARIO)
+   primary key (ID_SERVICIO_COMUNITARIO),
+   key IDX_PERIODO_ACADEMICO (ID_PERIODO_ACADEMICO)
 );
 
 /*==============================================================*/
@@ -562,7 +619,7 @@ create table TAB_ESTADOS_PRACTICAS_PREPROFESIONALES
    DESCRIPCION              text,
    COLOR                    varchar(20),
    primary key (ID_ESTADO_PREPROFESIONAL)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*==============================================================*/
 /* Table: TAB_ESTADOS_SERVICIO_COMUNITARIO                       */
@@ -574,7 +631,7 @@ create table TAB_ESTADOS_SERVICIO_COMUNITARIO
    DESCRIPCION              text,
    COLOR                    varchar(20),
    primary key (ID_ESTADO_SERVICIO)
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*==============================================================*/
 /* Table: TAB_SEGUIMIENTO_PRACTICAS_PREPROFESIONALES            */
@@ -718,7 +775,7 @@ create table TAB_ENTIDADES_RECEPTORAS
    CONTACTO_DIRECTO     varchar(150),
    TELEFONO_CONTACTO    varchar(20),
    EMAIL_CONTACTO       varchar(100),
-   TIPO_ENTIDAD         varchar(50) DEFAULT 'PÃºblica',
+   TIPO_ENTIDAD         varchar(50) DEFAULT 'Pública',
    ACTIVO               boolean DEFAULT true,
    FECHA_CREACION       timestamp DEFAULT CURRENT_TIMESTAMP,
    FECHA_ACTUALIZACION  timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -740,7 +797,7 @@ create table TAB_DOCENTES_TUTORES
    ESPECIALIDAD         varchar(200),
    TITULO_PROFESIONAL   varchar(200),
    AREA_ESPECIALIZACION varchar(200),
-   AÃ‘OS_EXPERIENCIA     int DEFAULT 0,
+   AÑOS_EXPERIENCIA     int DEFAULT 0,
    ACTIVO               boolean DEFAULT true,
    FECHA_CREACION       timestamp DEFAULT CURRENT_TIMESTAMP,
    FECHA_ACTUALIZACION  timestamp DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -809,7 +866,7 @@ create table TAB_NOTIFICACIONES_DOCUMENTOS
    ID_DOCUMENTO_PREPROFESIONAL int NULL,
    ID_DOCUMENTO_SERVICIO int NULL,
    ID_USUARIO_DESTINATARIO int,
-   TIPO_NOTIFICACION    varchar(50) NOT NULL, -- Nuevo, Revisado, Aprobado, Rechazado, Requiere CorrecciÃ³n
+   TIPO_NOTIFICACION    varchar(50) NOT NULL, -- Nuevo, Revisado, Aprobado, Rechazado, Requiere Corrección
    TITULO               varchar(200) NOT NULL,
    MENSAJE              text NOT NULL,
    LEIDA                boolean DEFAULT false,
@@ -828,7 +885,7 @@ create table TAB_NOTIFICACIONES_DOCUMENTOS
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*==============================================================*/
-/* Restricciones de Clave ForÃ¡nea                               */
+/* Restricciones de Clave Foránea                               */
 /*==============================================================*/
 
 alter table TAB_ACTIVIDADES_EDUCACION add constraint FK_REFERENCE_29 foreign key (ID_INSTRUCTOR)
@@ -851,6 +908,15 @@ alter table TAB_ASIGNACIONES_PRACTICAS add constraint FK_REFERENCE_22 foreign ke
 
 alter table TAB_ASIGNACIONES_PRACTICAS add constraint FK_REFERENCE_48 foreign key (ID_INSTITUCION_CONVENIO)
       references TAB_INSTITUCIONES_CONVENIOS (ID_INSTITUCION_CONVENIO) on delete restrict on update restrict;
+
+alter table TAB_ASIGNACIONES_PRACTICAS add constraint FK_ASIGNACIONES_ESTADO_PREPROFESIONAL foreign key (ID_ESTADO_PRACTICAS)
+      references TAB_ESTADOS_PRACTICAS_PREPROFESIONALES (ID_ESTADO_PREPROFESIONAL) on delete restrict on update restrict;
+
+alter table TAB_ACTIVIDADES_EDUCACION add constraint FK_ACTIVIDADES_PERIODO foreign key (ID_PERIODO_ACADEMICO)
+      references TAB_PERIODOS_ACADEMICOS (ID_PERIODO_ACADEMICO) on delete restrict on update restrict;
+
+alter table TAB_ASIGNACIONES_PRACTICAS add constraint FK_ASIGNACIONES_PERIODO foreign key (ID_PERIODO_ACADEMICO)
+      references TAB_PERIODOS_ACADEMICOS (ID_PERIODO_ACADEMICO) on delete restrict on update restrict;
 
 alter table TAB_DETALLES_CONVENIOS add constraint FK_REFERENCE_34 foreign key (ID_TIPO_CONVENIO)
       references TAB_TIPOS_CONVENIOS (ID_TIPO_CONVENIO) on delete restrict on update restrict;
@@ -920,6 +986,9 @@ alter table TAB_ROLES add constraint FK_REFERENCE_8 foreign key (ID_TIPOS_ROLES)
 alter table TAB_USUARIOS add constraint FK_REFERENCE_12 foreign key (ID_DATO_PERSONA)
       references TAB_DATOS_PERSONAS (ID_DATO_PERSONA) on delete restrict on update restrict;
 
+alter table TAB_RECUPERACION_CONTRASENA add constraint FK_RECUPERACION_USUARIO foreign key (ID_USUARIO)
+      references TAB_USUARIOS (ID_USUARIO) on delete cascade on update restrict;
+
 alter table TAB_PRACTICAS_PREPROFESIONALES add constraint FK_PRACTICAS_PREPROFESIONALES_ASIGNACION foreign key (ID_ASIGNACION_PRACTICA)
       references TAB_ASIGNACIONES_PRACTICAS (ID_ASIGNACION_PRACTICA) on delete restrict on update restrict;
 
@@ -931,6 +1000,12 @@ alter table TAB_PRACTICAS_PREPROFESIONALES add constraint FK_PRACTICAS_PREPROFES
 
 alter table TAB_PRACTICAS_PREPROFESIONALES add constraint FK_PRACTICAS_PREPROFESIONALES_INSTITUCION foreign key (ID_INSTITUCION_CONVENIO)
       references TAB_INSTITUCIONES_CONVENIOS (ID_INSTITUCION_CONVENIO) on delete restrict on update restrict;
+
+alter table TAB_PRACTICAS_PREPROFESIONALES add constraint FK_PRACTICAS_ESTADO_PREPROFESIONAL foreign key (ID_ESTADO_PREPROFESIONAL)
+      references TAB_ESTADOS_PRACTICAS_PREPROFESIONALES (ID_ESTADO_PREPROFESIONAL) on delete restrict on update restrict;
+
+alter table TAB_PRACTICAS_PREPROFESIONALES add constraint FK_PRACTICAS_PERIODO foreign key (ID_PERIODO_ACADEMICO)
+      references TAB_PERIODOS_ACADEMICOS (ID_PERIODO_ACADEMICO) on delete restrict on update restrict;
 
 alter table TAB_SERVICIO_COMUNITARIO add constraint FK_SERVICIO_COMUNITARIO_ASIGNACION foreign key (ID_ASIGNACION_PRACTICA)
       references TAB_ASIGNACIONES_PRACTICAS (ID_ASIGNACION_PRACTICA) on delete restrict on update restrict;
@@ -944,11 +1019,23 @@ alter table TAB_SERVICIO_COMUNITARIO add constraint FK_SERVICIO_COMUNITARIO_INST
 alter table TAB_SERVICIO_COMUNITARIO add constraint FK_SERVICIO_COMUNITARIO_INSTITUCION foreign key (ID_INSTITUCION_CONVENIO)
       references TAB_INSTITUCIONES_CONVENIOS (ID_INSTITUCION_CONVENIO) on delete restrict on update restrict;
 
+alter table TAB_SERVICIO_COMUNITARIO add constraint FK_SERVICIO_ESTADO_SERVICIO_COMUNITARIO foreign key (ID_ESTADO_SERVICIO)
+      references TAB_ESTADOS_SERVICIO_COMUNITARIO (ID_ESTADO_SERVICIO) on delete restrict on update restrict;
+
+alter table TAB_SERVICIO_COMUNITARIO add constraint FK_SERVICIO_PERIODO foreign key (ID_PERIODO_ACADEMICO)
+      references TAB_PERIODOS_ACADEMICOS (ID_PERIODO_ACADEMICO) on delete restrict on update restrict;
+
 alter table TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES add constraint FK_DOCS_PREPROFESIONALES_PRACTICA foreign key (ID_PRACTICA_PREPROFESIONAL)
       references TAB_PRACTICAS_PREPROFESIONALES (ID_PRACTICA_PREPROFESIONAL) on delete restrict on update restrict;
 
 alter table TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES add constraint FK_DOCS_PREPROFESIONALES_TIPO foreign key (ID_TIPO_DOCUMENTO)
       references TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES (ID_TIPO_DOCUMENTO_PREPROFESIONAL) on delete restrict on update restrict;
+
+alter table TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES add constraint FK_DOCS_PREPROFESIONALES_ESTADO foreign key (ID_ESTADO_REVISION)
+      references TAB_ESTADOS_REVISIONES (ID_ESTADO_REVISION) on delete restrict on update restrict;
+
+alter table TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES add constraint FK_DOCS_PREPROFESIONALES_REVISOR foreign key (ID_REVISOR)
+      references TAB_USUARIOS (ID_USUARIO) on delete restrict on update restrict;
 
 alter table TAB_DOCUMENTOS_SERVICIO_COMUNITARIO add constraint FK_DOCS_SERVICIO_SERVICIO foreign key (ID_SERVICIO_COMUNITARIO)
       references TAB_SERVICIO_COMUNITARIO (ID_SERVICIO_COMUNITARIO) on delete restrict on update restrict;

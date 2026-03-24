@@ -25,6 +25,18 @@
                     </a>
                 </li>
                 <li class="nav-small-cap">
+                    <i class="fa-solid fa-users nav-small-cap-icon fs-6"></i>
+                    <span class="hide-menu">ESTUDIANTES</span>
+                </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link" href="<?= base_url('admin/estudiantes') ?>" aria-expanded="false">
+                        <span>
+                            <i class="fa-solid fa-users fs-6"></i>
+                        </span>
+                        <span class="hide-menu">Estudiantes</span>
+                    </a>
+                </li>
+                <li class="nav-small-cap">
                     <i class="fa-solid fa-book nav-small-cap-icon fs-6"></i>
                     <span class="hide-menu">EDUCACIÓN CONTINUA</span>
                 </li>

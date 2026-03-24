@@ -15,10 +15,6 @@ $routes->post('/auth/restablecer-contrasena', 'AuthController::restablecerContra
 $routes->get('/auth/cerrar-sesion', 'AuthController::cerrarSesion'); // Acción para cerrar sesión
 $routes->post('/auth/cerrar-sesion', 'AuthController::cerrarSesion'); // Acción para cerrar sesión (POST)
 
-// Imágenes QR (prácticas y servicio comunitario) — visibles en perfil estudiante
-$routes->get('qr/practicas', 'QrController::practicas');
-$routes->get('qr/servicio', 'QrController::servicio');
-
 // Redirección para URL antigua de convenios
 $routes->get('vinculacion/convenios', function() {
     return redirect()->to('estudiante/convenios');

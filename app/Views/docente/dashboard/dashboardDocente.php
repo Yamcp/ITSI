@@ -2,24 +2,10 @@
 
 <?php
 
-use Config\Database;
+$p                       = obtener_periodo_academico_para_ui();
+$periodoNombreDashboard  = $p['nombre'];
+$periodoRangoDashboard   = $p['rango'];
 
-$periodoNombreDashboard = $periodoAcademicoNombre ?? session('periodo_academico_nombre');
-$periodoRangoDashboard  = $periodoAcademicoRango ?? session('periodo_academico_rango');
-if (!$periodoNombreDashboard) {
-    try {
-        $db = Database::connect();
-        $row = $db->query("SELECT * FROM V_PERIODO_ACADEMICO_ACTUAL LIMIT 1")->getRowArray();
-        if ($row) {
-            $periodoNombreDashboard = $row['NOMBRE_PERIODO'] ?? null;
-            $periodoRangoDashboard  = ($row['FECHA_INICIO'] ?? '') . ' - ' . ($row['FECHA_FIN'] ?? '');
-            if ($periodoNombreDashboard) session()->set('periodo_academico_nombre', $periodoNombreDashboard);
-            if ($periodoRangoDashboard) session()->set('periodo_academico_rango', $periodoRangoDashboard);
-        }
-    } catch (\Throwable $e) {
-        log_message('error', 'Dashboard docente - error obteniendo período: ' . $e->getMessage());
-    }
-}
 ?>
 
 <?= $this->section('styles') ?>

@@ -27,7 +27,7 @@ class EstudiantesAdminController extends BaseController
             'estudiantes' => $this->estudiantesModel->getEstudianteCompleto()
         ];
 
-        return view('admin/educacion/educacion', $data);
+        return view('admin/estudiantes/estudiantes', $data);
     }
 
     public function create()

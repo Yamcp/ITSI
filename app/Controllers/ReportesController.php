@@ -69,21 +69,7 @@ class ReportesController extends BaseController
 
     private function aplicarFiltrosEstudiantes($model, $filtros)
     {
-        $builder = $model->builder();
-
-        if (!empty($filtros['carrera'])) {
-            $builder->where('TAB_CARRERAS.ID_CARRERA', $filtros['carrera']);
-        }
-
-        if (!empty($filtros['estado'])) {
-            $builder->where('TAB_ESTUDIANTES.ID_TIPO_ESTADO', $filtros['estado']);
-        }
-
-        if (!empty($filtros['semestre'])) {
-            $builder->where('TAB_ESTUDIANTES.SEMESTRE_ACTUAL', $filtros['semestre']);
-        }
-
-        return $model->getEstudianteCompleto();
+        return $model->getEstudianteCompleto(null, $filtros);
     }
 
     public function exportarPDF($tipo)

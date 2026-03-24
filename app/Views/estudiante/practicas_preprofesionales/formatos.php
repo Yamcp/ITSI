@@ -26,18 +26,6 @@
         margin-bottom: 1.5rem;
         font-size: 1rem;
     }
-
-    .formatos-qr-wrap {
-        max-width: 600px;
-        margin: 0;
-    }
-
-    .formatos-qr-img {
-        display: block;
-        width: 100%;
-        height: auto;
-        border-radius: 8px;
-    }
 </style>
 <?= $this->endSection() ?>
 

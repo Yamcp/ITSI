@@ -497,7 +497,6 @@ class DocumentosPracticasAdminController extends BaseController
 
     /**
      * Obtener lista de documentos de formato (prácticas preprofesionales).
-     * Los estudiantes ven y descargan estos documentos en lugar del QR.
      */
     public function getListaFormatosPracticas()
     {

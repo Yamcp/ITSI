@@ -1,5 +1,13 @@
 <?= $this->extend('estudiante/layouts/mainEstudiante') ?>
 
+<?php
+
+$p                       = obtener_periodo_academico_para_ui();
+$periodoNombreDashboard  = $p['nombre'];
+$periodoRangoDashboard   = $p['rango'];
+
+?>
+
 <?= $this->section('styles') ?>
 <style>
     :root {

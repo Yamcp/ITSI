@@ -296,16 +296,37 @@ class AuthController extends BaseController
                 // Si no hay resultados en la vista, probamos directamente sobre la tabla de períodos
                 if (!$periodo) {
                     $builder = $db->table('TAB_PERIODOS_ACADEMICOS');
-                    $builder->where('ESTADO', 'Activo');
-                    $builder->orderBy('FECHA_INICIO', 'DESC');
+                    $builder->orderBy('AÑO_INICIO', 'DESC');
+                    $builder->orderBy('MES_INICIO', 'DESC');
                     $periodo = $builder->get(1)->getRowArray();
                 }
 
                 if ($periodo) {
                     $ses_data['periodo_academico_id'] = $periodo['ID_PERIODO_ACADEMICO'] ?? null;
-                    $ses_data['periodo_academico_nombre'] = $periodo['NOMBRE_PERIODO'] ?? null;
-                    $ses_data['periodo_academico_anio'] = $periodo['AÑO_ACADEMICO'] ?? ($periodo['ANIO_ACADEMICO'] ?? null);
-                    $ses_data['periodo_academico_rango'] = ($periodo['FECHA_INICIO'] ?? '') . ' - ' . ($periodo['FECHA_FIN'] ?? '');
+                    $ses_data['periodo_academico_anio'] = $periodo['AÑO_ACADEMICO'] ?? $periodo['AÑO_INICIO'] ?? ($periodo['ANIO_ACADEMICO'] ?? null);
+
+                    $etiquetaMesAnio = formatear_periodo_academico_mes_anio($periodo);
+                    if ($etiquetaMesAnio !== null) {
+                        $ses_data['periodo_academico_nombre'] = $etiquetaMesAnio;
+                        $ses_data['periodo_academico_rango'] = '';
+                    } else {
+                        $nombre = $periodo['NOMBRE_PERIODO'] ?? null;
+                        if ($nombre === null && isset($periodo['MES_INICIO'], $periodo['AÑO_INICIO'], $periodo['MES_FIN'], $periodo['AÑO_FIN'])) {
+                            $mi = str_pad((string) $periodo['MES_INICIO'], 2, '0', STR_PAD_LEFT);
+                            $mf = str_pad((string) $periodo['MES_FIN'], 2, '0', STR_PAD_LEFT);
+                            $nombre = "{$mi}/{$periodo['AÑO_INICIO']} - {$mf}/{$periodo['AÑO_FIN']}";
+                        }
+                        $ses_data['periodo_academico_nombre'] = $nombre;
+                        if (!empty($periodo['FECHA_INICIO']) && !empty($periodo['FECHA_FIN'])) {
+                            $ses_data['periodo_academico_rango'] = $periodo['FECHA_INICIO'] . ' - ' . $periodo['FECHA_FIN'];
+                        } else {
+                            $mi = str_pad((string) ($periodo['MES_INICIO'] ?? ''), 2, '0', STR_PAD_LEFT);
+                            $mf = str_pad((string) ($periodo['MES_FIN'] ?? ''), 2, '0', STR_PAD_LEFT);
+                            $ai = $periodo['AÑO_INICIO'] ?? '';
+                            $af = $periodo['AÑO_FIN'] ?? '';
+                            $ses_data['periodo_academico_rango'] = "{$mi}/{$ai} - {$mf}/{$af}";
+                        }
+                    }
                 }
             } catch (\Throwable $e) {
                 // En caso de error, solo registramos el problema y continuamos sin interrumpir el login

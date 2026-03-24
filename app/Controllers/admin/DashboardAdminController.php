@@ -54,23 +54,9 @@ class DashboardAdminController extends BaseController
         // Prácticas preprofesionales y servicio comunitario por carrera
         $practicasPorCarrera = $this->obtenerPracticasPorCarrera();
 
-        // Obtener período académico actual (reutilizando lógica del navbar)
-        $periodoNombre = session('periodo_academico_nombre');
-        $periodoRango  = session('periodo_academico_rango');
-
-        if (!$periodoNombre) {
-            try {
-                $db = Database::connect();
-                $row = $db->query("SELECT * FROM V_PERIODO_ACADEMICO_ACTUAL LIMIT 1")->getRowArray();
-
-                if ($row) {
-                    $periodoNombre = $row['NOMBRE_PERIODO'] ?? null;
-                    $periodoRango  = ($row['FECHA_INICIO'] ?? '') . ' - ' . ($row['FECHA_FIN'] ?? '');
-                }
-            } catch (\Throwable $e) {
-                log_message('error', 'Dashboard admin - error obteniendo período académico actual: ' . $e->getMessage());
-            }
-        }
+        $p              = obtener_periodo_academico_para_ui();
+        $periodoNombre = $p['nombre'];
+        $periodoRango  = $p['rango'];
 
         $data = [
             'title' => 'Panel de Control | ITSI',

@@ -2,41 +2,11 @@
 
 use Config\Database;
 
-$periodoNombre = session('periodo_academico_nombre');
-$periodoRango  = session('periodo_academico_rango');
-
-if (!$periodoNombre) {
-    try {
-        $db = Database::connect();
-        $row = $db->query("SELECT * FROM V_PERIODO_ACADEMICO_ACTUAL LIMIT 1")->getRowArray();
-
-        if ($row) {
-            $periodoNombre = $row['NOMBRE_PERIODO'] ?? null;
-            $periodoRango  = ($row['FECHA_INICIO'] ?? '') . ' - ' . ($row['FECHA_FIN'] ?? '');
-        }
-    } catch (\Throwable $e) {
-        log_message('error', 'Navbar admin - error obteniendo período académico actual: ' . $e->getMessage());
-    }
-}
 ?>
 
 <header class="app-header w-100" style="padding: 0;">
     <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #00367c;">
         <a class="navbar-brand d-flex align-items-center" href="<?= base_url('admin/inicio') ?>"></a>
-
-        <?php if ($periodoNombre): ?>
-            <div class="d-flex flex-column justify-content-center ms-3">
-                <span class="text-white fw-semibold small">
-                    Período académico:
-                    <strong><?= esc($periodoNombre) ?></strong>
-                </span>
-                <?php if ($periodoRango): ?>
-                    <span class="text-white-50 small">
-                        <?= esc($periodoRango) ?>
-                    </span>
-                <?php endif; ?>
-            </div>
-        <?php endif; ?>
 
         <ul class="navbar-nav">
             <li class="nav-item d-block d-xl-none">
