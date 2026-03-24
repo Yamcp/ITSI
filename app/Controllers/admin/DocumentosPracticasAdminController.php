@@ -576,6 +576,46 @@ class DocumentosPracticasAdminController extends BaseController
     }
 
     /**
+     * Actualizar solo el nombre mostrado de un documento de formato (no renombra el archivo en disco).
+     */
+    public function actualizarNombreDocumentoFormato()
+    {
+        $archivo = basename((string) $this->request->getPost('archivo'));
+        $nombre = trim((string) $this->request->getPost('nombre'));
+        if (!preg_match('/^[a-zA-Z0-9_\-\.]+$/', $archivo)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Archivo no válido.']);
+        }
+        if ($nombre === '') {
+            return $this->response->setJSON(['success' => false, 'message' => 'Indique el nombre del documento.']);
+        }
+        if (mb_strlen($nombre) > 500) {
+            return $this->response->setJSON(['success' => false, 'message' => 'El nombre no puede superar 500 caracteres.']);
+        }
+        $lista = $this->getListaFormatosPracticas();
+        $found = false;
+        foreach ($lista as $k => $item) {
+            if (($item['archivo'] ?? '') === $archivo) {
+                $lista[$k]['nombre'] = $nombre;
+                $found = true;
+                break;
+            }
+        }
+        if (!$found) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Documento no encontrado.']);
+        }
+        $path = $this->getListaFormatosPracticasPath();
+        if (file_put_contents($path, json_encode($lista, JSON_UNESCAPED_UNICODE)) === false) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Error al guardar la lista.']);
+        }
+
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => 'Nombre actualizado correctamente.',
+            'lista' => $this->getListaFormatosPracticas(),
+        ]);
+    }
+
+    /**
      * API: Obtener documentos para el grid
      */
     public function obtenerDocumentos()

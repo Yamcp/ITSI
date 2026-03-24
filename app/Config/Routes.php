@@ -129,6 +129,7 @@ $routes->group('admin', ['namespace' => 'App\Controllers\admin'], function ($rou
     $routes->post('documentos/practicas/cambiar-estado/(:num)', 'DocumentosPracticasAdminController::cambiarEstado/$1'); // Cambiar estado
     $routes->get('documentos/practicas/reportes', 'DocumentosPracticasAdminController::reportes'); // Reportes de prácticas
     $routes->post('documentos/practicas/subir-formato', 'DocumentosPracticasAdminController::subirDocumentoFormato');
+    $routes->post('documentos/practicas/actualizar-nombre-formato', 'DocumentosPracticasAdminController::actualizarNombreDocumentoFormato');
     $routes->post('documentos/practicas/eliminar-formato/(:segment)', 'DocumentosPracticasAdminController::eliminarDocumentoFormato/$1');
     
     // Rutas específicas para documentos de servicio comunitario
@@ -141,6 +142,7 @@ $routes->group('admin', ['namespace' => 'App\Controllers\admin'], function ($rou
     $routes->post('documentos/servicio/cambiar-estado/(:num)', 'DocumentosServicioComunitarioAdminController::cambiarEstado/$1'); // Cambiar estado
     $routes->get('documentos/servicio/reportes', 'DocumentosServicioComunitarioAdminController::reportes'); // Reportes de servicio
     $routes->post('documentos/servicio/subir-formato', 'DocumentosServicioComunitarioAdminController::subirDocumentoFormato');
+    $routes->post('documentos/servicio/actualizar-nombre-formato', 'DocumentosServicioComunitarioAdminController::actualizarNombreDocumentoFormato');
     $routes->post('documentos/servicio/eliminar-formato/(:segment)', 'DocumentosServicioComunitarioAdminController::eliminarDocumentoFormato/$1');
     $routes->post('documentos/servicio/crear-tipo', 'DocumentosServicioComunitarioAdminController::crearTipo');
     $routes->post('documentos/servicio/actualizar-tipo/(:num)', 'DocumentosServicioComunitarioAdminController::actualizarTipo/$1');

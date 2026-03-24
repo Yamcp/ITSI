@@ -341,6 +341,25 @@
     border-right: none !important;
 }
 
+/* Admin: tabla «Documentos de formato» — columna Archivo compacta (elipsis + tooltip nativo en title) */
+.table-documentos.table-admin-formatos-lista th.formatos-archivo-col,
+.table-documentos.table-admin-formatos-lista td.formatos-archivo-celda {
+    max-width: 11rem;
+    width: 11rem;
+    vertical-align: middle;
+}
+
+.table-documentos.table-admin-formatos-lista td.formatos-archivo-celda .formatos-archivo-texto {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.8125rem;
+    line-height: 1.35;
+    cursor: default;
+}
+
 /* Notificaciones */
 .alert {
     border-radius: 10px;

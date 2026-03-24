@@ -282,12 +282,12 @@
                                             </div>
                                         </div>
                                         <div class="table-responsive">
-                                            <table class="table table-sm table-bordered table-hover table-documentos">
+                                            <table class="table table-sm table-bordered table-hover table-documentos table-admin-formatos-lista">
                                                 <thead class="table-light">
                                                     <tr>
                                                         <th>#</th>
                                                         <th>Nombre</th>
-                                                        <th>Archivo</th>
+                                                        <th class="formatos-archivo-col">Archivo</th>
                                                         <th>Acciones</th>
                                                     </tr>
                                                 </thead>
@@ -298,8 +298,13 @@
                                                         <tr>
                                                             <td><?= $i + 1 ?></td>
                                                             <td><?= esc($item['nombre'] ?? '') ?></td>
-                                                            <td><span class="text-muted small"><?= esc($item['archivo'] ?? '') ?></span></td>
+                                                            <td class="formatos-archivo-celda">
+                                                                <span class="text-muted formatos-archivo-texto" title="<?= esc($item['archivo'] ?? '', 'attr') ?>"><?= esc($item['archivo'] ?? '') ?></span>
+                                                            </td>
                                                             <td>
+                                                                <button type="button" class="btn btn-outline-secondary btn-sm me-1 btn-editar-nombre-formato-servicio" data-archivo="<?= esc($item['archivo'] ?? '', 'attr') ?>" data-nombre="<?= esc($item['nombre'] ?? '', 'attr') ?>" title="Editar nombre">
+                                                                    <i class="fas fa-pen"></i>
+                                                                </button>
                                                                 <button type="button" class="btn btn-outline-danger btn-sm" onclick="eliminarDocFormatoServicio('<?= esc($item['archivo'] ?? '') ?>')" title="Eliminar">
                                                                     <i class="fas fa-trash"></i>
                                                                 </button>
@@ -323,6 +328,34 @@
             </div>
         </div>
 
+    </div>
+</div>
+
+<!-- Modal: editar nombre visible de documento de formato (Servicio Comunitario) -->
+<div class="modal fade" id="modalEditarNombreFormatoServicio" tabindex="-1" aria-labelledby="modalEditarNombreFormatoServicioLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalEditarNombreFormatoServicioLabel">
+                    <i class="fas fa-pen me-2"></i>Editar nombre del documento
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <form id="formEditarNombreFormatoServicio">
+                <div class="modal-body">
+                    <input type="hidden" id="editFormatoServicioArchivo" name="archivo" value="" />
+                    <label for="editFormatoServicioNombre" class="form-label">Nombre visible para estudiantes</label>
+                    <input type="text" class="form-control" id="editFormatoServicioNombre" name="nombre" maxlength="500" required autocomplete="off" />
+                    <p class="text-muted small mt-2 mb-0">No se renombra el archivo en el servidor; solo se corrige el título en la lista de formatos.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btnGuardarNombreFormatoServicio">
+                        <i class="fas fa-save me-1"></i>Guardar
+                    </button>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 
@@ -1197,19 +1230,92 @@
             return;
         }
         tbody.innerHTML = lista.map((item, i) => {
-            const archivo = (item.archivo || '').replace(/"/g, '&quot;');
+            const archivo = item.archivo || '';
+            const nombre = item.nombre || '';
             return `<tr>
                 <td>${i + 1}</td>
-                <td>${escapeHtmlServ(item.nombre || '')}</td>
-                <td><span class="text-muted small">${escapeHtmlServ(item.archivo || '')}</span></td>
+                <td>${escapeHtmlServ(nombre)}</td>
+                <td class="formatos-archivo-celda"><span class="text-muted formatos-archivo-texto" title="${escapeAttrServ(archivo)}">${escapeHtmlServ(archivo)}</span></td>
                 <td>
-                    <button type="button" class="btn btn-outline-danger btn-sm" data-archivo="${escapeHtmlServ(archivo)}" onclick="eliminarDocFormatoServicio(this.getAttribute('data-archivo'))" title="Eliminar">
+                    <button type="button" class="btn btn-outline-secondary btn-sm me-1 btn-editar-nombre-formato-servicio" data-archivo="${escapeAttrServ(archivo)}" data-nombre="${escapeAttrServ(nombre)}" title="Editar nombre">
+                        <i class="fas fa-pen"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="eliminarDocFormatoServicio(${JSON.stringify(archivo)})" title="Eliminar">
                         <i class="fas fa-trash"></i>
                     </button>
                 </td>
             </tr>`;
         }).join('');
     }
+
+    function escapeAttrServ(s) {
+        return String(s)
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;')
+            .replace(/</g, '&lt;');
+    }
+
+    function abrirModalEditarNombreFormatoServicio(archivo, nombre) {
+        const modalEl = document.getElementById('modalEditarNombreFormatoServicio');
+        if (!modalEl) return;
+        const hid = document.getElementById('editFormatoServicioArchivo');
+        const inp = document.getElementById('editFormatoServicioNombre');
+        if (hid) hid.value = archivo || '';
+        if (inp) inp.value = nombre || '';
+        if (typeof bootstrap === 'undefined' || !bootstrap.Modal) {
+            showNotification('No se pudo abrir el modal. Recargue la página.', 'error');
+            return;
+        }
+        if (modalEl.parentElement !== document.body) {
+            document.body.appendChild(modalEl);
+        }
+        bootstrap.Modal.getOrCreateInstance(modalEl).show();
+    }
+
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.btn-editar-nombre-formato-servicio');
+        if (!btn || !document.getElementById('tbodyFormatosServicio')?.contains(btn)) return;
+        e.preventDefault();
+        abrirModalEditarNombreFormatoServicio(btn.getAttribute('data-archivo') || '', btn.getAttribute('data-nombre') || '');
+    });
+
+    document.getElementById('formEditarNombreFormatoServicio')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const archivo = document.getElementById('editFormatoServicioArchivo').value;
+        const nombre = document.getElementById('editFormatoServicioNombre').value.trim();
+        if (!archivo || !nombre) {
+            showNotification('Complete el nombre del documento.', 'error');
+            return;
+        }
+        const btn = document.getElementById('btnGuardarNombreFormatoServicio');
+        const fd = new FormData();
+        fd.append('archivo', archivo);
+        fd.append('nombre', nombre);
+        if (btn) btn.disabled = true;
+        fetch('<?= base_url('admin/documentos/servicio/actualizar-nombre-formato') ?>', {
+                method: 'POST',
+                body: fd,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (btn) btn.disabled = false;
+                if (data.success) {
+                    showNotification(data.message, 'success');
+                    actualizarTablaFormatosServicio(data.lista || []);
+                    const modalEl = document.getElementById('modalEditarNombreFormatoServicio');
+                    const inst = modalEl ? bootstrap.Modal.getInstance(modalEl) : null;
+                    if (inst) inst.hide();
+                } else {
+                    showNotification(data.message || 'Error al guardar', 'error');
+                }
+            })
+            .catch(() => {
+                if (btn) btn.disabled = false;
+                showNotification('Error de conexión', 'error');
+            });
+    });
 
     function eliminarDocFormatoServicio(archivo) {
         if (!archivo || !confirm('¿Eliminar este documento de formato?')) return;

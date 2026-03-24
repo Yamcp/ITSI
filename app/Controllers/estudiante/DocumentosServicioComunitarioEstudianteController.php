@@ -7,6 +7,9 @@ use App\Models\DocumentosServicioComunitarioModel;
 use App\Models\EstadosRevisionesModel;
 use App\Models\TiposDocumentosServicioComunitarioModel;
 use App\Services\EstudianteAsistenciaService;
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+use Psr\Log\LoggerInterface;
 
 class DocumentosServicioComunitarioEstudianteController extends BaseController
 {
@@ -14,10 +17,13 @@ class DocumentosServicioComunitarioEstudianteController extends BaseController
     protected TiposDocumentosServicioComunitarioModel $tiposModel;
     protected EstadosRevisionesModel $estadosModel;
 
-    public function __construct()
+    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
+        parent::initController($request, $response, $logger);
+
         if (!session()->get('logged_in') || (int) session()->get('rol') !== 3) {
-            return redirect()->to('/');
+            redirect()->to('/')->send();
+            exit;
         }
 
         $this->documentosModel = new DocumentosServicioComunitarioModel();

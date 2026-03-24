@@ -7,6 +7,9 @@ use App\Models\DocumentosPracticasModel;
 use App\Models\EstadosRevisionesModel;
 use App\Models\TiposDocumentosPracticasModel;
 use App\Services\EstudianteAsistenciaService;
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+use Psr\Log\LoggerInterface;
 
 class DocumentosPracticasEstudianteController extends BaseController
 {
@@ -14,13 +17,15 @@ class DocumentosPracticasEstudianteController extends BaseController
     protected $tiposDocumentosModel;
     protected $estadosRevisionesModel;
 
-    public function __construct()
+    public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
-        // Verificar autenticación y rol de estudiante
-        if (!session()->get('logged_in') || session()->get('rol') != 3) {
-            return redirect()->to('/');
+        parent::initController($request, $response, $logger);
+
+        if (!session()->get('logged_in') || (int) session()->get('rol') !== 3) {
+            redirect()->to('/')->send();
+            exit;
         }
-        
+
         $this->documentosModel = new DocumentosPracticasModel();
         $this->tiposDocumentosModel = new TiposDocumentosPracticasModel();
         $this->estadosRevisionesModel = new EstadosRevisionesModel();
