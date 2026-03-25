@@ -175,7 +175,7 @@ class UsuariosModel extends Model
 
     /**
      * Buscar usuario por correo, cédula o nombre de usuario (recuperación de contraseña).
-     * Aplica a todos los roles: administrador, docente, estudiante.
+     * Aplica a todos los roles: coordinador, docente, estudiante.
      */
     public function buscarPorEmailOUsuario($emailOUsuario)
     {

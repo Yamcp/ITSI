@@ -171,12 +171,6 @@
                             <!-- Cursos -->
                             <div class="tab-pane fade show active" id="cursos" role="tabpanel">
                                 <div class="card shadow-sm border-0">
-                                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                                        <span><i class="fas fa-book me-2"></i>Cursos Disponibles</span>
-                                        <button class="btn btn-light btn-sm" onclick="showModal('modalFiltros')">
-                                            <i class="fas fa-filter me-1"></i>Filtros
-                                        </button>
-                                    </div>
                                     <div class="card-body p-0">
                                         <div class="table-responsive">
                                             <table class="table table-striped align-middle mb-0">
@@ -259,12 +253,6 @@
                             <!-- Talleres -->
                             <div class="tab-pane fade" id="talleres" role="tabpanel">
                                 <div class="card shadow-sm border-0">
-                                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                                        <span><i class="fas fa-tools me-2"></i>Talleres Disponibles</span>
-                                        <button class="btn btn-light btn-sm" onclick="showModal('modalFiltros')">
-                                            <i class="fas fa-filter me-1"></i>Filtros
-                                        </button>
-                                    </div>
                                     <div class="card-body p-0">
                                         <div class="table-responsive">
                                             <table class="table table-striped align-middle mb-0">
@@ -347,12 +335,6 @@
                             <!-- Seminarios -->
                             <div class="tab-pane fade" id="seminarios" role="tabpanel">
                                 <div class="card shadow-sm border-0">
-                                    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
-                                        <span><i class="fas fa-users me-2"></i>Seminarios Disponibles</span>
-                                        <button class="btn btn-light btn-sm" onclick="showModal('modalFiltros')">
-                                            <i class="fas fa-filter me-1"></i>Filtros
-                                        </button>
-                                    </div>
                                     <div class="card-body p-0">
                                         <div class="table-responsive">
                                             <table class="table table-striped align-middle mb-0">

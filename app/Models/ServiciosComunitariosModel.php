@@ -201,10 +201,10 @@ class ServiciosComunitariosModel extends Model
     }
 
     /**
-     * Lista para vista admin "Prácticas Asignadas" (Servicio Comunitario) con estudiante, carrera, institución e instructor.
+     * Lista para vista coordinador "Prácticas Asignadas" (Servicio Comunitario) con estudiante, carrera, institución e instructor.
      * Conexión directa con TAB_SERVICIO_COMUNITARIO y tablas relacionadas.
      */
-    public function getListaParaAdmin()
+    public function getListaParaCoordinador()
     {
         $builder = $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
             ->select('

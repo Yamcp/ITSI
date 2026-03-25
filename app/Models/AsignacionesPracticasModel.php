@@ -20,7 +20,6 @@ class AsignacionesPracticasModel extends Model
         'FECHA_FIN',
         'HORA_TOTAL',
         'DESCRIPCION',
-        'CRONOGRAMA',
     ];
 
     // Si tus columnas usan timestamps automáticos, ajústalo; de lo contrario, déjalo en false
@@ -33,10 +32,9 @@ class AsignacionesPracticasModel extends Model
         'ID_ESTADO_PRACTICAS'    => 'required|is_natural_no_zero',
         'ID_INSTITUCION_CONVENIO'=> 'required|is_natural_no_zero',
         'FECHA_INICIO'           => 'required|valid_date',
-        'FECHA_FIN'              => 'required|valid_date',
+        'FECHA_FIN'              => 'permit_empty|valid_date',
         'HORA_TOTAL'             => 'required|is_natural',
         'DESCRIPCION'            => 'required',
-        'CRONOGRAMA'             => 'required',
     ];
 
     /**

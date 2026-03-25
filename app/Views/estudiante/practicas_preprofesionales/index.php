@@ -715,7 +715,7 @@
                                     <button type="button" class="btn btn-primary" onclick="mostrarModalSubirDoc(this)" data-tipo-id="<?= $idTipoFinal ?>" data-desc="Documento final (informe final de prácticas)"><i class="fas fa-cloud-upload-alt me-1"></i>Subir documento final</button>
                                 <?php endif; ?>
                             <?php else: ?>
-                                <span class="text-muted">No hay tipo de documento configurado para documento final. Contacte al administrador.</span>
+                                <span class="text-muted">No hay tipo de documento configurado para documento final. Contacte al coordinador.</span>
                             <?php endif; ?>
                         </div>
                     </div>

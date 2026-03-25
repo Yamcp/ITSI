@@ -85,11 +85,24 @@ class EmailNotificaciones
     /**
      * Generar HTML para email del estudiante
      */
+    private function periodoPracticaParaEmail(array $datosPractica): string
+    {
+        $ini = $datosPractica['fecha_inicio'] ?? '';
+        $fin = $datosPractica['fecha_fin'] ?? '';
+        if ($ini === '' || $ini === null) {
+            return 'Por definir';
+        }
+        $iniFmt = date('d/m/Y', strtotime((string) $ini));
+        if ($fin === '' || $fin === null) {
+            return "{$iniFmt} (sin fecha fin registrada)";
+        }
+        return $iniFmt . ' - ' . date('d/m/Y', strtotime((string) $fin));
+    }
+
     private function generarHTMLEmailEstudiante($estudiante, $datosPractica)
     {
         $tipoPractica = $datosPractica['tipo'] == 'preprofesional' ? 'Práctica Preprofesional' : 'Servicio Comunitario';
-        $fechaInicio = date('d/m/Y', strtotime($datosPractica['fecha_inicio']));
-        $fechaFin = date('d/m/Y', strtotime($datosPractica['fecha_fin']));
+        $periodoTexto = $this->periodoPracticaParaEmail($datosPractica);
         
         return "
         <!DOCTYPE html>
@@ -140,7 +153,7 @@ class EmailNotificaciones
                         </div>
                         <div class='info-row'>
                             <span class='info-label'>Período:</span>
-                            <span class='info-value'>{$fechaInicio} - {$fechaFin}</span>
+                            <span class='info-value'>{$periodoTexto}</span>
                         </div>
                         <div class='info-row'>
                             <span class='info-label'>Horas Totales:</span>
@@ -161,7 +174,7 @@ class EmailNotificaciones
                     
                     <div class='footer'>
                         <p>Este es un mensaje automático del Sistema de Gestión de Prácticas ITSI.</p>
-                        <p>Si tienes alguna pregunta, contacta con el administrador del sistema.</p>
+                        <p>Si tienes alguna pregunta, contacta con el coordinador del sistema.</p>
                     </div>
                 </div>
             </div>
@@ -175,8 +188,7 @@ class EmailNotificaciones
     private function generarHTMLEmailTutor($tutor, $datosPractica)
     {
         $tipoPractica = $datosPractica['tipo'] == 'preprofesional' ? 'Práctica Preprofesional' : 'Servicio Comunitario';
-        $fechaInicio = date('d/m/Y', strtotime($datosPractica['fecha_inicio']));
-        $fechaFin = date('d/m/Y', strtotime($datosPractica['fecha_fin']));
+        $periodoTexto = $this->periodoPracticaParaEmail($datosPractica);
         
         return "
         <!DOCTYPE html>
@@ -227,7 +239,7 @@ class EmailNotificaciones
                         </div>
                         <div class='info-row'>
                             <span class='info-label'>Período:</span>
-                            <span class='info-value'>{$fechaInicio} - {$fechaFin}</span>
+                            <span class='info-value'>{$periodoTexto}</span>
                         </div>
                         <div class='info-row'>
                             <span class='info-label'>Horas Totales:</span>
@@ -254,7 +266,7 @@ class EmailNotificaciones
                     
                     <div class='footer'>
                         <p>Este es un mensaje automático del Sistema de Gestión de Prácticas ITSI.</p>
-                        <p>Para más información, contacta con el administrador del sistema.</p>
+                        <p>Para más información, contacta con el coordinador del sistema.</p>
                     </div>
                 </div>
             </div>

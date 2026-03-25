@@ -24,6 +24,16 @@ use CodeIgniter\Config\BaseConfig;
  *    SMTPPass = 'contraseña_de_aplicacion'
  *    SMTPPort = 587
  *    SMTPCrypto = 'tls'
+ *
+ * En .env (CodeIgniter 4 rellena esta clase automáticamente):
+ *    email.protocol = smtp
+ *    email.SMTPHost = smtp.gmail.com
+ *    email.SMTPPort = 587
+ *    email.SMTPCrypto = tls
+ *    email.fromEmail = cuenta@dominio.com
+ *    email.fromName = Sistema de Vinculación
+ *    email.SMTPUser = cuenta@dominio.com
+ *    email.SMTPPass = contraseña_de_aplicacion
  */
 class Email extends BaseConfig
 {

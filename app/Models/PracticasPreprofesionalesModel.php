@@ -165,10 +165,10 @@ class PracticasPreprofesionalesModel extends Model
     }
 
     /**
-     * Lista para vista admin "Prácticas Asignadas" con estudiante, carrera, institución e instructor.
+     * Lista para vista coordinador "Prácticas Asignadas" con estudiante, carrera, institución e instructor.
      * Conexión directa con TAB_PRACTICAS_PREPROFESIONALES y tablas relacionadas.
      */
-    public function getListaParaAdmin()
+    public function getListaParaCoordinador()
     {
         $builder = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
             ->select('

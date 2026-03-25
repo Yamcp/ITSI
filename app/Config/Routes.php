@@ -21,163 +21,163 @@ $routes->get('vinculacion/convenios', function() {
 });
 
 //----------------------------------------------------------------------------------------------------------------------
-//RUTAS ADMINISTRADOR
-$routes->group('admin', ['namespace' => 'App\Controllers\admin'], function ($routes) {
-     $routes->get('dashboard', 'DashboardAdminController::index');     // Permitir GET
-    $routes->post('dashboard', 'DashboardAdminController::index');    // El dashboard del administrador
+// RUTAS COORDINACIÓN / VINCULACIÓN
+$routes->group('coord', ['namespace' => 'App\Controllers\coord'], function ($routes) {
+     $routes->get('dashboard', 'DashboardCoordController::index');     // Permitir GET
+    $routes->post('dashboard', 'DashboardCoordController::index');    // El dashboard del coordinador
     
     //Rutas para el perfil
-    $routes->get('perfil', 'PerfilAdminController::index');          // Ver el perfil del administrador
-    $routes->post('perfil/update', 'PerfilAdminController::update'); // Actualizar el perfil del administrador
-    $routes->post('perfil/upload-image', 'PerfilAdminController::uploadImage'); // Subir imagen de perfil
-    $routes->post('perfil/delete-image', 'PerfilAdminController::deleteImage'); // Eliminar imagen de perfil
+    $routes->get('perfil', 'PerfilCoordController::index');          // Ver el perfil del coordinador
+    $routes->post('perfil/update', 'PerfilCoordController::update'); // Actualizar el perfil del coordinador
+    $routes->post('perfil/upload-image', 'PerfilCoordController::uploadImage'); // Subir imagen de perfil
+    $routes->post('perfil/delete-image', 'PerfilCoordController::deleteImage'); // Eliminar imagen de perfil
     
     //Rutas para la cuenta
-    $routes->get('cuenta', 'CuentaAdminController::index');          // Ver la cuenta del administrador
-    $routes->post('cuenta/cambiar-password', 'CuentaAdminController::cambiarPassword'); // Cambiar contraseña
-    $routes->get('educacion', 'ActividadesEducacionAdminController::index');    // Ver la sección de educación
+        $routes->get('cuenta', 'CuentaCoordController::index');          // Ver la cuenta del coordinador
+    $routes->post('cuenta/cambiar-password', 'CuentaCoordController::cambiarPassword'); // Cambiar contraseña
+    $routes->get('educacion', 'ActividadesEducacionCoordController::index');    // Ver la sección de educación
     
     //Rutas para la gestión de actividades educativas
-    $routes->get('actividades-educacion', 'ActividadesEducacionAdminController::index');    // Ver actividades educativas
-    $routes->get('actividades-educacion/crear', 'ActividadesEducacionAdminController::create');    // Crear actividad
-    $routes->post('actividades-educacion/guardar', 'ActividadesEducacionAdminController::store');    // Guardar actividad
-    $routes->get('actividades-educacion/ver/(:num)', 'ActividadesEducacionAdminController::show/$1');    // Ver actividad
-    $routes->get('actividades-educacion/editar/(:num)', 'ActividadesEducacionAdminController::edit/$1');    // Editar actividad
-    $routes->post('actividades-educacion/actualizar/(:num)', 'ActividadesEducacionAdminController::update/$1');    // Actualizar actividad
-    $routes->get('actividades-educacion/eliminar/(:num)', 'ActividadesEducacionAdminController::delete/$1');    // Eliminar actividad
-    $routes->get('actividades-educacion/calendario', 'ActividadesEducacionAdminController::calendario');    // Calendario de actividades
-    $routes->get('actividades-educacion/api/actividades', 'ActividadesEducacionAdminController::getActividades');    // API actividades
-    $routes->get('actividades-educacion/api/estadisticas', 'ActividadesEducacionAdminController::getEstadisticas');    // API estadísticas
+    $routes->get('actividades-educacion', 'ActividadesEducacionCoordController::index');    // Ver actividades educativas
+    $routes->get('actividades-educacion/crear', 'ActividadesEducacionCoordController::create');    // Crear actividad
+    $routes->post('actividades-educacion/guardar', 'ActividadesEducacionCoordController::store');    // Guardar actividad
+    $routes->get('actividades-educacion/ver/(:num)', 'ActividadesEducacionCoordController::show/$1');    // Ver actividad
+    $routes->get('actividades-educacion/editar/(:num)', 'ActividadesEducacionCoordController::edit/$1');    // Editar actividad
+    $routes->post('actividades-educacion/actualizar/(:num)', 'ActividadesEducacionCoordController::update/$1');    // Actualizar actividad
+    $routes->get('actividades-educacion/eliminar/(:num)', 'ActividadesEducacionCoordController::delete/$1');    // Eliminar actividad
+    $routes->get('actividades-educacion/calendario', 'ActividadesEducacionCoordController::calendario');    // Calendario de actividades
+    $routes->get('actividades-educacion/api/actividades', 'ActividadesEducacionCoordController::getActividades');    // API actividades
+    $routes->get('actividades-educacion/api/estadisticas', 'ActividadesEducacionCoordController::getEstadisticas');    // API estadísticas
     
     // Rutas para reportes de actividades educativas
-    $routes->get('actividades-educacion/reportes', 'ActividadesEducacionAdminController::reportes');    // Vista de reportes
-    $routes->get('actividades-educacion/exportar/pdf', 'ActividadesEducacionAdminController::exportarPDF');    // Exportar PDF
-    $routes->get('actividades-educacion/exportar/excel', 'ActividadesEducacionAdminController::exportarExcel');    // Exportar Excel
-    $routes->get('actividades-educacion/exportar/csv', 'ActividadesEducacionAdminController::exportarCSV');    // Exportar CSV
+    $routes->get('actividades-educacion/reportes', 'ActividadesEducacionCoordController::reportes');    // Vista de reportes
+    $routes->get('actividades-educacion/exportar/pdf', 'ActividadesEducacionCoordController::exportarPDF');    // Exportar PDF
+    $routes->get('actividades-educacion/exportar/excel', 'ActividadesEducacionCoordController::exportarExcel');    // Exportar Excel
+    $routes->get('actividades-educacion/exportar/csv', 'ActividadesEducacionCoordController::exportarCSV');    // Exportar CSV
    
     //Rutas para la gestión de convenios	
-    $routes->get('convenios', 'ConveniosAdminController::index');        // Ver la sección de convenios
-    $routes->post('convenios/store', 'ConveniosAdminController::store'); // Guardar nuevo convenio
-    $routes->post('convenios/storeInstitucion', 'ConveniosAdminController::storeInstitucion'); // Guardar nueva institución
-    $routes->post('convenios/actualizarPlazas/(:num)', 'ConveniosAdminController::actualizarPlazas/$1'); // Actualizar plazas disponibles
-    $routes->get('convenios/getConvenio/(:num)', 'ConveniosAdminController::getConvenio/$1'); // Obtener un convenio (edición)
-    $routes->post('convenios/update/(:num)', 'ConveniosAdminController::update/$1'); // Actualizar convenio
-    $routes->get('convenios/getInstituciones', 'ConveniosAdminController::getInstituciones'); // Obtener instituciones
-    $routes->get('convenios/getConvenios', 'ConveniosAdminController::getConvenios'); // Obtener convenios
-    $routes->get('convenios/generarReporte', 'ConveniosAdminController::generarReporte'); // Generar reporte
-    $routes->get('convenios/vencimientos', 'ConveniosAdminController::vencimientos');
-    $routes->get('convenios/reportes', 'ConveniosAdminController::reportes'); // Ver convenios por vencer
+    $routes->get('convenios', 'ConveniosCoordController::index');        // Ver la sección de convenios
+    $routes->post('convenios/store', 'ConveniosCoordController::store'); // Guardar nuevo convenio
+    $routes->post('convenios/storeInstitucion', 'ConveniosCoordController::storeInstitucion'); // Guardar nueva institución
+    $routes->post('convenios/actualizarPlazas/(:num)', 'ConveniosCoordController::actualizarPlazas/$1'); // Actualizar plazas disponibles
+    $routes->get('convenios/getConvenio/(:num)', 'ConveniosCoordController::getConvenio/$1'); // Obtener un convenio (edición)
+    $routes->post('convenios/update/(:num)', 'ConveniosCoordController::update/$1'); // Actualizar convenio
+    $routes->get('convenios/getInstituciones', 'ConveniosCoordController::getInstituciones'); // Obtener instituciones
+    $routes->get('convenios/getConvenios', 'ConveniosCoordController::getConvenios'); // Obtener convenios
+    $routes->get('convenios/generarReporte', 'ConveniosCoordController::generarReporte'); // Generar reporte
+    $routes->get('convenios/vencimientos', 'ConveniosCoordController::vencimientos');
+    $routes->get('convenios/reportes', 'ConveniosCoordController::reportes'); // Ver convenios por vencer
 
     //Rutas para la gestión de prácticas
-    $routes->get('practicas', 'PracticasAdminController::index');                     // Ver la lista de prácticas
-    $routes->get('practicas/getDatosModal', 'PracticasAdminController::getDatosModal'); // Obtener datos para modal
-    $routes->get('practicas/buscarEstudiantes', 'PracticasAdminController::buscarEstudiantes'); // Buscar estudiantes por nombre
-    $routes->get('practicas/institucionesPorCarrera', 'PracticasAdminController::getInstitucionesPorCarrera'); // Instituciones con convenio por carrera
-    $routes->post('practicas/crear', 'PracticasAdminController::crearPractica');      // Crear nueva práctica
-    $routes->get('practicas/detalle/(:num)/(:alpha)', 'PracticasAdminController::getDetallePractica/$1/$2'); // Obtener detalle
-    $routes->post('practicas/registrar-asistencia', 'PracticasAdminController::registrarAsistencia'); // Registrar asistencia
-    $routes->get('practicas/generar-reporte', 'PracticasAdminController::generarReporte'); // Generar reporte
-    $routes->get('practicas/exportar-datos/(:alpha)', 'PracticasAdminController::exportarDatos/$1'); // Exportar datos por formato
-    $routes->get('practicas/reportes', 'PracticasAdminController::reportes'); // Vista de reportes
+    $routes->get('practicas', 'PracticasCoordController::index');                     // Ver la lista de prácticas
+    $routes->get('practicas/getDatosModal', 'PracticasCoordController::getDatosModal'); // Obtener datos para modal
+    $routes->get('practicas/buscarEstudiantes', 'PracticasCoordController::buscarEstudiantes'); // Buscar estudiantes por nombre
+    $routes->get('practicas/institucionesPorCarrera', 'PracticasCoordController::getInstitucionesPorCarrera'); // Instituciones con convenio por carrera
+    $routes->post('practicas/crear', 'PracticasCoordController::crearPractica');      // Crear nueva práctica
+    $routes->get('practicas/detalle/(:num)/(:alpha)', 'PracticasCoordController::getDetallePractica/$1/$2'); // Obtener detalle
+    $routes->post('practicas/registrar-asistencia', 'PracticasCoordController::registrarAsistencia'); // Registrar asistencia
+    $routes->get('practicas/generar-reporte', 'PracticasCoordController::generarReporte'); // Generar reporte
+    $routes->get('practicas/exportar-datos/(:alpha)', 'PracticasCoordController::exportarDatos/$1'); // Exportar datos por formato
+    $routes->get('practicas/reportes', 'PracticasCoordController::reportes'); // Vista de reportes
     
     // Rutas para la gestión de instructores
-    $routes->get('instructores', 'InstructoresAdminController::index'); // Ver la lista de instructores
-    $routes->get('instructores/getInstructores', 'InstructoresAdminController::getInstructores');
-    $routes->get('instructores/getInstructor/(:num)', 'InstructoresAdminController::getInstructor/$1');
-    $routes->post('instructores/crear', 'InstructoresAdminController::crear');
-    $routes->post('instructores/actualizar/(:num)', 'InstructoresAdminController::actualizar/$1');
-    $routes->delete('instructores/eliminar/(:num)', 'InstructoresAdminController::eliminar/$1');
-    $routes->get('instructores/generarReporte', 'InstructoresAdminController::generarReporte');
-    $routes->get('instructores/exportarExcel', 'InstructoresAdminController::exportarExcel');
-    $routes->get('instructores/exportarCSV', 'InstructoresAdminController::exportarCSV');
-    $routes->get('instructores/getEstadisticas', 'InstructoresAdminController::getEstadisticas');
-    $routes->get('instructores/getTiposInstructores', 'InstructoresAdminController::getTiposInstructores');
+    $routes->get('instructores', 'InstructoresCoordController::index'); // Ver la lista de instructores
+    $routes->get('instructores/getInstructores', 'InstructoresCoordController::getInstructores');
+    $routes->get('instructores/getInstructor/(:num)', 'InstructoresCoordController::getInstructor/$1');
+    $routes->post('instructores/crear', 'InstructoresCoordController::crear');
+    $routes->post('instructores/actualizar/(:num)', 'InstructoresCoordController::actualizar/$1');
+    $routes->delete('instructores/eliminar/(:num)', 'InstructoresCoordController::eliminar/$1');
+    $routes->get('instructores/generarReporte', 'InstructoresCoordController::generarReporte');
+    $routes->get('instructores/exportarExcel', 'InstructoresCoordController::exportarExcel');
+    $routes->get('instructores/exportarCSV', 'InstructoresCoordController::exportarCSV');
+    $routes->get('instructores/getEstadisticas', 'InstructoresCoordController::getEstadisticas');
+    $routes->get('instructores/getTiposInstructores', 'InstructoresCoordController::getTiposInstructores');
 
     // Rutas para la gestión de empleados-instructores
-    $routes->get('empleados-instructores', 'EmpleadosInstructoresAdminController::index');
-    $routes->get('empleados-instructores/crear', 'EmpleadosInstructoresAdminController::create');
-    $routes->post('empleados-instructores/guardar', 'EmpleadosInstructoresAdminController::store');
-    $routes->get('empleados-instructores/ver/(:num)', 'EmpleadosInstructoresAdminController::show/$1');
-    $routes->get('empleados-instructores/editar/(:num)', 'EmpleadosInstructoresAdminController::edit/$1');
-    $routes->post('empleados-instructores/actualizar/(:num)', 'EmpleadosInstructoresAdminController::update/$1');
-    $routes->get('empleados-instructores/eliminar/(:num)', 'EmpleadosInstructoresAdminController::delete/$1');
-    $routes->post('empleados-instructores/verificar-empleado', 'EmpleadosInstructoresAdminController::verificarEmpleadoInstructor');
-    $routes->post('empleados-instructores/instructores-empleado', 'EmpleadosInstructoresAdminController::getInstructoresEmpleado');
-    $routes->post('empleados-instructores/empleados-instructor', 'EmpleadosInstructoresAdminController::getEmpleadosInstructor');
+    $routes->get('empleados-instructores', 'EmpleadosInstructoresCoordController::index');
+    $routes->get('empleados-instructores/crear', 'EmpleadosInstructoresCoordController::create');
+    $routes->post('empleados-instructores/guardar', 'EmpleadosInstructoresCoordController::store');
+    $routes->get('empleados-instructores/ver/(:num)', 'EmpleadosInstructoresCoordController::show/$1');
+    $routes->get('empleados-instructores/editar/(:num)', 'EmpleadosInstructoresCoordController::edit/$1');
+    $routes->post('empleados-instructores/actualizar/(:num)', 'EmpleadosInstructoresCoordController::update/$1');
+    $routes->get('empleados-instructores/eliminar/(:num)', 'EmpleadosInstructoresCoordController::delete/$1');
+    $routes->post('empleados-instructores/verificar-empleado', 'EmpleadosInstructoresCoordController::verificarEmpleadoInstructor');
+    $routes->post('empleados-instructores/instructores-empleado', 'EmpleadosInstructoresCoordController::getInstructoresEmpleado');
+    $routes->post('empleados-instructores/empleados-instructor', 'EmpleadosInstructoresCoordController::getEmpleadosInstructor');
 
     // Rutas para la gestión de estudiantes
-    $routes->get('estudiantes', 'EstudiantesAdminController::index');                     // Ver la lista de estudiantes
+    $routes->get('estudiantes', 'EstudiantesCoordController::index');                     // Ver la lista de estudiantes
     
     // Rutas para la gestión de documentos
-    $routes->get('documentos', 'DocumentosAdminController::index');                  // Ver la gestión de documentos
-    $routes->get('documentos/servicio-comunitario', 'DocumentosAdminController::documentosServicioComunitario'); // Ver documentos de servicio comunitario   
-    $routes->post('documentos/subir', 'DocumentosAdminController::subirDocumento'); // Subir documento
-    $routes->get('documentos/obtener', 'DocumentosAdminController::obtenerDocumentos'); // Obtener documentos
-    $routes->post('documentos/eliminar/(:num)', 'DocumentosAdminController::eliminarDocumento/$1'); // Eliminar documento
-    $routes->get('documentos/descargar/(:num)', 'DocumentosAdminController::descargarDocumento/$1'); // Descargar documento
+    $routes->get('documentos', 'DocumentosCoordController::index');                  // Ver la gestión de documentos
+    $routes->get('documentos/servicio-comunitario', 'DocumentosCoordController::documentosServicioComunitario'); // Ver documentos de servicio comunitario   
+    $routes->post('documentos/subir', 'DocumentosCoordController::subirDocumento'); // Subir documento
+    $routes->get('documentos/obtener', 'DocumentosCoordController::obtenerDocumentos'); // Obtener documentos
+    $routes->post('documentos/eliminar/(:num)', 'DocumentosCoordController::eliminarDocumento/$1'); // Eliminar documento
+    $routes->get('documentos/descargar/(:num)', 'DocumentosCoordController::descargarDocumento/$1'); // Descargar documento
     
     // Rutas específicas para documentos de prácticas
-    $routes->get('documentos/practicas', 'DocumentosPracticasAdminController::index'); // Ver documentos de prácticas
-    $routes->get('documentos/practicas/obtenerDocumentos', 'DocumentosPracticasAdminController::obtenerDocumentos'); // Obtener documentos de prácticas
-    $routes->get('documentos/practicas/test-datos', 'DocumentosPracticasAdminController::testDatos'); // Prueba de datos
-    $routes->post('documentos/practicas/crear-tipo', 'DocumentosPracticasAdminController::crearTipo'); // Crear nuevo tipo PPR
-    $routes->post('documentos/practicas/actualizar-tipo/(:num)', 'DocumentosPracticasAdminController::actualizarTipo/$1'); // Editar tipo PPR (descripción, etc.)
-    $routes->post('documentos/practicas/subir', 'DocumentosPracticasAdminController::store'); // Subir documento de práctica
-    $routes->get('documentos/practicas/ver/(:num)', 'DocumentosPracticasAdminController::ver/$1'); // Ver documento
-    $routes->get('documentos/practicas/download/(:num)', 'DocumentosPracticasAdminController::descargar/$1'); // Descargar documento
-    $routes->post('documentos/practicas/eliminar/(:num)', 'DocumentosPracticasAdminController::eliminar/$1'); // Eliminar documento
-    $routes->post('documentos/practicas/cambiar-estado/(:num)', 'DocumentosPracticasAdminController::cambiarEstado/$1'); // Cambiar estado
-    $routes->get('documentos/practicas/reportes', 'DocumentosPracticasAdminController::reportes'); // Reportes de prácticas
-    $routes->post('documentos/practicas/subir-formato', 'DocumentosPracticasAdminController::subirDocumentoFormato');
-    $routes->post('documentos/practicas/actualizar-nombre-formato', 'DocumentosPracticasAdminController::actualizarNombreDocumentoFormato');
-    $routes->post('documentos/practicas/eliminar-formato/(:segment)', 'DocumentosPracticasAdminController::eliminarDocumentoFormato/$1');
+    $routes->get('documentos/practicas', 'DocumentosPracticasCoordController::index'); // Ver documentos de prácticas
+    $routes->get('documentos/practicas/obtenerDocumentos', 'DocumentosPracticasCoordController::obtenerDocumentos'); // Obtener documentos de prácticas
+    $routes->get('documentos/practicas/test-datos', 'DocumentosPracticasCoordController::testDatos'); // Prueba de datos
+    $routes->post('documentos/practicas/crear-tipo', 'DocumentosPracticasCoordController::crearTipo'); // Crear nuevo tipo PPR
+    $routes->post('documentos/practicas/actualizar-tipo/(:num)', 'DocumentosPracticasCoordController::actualizarTipo/$1'); // Editar tipo PPR (descripción, etc.)
+    $routes->post('documentos/practicas/subir', 'DocumentosPracticasCoordController::store'); // Subir documento de práctica
+    $routes->get('documentos/practicas/ver/(:num)', 'DocumentosPracticasCoordController::ver/$1'); // Ver documento
+    $routes->get('documentos/practicas/download/(:num)', 'DocumentosPracticasCoordController::descargar/$1'); // Descargar documento
+    $routes->post('documentos/practicas/eliminar/(:num)', 'DocumentosPracticasCoordController::eliminar/$1'); // Eliminar documento
+    $routes->post('documentos/practicas/cambiar-estado/(:num)', 'DocumentosPracticasCoordController::cambiarEstado/$1'); // Cambiar estado
+    $routes->get('documentos/practicas/reportes', 'DocumentosPracticasCoordController::reportes'); // Reportes de prácticas
+    $routes->post('documentos/practicas/subir-formato', 'DocumentosPracticasCoordController::subirDocumentoFormato');
+    $routes->post('documentos/practicas/actualizar-nombre-formato', 'DocumentosPracticasCoordController::actualizarNombreDocumentoFormato');
+    $routes->post('documentos/practicas/eliminar-formato/(:segment)', 'DocumentosPracticasCoordController::eliminarDocumentoFormato/$1');
     
     // Rutas específicas para documentos de servicio comunitario
-    $routes->get('documentos/servicio', 'DocumentosServicioComunitarioAdminController::index'); // Ver documentos de servicio
-    $routes->get('documentos/servicio/obtenerDocumentos', 'DocumentosServicioComunitarioAdminController::obtenerDocumentos'); // Obtener documentos de servicio
-    $routes->post('documentos/servicio/subir', 'DocumentosServicioComunitarioAdminController::store'); // Subir documento de servicio
-    $routes->get('documentos/servicio/ver/(:num)', 'DocumentosServicioComunitarioAdminController::ver/$1'); // Ver documento
-    $routes->get('documentos/servicio/download/(:num)', 'DocumentosServicioComunitarioAdminController::descargar/$1'); // Descargar documento
-    $routes->post('documentos/servicio/eliminar/(:num)', 'DocumentosServicioComunitarioAdminController::eliminar/$1'); // Eliminar documento
-    $routes->post('documentos/servicio/cambiar-estado/(:num)', 'DocumentosServicioComunitarioAdminController::cambiarEstado/$1'); // Cambiar estado
-    $routes->get('documentos/servicio/reportes', 'DocumentosServicioComunitarioAdminController::reportes'); // Reportes de servicio
-    $routes->post('documentos/servicio/subir-formato', 'DocumentosServicioComunitarioAdminController::subirDocumentoFormato');
-    $routes->post('documentos/servicio/actualizar-nombre-formato', 'DocumentosServicioComunitarioAdminController::actualizarNombreDocumentoFormato');
-    $routes->post('documentos/servicio/eliminar-formato/(:segment)', 'DocumentosServicioComunitarioAdminController::eliminarDocumentoFormato/$1');
-    $routes->post('documentos/servicio/crear-tipo', 'DocumentosServicioComunitarioAdminController::crearTipo');
-    $routes->post('documentos/servicio/actualizar-tipo/(:num)', 'DocumentosServicioComunitarioAdminController::actualizarTipo/$1');
-    $routes->post('documentos/crear-carpeta', 'DocumentosAdminController::crearCarpeta'); // Crear carpeta
+    $routes->get('documentos/servicio', 'DocumentosServicioComunitarioCoordController::index'); // Ver documentos de servicio
+    $routes->get('documentos/servicio/obtenerDocumentos', 'DocumentosServicioComunitarioCoordController::obtenerDocumentos'); // Obtener documentos de servicio
+    $routes->post('documentos/servicio/subir', 'DocumentosServicioComunitarioCoordController::store'); // Subir documento de servicio
+    $routes->get('documentos/servicio/ver/(:num)', 'DocumentosServicioComunitarioCoordController::ver/$1'); // Ver documento
+    $routes->get('documentos/servicio/download/(:num)', 'DocumentosServicioComunitarioCoordController::descargar/$1'); // Descargar documento
+    $routes->post('documentos/servicio/eliminar/(:num)', 'DocumentosServicioComunitarioCoordController::eliminar/$1'); // Eliminar documento
+    $routes->post('documentos/servicio/cambiar-estado/(:num)', 'DocumentosServicioComunitarioCoordController::cambiarEstado/$1'); // Cambiar estado
+    $routes->get('documentos/servicio/reportes', 'DocumentosServicioComunitarioCoordController::reportes'); // Reportes de servicio
+    $routes->post('documentos/servicio/subir-formato', 'DocumentosServicioComunitarioCoordController::subirDocumentoFormato');
+    $routes->post('documentos/servicio/actualizar-nombre-formato', 'DocumentosServicioComunitarioCoordController::actualizarNombreDocumentoFormato');
+    $routes->post('documentos/servicio/eliminar-formato/(:segment)', 'DocumentosServicioComunitarioCoordController::eliminarDocumentoFormato/$1');
+    $routes->post('documentos/servicio/crear-tipo', 'DocumentosServicioComunitarioCoordController::crearTipo');
+    $routes->post('documentos/servicio/actualizar-tipo/(:num)', 'DocumentosServicioComunitarioCoordController::actualizarTipo/$1');
+    $routes->post('documentos/crear-carpeta', 'DocumentosCoordController::crearCarpeta'); // Crear carpeta
     
     //Rutas para la gestión de evaluaciones
-    $routes->get('evaluaciones', 'EvaluacionesAdminController::index'); // Ver evaluaciones
-    $routes->post('evaluaciones/agregar', 'EvaluacionesAdminController::agregarEvaluacion'); // Agregar evaluación
-    $routes->get('evaluaciones/obtener', 'EvaluacionesAdminController::obtenerEvaluaciones'); // Obtener evaluaciones
-    $routes->get('evaluaciones/obtener/(:num)', 'EvaluacionesAdminController::obtenerEvaluacion/$1'); // Obtener evaluación específica
-    $routes->post('evaluaciones/actualizar/(:num)', 'EvaluacionesAdminController::actualizarEvaluacion/$1'); // Actualizar evaluación
-    $routes->get('evaluaciones/cursos', 'EvaluacionesAdminController::obtenerCursos'); // Obtener cursos para evaluaciones
-    $routes->post('evaluaciones/eliminar/(:num)', 'EvaluacionesAdminController::eliminarEvaluacion/$1'); // Eliminar evaluación
-    $routes->post('evaluaciones/cambiar-estado/(:num)', 'EvaluacionesAdminController::cambiarEstadoEvaluacion/$1'); // Cambiar estado evaluación
-    $routes->get('evaluaciones/estadisticas', 'EvaluacionesAdminController::obtenerEstadisticas'); // Obtener estadísticas
-    $routes->post('evaluaciones/filtros', 'EvaluacionesAdminController::aplicarFiltros'); // Aplicar filtros
+    $routes->get('evaluaciones', 'EvaluacionesCoordController::index'); // Ver evaluaciones
+    $routes->post('evaluaciones/agregar', 'EvaluacionesCoordController::agregarEvaluacion'); // Agregar evaluación
+    $routes->get('evaluaciones/obtener', 'EvaluacionesCoordController::obtenerEvaluaciones'); // Obtener evaluaciones
+    $routes->get('evaluaciones/obtener/(:num)', 'EvaluacionesCoordController::obtenerEvaluacion/$1'); // Obtener evaluación específica
+    $routes->post('evaluaciones/actualizar/(:num)', 'EvaluacionesCoordController::actualizarEvaluacion/$1'); // Actualizar evaluación
+    $routes->get('evaluaciones/cursos', 'EvaluacionesCoordController::obtenerCursos'); // Obtener cursos para evaluaciones
+    $routes->post('evaluaciones/eliminar/(:num)', 'EvaluacionesCoordController::eliminarEvaluacion/$1'); // Eliminar evaluación
+    $routes->post('evaluaciones/cambiar-estado/(:num)', 'EvaluacionesCoordController::cambiarEstadoEvaluacion/$1'); // Cambiar estado evaluación
+    $routes->get('evaluaciones/estadisticas', 'EvaluacionesCoordController::obtenerEstadisticas'); // Obtener estadísticas
+    $routes->post('evaluaciones/filtros', 'EvaluacionesCoordController::aplicarFiltros'); // Aplicar filtros
     
     // Rutas para reportes de evaluaciones
-    $routes->get('reportes-evaluaciones', 'ReportesEvaluacionesAdminController::index'); // Vista de reportes
-    $routes->get('reportes-evaluaciones/pdf', 'ReportesEvaluacionesAdminController::generarPDF'); // Generar PDF
-    $routes->get('reportes-evaluaciones/excel', 'ReportesEvaluacionesAdminController::exportarExcel'); // Exportar Excel
-    $routes->get('reportes-evaluaciones/csv', 'ReportesEvaluacionesAdminController::exportarCSV'); // Exportar CSV
-    $routes->get('reportes-evaluaciones/graficos', 'ReportesEvaluacionesAdminController::obtenerDatosGraficos'); // Datos para gráficos
+    $routes->get('reportes-evaluaciones', 'ReportesEvaluacionesCoordController::index'); // Vista de reportes
+    $routes->get('reportes-evaluaciones/pdf', 'ReportesEvaluacionesCoordController::generarPDF'); // Generar PDF
+    $routes->get('reportes-evaluaciones/excel', 'ReportesEvaluacionesCoordController::exportarExcel'); // Exportar Excel
+    $routes->get('reportes-evaluaciones/csv', 'ReportesEvaluacionesCoordController::exportarCSV'); // Exportar CSV
+    $routes->get('reportes-evaluaciones/graficos', 'ReportesEvaluacionesCoordController::obtenerDatosGraficos'); // Datos para gráficos
     
     // Rutas para la gestión de backups
-    $routes->get('backup', 'BackupAdminController::index');                         // Ver lista de backups
-    $routes->post('backup/crear', 'BackupAdminController::crear');                  // Crear nuevo backup
-    $routes->get('backup/detalle/(:num)', 'BackupAdminController::detalle/$1');     // Ver detalles de backup
-    $routes->get('backup/logs/(:num)', 'BackupAdminController::logs/$1');           // Ver logs de un backup
-    $routes->post('backup/descargar/(:num)', 'BackupAdminController::descargar/$1'); // Descargar backup
-    $routes->delete('backup/eliminar/(:num)', 'BackupAdminController::eliminar/$1'); // Eliminar backup
-    $routes->post('backup/restaurar/(:num)', 'BackupAdminController::restaurar/$1'); // Restaurar desde backup
-    $routes->get('backup/exportar-historial', 'BackupAdminController::exportarHistorial'); // Exportar historial
-    $routes->post('backup/filtrar', 'BackupAdminController::filtrar');              // Aplicar filtros
-    $routes->get('backup/estadisticas', 'BackupAdminController::estadisticas');     // Obtener estadísticas
+    $routes->get('backup', 'BackupCoordController::index');                         // Ver lista de backups
+    $routes->post('backup/crear', 'BackupCoordController::crear');                  // Crear nuevo backup
+    $routes->get('backup/detalle/(:num)', 'BackupCoordController::detalle/$1');     // Ver detalles de backup
+    $routes->get('backup/logs/(:num)', 'BackupCoordController::logs/$1');           // Ver logs de un backup
+    $routes->post('backup/descargar/(:num)', 'BackupCoordController::descargar/$1'); // Descargar backup
+    $routes->delete('backup/eliminar/(:num)', 'BackupCoordController::eliminar/$1'); // Eliminar backup
+    $routes->post('backup/restaurar/(:num)', 'BackupCoordController::restaurar/$1'); // Restaurar desde backup
+    $routes->get('backup/exportar-historial', 'BackupCoordController::exportarHistorial'); // Exportar historial
+    $routes->post('backup/filtrar', 'BackupCoordController::filtrar');              // Aplicar filtros
+    $routes->get('backup/estadisticas', 'BackupCoordController::estadisticas');     // Obtener estadísticas
 
 });
 
@@ -263,8 +263,10 @@ $routes->group('estudiante', ['namespace' => 'App\Controllers\estudiante', 'filt
     $routes->get('convenios', 'InstitucionesConveniosController::index');        // Ver la sección de convenios
     
     // Rutas para prácticas (más específicas primero)
+    $routes->get('practicas/servicio-comunitario/formatos/ver/(:segment)', 'PracticasEstudianteController::verFormatoServicio/$1');
     $routes->get('practicas/servicio-comunitario/formatos/descargar/(:segment)', 'PracticasEstudianteController::descargarFormatoServicio/$1');
     $routes->get('practicas/servicio-comunitario/formatos', 'PracticasEstudianteController::formatosServicioComunitario');
+    $routes->get('practicas/formatos/ver/(:segment)', 'PracticasEstudianteController::verFormatoPracticas/$1');
     $routes->get('practicas/formatos', 'PracticasEstudianteController::formatos');
     $routes->get('practicas/formatos/descargar/(:segment)', 'PracticasEstudianteController::descargarFormatoPracticas/$1');
     $routes->get('practicas', 'PracticasEstudianteController::index'); // Prácticas preprofesionales

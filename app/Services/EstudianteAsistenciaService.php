@@ -132,4 +132,48 @@ class EstudianteAsistenciaService
             'fecha' => $fechaDia,
         ];
     }
+
+    /**
+     * Resumen solo prácticas preprofesionales en progreso vs asistencias registradas en una fecha.
+     *
+     * @return array{en_progreso: int, pendientes_hoy: int, registradas_hoy: int}
+     */
+    public static function resumenPreprofesionalDia(int $idUsuario, ?string $fecha = null): array
+    {
+        $fechaDia = $fecha ?? date('Y-m-d');
+        $idEst = self::obtenerIdEstudiantePorUsuario($idUsuario);
+        if ($idEst === null) {
+            return ['en_progreso' => 0, 'pendientes_hoy' => 0, 'registradas_hoy' => 0];
+        }
+
+        $db = Database::connect();
+        $pps = $db->table('TAB_PRACTICAS_PREPROFESIONALES')
+            ->where('ID_ESTUDIANTE', $idEst)
+            ->where('ESTADO_PRACTICA', self::ESTADO_PP_ACTIVO)
+            ->get()
+            ->getResultArray();
+
+        $enProgreso = count($pps);
+        $pendientes = 0;
+
+        foreach ($pps as $pp) {
+            $idP = (int) ($pp['ID_PRACTICA_PREPROFESIONAL'] ?? 0);
+            if ($idP <= 0) {
+                continue;
+            }
+            $n = $db->table('TAB_ASISTENCIAS_PRACTICAS_PREPROFESIONALES')
+                ->where('ID_PRACTICA_PREPROFESIONAL', $idP)
+                ->where('FECHA_ASISTENCIA', $fechaDia)
+                ->countAllResults();
+            if ($n === 0) {
+                $pendientes++;
+            }
+        }
+
+        return [
+            'en_progreso' => $enProgreso,
+            'pendientes_hoy' => $pendientes,
+            'registradas_hoy' => max(0, $enProgreso - $pendientes),
+        ];
+    }
 }

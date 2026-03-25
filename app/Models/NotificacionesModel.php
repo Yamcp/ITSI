@@ -73,7 +73,7 @@ class NotificacionesModel extends Model
         // Notificación para el estudiante
         $notificacionEstudiante = [
             'ID_USUARIO_DESTINATARIO' => $idEstudiante,
-            'ID_USUARIO_REMITENTE' => session()->get('id_usuario') ?? 1, // Admin que asigna
+            'ID_USUARIO_REMITENTE' => session()->get('id_usuario') ?? 1, // Coordinador que asigna
             'TITULO' => 'Nueva Práctica Asignada',
             'MENSAJE' => $this->generarMensajeEstudiante($datosPractica),
             'TIPO_NOTIFICACION' => 'asignacion_practica',
@@ -87,7 +87,7 @@ class NotificacionesModel extends Model
         // Notificación para el docente (tutor)
         $notificacionDocente = [
             'ID_USUARIO_DESTINATARIO' => $idDocente,
-            'ID_USUARIO_REMITENTE' => session()->get('id_usuario') ?? 1, // Admin que asigna
+            'ID_USUARIO_REMITENTE' => session()->get('id_usuario') ?? 1, // Coordinador que asigna
             'TITULO' => 'Nueva Tutoria Asignada',
             'MENSAJE' => $this->generarMensajeDocente($datosPractica),
             'TIPO_NOTIFICACION' => 'tutoria_asignada',
@@ -127,7 +127,7 @@ class NotificacionesModel extends Model
         
         return "Se te ha asignado una nueva {$tipoPractica}:\n\n" .
                "📋 Institución: {$datosPractica['institucion']}\n" .
-               "📅 Período: " . date('d/m/Y', strtotime($datosPractica['fecha_inicio'])) . " - " . date('d/m/Y', strtotime($datosPractica['fecha_fin'])) . "\n" .
+               "📅 Período: " . $this->formatoPeriodoPracticaNotificacion($datosPractica) . "\n" .
                "⏰ Horas: {$datosPractica['horas']} horas\n" .
                "👨‍🏫 Tutor: {$datosPractica['tutor']}\n" .
                "📝 Descripción: {$datosPractica['descripcion']}\n\n" .
@@ -144,10 +144,27 @@ class NotificacionesModel extends Model
         return "Has sido asignado como tutor de una nueva {$tipoPractica}:\n\n" .
                "👨‍🎓 Estudiante: {$datosPractica['estudiante']}\n" .
                "📋 Institución: {$datosPractica['institucion']}\n" .
-               "📅 Período: " . date('d/m/Y', strtotime($datosPractica['fecha_inicio'])) . " - " . date('d/m/Y', strtotime($datosPractica['fecha_fin'])) . "\n" .
+               "📅 Período: " . $this->formatoPeriodoPracticaNotificacion($datosPractica) . "\n" .
                "⏰ Horas: {$datosPractica['horas']} horas\n" .
                "📝 Descripción: {$datosPractica['descripcion']}\n\n" .
                "Accede al panel de seguimiento para comenzar el acompañamiento.";
+    }
+
+    /**
+     * Texto de período para notificaciones (fecha fin opcional).
+     */
+    private function formatoPeriodoPracticaNotificacion(array $datosPractica): string
+    {
+        $ini = $datosPractica['fecha_inicio'] ?? '';
+        $fin = $datosPractica['fecha_fin'] ?? '';
+        if ($ini === '' || $ini === null) {
+            return 'Por definir';
+        }
+        $iniFmt = date('d/m/Y', strtotime((string) $ini));
+        if ($fin === '' || $fin === null) {
+            return "desde {$iniFmt} (sin fecha fin registrada)";
+        }
+        return $iniFmt . ' - ' . date('d/m/Y', strtotime((string) $fin));
     }
 
     /**

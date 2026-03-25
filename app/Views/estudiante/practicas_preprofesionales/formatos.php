@@ -23,6 +23,10 @@
         margin-bottom: 1.5rem;
         font-size: 1rem;
     }
+
+    .formatos-acciones .btn {
+        white-space: nowrap;
+    }
 </style>
 <?= $this->endSection() ?>
 
@@ -39,10 +43,13 @@
         </div>
 
         <p class="formatos-aviso">
-            <i class="fas fa-info-circle me-1"></i>Descargue los documentos de formato que necesite para sus prácticas preprofesionales.
+            <i class="fas fa-info-circle me-1"></i>Visualice o descargue los documentos de formato que necesite para sus prácticas preprofesionales.
         </p>
 
-        <?php $documentos_formatos = $documentos_formatos ?? []; ?>
+        <?php
+        $documentos_formatos = $documentos_formatos ?? [];
+        $modalIdVisorFormatos = 'modalVisorFormatoPracticas';
+        ?>
         <?php if (!empty($documentos_formatos)): ?>
             <div class="card shadow-sm border-0">
                 <div class="card-header bg-primary text-white panel-bar-trad">
@@ -50,12 +57,27 @@
                 </div>
                 <div class="card-body">
                     <ul class="list-group">
-                        <?php foreach ($documentos_formatos as $item): ?>
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <span><i class="fas fa-file-pdf me-2 text-danger"></i><?= esc($item['nombre'] ?? 'Documento') ?></span>
-                                <a href="<?= base_url('estudiante/practicas/formatos/descargar/' . rawurlencode($item['archivo'] ?? '')) ?>" class="btn btn-primary btn-sm" download>
-                                    <i class="fas fa-download me-1"></i>Descargar
-                                </a>
+                        <?php foreach ($documentos_formatos as $item):
+                            $arch = $item['archivo'] ?? '';
+                            $ext = strtolower(pathinfo($arch, PATHINFO_EXTENSION));
+                            $urlVer = base_url('estudiante/practicas/formatos/ver/' . rawurlencode($arch));
+                            $urlDesc = base_url('estudiante/practicas/formatos/descargar/' . rawurlencode($arch));
+                            ?>
+                            <li class="list-group-item d-flex flex-column flex-sm-row justify-content-between align-items-stretch align-items-sm-center gap-2">
+                                <span class="d-flex align-items-center"><i class="fas fa-file-pdf me-2 text-danger"></i><?= esc($item['nombre'] ?? 'Documento') ?></span>
+                                <div class="formatos-acciones d-flex flex-wrap gap-2 justify-content-sm-end">
+                                    <button type="button" class="btn btn-outline-primary btn-sm btn-ver-formato"
+                                        data-formato-modal-id="<?= esc($modalIdVisorFormatos, 'attr') ?>"
+                                        data-formato-ver-url="<?= esc($urlVer, 'attr') ?>"
+                                        data-formato-desc-url="<?= esc($urlDesc, 'attr') ?>"
+                                        data-formato-titulo="<?= esc($item['nombre'] ?? 'Documento', 'attr') ?>"
+                                        data-formato-ext="<?= esc($ext, 'attr') ?>">
+                                        <i class="fas fa-eye me-1"></i>Ver documento
+                                    </button>
+                                    <a href="<?= esc($urlDesc) ?>" class="btn btn-primary btn-sm" download>
+                                        <i class="fas fa-download me-1"></i>Descargar
+                                    </a>
+                                </div>
                             </li>
                         <?php endforeach; ?>
                     </ul>
@@ -68,4 +90,6 @@
         <?php endif; ?>
     </div>
 </div>
+
+<?= $this->include('estudiante/partials/visor_formatos_modal', ['modalId' => $modalIdVisorFormatos]) ?>
 <?= $this->endSection() ?>

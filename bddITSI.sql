@@ -131,10 +131,9 @@ create table TAB_ASIGNACIONES_PRACTICAS
    ID_ESTADO_PRACTICAS  int,
    ID_INSTITUCION_CONVENIO int,
    FECHA_INICIO         date not null,
-   FECHA_FIN            date not null,
+   FECHA_FIN            date,
    HORA_TOTAL           int not null,
    DESCRIPCION          text not null,
-   CRONOGRAMA           varchar(255) not null,
    primary key (ID_ASIGNACION_PRACTICA),
    key IDX_PERIODO_ACADEMICO (ID_PERIODO_ACADEMICO)
 );
@@ -1420,17 +1419,17 @@ INSERT INTO `TAB_INSTITUCIONES_CONVENIOS` (`ID_INSTITUCION_CONVENIO`, `ID_TIPO_I
 (3, 1, 3, 'Fundación Niños del Ecuador', '1122334455001', 'Calle 10 de Agosto, Guayaquil', 'Guayaquil', '042-555666', 'info@ninosdelecuador.org', 'Dra. Sofía Morales', 'Lic. Pedro Aguirre', '0999888777', 'pedro.aguirre@ninosdelecuador.org', NULL);
 
 -- Asignaciones de prácticas (todas las filas en un solo INSERT)
-INSERT INTO `TAB_ASIGNACIONES_PRACTICAS` (`ID_ASIGNACION_PRACTICA`, `ID_TIPO_PRACTICA`, `ID_USUARIO`, `ID_PERIODO_ACADEMICO`, `ID_INSTITUCION_CONVENIO`, `FECHA_INICIO`, `FECHA_FIN`, `HORA_TOTAL`, `DESCRIPCION`, `CRONOGRAMA`) VALUES
-(1, 2, 1, 4, 1, '2025-06-01', '2025-08-30', 240, 'Desarrollo e implementación de sistema de gestión hospitalaria', 'Lunes a Viernes 8:00-17:00'),
-(2, 2, 1, 4, 2, '2025-07-01', '2025-09-30', 240, 'Desarrollo de aplicaciones móviles para servicios bancarios', 'Lunes a Viernes 9:00-18:00'),
-(3, 1, 1, 4, 3, '2025-08-01', '2025-10-30', 96, 'Desarrollo de plataforma educativa para niños en situación vulnerable', 'Sábados 8:00-16:00'),
-(4, 2, 1, 4, 1, '2025-09-01', '2025-11-30', 240, 'Desarrollo de sistema de gestión hospitalaria para el Hospital San Vicente', 'Lunes a Viernes 8:00-17:00'),
-(5, 2, 1, 4, 2, '2025-10-01', '2025-12-31', 240, 'Desarrollo de aplicación móvil bancaria para Banco del Pacífico', 'Lunes a Viernes 9:00-18:00'),
-(6, 1, 1, 4, 3, '2025-11-01', '2026-01-31', 96, 'Desarrollo de plataforma educativa para Fundación Niños del Ecuador', 'Sábados 8:00-16:00'),
-(7, 2, 1, 4, 1, '2025-12-01', '2026-02-28', 240, 'Sistema de gestión hospitalaria avanzado para el Hospital San Vicente', 'Lunes a Viernes 8:00-17:00'),
-(8, 1, 1, 5, 2, '2026-01-01', '2026-03-31', 96, 'Proyecto social de alfabetización digital para Banco del Pacífico', 'Sábados 9:00-17:00'),
-(9, 1, 1, 5, 3, '2026-02-01', '2026-04-30', 96, 'Proyecto cultural comunitario para Fundación Niños del Ecuador', 'Sábados 10:00-18:00'),
-(10, 1, 1, 5, 1, '2026-03-01', '2026-05-31', 96, 'Proyecto de inclusión digital para el Hospital San Vicente', 'Sábados 9:00-17:00');
+INSERT INTO `TAB_ASIGNACIONES_PRACTICAS` (`ID_ASIGNACION_PRACTICA`, `ID_TIPO_PRACTICA`, `ID_USUARIO`, `ID_PERIODO_ACADEMICO`, `ID_INSTITUCION_CONVENIO`, `FECHA_INICIO`, `FECHA_FIN`, `HORA_TOTAL`, `DESCRIPCION`) VALUES
+(1, 2, 1, 4, 1, '2025-06-01', '2025-08-30', 240, 'Desarrollo e implementación de sistema de gestión hospitalaria'),
+(2, 2, 1, 4, 2, '2025-07-01', '2025-09-30', 240, 'Desarrollo de aplicaciones móviles para servicios bancarios'),
+(3, 1, 1, 4, 3, '2025-08-01', '2025-10-30', 96, 'Desarrollo de plataforma educativa para niños en situación vulnerable'),
+(4, 2, 1, 4, 1, '2025-09-01', '2025-11-30', 240, 'Desarrollo de sistema de gestión hospitalaria para el Hospital San Vicente'),
+(5, 2, 1, 4, 2, '2025-10-01', '2025-12-31', 240, 'Desarrollo de aplicación móvil bancaria para Banco del Pacífico'),
+(6, 1, 1, 4, 3, '2025-11-01', '2026-01-31', 96, 'Desarrollo de plataforma educativa para Fundación Niños del Ecuador'),
+(7, 2, 1, 4, 1, '2025-12-01', '2026-02-28', 240, 'Sistema de gestión hospitalaria avanzado para el Hospital San Vicente'),
+(8, 1, 1, 5, 2, '2026-01-01', '2026-03-31', 96, 'Proyecto social de alfabetización digital para Banco del Pacífico'),
+(9, 1, 1, 5, 3, '2026-02-01', '2026-04-30', 96, 'Proyecto cultural comunitario para Fundación Niños del Ecuador'),
+(10, 1, 1, 5, 1, '2026-03-01', '2026-05-31', 96, 'Proyecto de inclusión digital para el Hospital San Vicente');
 
 -- Prácticas preprofesionales (un solo INSERT; columnas alineadas al DDL)
 INSERT INTO `TAB_PRACTICAS_PREPROFESIONALES` (`ID_PRACTICA_PREPROFESIONAL`, `ID_PERIODO_ACADEMICO`, `ID_ASIGNACION_PRACTICA`, `ID_ESTUDIANTE`, `ID_INSTRUCTOR`, `ID_INSTITUCION_CONVENIO`, `ID_ESTADO_PREPROFESIONAL`, `AREA_ESPECIALIZACION`, `PROYECTO_ESPECIFICO`, `HORAS_PRACTICAS`, `FECHA_INICIO`, `FECHA_FIN`, `ESTADO_PRACTICA`, `EVALUACION_FINAL`, `OBSERVACIONES`) VALUES
@@ -2436,29 +2435,3 @@ CREATE TABLE IF NOT EXISTS `TAB_NOTIFICACIONES` (
 CREATE INDEX `idx_notificaciones_usuario_tipo` ON `TAB_NOTIFICACIONES` (`ID_USUARIO_DESTINATARIO`, `TIPO_NOTIFICACION`, `ACTIVA`);
 CREATE INDEX `idx_notificaciones_usuario_leida` ON `TAB_NOTIFICACIONES` (`ID_USUARIO_DESTINATARIO`, `LEIDA`, `ACTIVA`);
 CREATE INDEX `idx_notificaciones_fecha_tipo` ON `TAB_NOTIFICACIONES` (`FECHA_CREACION`, `TIPO_NOTIFICACION`, `ACTIVA`);
-
-/*==============================================================*/
-/* MIGRACIONES - Scripts para bases de datos existentes         */
-/* Ejecutar solo si la base ya estaba creada antes del cambio   */
-/*==============================================================*/
-
--- ---------------------------------------------------------------
--- Convenios: agregar columna ID_CARRERA a TAB_DETALLES_CONVENIOS
--- (convenio destinado a una carrera). Ejecutar solo si la tabla
--- ya existe y no tiene la columna ID_CARRERA.
--- ---------------------------------------------------------------
--- ALTER TABLE TAB_DETALLES_CONVENIOS
--- ADD COLUMN ID_CARRERA INT NULL AFTER ID_INSTITUCION_CONVENIO;
-
--- Opcional: asignar una carrera por defecto a convenios existentes (reemplazar 1 por un ID_CARRERA válido de TAB_CARRERAS).
--- UPDATE TAB_DETALLES_CONVENIOS SET ID_CARRERA = 1 WHERE ID_CARRERA IS NULL;
-
--- Hacer obligatoria la columna para nuevos registros (descomentar si ya no hay NULL):
--- ALTER TABLE TAB_DETALLES_CONVENIOS MODIFY COLUMN ID_CARRERA INT NOT NULL;
-
--- ALTER TABLE TAB_DETALLES_CONVENIOS
--- ADD CONSTRAINT FK_DETALLES_CONVENIOS_CARRERA
--- FOREIGN KEY (ID_CARRERA) REFERENCES TAB_CARRERAS (ID_CARRERA) ON DELETE RESTRICT ON UPDATE RESTRICT;
-
--- Convenios: agregar plazas disponibles para prácticas (estudiantes por convenio).
--- ALTER TABLE TAB_DETALLES_CONVENIOS ADD COLUMN PLAZAS_DISPONIBLES INT NOT NULL DEFAULT 0 AFTER RENOVABLE;

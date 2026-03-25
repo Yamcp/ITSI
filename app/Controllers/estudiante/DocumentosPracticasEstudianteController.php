@@ -45,6 +45,10 @@ class DocumentosPracticasEstudianteController extends BaseController
             static fn (array $i): bool => ($i['tipo'] ?? '') === 'preprofesional'
         ));
         $tienePpActiva = EstudianteAsistenciaService::tienePracticaPreprofesionalEnProgreso($idUsuario);
+        $resumenPpDia = EstudianteAsistenciaService::resumenPreprofesionalDia($idUsuario, $pendAsist['fecha']);
+        $asistenciaBarPct = ($resumenPpDia['en_progreso'] ?? 0) > 0
+            ? (int) round(100 * ($resumenPpDia['registradas_hoy'] ?? 0) / $resumenPpDia['en_progreso'])
+            : 0;
         $practicasDocumentacion = $this->obtenerPracticasDocumentacionEstudiante($idUsuario);
 
         $data = [
@@ -57,9 +61,14 @@ class DocumentosPracticasEstudianteController extends BaseController
             'asistencia_items' => $itemsPp,
             'asistencia_fecha' => $pendAsist['fecha'],
             'asistencia_tiene_activa' => $tienePpActiva,
-            'asistencia_mostrar_tarjeta' => $tienePpActiva,
+            'asistencia_mostrar_tarjeta' => false,
+            'asistencia_franja_superior' => ($resumenPpDia['en_progreso'] ?? 0) > 0,
+            'asistencia_resumen_pp' => $resumenPpDia,
+            'asistencia_bar_pct' => $asistenciaBarPct,
             'asistencia_modal_automatico' => false,
             'asistencia_titulo_tarjeta' => 'Asistencia — prácticas preprofesionales',
+            'asistencia_doc_info_sin_progreso' => $practicasDocumentacion !== []
+                && ($resumenPpDia['en_progreso'] ?? 0) === 0,
             'practicas_documentacion' => $practicasDocumentacion,
         ];
 
@@ -94,7 +103,7 @@ class DocumentosPracticasEstudianteController extends BaseController
                 $tblInst = 'instituciones_convenios';
             }
 
-            // Mismo criterio que admin/prácticas: convenio + instructor vía TAB_INSTRUCTORES → datos persona
+            // Mismo criterio que coordinador/prácticas: convenio + instructor vía TAB_INSTRUCTORES → datos persona
             return $db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
                 ->select('pp.ID_PRACTICA_PREPROFESIONAL, ic.NOMBRE as INSTITUCION_NOMBRE, CONCAT(COALESCE(dpi.NOMBRE,\'\'), \' \', COALESCE(dpi.APELLIDO,\'\')) as SUPERVISOR_NOMBRE', false)
                 ->join($tblInst . ' ic', 'ic.ID_INSTITUCION_CONVENIO = pp.ID_INSTITUCION_CONVENIO', 'left')
@@ -192,7 +201,7 @@ class DocumentosPracticasEstudianteController extends BaseController
                 if ($this->documentosModel->insert($datos)) {
                     return $this->response->setJSON([
                         'success' => true,
-                        'message' => 'Documento subido exitosamente. Será revisado por el administrador.',
+                        'message' => 'Documento subido exitosamente. Será revisado por el coordinador.',
                         'data' => [
                             'id' => $this->documentosModel->getInsertID(),
                             'nombre' => $archivo->getClientName(),

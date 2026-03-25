@@ -84,31 +84,6 @@ $tituloPagina = $esRestablecer ? 'Nueva contraseña' : 'Recuperar contraseña';
             margin-bottom: 1.5rem;
         }
 
-        .alert-recuperacion {
-            background: #fffbf0;
-            border: 1px solid #f0e6c8;
-            border-radius: 0.5rem;
-            padding: 1rem 1.25rem;
-        }
-
-        .alert-recuperacion .alert-titulo {
-            color: #856404;
-            font-weight: 600;
-            margin-bottom: 0.5rem;
-        }
-
-        .alert-recuperacion p {
-            color: #664d03;
-            font-size: 0.9375rem;
-            margin-bottom: 1rem;
-        }
-
-        .alert-recuperacion .btn-enlace-recuperar {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-        }
-
         @media (max-width: 576px) {
             .login-card {
                 max-width: 95vw;
@@ -117,11 +92,6 @@ $tituloPagina = $esRestablecer ? 'Nueva contraseña' : 'Recuperar contraseña';
 
             .card-body {
                 padding: 1rem;
-            }
-
-            .alert-recuperacion .btn-enlace-recuperar {
-                width: 100%;
-                justify-content: center;
             }
         }
     </style>
@@ -152,7 +122,7 @@ $tituloPagina = $esRestablecer ? 'Nueva contraseña' : 'Recuperar contraseña';
                         <?php if ($esRestablecer) : ?>
                             Ingresa tu nueva contraseña (mínimo 8 caracteres)
                         <?php else : ?>
-                            Ingresa tu correo electrónico, cédula o usuario. Disponible para administradores, docentes y estudiantes.
+                            Ingresa tu correo electrónico, cédula o usuario. Disponible para coordinadores, docentes y estudiantes.
                         <?php endif; ?>
                     </div>
                 </div>
@@ -162,20 +132,6 @@ $tituloPagina = $esRestablecer ? 'Nueva contraseña' : 'Recuperar contraseña';
                         <div class="flex-grow-1"><?= esc(session()->getFlashdata('error')) ?></div>
                         <button type="button" class="btn-close flex-shrink-0" data-bs-dismiss="alert" aria-label="Cerrar"></button>
                     </div>
-                <?php endif; ?>
-
-                <?php if (!$esRestablecer) :
-                    $enlaceRecup = session()->getFlashdata('enlace_recuperacion');
-                    $errorEmail  = session()->getFlashdata('error_email');
-                    if ($errorEmail && $enlaceRecup) : ?>
-                        <div class="alert-recuperacion mb-3" role="alert">
-                            <p class="alert-titulo mb-1"><i class="bi bi-envelope-exclamation me-2"></i>No se pudo enviar el correo.</p>
-                            <p class="mb-2">Configure <code>app/Config/Email.php</code> (fromEmail, SMTPUser, SMTPPass) o use el enlace siguiente (válido 1 hora):</p>
-                            <a href="<?= esc($enlaceRecup) ?>" class="btn btn-primary btn-enlace-recuperar" target="_blank" rel="noopener">
-                                <i class="bi bi-link-45deg"></i> Abrir enlace para restablecer contraseña
-                            </a>
-                        </div>
-                    <?php endif; ?>
                 <?php endif; ?>
 
                 <?php if ($esRestablecer) : ?>

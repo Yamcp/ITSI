@@ -121,24 +121,6 @@
             </div>
         </div>
 
-        <!-- Información para Estudiantes -->
-        <div class="row mb-4">
-            <div class="col-12">
-                <div class="info-card">
-                    <div class="d-flex align-items-center">
-                        <i class="fas fa-info-circle text-primary me-3" style="font-size: 1.5rem;"></i>
-                        <div>
-                            <h6 class="mb-1">Información Importante</h6>
-                            <p class="mb-0 text-muted">
-                                Como estudiante, puedes acceder a los formularios de evaluación de tus cursos y actividades.
-                                Es importante que completes estas evaluaciones para contribuir a la mejora continua de la educación.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <!-- Alerta de Evaluaciones Urgentes -->
         <div class="row mb-4" id="alertaUrgentes" style="display: none;">
             <div class="col-12">

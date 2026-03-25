@@ -267,7 +267,7 @@
                                             <div class="text-center py-5">
                                                 <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
                                                 <p class="text-muted mb-0">No tienes estudiantes asignados</p>
-                                                <small class="text-muted">Contacta con el administrador para asignaciones</small>
+                                                <small class="text-muted">Contacta con el coordinador para asignaciones</small>
                                             </div>
                                         <?php endif; ?>
                                     </div>

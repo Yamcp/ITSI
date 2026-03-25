@@ -196,7 +196,7 @@ class NotificacionesHelper
                   "• Gestionar tus prácticas preprofesionales\n" .
                   "• Realizar tu servicio comunitario\n" .
                   "• Subir y revisar documentos\n" .
-                  "• Comunicarte con tutores y administradores\n\n" .
+                  "• Comunicarte con tutores y coordinadores\n\n" .
                   "¡Esperamos que tengas una excelente experiencia!";
         
         return self::crearNotificacionSistema($idUsuario, $titulo, $mensaje, 'media');

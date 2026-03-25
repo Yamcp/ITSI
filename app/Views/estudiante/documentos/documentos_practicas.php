@@ -81,6 +81,11 @@
     .document-view.active {
         display: block;
     }
+
+    .asistencia-franja-doc .asistencia-franja-progress {
+        border-radius: 8px;
+        background-color: #e9ecef;
+    }
 </style>
 <?= $this->endSection() ?>
 
@@ -106,6 +111,8 @@ $practicasDocJs = array_map(static function (array $p): array {
                 <p class="text-center text-muted">Sube los documentos requeridos conforme avances en tus prácticas</p>
             </div>
         </div>
+
+        <?= $this->include('estudiante/partials/asistencia_registro_estudiante') ?>
 
         <div class="row mb-4">
             <div class="col-12">
@@ -208,8 +215,6 @@ $practicasDocJs = array_map(static function (array $p): array {
                 </div>
             </div>
         </div>
-
-        <?= $this->include('estudiante/partials/asistencia_registro_estudiante') ?>
 
         <!-- Documentos Requeridos -->
         <div class="row">

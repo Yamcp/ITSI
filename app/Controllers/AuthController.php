@@ -43,7 +43,7 @@ class AuthController extends BaseController
 
     /**
      * Procesa la solicitud de recuperación de contraseña.
-     * Disponible para cualquier usuario del sistema (administrador, docente, estudiante).
+     * Disponible para cualquier usuario del sistema (coordinador, docente, estudiante).
      */
     public function solicitarRecuperacion()
     {
@@ -62,16 +62,26 @@ class AuthController extends BaseController
             $recuperacionModel = new RecuperacionContrasenaModel();
             $token = $recuperacionModel->crearToken((int) $usuario['ID_USUARIO']);
             if ($token) {
-                $enlace = site_url('auth/restablecer-contrasena?token=' . $token);
                 $enviado = $this->enviarCorreoRecuperacion($usuario, $token);
-                if (!$enviado) {
-                    log_message('error', 'No se pudo enviar el correo de recuperación a: ' . $usuario['EMAIL']);
-                    $session->setFlashdata('enlace_recuperacion', $enlace);
-                    $session->setFlashdata('error_email', true);
+                if ($enviado) {
+                    $session->setFlashdata(
+                        'success',
+                        'Si el correo o usuario está registrado, recibirás instrucciones para restablecer tu contraseña. Revisa tu bandeja de entrada y la carpeta de spam.'
+                    );
+                    return redirect()->to('auth/recuperar-contrasena');
                 }
+
+                log_message('error', 'No se pudo enviar el correo de recuperación a: ' . $usuario['EMAIL']);
+                $msg = 'No se pudo enviar el correo desde el servidor. Establece tu nueva contraseña aquí; el enlace caduca en una hora.';
+                if (defined('ENVIRONMENT') && ENVIRONMENT === 'development') {
+                    $msg .= ' Desarrollo: para correo real, configura en .env email.fromEmail, email.SMTPUser y email.SMTPPass (ver app/Config/Email.php).';
+                }
+                $session->setFlashdata('success', $msg);
+
+                return redirect()->to('auth/restablecer-contrasena?token=' . urlencode($token));
             }
         } elseif ($usuario && empty(trim($usuario['EMAIL'] ?? ''))) {
-            $session->setFlashdata('error', 'Este usuario no tiene correo registrado. Contacte al administrador para que agregue su email en el sistema.');
+            $session->setFlashdata('error', 'Este usuario no tiene correo registrado. Contacte al coordinador para que agregue su email en el sistema.');
             return redirect()->to('auth/recuperar-contrasena')->withInput();
         }
 
@@ -84,10 +94,22 @@ class AuthController extends BaseController
      */
     private function enviarCorreoRecuperacion(array $usuario, string $token): bool
     {
+        $emailCfg = config('Email');
         $config = $this->obtenerConfigEmail();
         if (empty(trim($config['fromEmail'] ?? ''))) {
-            log_message('error', 'Recuperación de contraseña: configure fromEmail en app/Config/Email.php');
+            log_message('error', 'Recuperación de contraseña: defina email.fromEmail en .env o fromEmail en app/Config/Email.php');
             return false;
+        }
+
+        if (($emailCfg->protocol ?? '') === 'smtp') {
+            if (trim($emailCfg->SMTPUser ?? '') === '' || trim($emailCfg->SMTPPass ?? '') === '') {
+                log_message(
+                    'error',
+                    'Recuperación de contraseña: con protocol=smtp hacen falta email.SMTPUser y email.SMTPPass en .env (o en Config\\Email).'
+                );
+
+                return false;
+            }
         }
 
         $enlace = site_url('auth/restablecer-contrasena?token=' . $token);
@@ -99,7 +121,7 @@ class AuthController extends BaseController
         $mensaje = $this->generarMensajeRecuperacion($nombre, $enlace);
 
         try {
-            $email = \Config\Services::email();
+            $email = \Config\Services::email($emailCfg, false);
             $email->setFrom($config['fromEmail'], $config['fromName'] ?: 'Sistema de Vinculación');
             $email->setTo($usuario['EMAIL']);
             $email->setSubject('Recuperar contraseña - Sistema de Vinculación');
@@ -184,7 +206,7 @@ class AuthController extends BaseController
 
     /**
      * Muestra el formulario para restablecer contraseña (con token en URL).
-     * Válido para cualquier rol (admin, docente, estudiante).
+     * Válido para cualquier rol (coordinador, docente, estudiante).
      */
     public function restablecerContrasena()
     {
@@ -207,7 +229,7 @@ class AuthController extends BaseController
     }
 
     /**
-     * Procesa el cambio de contraseña con el token (cualquier rol).
+     * Procesa el cambio de contraseña con el token (coordinador, docente, estudiante).
      */
     public function restablecerContrasenaPost()
     {
@@ -269,7 +291,7 @@ class AuthController extends BaseController
             
             // Verificar que el usuario esté activo
             if ($userData['estado'] != '1') {
-                $session->setFlashdata('error', 'Usuario inactivo. Contacte al administrador');
+                $session->setFlashdata('error', 'Usuario inactivo. Contacte al coordinador');
                 return redirect()->to('/')->withInput();
             }
             
@@ -365,8 +387,8 @@ class AuthController extends BaseController
             // redirigir primero a la vista de cambio de contraseña según su rol.
             if ($requiereCambioPassword) {
                 switch ((int)$userData['rol']) {
-                    case 1: // Administrador
-                        return redirect()->to('/admin/cuenta')
+                    case 1: // Coordinador
+                        return redirect()->to('/coord/cuenta')
                             ->with('info', 'Por seguridad, por favor cambia tu contraseña inicial antes de continuar.');
                     case 2: // Docente/Instructor
                         return redirect()->to('/docente/cuenta')
@@ -392,8 +414,8 @@ class AuthController extends BaseController
     private function redirigirSegunRol($rol)
     {
         switch ((int)$rol) {
-            case 1: // Administrador
-                return redirect()->to('/admin/dashboard');
+            case 1: // Coordinador
+                return redirect()->to('/coord/dashboard');
             case 2: // Docente/Instructor
                 return redirect()->to('/docente/dashboard');
             case 3: // Estudiante

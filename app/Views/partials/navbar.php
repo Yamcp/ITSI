@@ -35,13 +35,13 @@
                         <div class="message-body">
                             <?php
                             $rol_id = session('id_rol');
-                            if ($rol_id == 1): //Administrador
+                            if ($rol_id == 1): // Coordinación / vinculación
                             ?>
-                                <a href="<?= base_url('admin/perfil') ?>" class="d-flex align-items-center gap-2 dropdown-item">
+                                <a href="<?= base_url('coord/perfil') ?>" class="d-flex align-items-center gap-2 dropdown-item">
                                     <i class="ti ti-user fs-6"></i>
                                     <p class="mb-0 fs-3">Mi Perfil</p>
                                 </a>
-                                <a href="<?= base_url('admin/cuenta') ?>" class="d-flex align-items-center gap-2 dropdown-item">
+                                <a href="<?= base_url('coord/cuenta') ?>" class="d-flex align-items-center gap-2 dropdown-item">
                                     <i class="ti ti-settings fs-6"></i>
                                     <p class="mb-0 fs-3">Mi Cuenta</p>
                                 </a>
@@ -51,7 +51,7 @@
                                     <i class="ti ti-user fs-6"></i>
                                     <p class="mb-0 fs-3">Mi Perfil</p>
                                 </a>
-                                <a href="<?= base_url('admin-th/cuenta') ?>" class="d-flex align-items-center gap-2 dropdown-item">
+                                <a href="<?= base_url('docente/cuenta') ?>" class="d-flex align-items-center gap-2 dropdown-item">
                                     <i class="ti ti-settings fs-6"></i>
                                     <p class="mb-0 fs-3">Mi Cuenta</p>
                                 </a>

@@ -69,7 +69,7 @@ abstract class BaseController extends Controller
             $path = substr($path, $posIndex + strlen('index.php/'));
         }
 
-        foreach (['auth/', 'admin/', 'docente/', 'estudiante/'] as $prefijoRuta) {
+        foreach (['auth/', 'coord/', 'docente/', 'estudiante/'] as $prefijoRuta) {
             $posPrefijo = strpos($path, $prefijoRuta);
             if ($posPrefijo !== false) {
                 $path = substr($path, $posPrefijo);
@@ -84,9 +84,9 @@ abstract class BaseController extends Controller
 
         switch ($rol) {
             case 1:
-                $rutasPermitidas[] = 'admin/cuenta';
-                $rutasPermitidas[] = 'admin/cuenta/cambiar-password';
-                $rutaCuenta = 'admin/cuenta';
+                $rutasPermitidas[] = 'coord/cuenta';
+                $rutasPermitidas[] = 'coord/cuenta/cambiar-password';
+                $rutaCuenta = 'coord/cuenta';
                 break;
             case 2:
                 $rutasPermitidas[] = 'docente/cuenta';

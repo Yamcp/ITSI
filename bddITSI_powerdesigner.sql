@@ -118,10 +118,9 @@ create table TAB_ASIGNACIONES_PRACTICAS
    ID_ESTADO_PRACTICAS  int,
    ID_INSTITUCION_CONVENIO int,
    FECHA_INICIO         date not null,
-   FECHA_FIN            date not null,
+   FECHA_FIN            date,
    HORA_TOTAL           int not null,
    DESCRIPCION          text not null,
-   CRONOGRAMA           varchar(255) not null,
    primary key (ID_ASIGNACION_PRACTICA),
    key IDX_PERIODO_ACADEMICO (ID_PERIODO_ACADEMICO)
 );

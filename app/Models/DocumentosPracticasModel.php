@@ -439,8 +439,6 @@ class DocumentosPracticasModel extends Model
             $ids = [0]; // evita IN () vacío; no habrá documentos
         }
 
-        $builder = $this->db->table($this->table . ' dp');
-
         $selectFields = "
             tdp.ID_TIPO_DOCUMENTO_PREPROFESIONAL,
             tdp.CODIGO,
@@ -461,10 +459,10 @@ class DocumentosPracticasModel extends Model
             $selectFields .= ', MAX(dp.OBSERVACIONES_REVISOR) as OBSERVACIONES_REVISOR';
         }
 
-        // Desde tipos, LEFT JOIN documentos que pertenezcan a prácticas del estudiante (un tipo puede tener 0 o 1 doc por estudiante)
-        $builder->from('TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES tdp');
-        $builder->join($this->table . ' dp', 'dp.ID_TIPO_DOCUMENTO = tdp.ID_TIPO_DOCUMENTO_PREPROFESIONAL AND dp.ID_PRACTICA_PREPROFESIONAL IN (' . implode(',', array_map('intval', $ids)) . ')', 'left');
+        // Base en tipos (un solo alias `dp` en el JOIN; no combinar table('... dp') + from() o MySQL error 1066)
+        $builder = $this->db->table('TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES tdp');
         $builder->select($selectFields);
+        $builder->join($this->table . ' dp', 'dp.ID_TIPO_DOCUMENTO = tdp.ID_TIPO_DOCUMENTO_PREPROFESIONAL AND dp.ID_PRACTICA_PREPROFESIONAL IN (' . implode(',', array_map('intval', $ids)) . ')', 'left');
         $builder->groupBy('tdp.ID_TIPO_DOCUMENTO_PREPROFESIONAL, tdp.CODIGO, tdp.NOMBRE');
         $builder->orderBy('tdp.CODIGO', 'ASC');
 
