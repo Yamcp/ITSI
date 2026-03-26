@@ -37,12 +37,26 @@ class ActividadesEducacionEstudianteController extends BaseController
         $lista = $this->evaluacionesEnlacesModel
             ->where('TIPO_EVALUACION', 'satisfaccion')
             ->where('ACTIVO', true)
+            ->where('ESTADO', 'activo')
+            ->where('FECHA_VENCIMIENTO >=', date('Y-m-d'))
             ->findAll();
         $mapa = [];
         foreach ($lista as $ev) {
             $mapa[(int) $ev['ID_ACTIVIDAD_EDUCACION']] = $ev;
         }
         return $mapa;
+    }
+
+    /**
+     * Devuelve un mapa (ID_ACTIVIDAD_EDUCACION => datos de la encuesta de satisfacción)
+     * para que la vista pueda actualizar enlaces automáticamente.
+     */
+    public function apiEncuestasSatisfaccion()
+    {
+        return $this->response->setJSON([
+            'success' => true,
+            'data' => $this->obtenerEncuestasSatisfaccionPorActividad()
+        ]);
     }
 
     public function index()

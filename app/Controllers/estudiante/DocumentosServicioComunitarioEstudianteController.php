@@ -43,7 +43,9 @@ class DocumentosServicioComunitarioEstudianteController extends BaseController
             $pendAsist['items'],
             static fn (array $i): bool => ($i['tipo'] ?? '') === 'servicio'
         ));
+        $itemsScActivas = EstudianteAsistenciaService::itemsServiciosComunitariosEnProgreso($idUsuario);
         $tieneScActiva = EstudianteAsistenciaService::tieneServicioComunitarioEnProgreso($idUsuario);
+        $asistenciaHorasSc = EstudianteAsistenciaService::horasServicioComunitarioEnProgreso($idUsuario);
         $serviciosDocumentacion = $this->obtenerServiciosDocumentacionEstudiante($idUsuario);
 
         $data = [
@@ -56,11 +58,13 @@ class DocumentosServicioComunitarioEstudianteController extends BaseController
             'estadisticas' => $this->calcularEstadisticas($progreso, count($tipos)),
             'total_tipos_documentos' => count($tipos),
             'asistencia_items' => $itemsSc,
+            'asistencia_items_activa' => $itemsScActivas,
             'asistencia_fecha' => $pendAsist['fecha'],
             'asistencia_tiene_activa' => $tieneScActiva,
             'asistencia_mostrar_tarjeta' => $tieneScActiva,
             'asistencia_modal_automatico' => false,
             'asistencia_titulo_tarjeta' => 'Asistencia — servicio comunitario',
+            'asistencia_horas_sc' => $asistenciaHorasSc,
             'servicios_documentacion' => $serviciosDocumentacion,
         ];
 
@@ -90,14 +94,9 @@ class DocumentosServicioComunitarioEstudianteController extends BaseController
 
             $idEst = (int) $est['ID_ESTUDIANTE'];
 
-            $tblInst = 'TAB_INSTITUCIONES_CONVENIOS';
-            if (!$db->tableExists('TAB_INSTITUCIONES_CONVENIOS')) {
-                $tblInst = 'instituciones_convenios';
-            }
-
             return $db->table('TAB_SERVICIO_COMUNITARIO sc')
                 ->select('sc.ID_SERVICIO_COMUNITARIO, sc.PROYECTO_SOCIAL, ic.NOMBRE as INSTITUCION_NOMBRE, CONCAT(COALESCE(dpi.NOMBRE,\'\'), \' \', COALESCE(dpi.APELLIDO,\'\')) as SUPERVISOR_NOMBRE', false)
-                ->join($tblInst . ' ic', 'ic.ID_INSTITUCION_CONVENIO = sc.ID_INSTITUCION_CONVENIO', 'left')
+                ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = sc.ID_INSTITUCION_CONVENIO', 'left')
                 ->join('TAB_INSTRUCTORES ins', 'ins.ID_INSTRUCTOR = sc.ID_INSTRUCTOR', 'left')
                 ->join('TAB_DATOS_PERSONAS dpi', 'dpi.ID_DATO_PERSONA = ins.ID_DATO_PERSONA', 'left')
                 ->where('sc.ID_ESTUDIANTE', $idEst)

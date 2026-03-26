@@ -44,12 +44,14 @@ class DocumentosPracticasEstudianteController extends BaseController
             $pendAsist['items'],
             static fn (array $i): bool => ($i['tipo'] ?? '') === 'preprofesional'
         ));
+        $itemsPpActivas = EstudianteAsistenciaService::itemsPreprofesionalesEnProgreso($idUsuario);
         $tienePpActiva = EstudianteAsistenciaService::tienePracticaPreprofesionalEnProgreso($idUsuario);
         $resumenPpDia = EstudianteAsistenciaService::resumenPreprofesionalDia($idUsuario, $pendAsist['fecha']);
         $asistenciaBarPct = ($resumenPpDia['en_progreso'] ?? 0) > 0
             ? (int) round(100 * ($resumenPpDia['registradas_hoy'] ?? 0) / $resumenPpDia['en_progreso'])
             : 0;
         $practicasDocumentacion = $this->obtenerPracticasDocumentacionEstudiante($idUsuario);
+        $asistenciaHorasPp = EstudianteAsistenciaService::horasPreprofesionalesEnProgreso($idUsuario);
 
         $data = [
             'title' => 'Documentos de Prácticas Preprofesionales',
@@ -59,6 +61,7 @@ class DocumentosPracticasEstudianteController extends BaseController
             'estadisticas' => $this->getEstadisticasEstudiante($idUsuario, count($tipos)),
             'total_tipos_documentos' => count($tipos),
             'asistencia_items' => $itemsPp,
+            'asistencia_items_activa' => $itemsPpActivas,
             'asistencia_fecha' => $pendAsist['fecha'],
             'asistencia_tiene_activa' => $tienePpActiva,
             'asistencia_mostrar_tarjeta' => false,
@@ -69,6 +72,7 @@ class DocumentosPracticasEstudianteController extends BaseController
             'asistencia_titulo_tarjeta' => 'Asistencia — prácticas preprofesionales',
             'asistencia_doc_info_sin_progreso' => $practicasDocumentacion !== []
                 && ($resumenPpDia['en_progreso'] ?? 0) === 0,
+            'asistencia_horas_pp' => $asistenciaHorasPp,
             'practicas_documentacion' => $practicasDocumentacion,
         ];
 
@@ -98,15 +102,12 @@ class DocumentosPracticasEstudianteController extends BaseController
 
             $idEst = (int) $est['ID_ESTUDIANTE'];
 
-            $tblInst = 'TAB_INSTITUCIONES_CONVENIOS';
-            if (!$db->tableExists('TAB_INSTITUCIONES_CONVENIOS')) {
-                $tblInst = 'instituciones_convenios';
-            }
-
+            // Usar siempre TAB_INSTITUCIONES_CONVENIOS (MySQL resuelve mayúsculas/minúsculas). No usar tableExists():
+            // en servidores con tablas en minúsculas, listTables() no coincide y el fallback "instituciones_convenios" rompe la consulta.
             // Mismo criterio que coordinador/prácticas: convenio + instructor vía TAB_INSTRUCTORES → datos persona
             return $db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
                 ->select('pp.ID_PRACTICA_PREPROFESIONAL, ic.NOMBRE as INSTITUCION_NOMBRE, CONCAT(COALESCE(dpi.NOMBRE,\'\'), \' \', COALESCE(dpi.APELLIDO,\'\')) as SUPERVISOR_NOMBRE', false)
-                ->join($tblInst . ' ic', 'ic.ID_INSTITUCION_CONVENIO = pp.ID_INSTITUCION_CONVENIO', 'left')
+                ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = pp.ID_INSTITUCION_CONVENIO', 'left')
                 ->join('TAB_INSTRUCTORES ins', 'ins.ID_INSTRUCTOR = pp.ID_INSTRUCTOR', 'left')
                 ->join('TAB_DATOS_PERSONAS dpi', 'dpi.ID_DATO_PERSONA = ins.ID_DATO_PERSONA', 'left')
                 ->where('pp.ID_ESTUDIANTE', $idEst)

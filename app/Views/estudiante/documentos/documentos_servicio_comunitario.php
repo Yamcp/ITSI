@@ -111,6 +111,28 @@ foreach ($servicios_documentacion ?? [] as $row) {
             </div>
         </div>
 
+        <?php if (empty($servicios_documentacion)): ?>
+            <div class="row mb-3">
+                <div class="col-12 px-2 px-md-3">
+                    <div class="alert alert-info border border-info mb-0 p-4 shadow-sm text-dark" role="status">
+                        <div class="d-flex align-items-start gap-2">
+                            <div class="flex-shrink-0">
+                                <span class="badge bg-primary text-white px-3 py-2">
+                                    <i class="fas fa-clock me-1" aria-hidden="true"></i> Pendiente
+                                </span>
+                            </div>
+                            <div class="flex-grow-1 min-w-0">
+                                <p class="mb-2" style="font-size: 0.86rem; line-height: 1.5; color: #053c47;">
+                                    Aún no tienes <strong>servicio comunitario</strong> registrado.
+                                    Cuando coordinación asigne tu servicio, verás la <strong>institución</strong> y el <strong>instructor</strong> en el resumen de documentación más abajo.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
         <div class="row mb-4">
             <div class="col-12">
                 <div class="card documentos-resumen-panel border shadow-sm">
@@ -185,14 +207,7 @@ foreach ($servicios_documentacion ?? [] as $row) {
                             </h6>
                             <p class="small text-muted mb-3">Institución convenio e instructor de tu vinculación.</p>
                             <?php if (empty($servicios_documentacion)): ?>
-                                <div class="alert alert-light border small mb-0 py-2">
-                                    <i class="fas fa-info-circle text-primary me-1"></i>
-                                    <?php if (empty($id_servicio_default)): ?>
-                                        Aún no tienes <strong>servicio comunitario</strong> registrado. Cuando coordinación asigne tu servicio, verás institución e instructor aquí.
-                                    <?php else: ?>
-                                        Tu servicio está registrado; si no ves <strong>institución</strong> o <strong>instructor</strong>, solicita a coordinación que complete los datos.
-                                    <?php endif; ?>
-                                </div>
+                                <p class="small text-muted mb-0">Aún no hay datos de vinculación que mostrar.</p>
                             <?php else: ?>
                                 <div class="row g-2 g-md-3">
                                     <div class="col-md-6">
@@ -235,8 +250,7 @@ foreach ($servicios_documentacion ?? [] as $row) {
                         <?php if (empty($id_servicio_default)): ?>
                             <div class="alert alert-warning">
                                 <i class="fas fa-info-circle me-2"></i>
-                                Aún no tienes un <strong>servicio comunitario</strong> registrado en el sistema. Cuando esté asignado, podrás subir aquí la documentación PSC.
-                                Revisa el estado de tus archivos en la lista inferior o consulta con coordinación.
+                                Aún no tienes un <strong>servicio comunitario</strong> registrado en el sistema. Cuando esté asignado, podrás subir aquí la documentación.
                             </div>
                         <?php endif; ?>
 

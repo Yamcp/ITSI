@@ -190,7 +190,7 @@
                                                     <?php if (!empty($actividades)): ?>
                                                         <?php foreach ($actividades as $actividad): ?>
                                                             <?php if ($actividad['ACTIVIDAD'] === 'Curso'): ?>
-                                                                <tr>
+                                                                <tr data-actividad-id="<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>" data-fecha-fin="<?= $actividad['FECHA_FIN'] ?>">
                                                                     <td><?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?></td>
                                                                     <td>
                                                                         <div class="d-flex align-items-center">
@@ -227,7 +227,7 @@
                                                                             <button class="btn btn-outline-primary" onclick="verDetalleActividad(<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>)" title="Ver Detalle">
                                                                                 <i class="fas fa-eye"></i>
                                                                             </button>
-                                                                            <button class="btn btn-outline-success" onclick="inscribirseActividad(<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>)" title="Inscribirse">
+                                                                            <button data-accion-inscribir="true" class="btn btn-outline-success" onclick="inscribirseActividad(<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>)" title="Inscribirse">
                                                                                 <i class="fas fa-user-plus"></i>
                                                                             </button>
                                                                         </div>
@@ -272,7 +272,7 @@
                                                     <?php if (!empty($actividades)): ?>
                                                         <?php foreach ($actividades as $actividad): ?>
                                                             <?php if ($actividad['ACTIVIDAD'] === 'Taller'): ?>
-                                                                <tr>
+                                                                <tr data-actividad-id="<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>" data-fecha-fin="<?= $actividad['FECHA_FIN'] ?>">
                                                                     <td><?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?></td>
                                                                     <td>
                                                                         <div class="d-flex align-items-center">
@@ -309,7 +309,7 @@
                                                                             <button class="btn btn-outline-primary" onclick="verDetalleActividad(<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>)" title="Ver Detalle">
                                                                                 <i class="fas fa-eye"></i>
                                                                             </button>
-                                                                            <button class="btn btn-outline-success" onclick="inscribirseActividad(<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>)" title="Inscribirse">
+                                                                            <button data-accion-inscribir="true" class="btn btn-outline-success" onclick="inscribirseActividad(<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>)" title="Inscribirse">
                                                                                 <i class="fas fa-user-plus"></i>
                                                                             </button>
                                                                         </div>
@@ -354,7 +354,7 @@
                                                     <?php if (!empty($actividades)): ?>
                                                         <?php foreach ($actividades as $actividad): ?>
                                                             <?php if ($actividad['ACTIVIDAD'] === 'Seminario'): ?>
-                                                                <tr>
+                                                                <tr data-actividad-id="<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>" data-fecha-fin="<?= $actividad['FECHA_FIN'] ?>">
                                                                     <td><?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?></td>
                                                                     <td>
                                                                         <div class="d-flex align-items-center">
@@ -391,7 +391,7 @@
                                                                             <button class="btn btn-outline-primary" onclick="verDetalleActividad(<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>)" title="Ver Detalle">
                                                                                 <i class="fas fa-eye"></i>
                                                                             </button>
-                                                                            <button class="btn btn-outline-success" onclick="inscribirseActividad(<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>)" title="Inscribirse">
+                                                                            <button data-accion-inscribir="true" class="btn btn-outline-success" onclick="inscribirseActividad(<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>)" title="Inscribirse">
                                                                                 <i class="fas fa-user-plus"></i>
                                                                             </button>
                                                                         </div>
@@ -732,10 +732,78 @@
         }
     }
 
+    /**
+     * Polling para que, cuando el coordinador agregue el enlace de satisfacción,
+     * el estudiante lo vea automáticamente en la tabla (sin recargar la página).
+     */
+    async function actualizarEnlacesSatisfaccion() {
+        try {
+            const response = await fetch('<?= base_url('estudiante/actividades-educacion/api/encuestas-satisfaccion') ?>', { cache: 'no-store' });
+            const payload = await response.json();
+            if (!payload.success) return;
+
+            const enlacesPorActividad = payload.data || {};
+            const hoy = new Date().toISOString().split('T')[0];
+
+            document.querySelectorAll('tr[data-actividad-id]').forEach(tr => {
+                const idActividad = String(tr.dataset.actividadId || '');
+                const fechaFin = String(tr.dataset.fechaFin || '');
+                if (!idActividad || !fechaFin) return;
+
+                const fechaFinSolo = fechaFin.slice(0, 10);
+                const finalizado = fechaFinSolo < hoy;
+                const enlace = enlacesPorActividad[idActividad]?.ENLACE_FORMULARIO || null;
+
+                // Mostrar/ocultar fila: activos siempre; finalizados solo si ya hay enlace.
+                tr.style.display = (!finalizado || (finalizado && enlace)) ? '' : 'none';
+
+                // Toggle del botón de inscripción (solo aplica a estudiantes)
+                const botonInscribir = tr.querySelector('button[data-accion-inscribir="true"]');
+                if (botonInscribir) {
+                    botonInscribir.style.display = finalizado ? 'none' : '';
+                }
+
+                // Inject del botón "Completar encuesta"
+                const btnGroup = tr.querySelector('.btn-group');
+                if (!btnGroup) return;
+
+                const idLink = `encuesta-link-${idActividad}`;
+                const enlaceExistente = document.getElementById(idLink);
+
+                if (finalizado && enlace) {
+                    if (!enlaceExistente) {
+                        const a = document.createElement('a');
+                        a.id = idLink;
+                        a.target = '_blank';
+                        a.rel = 'noopener';
+                        a.className = 'btn btn-outline-warning btn-sm';
+                        a.innerHTML = '<i class="fas fa-external-link-alt me-1"></i>Completar encuesta';
+                        btnGroup.appendChild(a);
+                    }
+                    const link = document.getElementById(idLink);
+                    link.href = enlace;
+                } else {
+                    if (enlaceExistente) {
+                        enlaceExistente.remove();
+                    }
+                }
+            });
+        } catch (e) {
+            // No romper la página si el endpoint falla
+            console.error('Error al actualizar enlaces satisfacción:', e);
+        }
+    }
+
+    function iniciarPollingEncuestasSatisfaccion() {
+        actualizarEnlacesSatisfaccion();
+        setInterval(actualizarEnlacesSatisfaccion, 15000); // 15s
+    }
+
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
         // Cargar estadísticas al cargar la página
         cargarEstadisticas();
+        iniciarPollingEncuestasSatisfaccion();
     });
 </script>
 

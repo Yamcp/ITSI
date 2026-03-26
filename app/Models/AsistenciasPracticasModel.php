@@ -49,7 +49,7 @@ class AsistenciasPracticasModel extends Model
     public function getTotalHorasAsistencia($idAsignacion)
     {
         $builder = $this->db->table('TAB_ASISTENCIAS_PRACTICAS')
-            ->selectSum('TIMESTAMPDIFF(HOUR, HORA_ENTRADA, HORA_SALIDA)', 'total_horas')
+            ->select('SUM(TIMESTAMPDIFF(HOUR, HORA_ENTRADA, HORA_SALIDA)) AS total_horas', false)
             ->where('ID_ASIGNACION_PRACTICA', $idAsignacion);
             
         $resultado = $builder->get()->getRowArray();

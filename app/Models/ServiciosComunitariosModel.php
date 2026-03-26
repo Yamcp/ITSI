@@ -76,7 +76,7 @@ class ServiciosComunitariosModel extends Model
         $builder->select('sc.*, e.NOMBRE_COMPLETO as ESTUDIANTE_NOMBRE, c.NOMBRE as CARRERA_NOMBRE, ic.NOMBRE as INSTITUCION_NOMBRE, ic.TIPO_INSTITUCION');
         $builder->join('estudiantes e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE');
         $builder->join('carreras c', 'c.ID_CARRERA = e.ID_CARRERA');
-        $builder->join('instituciones_convenios ic', 'ic.ID_INSTITUCION_CONVENIO = sc.ID_INSTITUCION_CONVENIO');
+        $builder->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = sc.ID_INSTITUCION_CONVENIO');
         
         if ($docenteId) {
             $builder->where('sc.ID_DOCENTE_SUPERVISOR', $docenteId);
@@ -145,7 +145,7 @@ class ServiciosComunitariosModel extends Model
         $builder = $this->db->table($this->table . ' sc');
         $builder->select('sc.*, e.NOMBRE_COMPLETO as ESTUDIANTE_NOMBRE, ic.NOMBRE as INSTITUCION_NOMBRE');
         $builder->join('estudiantes e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE');
-        $builder->join('instituciones_convenios ic', 'ic.ID_INSTITUCION_CONVENIO = sc.ID_INSTITUCION_CONVENIO');
+        $builder->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = sc.ID_INSTITUCION_CONVENIO');
         $builder->where('sc.ESTADO_SERVICIO', 'En Progreso');
         $builder->where('sc.FECHA_FIN <= DATE_ADD(NOW(), INTERVAL ' . $dias . ' DAY)');
         $builder->where('sc.FECHA_FIN >= NOW()');

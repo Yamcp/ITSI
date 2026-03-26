@@ -67,8 +67,7 @@ class DashboardEstudianteController extends BaseController
             return view('estudiante/dashboard/dashboardEstudiante', $data);
         }
 
-        // Tablas del proyecto: TAB_ESTUDIANTES, TAB_INSTITUCIONES_CONVENIOS (o instituciones_convenios)
-        $tblInstituciones = $this->db->tableExists('TAB_INSTITUCIONES_CONVENIOS') ? 'TAB_INSTITUCIONES_CONVENIOS' : 'instituciones_convenios';
+        // Join a convenios: usar TAB_INSTITUCIONES_CONVENIOS (válido aunque el motor liste la tabla en minúsculas).
 
         // Estadísticas: Prácticas preprofesionales (join por TAB_ESTUDIANTES e ID_DATO_PERSONA)
         $totalPreprofesionales = 0;
@@ -89,7 +88,7 @@ class DashboardEstudianteController extends BaseController
             $practicasPreprofesionales = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
                 ->select('pp.*, ic.NOMBRE as INSTITUCION_NOMBRE')
                 ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = pp.ID_ESTUDIANTE')
-                ->join($tblInstituciones . ' ic', 'ic.ID_INSTITUCION_CONVENIO = pp.ID_INSTITUCION_CONVENIO', 'left')
+                ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = pp.ID_INSTITUCION_CONVENIO', 'left')
                 ->where('e.ID_DATO_PERSONA', $idDatoPersona)
                 ->orderBy('pp.FECHA_INICIO', 'DESC')
                 ->limit(5)
@@ -116,7 +115,7 @@ class DashboardEstudianteController extends BaseController
             $serviciosComunitarios = $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
                 ->select('sc.*, ic.NOMBRE as INSTITUCION_NOMBRE')
                 ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE')
-                ->join($tblInstituciones . ' ic', 'ic.ID_INSTITUCION_CONVENIO = sc.ID_INSTITUCION_CONVENIO', 'left')
+                ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = sc.ID_INSTITUCION_CONVENIO', 'left')
                 ->where('e.ID_DATO_PERSONA', $idDatoPersona)
                 ->orderBy('sc.FECHA_INICIO', 'DESC')
                 ->limit(5)

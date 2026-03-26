@@ -9,6 +9,7 @@ use App\Models\TiposModalidadesModel;
 use App\Models\TiposActividadesModel;
 use App\Models\InscripcionesActividadesModel;
 use App\Models\EstudiantesModel;
+use App\Models\EvaluacionesEnlacesModel;
 use App\Controllers\BaseController;
 
 class ActividadesEducacionDocenteController extends BaseController
@@ -20,6 +21,7 @@ class ActividadesEducacionDocenteController extends BaseController
     protected $tiposActividadesModel;
     protected $inscripcionesModel;
     protected $estudiantesModel;
+    protected $evaluacionesEnlacesModel;
     protected $db;
 
     public function __construct()
@@ -31,7 +33,29 @@ class ActividadesEducacionDocenteController extends BaseController
         $this->tiposActividadesModel = new TiposActividadesModel();
         $this->inscripcionesModel = new InscripcionesActividadesModel();
         $this->estudiantesModel = new EstudiantesModel();
+        $this->evaluacionesEnlacesModel = new EvaluacionesEnlacesModel();
         $this->db = \Config\Database::connect();
+    }
+
+    /**
+     * Mapa ID_ACTIVIDAD_EDUCACION => enlace de evaluación de satisfacción.
+     * Usado para mostrar el botón "Completar encuesta" automáticamente.
+     */
+    private function obtenerEncuestasSatisfaccionPorActividad()
+    {
+        $lista = $this->evaluacionesEnlacesModel
+            ->where('TIPO_EVALUACION', 'satisfaccion')
+            ->where('ACTIVO', true)
+            ->where('ESTADO', 'activo')
+            ->where('FECHA_VENCIMIENTO >=', date('Y-m-d'))
+            ->findAll();
+
+        $mapa = [];
+        foreach ($lista as $ev) {
+            $mapa[(int) $ev['ID_ACTIVIDAD_EDUCACION']] = $ev;
+        }
+
+        return $mapa;
     }
 
     /**
@@ -56,6 +80,8 @@ class ActividadesEducacionDocenteController extends BaseController
             ? $this->actividadesModel->getActividadesConDatosPorInstructor($idInstructor)
             : [];
 
+        $encuestasPorActividad = $this->obtenerEncuestasSatisfaccionPorActividad();
+
         $conteoParticipantes = [];
         foreach ($actividades as $act) {
             $conteoParticipantes[$act['ID_ACTIVIDAD_EDUCACION']] = $this->inscripcionesModel->contarPorActividad($act['ID_ACTIVIDAD_EDUCACION']);
@@ -64,6 +90,7 @@ class ActividadesEducacionDocenteController extends BaseController
         $data = [
             'title' => 'Gestión de Actividades Educativas',
             'actividades' => $actividades,
+            'encuestasPorActividad' => $encuestasPorActividad,
             'conteoParticipantes' => $conteoParticipantes,
             'instructores' => $this->instructoresModel->getInstructoresConDatos(),
             'modalidades' => $this->tiposModalidadesModel->findAll(),
@@ -71,6 +98,17 @@ class ActividadesEducacionDocenteController extends BaseController
         ];
 
         return view('docente/educacion/actividades_educacion', $data);
+    }
+
+    /**
+     * Endpoint para que la vista actualice enlaces automáticamente (polling).
+     */
+    public function apiEncuestasSatisfaccion()
+    {
+        return $this->response->setJSON([
+            'success' => true,
+            'data' => $this->obtenerEncuestasSatisfaccionPorActividad()
+        ]);
     }
 
     public function create()

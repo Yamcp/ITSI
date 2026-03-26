@@ -208,6 +208,7 @@ $routes->group('docente', ['namespace' => 'App\Controllers\docente'], function (
     $routes->get('actividades-educacion/calendario', 'ActividadesEducacionDocenteController::calendario');    // Calendario de actividades
     $routes->get('actividades-educacion/api/actividades', 'ActividadesEducacionDocenteController::getActividades');    // API actividades
     $routes->get('actividades-educacion/api/estadisticas', 'ActividadesEducacionDocenteController::getEstadisticas');    // API estadísticas
+    $routes->get('actividades-educacion/api/encuestas-satisfaccion', 'ActividadesEducacionDocenteController::apiEncuestasSatisfaccion');    // API enlaces satisfacción
     $routes->get('actividades-educacion/reportes', 'ActividadesEducacionDocenteController::reportes');    // Vista de reportes
     $routes->get('actividades-educacion/exportar/pdf', 'ActividadesEducacionDocenteController::exportarPDF');
     $routes->get('actividades-educacion/exportar/excel', 'ActividadesEducacionDocenteController::exportarExcel');
@@ -257,6 +258,7 @@ $routes->group('estudiante', ['namespace' => 'App\Controllers\estudiante', 'filt
     $routes->get('actividades-educacion/detalle/(:num)', 'ActividadesEducacionEstudianteController::detalle/$1');
     $routes->get('actividades-educacion/calendario', 'ActividadesEducacionEstudianteController::calendario');
     $routes->get('actividades-educacion/api/estadisticas', 'ActividadesEducacionEstudianteController::getEstadisticas');
+    $routes->get('actividades-educacion/api/encuestas-satisfaccion', 'ActividadesEducacionEstudianteController::apiEncuestasSatisfaccion'); // API enlaces satisfacción
     $routes->get('evaluaciones', 'EvaluacionesEstudianteController::index');        // Ver evaluaciones
     $routes->get('evaluaciones/obtener', 'EvaluacionesEstudianteController::obtenerEvaluaciones'); // Obtener evaluaciones
     $routes->get('evaluaciones/estadisticas', 'EvaluacionesEstudianteController::obtenerEstadisticas'); // Estadísticas

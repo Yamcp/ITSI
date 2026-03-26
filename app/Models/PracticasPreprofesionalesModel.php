@@ -76,7 +76,7 @@ class PracticasPreprofesionalesModel extends Model
         $builder->select('pp.*, e.NOMBRE_COMPLETO as ESTUDIANTE_NOMBRE, c.NOMBRE as CARRERA_NOMBRE, ic.NOMBRE as INSTITUCION_NOMBRE, ic.TIPO_INSTITUCION');
         $builder->join('estudiantes e', 'e.ID_ESTUDIANTE = pp.ID_ESTUDIANTE');
         $builder->join('carreras c', 'c.ID_CARRERA = e.ID_CARRERA');
-        $builder->join('instituciones_convenios ic', 'ic.ID_INSTITUCION_CONVENIO = pp.ID_INSTITUCION_CONVENIO');
+        $builder->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = pp.ID_INSTITUCION_CONVENIO');
         
         if ($docenteId) {
             $builder->where('pp.ID_DOCENTE_SUPERVISOR', $docenteId);

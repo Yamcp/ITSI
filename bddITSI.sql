@@ -1183,19 +1183,14 @@ INSERT INTO `migrations` (`id`, `version`, `class`, `group`, `namespace`, `time`
 INSERT INTO `TAB_DATOS_PERSONAS` (`ID_DATO_PERSONA`, `NOMBRE`, `APELLIDO`, `CEDULA`, `CELULAR`, `DIRECCION`, `EMAIL`, `GENERO`, `ESTADO_CIVIL`, `NACIONALIDAD`, `FECHA_INGRESO`, `ACTIVO`, `FOTO_URL`) VALUES
 (1, 'Yamilex Marisol', 'Campues Angamarca', '1004191845', '0992432078', 'Ibarra', 'yamilex.campues2023@itsi.edu.ec', 'Femenino', 'Soltero/a', 'Ecuatoriana', '2025-06-05', 1, 'perfil_1_1773953875.jpg'),
 (2, 'Ana ', 'Yandun', '1724143290', '0981377492', 'Ibarra', 'ana.yandun2023@itsi.edu.ec', 'Femenino', 'Casada', 'Ecuatoriana', '2025-06-10', 1, ''),
-(3, 'Pedro', 'Aguirre', '0123456789', '', '', '', '', '', NULL, '0000-00-00', 0, ''),
+(3, 'Pedro', 'Aguirre', '0123456789', '0990000001', 'Ibarra', 'pedro.aguirre2023@itsi.edu.ec', 'Masculino', 'Soltero', 'Ecuatoriana', '2025-03-01', 1, ''),
 (4, 'Carlos', 'Mendoza', '1234567890', '0987654321', 'Ibarra, Ecuador', 'carlos.mendoza@itsi.edu.ec', 'Masculino', 'Casado', 'Ecuatoriana', '2025-01-15', 1, ''),
 (5, 'Ana', 'Ruiz', '0987654321', '0912345678', 'Quito, Ecuador', 'ana.ruiz@itsi.edu.ec', 'Femenino', 'Soltera', 'Ecuatoriana', '2025-01-20', 1, ''),
 (6, 'María', 'González', '1122334455', '0999888777', 'Guayaquil, Ecuador', 'maria.gonzalez@itsi.edu.ec', 'Femenino', 'Casada', 'Ecuatoriana', '2025-01-25', 1, ''),
 (7, 'Juan Carlos', 'Pérez López', '1001234567', '0987654321', 'Ibarra, Ecuador', 'juan.perez2023@itsi.edu.ec', 'Masculino', 'Soltero', 'Ecuatoriana', '2025-01-15', 1, ''),
 (8, 'María Elena', 'García Torres', '1002345678', '0976543210', 'Quito, Ecuador', 'maria.garcia2023@itsi.edu.ec', 'Femenino', 'Soltera', 'Ecuatoriana', '2025-01-20', 1, ''),
 (9, 'Carlos Alberto', 'Rodríguez Silva', '1003456789', '0965432109', 'Guayaquil, Ecuador', 'carlos.rodriguez2023@itsi.edu.ec', 'Masculino', 'Soltero', 'Ecuatoriana', '2025-01-25', 1, ''),
-(10, 'Ana Lucía', 'Martínez Vega', '1004567890', '0954321098', 'Cuenca, Ecuador', 'ana.martinez2023@itsi.edu.ec', 'Femenino', 'Soltera', 'Ecuatoriana', '2025-02-01', 1, ''),
-(11, 'Luis Fernando', 'Herrera Castro', '1005678901', '0943210987', 'Ambato, Ecuador', 'luis.herrera2023@itsi.edu.ec', 'Masculino', 'Soltero', 'Ecuatoriana', '2025-02-05', 1, ''),
-(12, 'Sofía Alejandra', 'Morales Jiménez', '1006789012', '0932109876', 'Riobamba, Ecuador', 'sofia.morales2023@itsi.edu.ec', 'Femenino', 'Soltera', 'Ecuatoriana', '2025-02-10', 1, ''),
-(13, 'Diego Armando', 'Vargas Ruiz', '1007890123', '0921098765', 'Loja, Ecuador', 'diego.vargas2023@itsi.edu.ec', 'Masculino', 'Soltero', 'Ecuatoriana', '2025-02-15', 1, ''),
-(14, 'Valentina', 'Castro Mendoza', '1008901234', '0910987654', 'Machala, Ecuador', 'valentina.castro2023@itsi.edu.ec', 'Femenino', 'Soltera', 'Ecuatoriana', '2025-02-20', 1, ''),
-(15, 'Andrés Felipe', 'López Sánchez', '1009012345', '0909876543', 'Portoviejo, Ecuador', 'andres.lopez2023@itsi.edu.ec', 'Masculino', 'Soltero', 'Ecuatoriana', '2025-02-25', 1, '');
+(10, 'Ana Lucía', 'Martínez Vega', '1004567890', '0954321098', 'Cuenca, Ecuador', 'ana.martinez2023@itsi.edu.ec', 'Femenino', 'Soltera', 'Ecuatoriana', '2025-02-01', 1, '');
 
 INSERT INTO `TAB_USUARIOS` (`ID_USUARIO`, `ID_DATO_PERSONA`, `USUARIO`, `CONTRASENA`, `ESTADO`) VALUES
 (1, 1, 'ycampues', '$2y$10$TIMV8h.jkhNV8CLSitL6gOq7fzNIRKyjrJXejA9E49Zf8.LjdZNdC', '1'),
@@ -1207,12 +1202,7 @@ INSERT INTO `TAB_USUARIOS` (`ID_USUARIO`, `ID_DATO_PERSONA`, `USUARIO`, `CONTRAS
 (7, 7, 'jperez', '123', '1'),
 (8, 8, 'mgarcia', '123', '1'),
 (9, 9, 'crodriguez', '123', '1'),
-(10, 10, 'amartinez', '123', '1'),
-(11, 11, 'lherrera', '123', '1'),
-(12, 12, 'smorales', '123', '1'),
-(13, 13, 'dvargas', '123', '1'),
-(14, 14, 'vcastro', '123', '1'),
-(15, 15, 'alopez', '123', '1');
+(10, 10, 'amartinez', '123', '1');
 
 -- Tokens de recuperación de contraseña (export producción / pruebas)
 INSERT INTO `TAB_RECUPERACION_CONTRASENA` (`ID_RECUPERACION`, `ID_USUARIO`, `TOKEN`, `EXPIRA_EN`, `USADO`, `CREADO_EN`) VALUES
@@ -1243,12 +1233,7 @@ INSERT INTO `TAB_ROLES` (`ID_ROL`, `ID_USUARIO`, `ID_TIPOS_ROLES`) VALUES
 (7, 7, 3),
 (8, 8, 3),
 (9, 9, 3),
-(10, 10, 3),
-(11, 11, 3),
-(12, 12, 3),
-(13, 13, 3),
-(14, 14, 3),
-(15, 15, 3);
+(10, 10, 3);
 
 INSERT INTO `TAB_TIPOS_CONVENIOS` (`ID_TIPO_CONVENIO`, `CONVENIO`) VALUES
 (1, 'Preprofesional'),
@@ -1283,15 +1268,13 @@ INSERT INTO `TAB_DEPARTAMENTOS` (`ID_DEPARTAMENTO`, `NOMBRE`, `RESPONSABLE`) VAL
 INSERT INTO `TAB_TIPOS_ACTIVIDADES` (`ID_TIPO_ACTIVIDAD`, `ACTIVIDAD`) VALUES
 (1, 'Curso'),
 (2, 'Taller'),
-(3, 'Seminario'),
-(4, 'Conferencia'),
-(5, 'Capacitación');
+(3, 'Conferencia'),
+(4, 'Capacitación');
 
 INSERT INTO `TAB_TIPOS_CONTRATO` (`ID_TIPO_CONTRATO`, `TIPO_CONTRATO`) VALUES
 (1, 'Tiempo Completo'),
 (2, 'Medio Tiempo'),
-(3, 'Por Horas'),
-(4, 'Consultoría');
+(3, 'Por Horas');
 
 INSERT INTO `TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES` (`CODIGO`, `NOMBRE`, `DESCRIPCION`, `ORDEN`, `OBLIGATORIO`) VALUES
 ('PPR-001', 'Oficio de Asignación de Tutor', 'Documento oficial emitido por la coordinación de la carrera que designa al docente responsable de la tutoría y seguimiento de las prácticas de servicio comunitario del estudiante.', 1, true),
@@ -1390,13 +1373,9 @@ INSERT INTO `TAB_ESTUDIANTES` (`ID_ESTUDIANTE`, `ID_TIPO_ESTADO`, `ID_DATO_PERSO
 (2, 1, 8, 2, 2),  -- María Elena - Diseño Gráfico - 2do semestre
 (3, 1, 9, 3, 4),  -- Carlos Alberto - Redes y Telecomunicaciones - 4to semestre
 (4, 1, 10, 1, 1), -- Ana Lucía - Desarrollo de Software - 1er semestre
-(5, 1, 11, 4, 3), -- Luis Fernando - Administración - 3er semestre
-(6, 1, 12, 2, 2), -- Sofía Alejandra - Diseño Gráfico - 2do semestre
-(7, 1, 13, 3, 5), -- Diego Armando - Redes y Telecomunicaciones - 5to semestre
-(8, 1, 14, 5, 2), -- Valentina - Atención Integral a Adultos Mayores - 2do semestre
-(9, 1, 15, 6, 3); -- Andrés Felipe - Marketing Digital y Comercio Electrónico - 3er semestre
+(5, 1, 3, 4, 2); -- Pedro Aguirre - Administración - 2do semestre (usuario paguirre; vinculado a práctica preprofesional)
 
--- Tutores: mismos usuarios docente/instructor (4–6) para no exceder 15 usuarios totales
+-- Tutores: mismos usuarios docente/instructor (4–6); docente adicional usuario 2 (ayandun)
 INSERT INTO `TAB_DOCENTES_TUTORES` (`ID_USUARIO`, `ID_DATO_PERSONA`, `ESPECIALIDAD`, `TITULO_PROFESIONAL`, `AREA_ESPECIALIZACION`, `AÑOS_EXPERIENCIA`) VALUES
 (4, 4, 'Desarrollo de Software', 'Ingeniero en Sistemas', 'Tecnologías de la Información', 10),
 (5, 5, 'Hardware y Redes', 'Técnico en Electrónica', 'Infraestructura de TI', 8),
@@ -1435,17 +1414,13 @@ INSERT INTO `TAB_ASIGNACIONES_PRACTICAS` (`ID_ASIGNACION_PRACTICA`, `ID_TIPO_PRA
 INSERT INTO `TAB_PRACTICAS_PREPROFESIONALES` (`ID_PRACTICA_PREPROFESIONAL`, `ID_PERIODO_ACADEMICO`, `ID_ASIGNACION_PRACTICA`, `ID_ESTUDIANTE`, `ID_INSTRUCTOR`, `ID_INSTITUCION_CONVENIO`, `ID_ESTADO_PREPROFESIONAL`, `AREA_ESPECIALIZACION`, `PROYECTO_ESPECIFICO`, `HORAS_PRACTICAS`, `FECHA_INICIO`, `FECHA_FIN`, `ESTADO_PRACTICA`, `EVALUACION_FINAL`, `OBSERVACIONES`) VALUES
 (1, 4, 1, 1, 1, 1, 2, 'Desarrollo de Software', 'Sistema de gestión de pacientes y citas médicas', 240, '2025-06-01', '2025-08-30', 'En Progreso', NULL, 'Estudiante con buen desempeño en desarrollo web'),
 (2, 4, 2, 2, 2, 2, 2, 'Desarrollo Móvil', 'Aplicación móvil para consulta de saldos y transferencias', 240, '2025-07-01', '2025-09-30', 'En Progreso', NULL, 'Proyecto en desarrollo con tecnologías React Native'),
-(3, 4, 4, 5, 1, 1, 2, 'Desarrollo de Software', 'Sistema de gestión de historias clínicas digitales', 240, '2025-09-01', '2025-11-30', 'En Progreso', NULL, 'Estudiante con excelente desempeño en desarrollo web'),
-(4, 4, 5, 6, 2, 2, 2, 'Desarrollo Móvil', 'Aplicación móvil para consultas bancarias y transferencias', 240, '2025-10-01', '2025-12-31', 'En Progreso', NULL, 'Proyecto en desarrollo con tecnologías React Native'),
-(5, 4, 7, 7, 1, 1, 1, 'Desarrollo de Software', 'Sistema de gestión hospitalaria avanzado', 240, '2025-12-01', '2026-02-28', 'Pendiente', NULL, 'Práctica programada para diciembre');
+(3, 4, 4, 4, 1, 1, 2, 'Desarrollo de Software', 'Sistema de gestión de historias clínicas digitales', 240, '2025-09-01', '2025-11-30', 'En Progreso', NULL, 'Estudiante con excelente desempeño en desarrollo web'),
+(4, 4, 5, 5, 2, 2, 2, 'Administración', 'Apoyo en gestión de proyectos de inclusión financiera y atención al cliente', 240, '2025-10-01', '2025-12-31', 'En Progreso', NULL, 'Práctica preprofesional en entidad financiera');
 
 -- Servicio comunitario (un solo INSERT)
 INSERT INTO `TAB_SERVICIO_COMUNITARIO` (`ID_SERVICIO_COMUNITARIO`, `ID_PERIODO_ACADEMICO`, `ID_ASIGNACION_PRACTICA`, `ID_ESTUDIANTE`, `ID_INSTRUCTOR`, `ID_INSTITUCION_CONVENIO`, `ID_ESTADO_SERVICIO`, `PROYECTO_SOCIAL`, `COMUNIDAD_BENEFICIADA`, `HORAS_SERVICIO`, `FECHA_INICIO`, `FECHA_FIN`, `ESTADO_SERVICIO`, `IMPACTO_SOCIAL`, `OBSERVACIONES`) VALUES
 (1, 4, 3, 3, 3, 3, 2, 'Plataforma Educativa Digital', 'Niños y adolescentes en situación vulnerable de Guayaquil', 96, '2025-08-01', '2025-10-30', 'En Progreso', 'Mejora en el acceso a educación digital para 200+ niños', 'Proyecto con alto impacto social positivo'),
-(2, 4, 6, 8, 3, 3, 2, 'Plataforma Educativa Digital', 'Niños y adolescentes en situación vulnerable de Guayaquil', 96, '2025-11-01', '2026-01-31', 'En Progreso', 'Mejora en el acceso a educación digital para 200+ niños', 'Proyecto con alto impacto social positivo'),
-(3, 5, 8, 9, 1, 2, 1, 'Alfabetización Digital para Adultos Mayores', 'Adultos mayores de la comunidad de Ibarra', 96, '2026-01-01', '2026-03-31', 'Pendiente', 'Capacitación digital para 50+ adultos mayores', 'Proyecto de inclusión digital'),
-(4, 5, 9, 4, 2, 3, 1, 'Preservación Cultural Digital', 'Comunidades indígenas de la región', 96, '2026-02-01', '2026-04-30', 'Pendiente', 'Digitalización de tradiciones culturales', 'Proyecto de preservación cultural'),
-(5, 5, 10, 5, 3, 1, 1, 'Inclusión Digital para Personas con Discapacidad', 'Personas con discapacidad visual y auditiva', 96, '2026-03-01', '2026-05-31', 'Pendiente', 'Tecnologías accesibles para 30+ personas', 'Proyecto de inclusión social');
+(2, 4, 6, 4, 3, 3, 2, 'Plataforma Educativa Digital', 'Niños y adolescentes en situación vulnerable de Guayaquil', 96, '2025-11-01', '2026-01-31', 'En Progreso', 'Mejora en el acceso a educación digital para 200+ niños', 'Proyecto con alto impacto social positivo');
 
 -- Asistencias y seguimientos (un INSERT por tabla)
 INSERT INTO `TAB_ASISTENCIAS_PRACTICAS_PREPROFESIONALES` (`ID_ASISTENCIA_PREPROFESIONAL`, `ID_PRACTICA_PREPROFESIONAL`, `FECHA_ASISTENCIA`, `HORA_ENTRADA`, `HORA_SALIDA`, `ACTIVIDADES_DIA`, `COMPETENCIAS_DESARROLLADAS`, `FECHA_REGISTRO`, `OBSERVACIONES`) VALUES
@@ -1537,11 +1512,9 @@ INSERT INTO `TAB_DOCUMENTOS_SERVICIO_COMUNITARIO` (
 (17, 1, 3, 3, 'carta_aceptacion_sc_001_20250803.pdf', 'Carta Aceptación SC - Fundación.pdf', 'application/pdf', 156672, '/uploads/documentos-servicio/', '2025-08-03 09:15:00', '2025-08-03 11:20:00', 1, 'Carta de aceptación de la entidad para servicio comunitario', 'Carta oficial con sello institucional', 1),
 (18, 1, 4, 3, 'solicitud_institucional_sc_001_20250804.pdf', 'Solicitud Institucional SC - Rector.pdf', 'application/pdf', 298496, '/uploads/documentos-servicio/', '2025-08-04 13:00:00', '2025-08-04 15:10:00', 1, 'Solicitud institucional valorada para servicio comunitario', 'Solicitud aprobada por el rector', 1),
 (19, 1, 5, 3, 'certificado_culminacion_sc_001_20251030.pdf', 'Certificado Culminación SC - 96 horas.pdf', 'application/pdf', 201728, '/uploads/documentos-servicio/', '2025-10-30 15:00:00', '2025-10-30 17:30:00', 1, 'Certificado de culminación de 96 horas de servicio comunitario', 'Certificado válido y completo', 1),
-(20, 2, 1, 1, 'oficio_asignacion_tutor_sc_002_20251101.pdf', 'Oficio Asignación Tutor SC - Valentina.pdf', 'application/pdf', 234880, '/uploads/documentos-servicio/', '2025-11-01 09:00:00', NULL, NULL, 'Documento pendiente de revisión', NULL, 1),
+(20, 2, 1, 1, 'oficio_asignacion_tutor_sc_002_20251101.pdf', 'Oficio Asignación Tutor SC - Ana Lucía.pdf', 'application/pdf', 234880, '/uploads/documentos-servicio/', '2025-11-01 09:00:00', NULL, NULL, 'Documento pendiente de revisión', NULL, 1),
 (21, 2, 2, 1, 'oficio_entidad_receptora_sc_002_20251102.pdf', 'Oficio Entidad Receptora SC - Fundación.pdf', 'application/pdf', 189440, '/uploads/documentos-servicio/', '2025-11-02 14:00:00', NULL, NULL, 'Oficio enviado a la entidad receptora', NULL, 1),
 (22, 2, 3, 1, 'carta_aceptacion_sc_002_20251103.pdf', 'Carta Aceptación SC - Fundación.pdf', 'application/pdf', 156672, '/uploads/documentos-servicio/', '2025-11-03 10:30:00', NULL, NULL, 'Carta de aceptación de la entidad', NULL, 1),
-(23, 3, 1, 1, 'oficio_asignacion_tutor_sc_003_20260101.pdf', 'Oficio Asignación Tutor SC - Andrés.pdf', 'application/pdf', 234880, '/uploads/documentos-servicio/', '2026-01-01 08:30:00', NULL, NULL, 'Documento pendiente de revisión', NULL, 1),
-(24, 3, 2, 1, 'oficio_entidad_receptora_sc_003_20260102.pdf', 'Oficio Entidad Receptora SC - Empresa.pdf', 'application/pdf', 189440, '/uploads/documentos-servicio/', '2026-01-02 13:15:00', NULL, NULL, 'Oficio enviado a la entidad receptora', NULL, 1),
 (25, 1, 6, 5, 'hojas_asistencia_sc_001_20251030.pdf', 'Hojas de Asistencia SC - Carlos.pdf', 'application/pdf', 123456, '/uploads/documentos-servicio/', '2025-10-30 15:15:00', '2025-10-30 17:45:00', 1, 'Hojas de asistencia completas para servicio comunitario', 'Faltan firmas en algunas fechas, corregir y volver a subir', 1),
 (26, 1, 7, 5, 'ficha_registro_actividades_sc_001_20251015.pdf', 'Ficha Registro Actividades SC - Carlos.pdf', 'application/pdf', 98765, '/uploads/documentos-servicio/', '2025-10-15 11:30:00', '2025-10-15 14:20:00', 1, 'Ficha de registro de actividades de servicio comunitario', 'Descripción de actividades muy general, especificar más detalles', 1),
 (27, 1, 8, 4, 'rubrica_evaluacion_entidad_sc_001_20251025.pdf', 'Rúbrica Evaluación Entidad SC - Carlos.pdf', 'application/pdf', 87654, '/uploads/documentos-servicio/', '2025-10-25 15:00:00', '2025-10-25 16:30:00', 1, 'Rúbrica de evaluación de entidad para servicio comunitario', 'Documento no tiene sello oficial de la entidad, rechazado', 1),
@@ -1573,13 +1546,9 @@ INSERT INTO `TAB_ASIGNACIONES_DOCENTES_PRACTICAS` (`ID_ASIGNACION_DOCENTE`, `ID_
 (2, 2, NULL, 2, 'Principal', '2025-07-01 05:00:00', NULL, 'Tutor principal asignado', 1),
 (3, 3, NULL, 1, 'Principal', '2025-09-01 05:00:00', NULL, 'Tutor principal asignado', 1),
 (4, 4, NULL, 2, 'Principal', '2025-10-01 05:00:00', NULL, 'Tutor principal asignado', 1),
-(5, 5, NULL, 1, 'Principal', '2025-12-01 05:00:00', NULL, 'Tutor principal asignado', 1),
 -- Servicios comunitarios
-(6, NULL, 1, 3, 'Principal', '2025-08-01 05:00:00', NULL, 'Tutor principal asignado', 1),
-(7, NULL, 2, 3, 'Principal', '2025-11-01 05:00:00', NULL, 'Tutor principal asignado', 1),
-(8, NULL, 3, 1, 'Principal', '2026-01-01 05:00:00', NULL, 'Tutor principal asignado', 1),
-(9, NULL, 4, 2, 'Principal', '2026-02-01 05:00:00', NULL, 'Tutor principal asignado', 1),
-(10, NULL, 5, 3, 'Principal', '2026-03-01 05:00:00', NULL, 'Tutor principal asignado', 1);
+(5, NULL, 1, 3, 'Principal', '2025-08-01 05:00:00', NULL, 'Tutor principal asignado', 1),
+(6, NULL, 2, 3, 'Principal', '2025-11-01 05:00:00', NULL, 'Tutor principal asignado', 1);
 
 -- Documentos de prácticas preprofesionales (un solo INSERT)
 INSERT INTO `TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES` (

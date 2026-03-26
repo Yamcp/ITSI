@@ -114,6 +114,29 @@ $practicasDocJs = array_map(static function (array $p): array {
 
         <?= $this->include('estudiante/partials/asistencia_registro_estudiante') ?>
 
+        <?php if (empty($practicas_documentacion)): ?>
+            <div class="row mb-3">
+                <div class="col-12 px-2 px-md-3">
+                    <div class="alert alert-info border border-info mb-0 p-4 shadow-sm text-dark" role="status">
+                        <div class="d-flex align-items-start gap-2">
+                            <div class="flex-shrink-0">
+                                <span class="badge bg-primary text-white px-3 py-2">
+                                    <i class="fas fa-clock me-1" aria-hidden="true"></i> Pendiente
+                                </span>
+                            </div>
+                            <div class="flex-grow-1 min-w-0">
+                                <p class="fw-bold mb-2 mb-md-1">Prácticas preprofesionales por asignar</p>
+                                <p class="mb-0" style="font-size: 0.86rem; line-height: 1.5; color: #053c47;">
+                                    Aún no hay práctica vinculada o faltan datos de institución/instructor.
+                                    Cuando el departamento registre tu asignación, verás la <strong>entidad</strong> y el <strong>tutor</strong> en el resumen de documentación más abajo.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+
         <div class="row mb-4">
             <div class="col-12">
                 <div class="card documentos-resumen-panel border shadow-sm">
@@ -182,11 +205,7 @@ $practicasDocJs = array_map(static function (array $p): array {
                             </h6>
                             <p class="small text-muted mb-3">Entidad receptora y docente tutor; se envían al subir cada PDF si hay práctica registrada.</p>
                             <?php if (empty($practicas_documentacion)): ?>
-                                <div class="alert alert-light border small mb-0 py-2">
-                                    <i class="fas fa-info-circle text-primary me-1"></i>
-                                    Aún no hay práctica vinculada o faltan datos de institución/instructor. Cuando el departamento registre tu asignación, verás la <strong>entidad</strong> y el <strong>tutor</strong>.
-                                    <a href="<?= site_url('estudiante/practicas') ?>" class="alert-link">Ver prácticas</a>.
-                                </div>
+                                <p class="small text-muted mb-0">Aún no hay datos de vinculación que mostrar.</p>
                             <?php else: ?>
                                 <div class="row g-2 g-md-3">
                                     <div class="col-md-6">

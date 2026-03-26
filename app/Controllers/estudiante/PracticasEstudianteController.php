@@ -11,6 +11,7 @@ use App\Models\TiposDocumentosPracticasModel;
 use App\Models\DocumentosServicioComunitarioModel;
 use App\Models\TiposDocumentosServicioComunitarioModel;
 use App\Models\UsuariosModel;
+use App\Services\EstudianteAsistenciaService;
 
 class PracticasEstudianteController extends BaseController
 {
@@ -48,7 +49,19 @@ class PracticasEstudianteController extends BaseController
             return redirect()->to(base_url('/'));
         }
 
-        $userId = session()->get('id_usuario');
+        $userId = (int) session()->get('id_usuario');
+
+        // Evitar mostrar la vista de "Prácticas Asignadas" (búsqueda por cédula/nombre)
+        // al estudiante logueado. Se redirige a la sección correcta según la vinculación activa.
+        if (EstudianteAsistenciaService::tienePracticaPreprofesionalEnProgreso($userId)) {
+            return redirect()->to(site_url('estudiante/documentos-practicas'));
+        }
+        if (EstudianteAsistenciaService::tieneServicioComunitarioEnProgreso($userId)) {
+            return redirect()->to(site_url('estudiante/documentos-servicio-comunitario'));
+        }
+
+        return redirect()->to(site_url('estudiante/dashboard'));
+
         $terminoBusqueda = trim((string) $this->request->getGet('buscar'));
         $mostrarResultados = false;
         $mensajeBusqueda = null;
@@ -574,6 +587,10 @@ class PracticasEstudianteController extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Datos inválidos']);
         }
 
+        if (empty($fechaAsistencia) || !is_string($fechaAsistencia) || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $fechaAsistencia)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Fecha inválida']);
+        }
+
         // Obtener ID_ESTUDIANTE del usuario logueado (mismo criterio que index)
         $estudiante = $this->db->table('TAB_ESTUDIANTES e')
             ->select('e.ID_ESTUDIANTE')
@@ -616,6 +633,17 @@ class PracticasEstudianteController extends BaseController
 
         try {
             if ($tipoPractica === 'preprofesional') {
+                // Evitar duplicados por misma práctica y fecha (útil para "fechas faltantes").
+                $yaExiste = $this->db->table('TAB_ASISTENCIAS_PRACTICAS_PREPROFESIONALES')
+                    ->where('ID_PRACTICA_PREPROFESIONAL', $practicaId)
+                    ->where('FECHA_ASISTENCIA', $fechaAsistencia)
+                    ->countAllResults() > 0;
+                if ($yaExiste) {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'Ya registraste asistencia para esa fecha en esta práctica'
+                    ]);
+                }
                 $this->db->table('TAB_ASISTENCIAS_PRACTICAS_PREPROFESIONALES')->insert([
                     'ID_PRACTICA_PREPROFESIONAL' => $practicaId,
                     'FECHA_ASISTENCIA' => $fechaAsistencia,
@@ -626,6 +654,16 @@ class PracticasEstudianteController extends BaseController
                     'FECHA_REGISTRO' => $fechaReg,
                 ]);
             } else {
+                $yaExiste = $this->db->table('TAB_ASISTENCIAS_SERVICIO_COMUNITARIO')
+                    ->where('ID_SERVICIO_COMUNITARIO', $practicaId)
+                    ->where('FECHA_ASISTENCIA', $fechaAsistencia)
+                    ->countAllResults() > 0;
+                if ($yaExiste) {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'Ya registraste asistencia para esa fecha en este servicio'
+                    ]);
+                }
                 $this->db->table('TAB_ASISTENCIAS_SERVICIO_COMUNITARIO')->insert([
                     'ID_SERVICIO_COMUNITARIO' => $practicaId,
                     'FECHA_ASISTENCIA' => $fechaAsistencia,
@@ -764,13 +802,13 @@ class PracticasEstudianteController extends BaseController
 
             // Horas completadas: TAB_ASISTENCIAS_* (HORA_ENTRADA/HORA_SALIDA) + TAB_SEGUIMIENTO_* (HORAS_CUMPLIDAS)
             $horasPp = $this->db->table('TAB_ASISTENCIAS_PRACTICAS_PREPROFESIONALES ap')
-                ->selectSum('TIMESTAMPDIFF(HOUR, ap.HORA_ENTRADA, ap.HORA_SALIDA)', 'total_horas')
+                ->select('SUM(TIMESTAMPDIFF(HOUR, ap.HORA_ENTRADA, ap.HORA_SALIDA)) AS total_horas', false)
                 ->join('TAB_PRACTICAS_PREPROFESIONALES pp', 'pp.ID_PRACTICA_PREPROFESIONAL = ap.ID_PRACTICA_PREPROFESIONAL')
                 ->where('pp.ID_ESTUDIANTE', $idEstudiante)
                 ->get()
                 ->getRow();
             $horasSc = $this->db->table('TAB_ASISTENCIAS_SERVICIO_COMUNITARIO as_')
-                ->selectSum('TIMESTAMPDIFF(HOUR, as_.HORA_ENTRADA, as_.HORA_SALIDA)', 'total_horas')
+                ->select('SUM(TIMESTAMPDIFF(HOUR, as_.HORA_ENTRADA, as_.HORA_SALIDA)) AS total_horas', false)
                 ->join('TAB_SERVICIO_COMUNITARIO sc', 'sc.ID_SERVICIO_COMUNITARIO = as_.ID_SERVICIO_COMUNITARIO')
                 ->where('sc.ID_ESTUDIANTE', $idEstudiante)
                 ->get()
@@ -1046,7 +1084,7 @@ class PracticasEstudianteController extends BaseController
         try {
             if ($tipo === 'preprofesional') {
                 $asist = $this->db->table('TAB_ASISTENCIAS_PRACTICAS_PREPROFESIONALES')
-                    ->selectSum('TIMESTAMPDIFF(HOUR, HORA_ENTRADA, HORA_SALIDA)', 'total_horas')
+                    ->select('SUM(TIMESTAMPDIFF(HOUR, HORA_ENTRADA, HORA_SALIDA)) AS total_horas', false)
                     ->where('ID_PRACTICA_PREPROFESIONAL', $practicaId)
                     ->get()
                     ->getRow();
@@ -1058,7 +1096,7 @@ class PracticasEstudianteController extends BaseController
                 return (int)($asist->total_horas ?? 0) + (int)($seg->total_horas ?? 0);
             }
             $asist = $this->db->table('TAB_ASISTENCIAS_SERVICIO_COMUNITARIO')
-                ->selectSum('TIMESTAMPDIFF(HOUR, HORA_ENTRADA, HORA_SALIDA)', 'total_horas')
+                ->select('SUM(TIMESTAMPDIFF(HOUR, HORA_ENTRADA, HORA_SALIDA)) AS total_horas', false)
                 ->where('ID_SERVICIO_COMUNITARIO', $practicaId)
                 ->get()
                 ->getRow();

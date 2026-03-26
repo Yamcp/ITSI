@@ -72,11 +72,6 @@ class AuthController extends BaseController
                 }
 
                 log_message('error', 'No se pudo enviar el correo de recuperación a: ' . $usuario['EMAIL']);
-                $msg = 'No se pudo enviar el correo desde el servidor. Establece tu nueva contraseña aquí; el enlace caduca en una hora.';
-                if (defined('ENVIRONMENT') && ENVIRONMENT === 'development') {
-                    $msg .= ' Desarrollo: para correo real, configura en .env email.fromEmail, email.SMTPUser y email.SMTPPass (ver app/Config/Email.php).';
-                }
-                $session->setFlashdata('success', $msg);
 
                 return redirect()->to('auth/restablecer-contrasena?token=' . urlencode($token));
             }

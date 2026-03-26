@@ -205,7 +205,7 @@
                                                     <?php if (!empty($actividades)): ?>
                                                         <?php foreach ($actividades as $actividad): ?>
                                                             <?php if ($actividad['ACTIVIDAD'] === 'Curso'): ?>
-                                                                <tr>
+                                                                <tr data-actividad-id="<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>" data-fecha-fin="<?= $actividad['FECHA_FIN'] ?>">
                                                                     <td><?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?></td>
                                                                     <td>
                                                                         <div class="d-flex align-items-center">
@@ -296,7 +296,7 @@
                                                     <?php if (!empty($actividades)): ?>
                                                         <?php foreach ($actividades as $actividad): ?>
                                                             <?php if ($actividad['ACTIVIDAD'] === 'Taller'): ?>
-                                                                <tr>
+                                                                <tr data-actividad-id="<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>" data-fecha-fin="<?= $actividad['FECHA_FIN'] ?>">
                                                                     <td><?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?></td>
                                                                     <td>
                                                                         <div class="d-flex align-items-center">
@@ -387,7 +387,7 @@
                                                     <?php if (!empty($actividades)): ?>
                                                         <?php foreach ($actividades as $actividad): ?>
                                                             <?php if ($actividad['ACTIVIDAD'] === 'Seminario'): ?>
-                                                                <tr>
+                                                                <tr data-actividad-id="<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>" data-fecha-fin="<?= $actividad['FECHA_FIN'] ?>">
                                                                     <td><?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?></td>
                                                                     <td>
                                                                         <div class="d-flex align-items-center">
@@ -655,10 +655,70 @@
         }
     }
 
+    /**
+     * Polling para que, cuando el coordinador agregue el enlace de satisfacción,
+     * el docente lo vea automáticamente en la tabla (sin recargar la página).
+     */
+    async function actualizarEnlacesSatisfaccionDocente() {
+        try {
+            const response = await fetch('<?= base_url('docente/actividades-educacion/api/encuestas-satisfaccion') ?>', { cache: 'no-store' });
+            const payload = await response.json();
+            if (!payload.success) return;
+
+            const enlacesPorActividad = payload.data || {};
+            const hoy = new Date().toISOString().split('T')[0];
+
+            document.querySelectorAll('tr[data-actividad-id]').forEach(tr => {
+                const idActividad = String(tr.dataset.actividadId || '');
+                const fechaFin = String(tr.dataset.fechaFin || '');
+                if (!idActividad || !fechaFin) return;
+
+                const fechaFinSolo = fechaFin.slice(0, 10);
+                const finalizado = fechaFinSolo < hoy;
+                const enlace = enlacesPorActividad[idActividad]?.ENLACE_FORMULARIO || null;
+
+                // Mostrar/ocultar fila: activos siempre; finalizados solo si ya hay enlace.
+                tr.style.display = (!finalizado || (finalizado && enlace)) ? '' : 'none';
+
+                const btnGroup = tr.querySelector('.btn-group');
+                if (!btnGroup) return;
+
+                const idLink = `doc-encuesta-link-${idActividad}`;
+                const enlaceExistente = document.getElementById(idLink);
+
+                if (finalizado && enlace) {
+                    if (!enlaceExistente) {
+                        const a = document.createElement('a');
+                        a.id = idLink;
+                        a.target = '_blank';
+                        a.rel = 'noopener';
+                        a.className = 'btn btn-outline-success btn-sm';
+                        a.innerHTML = '<i class="fas fa-external-link-alt me-1"></i>Completar encuesta';
+                        btnGroup.appendChild(a);
+                    }
+                    const link = document.getElementById(idLink);
+                    link.href = enlace;
+                } else {
+                    if (enlaceExistente) {
+                        enlaceExistente.remove();
+                    }
+                }
+            });
+        } catch (e) {
+            console.error('Error al actualizar enlaces satisfacción (docente):', e);
+        }
+    }
+
+    function iniciarPollingEncuestasSatisfaccionDocente() {
+        actualizarEnlacesSatisfaccionDocente();
+        setInterval(actualizarEnlacesSatisfaccionDocente, 15000); // 15s
+    }
+
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
         // Cargar estadísticas al cargar la página
         cargarEstadisticas();
+        iniciarPollingEncuestasSatisfaccionDocente();
     });
 </script>
 
