@@ -30,8 +30,9 @@
         <?php
         $encuestaSatisfaccionAlert = $encuestaSatisfaccion ?? null;
         $fechaFinAlert = new DateTime($actividad['FECHA_FIN']);
-        $hoyAlert = new DateTime();
-        $estaFinalizadaSinEncuesta = ($fechaFinAlert < $hoyAlert) && empty($encuestaSatisfaccionAlert);
+        $fechaFinAlert->setTime(0, 0, 0);
+        $hoyAlert = new DateTime('today');
+        $estaFinalizadaSinEncuesta = ($fechaFinAlert <= $hoyAlert) && empty($encuestaSatisfaccionAlert);
         ?>
         <?php if ($estaFinalizadaSinEncuesta): ?>
             <div class="alert alert-warning alert-dismissible fade show d-flex align-items-center" role="alert">
@@ -135,8 +136,9 @@
                 <!-- Encuesta de satisfacción (solo cuando el curso ha finalizado) -->
                 <?php
                 $fechaFin = new DateTime($actividad['FECHA_FIN']);
-                $hoy = new DateTime();
-                $estaFinalizada = $fechaFin < $hoy;
+                $fechaFin->setTime(0, 0, 0);
+                $hoy = new DateTime('today');
+                $estaFinalizada = $fechaFin <= $hoy;
                 $encuestaSatisfaccion = $encuestaSatisfaccion ?? null;
                 ?>
                 <?php if ($estaFinalizada): ?>

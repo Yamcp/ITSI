@@ -327,8 +327,10 @@ class ActividadesEducacionCoordController extends BaseController
             $color = '#007bff'; // Azul por defecto
             if ($actividad['TIPO_ACTIVIDAD'] === 'Taller') {
                 $color = '#28a745'; // Verde
-            } elseif ($actividad['TIPO_ACTIVIDAD'] === 'Seminario') {
+            } elseif ($actividad['TIPO_ACTIVIDAD'] === 'Conferencia') {
                 $color = '#17a2b8'; // Azul claro
+            } elseif ($actividad['TIPO_ACTIVIDAD'] === 'Capacitación') {
+                $color = '#fd7e14'; // Naranja
             }
 
             $eventos[] = [
@@ -378,9 +380,15 @@ class ActividadesEducacionCoordController extends BaseController
             ->where('FECHA_FIN >=', date('Y-m-d'))
             ->countAllResults();
 
-        $seminariosActivos = $this->actividadesModel
+        $conferenciasActivos = $this->actividadesModel
             ->join('TAB_TIPOS_ACTIVIDADES ta', 'ta.ID_TIPO_ACTIVIDAD = TAB_ACTIVIDADES_EDUCACION.ID_TIPO_ACTIVIDAD')
-            ->where('ta.ACTIVIDAD', 'Seminario')
+            ->where('ta.ACTIVIDAD', 'Conferencia')
+            ->where('FECHA_FIN >=', date('Y-m-d'))
+            ->countAllResults();
+
+        $capacitacionesActivos = $this->actividadesModel
+            ->join('TAB_TIPOS_ACTIVIDADES ta', 'ta.ID_TIPO_ACTIVIDAD = TAB_ACTIVIDADES_EDUCACION.ID_TIPO_ACTIVIDAD')
+            ->where('ta.ACTIVIDAD', 'Capacitación')
             ->where('FECHA_FIN >=', date('Y-m-d'))
             ->countAllResults();
 
@@ -388,7 +396,8 @@ class ActividadesEducacionCoordController extends BaseController
             'totalActividades' => $totalActividades,
             'cursosActivos' => $cursosActivos,
             'talleresActivos' => $talleresActivos,
-            'seminariosActivos' => $seminariosActivos
+            'conferenciasActivos' => $conferenciasActivos,
+            'capacitacionesActivos' => $capacitacionesActivos
         ]);
     }
 

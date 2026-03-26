@@ -91,8 +91,16 @@
             <div class="col-md-3 col-sm-6">
                 <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #6f42c1 80%, #4a2c7a 100%); color: #fff; border: none;">
                     <div class="card-body">
-                        <h2 class="card-title mb-2" id="seminariosActivos" style="font-size:2.5rem;">0</h2>
-                        <p class="card-text fw-bold" style="color: #e0e0e0;">Seminarios Activos</p>
+                        <h2 class="card-title mb-2" id="conferenciasActivos" style="font-size:2.5rem;">0</h2>
+                        <p class="card-text fw-bold" style="color: #e0e0e0;">Conferencias Activas</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #fd7e14 80%, #c65a00 100%); color: #fff; border: none;">
+                    <div class="card-body">
+                        <h2 class="card-title mb-2" id="capacitacionesActivos" style="font-size:2.5rem;">0</h2>
+                        <p class="card-text fw-bold" style="color: #ffe6d6;">Capacitaciones Activas</p>
                     </div>
                 </div>
             </div>
@@ -159,8 +167,13 @@
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-pill fw-semibold text-info" id="seminarios-tab" data-bs-toggle="tab" data-bs-target="#seminarios" type="button" role="tab" aria-selected="false">
-                                    <i class="fas fa-users me-2"></i>Seminarios
+                                <button class="nav-link rounded-pill fw-semibold text-info" id="conferencias-tab" data-bs-toggle="tab" data-bs-target="#conferencias" type="button" role="tab" aria-selected="false">
+                                    <i class="fas fa-users me-2"></i>Conferencias
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link rounded-pill fw-semibold text-primary" id="capacitacion-tab" data-bs-toggle="tab" data-bs-target="#capacitaciones" type="button" role="tab" aria-selected="false">
+                                    <i class="fas fa-chalkboard-teacher me-2"></i>Capacitación
                                 </button>
                             </li>
                         </ul>
@@ -200,7 +213,8 @@
                                                             <?php if ($actividad['ACTIVIDAD'] === 'Curso'): ?>
                                                                 <?php
                                                                 $fechaFinC = new DateTime($actividad['FECHA_FIN']);
-                                                                $finalizadoC = $fechaFinC < new DateTime();
+                                                                $fechaFinC->setTime(0, 0, 0); // Comparar solo por fecha (hoy cuenta como finalizado)
+                                                                $finalizadoC = $fechaFinC <= new DateTime('today');
                                                                 $encuestaC = $encuestasPorActividad[$actividad['ID_ACTIVIDAD_EDUCACION']] ?? null;
                                                                 ?>
                                                                 <tr>
@@ -295,7 +309,8 @@
                                                             <?php if ($actividad['ACTIVIDAD'] === 'Taller'): ?>
                                                                 <?php
                                                                 $fechaFinT = new DateTime($actividad['FECHA_FIN']);
-                                                                $finalizadoT = $fechaFinT < new DateTime();
+                                                                $fechaFinT->setTime(0, 0, 0);
+                                                                $finalizadoT = $fechaFinT <= new DateTime('today');
                                                                 $encuestaT = $encuestasPorActividad[$actividad['ID_ACTIVIDAD_EDUCACION']] ?? null;
                                                                 ?>
                                                                 <tr>
@@ -365,8 +380,8 @@
                                 </div>
                             </div>
 
-                            <!-- Seminarios -->
-                            <div class="tab-pane fade" id="seminarios" role="tabpanel">
+                            <!-- Conferencias -->
+                            <div class="tab-pane fade" id="conferencias" role="tabpanel">
                                 <div class="card shadow-sm border-0">
                                     <div class="card-body p-0">
                                         <div class="table-responsive">
@@ -384,14 +399,15 @@
                                                         <th>Acciones</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody id="tablaSeminarios">
+                                                <tbody id="tablaConferencias">
                                                     <?php if (!empty($actividades)): ?>
                                                         <?php foreach ($actividades as $actividad): ?>
-                                                            <?php if ($actividad['ACTIVIDAD'] === 'Seminario'): ?>
+                                                            <?php if ($actividad['ACTIVIDAD'] === 'Conferencia'): ?>
                                                                 <?php
-                                                                $fechaFinS = new DateTime($actividad['FECHA_FIN']);
-                                                                $finalizadoS = $fechaFinS < new DateTime();
-                                                                $encuestaS = $encuestasPorActividad[$actividad['ID_ACTIVIDAD_EDUCACION']] ?? null;
+                                                                $fechaFinCo = new DateTime($actividad['FECHA_FIN']);
+                                                                $fechaFinCo->setTime(0, 0, 0);
+                                                                $finalizadoCo = $fechaFinCo <= new DateTime('today');
+                                                                $encuestaCo = $encuestasPorActividad[$actividad['ID_ACTIVIDAD_EDUCACION']] ?? null;
                                                                 ?>
                                                                 <tr>
                                                                     <td><?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?></td>
@@ -415,16 +431,16 @@
                                                                     </td>
                                                                     <td><span class="badge bg-secondary"><?= $actividad['DURACION_HORAS'] ?>h</span></td>
                                                                     <td>
-                                                                        <?php if ($finalizadoS): ?>
+                                                                        <?php if ($finalizadoCo): ?>
                                                                             <span class="badge bg-secondary">Finalizado</span>
                                                                         <?php else: ?>
-                                                                            <span class="badge bg-secondary">Programado</span>
+                                                                            <span class="badge bg-success">Activo</span>
                                                                         <?php endif; ?>
                                                                     </td>
                                                                     <td>
-                                                                        <?php if ($finalizadoS): ?>
-                                                                            <?php if ($encuestaS): ?>
-                                                                                <a href="<?= esc($encuestaS['ENLACE_FORMULARIO']) ?>" target="_blank" rel="noopener" class="btn btn-success btn-sm" title="Abrir encuesta"><i class="fas fa-external-link-alt"></i></a>
+                                                                        <?php if ($finalizadoCo): ?>
+                                                                            <?php if ($encuestaCo): ?>
+                                                                                <a href="<?= esc($encuestaCo['ENLACE_FORMULARIO']) ?>" target="_blank" rel="noopener" class="btn btn-success btn-sm" title="Abrir encuesta"><i class="fas fa-external-link-alt"></i></a>
                                                                             <?php else: ?>
                                                                                 <a href="<?= base_url('coord/actividades-educacion/ver/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-success btn-sm" title="Agregar encuesta de satisfacción"><i class="fas fa-plus"></i></a>
                                                                             <?php endif; ?>
@@ -449,7 +465,103 @@
                                                         <tr>
                                                             <td colspan="9" class="text-center text-muted py-4">
                                                                 <i class="fas fa-inbox fa-3x mb-3"></i>
-                                                                <p>No hay seminarios registrados</p>
+                                                                <p>No hay conferencias registradas</p>
+                                                            </td>
+                                                        </tr>
+                                                    <?php endif; ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Capacitación -->
+                            <div class="tab-pane fade" id="capacitaciones" role="tabpanel">
+                                <div class="card shadow-sm border-0">
+                                    <div class="card-body p-0">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped align-middle mb-0">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Actividad</th>
+                                                        <th>Instructor</th>
+                                                        <th>Modalidad</th>
+                                                        <th>Período</th>
+                                                        <th>Duración</th>
+                                                        <th>Estado</th>
+                                                        <th>Encuesta</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="tablaCapacitaciones">
+                                                    <?php if (!empty($actividades)): ?>
+                                                        <?php foreach ($actividades as $actividad): ?>
+                                                            <?php if ($actividad['ACTIVIDAD'] === 'Capacitación'): ?>
+                                                                <?php
+                                                                $fechaFinCa = new DateTime($actividad['FECHA_FIN']);
+                                                                $fechaFinCa->setTime(0, 0, 0);
+                                                                $finalizadoCa = $fechaFinCa <= new DateTime('today');
+                                                                $encuestaCa = $encuestasPorActividad[$actividad['ID_ACTIVIDAD_EDUCACION']] ?? null;
+                                                                ?>
+                                                                <tr>
+                                                                    <td><?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?></td>
+                                                                    <td>
+                                                                        <div class="d-flex align-items-center">
+                                                                            <i class="fas fa-chalkboard-teacher fa-2x me-2 text-warning"></i>
+                                                                            <div>
+                                                                                <div class="fw-semibold"><?= $actividad['NOMBRE_ACTIVIDAD'] ?></div>
+                                                                                <small class="text-muted"><?= $actividad['DESCRIPCION'] ?></small>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div><?= $actividad['NOMBRE'] ?> <?= $actividad['APELLIDO'] ?></div>
+                                                                        <small class="text-muted"><?= $actividad['ESPECIALIDAD'] ?></small>
+                                                                    </td>
+                                                                    <td><span class="badge bg-warning text-dark"><?= $actividad['MODALIDAD'] ?></span></td>
+                                                                    <td>
+                                                                        <div><?= date('M Y', strtotime($actividad['FECHA_INICIO'])) ?> - <?= date('M Y', strtotime($actividad['FECHA_FIN'])) ?></div>
+                                                                        <small class="text-muted"><?= $actividad['DURACION_HORAS'] ?> horas</small>
+                                                                    </td>
+                                                                    <td><span class="badge bg-secondary"><?= $actividad['DURACION_HORAS'] ?>h</span></td>
+                                                                    <td>
+                                                                        <?php if ($finalizadoCa): ?>
+                                                                            <span class="badge bg-secondary">Finalizado</span>
+                                                                        <?php else: ?>
+                                                                            <span class="badge bg-warning text-dark">Activo</span>
+                                                                        <?php endif; ?>
+                                                                    </td>
+                                                                    <td>
+                                                                        <?php if ($finalizadoCa): ?>
+                                                                            <?php if ($encuestaCa): ?>
+                                                                                <a href="<?= esc($encuestaCa['ENLACE_FORMULARIO']) ?>" target="_blank" rel="noopener" class="btn btn-success btn-sm" title="Abrir encuesta"><i class="fas fa-external-link-alt"></i></a>
+                                                                            <?php else: ?>
+                                                                                <a href="<?= base_url('coord/actividades-educacion/ver/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-success btn-sm" title="Agregar encuesta de satisfacción"><i class="fas fa-plus"></i></a>
+                                                                            <?php endif; ?>
+                                                                        <?php else: ?>
+                                                                            <span class="text-muted small">—</span>
+                                                                        <?php endif; ?>
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="btn-group btn-group-sm">
+                                                                            <a href="<?= base_url('coord/actividades-educacion/ver/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-primary" title="Ver Detalle">
+                                                                                <i class="fas fa-eye"></i>
+                                                                            </a>
+                                                                            <a href="<?= base_url('coord/actividades-educacion/editar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-warning" title="Editar">
+                                                                                <i class="fas fa-edit"></i>
+                                                                            </a>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            <?php endif; ?>
+                                                        <?php endforeach; ?>
+                                                    <?php else: ?>
+                                                        <tr>
+                                                            <td colspan="9" class="text-center text-muted py-4">
+                                                                <i class="fas fa-inbox fa-3x mb-3"></i>
+                                                                <p>No hay capacitaciones registradas</p>
                                                             </td>
                                                         </tr>
                                                     <?php endif; ?>
@@ -478,7 +590,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                <p class="text-muted small mb-3">Los filtros se aplican a las tablas de Cursos, Talleres y Seminarios en esta página.</p>
+                <p class="text-muted small mb-3">Los filtros se aplican a las tablas de Cursos, Talleres, Conferencias y Capacitaciones en esta página.</p>
                 <div class="mb-3">
                     <label class="form-label" for="filtroBusqueda">Buscar</label>
                     <input type="search" class="form-control" id="filtroBusqueda" placeholder="Nombre o descripción de la actividad" autocomplete="off">
@@ -767,9 +879,14 @@
                                 <i class="fas fa-tools me-1"></i>Talleres
                             </label>
 
-                            <input type="checkbox" class="btn-check" id="filtroSeminarios" checked>
-                            <label class="btn btn-outline-info" for="filtroSeminarios">
-                                <i class="fas fa-users me-1"></i>Seminarios
+                            <input type="checkbox" class="btn-check" id="filtroConferencias" checked>
+                            <label class="btn btn-outline-info" for="filtroConferencias">
+                                <i class="fas fa-users me-1"></i>Conferencias
+                            </label>
+
+                            <input type="checkbox" class="btn-check" id="filtroCapacitaciones" checked>
+                            <label class="btn btn-outline-warning" for="filtroCapacitaciones">
+                                <i class="fas fa-chalkboard-teacher me-1"></i>Capacitaciones
                             </label>
                         </div>
                     </div>
@@ -859,7 +976,7 @@
         const ins = (document.getElementById('filtroInstructor')?.value || '').trim();
         const mod = (document.getElementById('filtroModalidad')?.value || '').trim();
         const est = (document.getElementById('filtroEstado')?.value || '').trim();
-        const ids = ['tablaCursos', 'tablaTalleres', 'tablaSeminarios'];
+        const ids = ['tablaCursos', 'tablaTalleres', 'tablaConferencias', 'tablaCapacitaciones'];
 
         ids.forEach((tbodyId) => {
             const tbody = document.getElementById(tbodyId);
@@ -928,7 +1045,7 @@
         if (e) {
             e.value = '';
         }
-        ['tablaCursos', 'tablaTalleres', 'tablaSeminarios'].forEach((tbodyId) => {
+        ['tablaCursos', 'tablaTalleres', 'tablaConferencias', 'tablaCapacitaciones'].forEach((tbodyId) => {
             const tbody = document.getElementById(tbodyId);
             if (!tbody) {
                 return;
@@ -1167,7 +1284,7 @@
     // Aplicar filtros del calendario
     document.addEventListener('DOMContentLoaded', function() {
         // Filtros de tipo de actividad
-        const filtros = ['filtroCursos', 'filtroTalleres', 'filtroSeminarios'];
+        const filtros = ['filtroCursos', 'filtroTalleres', 'filtroConferencias', 'filtroCapacitaciones'];
 
         filtros.forEach(filtro => {
             const elemento = document.getElementById(filtro);
@@ -1184,7 +1301,8 @@
 
         const mostrarCursos = document.getElementById('filtroCursos').checked;
         const mostrarTalleres = document.getElementById('filtroTalleres').checked;
-        const mostrarSeminarios = document.getElementById('filtroSeminarios').checked;
+        const mostrarConferencias = document.getElementById('filtroConferencias').checked;
+        const mostrarCapacitaciones = document.getElementById('filtroCapacitaciones').checked;
 
         // Obtener todos los eventos
         const eventos = window.calendario.getEvents();
@@ -1195,7 +1313,8 @@
 
             if (tipo === 'Curso' && mostrarCursos) visible = true;
             if (tipo === 'Taller' && mostrarTalleres) visible = true;
-            if (tipo === 'Seminario' && mostrarSeminarios) visible = true;
+            if (tipo === 'Conferencia' && mostrarConferencias) visible = true;
+            if (tipo === 'Capacitación' && mostrarCapacitaciones) visible = true;
 
             evento.setProp('display', visible ? 'auto' : 'none');
         });
@@ -1243,7 +1362,8 @@
             document.getElementById('totalActividades').textContent = stats.totalActividades || 0;
             document.getElementById('cursosActivos').textContent = stats.cursosActivos || 0;
             document.getElementById('talleresActivos').textContent = stats.talleresActivos || 0;
-            document.getElementById('seminariosActivos').textContent = stats.seminariosActivos || 0;
+            document.getElementById('conferenciasActivos').textContent = stats.conferenciasActivos || 0;
+            document.getElementById('capacitacionesActivos').textContent = stats.capacitacionesActivos || 0;
 
             estadisticas = stats;
         } catch (error) {

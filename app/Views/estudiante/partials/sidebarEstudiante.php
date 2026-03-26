@@ -33,15 +33,7 @@
                         <span>
                             <i class="fa-solid fa-layer-group fs-6"></i>
                         </span>
-                        <span class="hide-menu">Mis cursos</span>
-                    </a>
-                </li>
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="<?= base_url('estudiante/evaluaciones') ?>" aria-expanded="false">
-                        <span>
-                            <i class="fa-solid fa-clipboard-check fs-6"></i>
-                        </span>
-                        <span class="hide-menu">Evaluaciones</span>
+                        <span class="hide-menu">Cursos y evaluaciones</span>
                     </a>
                 </li>
                 <li class="sidebar-item">
