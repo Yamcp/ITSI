@@ -54,7 +54,7 @@
                             </div>
                         <?php endif; ?>
 
-                        <form action="<?= base_url('docente/actividades-educacion/actualizar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" method="POST">
+                        <form action="<?= base_url('docente/actividades-educacion/actualizar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" method="POST" id="formEditarActividadDocente">
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
@@ -101,11 +101,12 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Modalidad<span class="text-danger">*</span></label>
-                                        <select class="form-select" name="modalidad" required>
+                                        <select class="form-select" name="modalidad" id="selectModalidadEditarActividadDocente" required>
                                             <option value="">Seleccionar modalidad...</option>
                                             <?php if (!empty($modalidades)): ?>
                                                 <?php foreach ($modalidades as $modalidad): ?>
                                                     <option value="<?= $modalidad['ID_TIPO_MODALIDAD'] ?>"
+                                                        data-modalidad-nombre="<?= esc($modalidad['MODALIDAD'], 'attr') ?>"
                                                         <?= (old('modalidad', $actividad['ID_TIPO_MODALIDAD']) == $modalidad['ID_TIPO_MODALIDAD']) ? 'selected' : '' ?>>
                                                         <?= esc($modalidad['MODALIDAD']) ?>
                                                     </option>
@@ -141,13 +142,18 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Lugar<span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" name="lugar"
-                                            value="<?= esc(old('lugar', $actividad['LUGAR'])) ?>" required>
-                                    </div>
+                                <div class="col-md-6 mb-3 d-none" id="wrapLugarEditarActividadDocente">
+                                    <label class="form-label">Lugar <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="lugar" id="inputLugarEditarActividadDocente"
+                                        value="<?= esc(old('lugar', $actividad['LUGAR'])) ?>">
                                 </div>
+                                <div class="col-md-6 mb-3 d-none" id="wrapEnlaceEditarActividadDocente">
+                                    <label class="form-label">Enlace <span class="text-danger">*</span></label>
+                                    <input type="url" class="form-control" name="enlace" id="inputEnlaceEditarActividadDocente"
+                                        value="<?= esc(old('enlace', $actividad['ENLACE'] ?? '')) ?>" placeholder="https://...">
+                                </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Horario<span class="text-danger">*</span></label>
@@ -193,4 +199,38 @@
         </div>
     </div>
 </div>
+<script>
+(function () {
+    function slugModalidad(t) {
+        const s = (t || '').toLowerCase();
+        if (/híbr|hibr|semi[\s\-]?presencial/.test(s)) return 'hibrida';
+        if (/virtual|en\s+l[ií]nea|l[ií]nea|remoto|online|distancia/.test(s)) return 'virtual';
+        if (/presencial/.test(s)) return 'presencial';
+        return '';
+    }
+    function sync() {
+        const sel = document.getElementById('selectModalidadEditarActividadDocente');
+        if (!sel) return;
+        const opt = sel.options[sel.selectedIndex];
+        const label = opt ? (opt.getAttribute('data-modalidad-nombre') || opt.textContent || '').trim() : '';
+        const slug = slugModalidad(label);
+        const wL = document.getElementById('wrapLugarEditarActividadDocente');
+        const wE = document.getElementById('wrapEnlaceEditarActividadDocente');
+        const iL = document.getElementById('inputLugarEditarActividadDocente');
+        const iE = document.getElementById('inputEnlaceEditarActividadDocente');
+        if (!wL || !wE || !iL || !iE) return;
+        const showL = slug === 'presencial' || slug === 'hibrida';
+        const showE = slug === 'virtual' || slug === 'hibrida';
+        wL.classList.toggle('d-none', !showL);
+        wE.classList.toggle('d-none', !showE);
+        iL.required = showL;
+        iE.required = showE;
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        const sel = document.getElementById('selectModalidadEditarActividadDocente');
+        if (sel) sel.addEventListener('change', sync);
+        sync();
+    });
+})();
+</script>
 <?= $this->endSection() ?>

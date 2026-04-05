@@ -147,6 +147,33 @@
   }
 }
 
+// Nombre referenciado por .dropdown-menu-animate-up (antes faltaba y el efecto quedaba roto en algunos navegadores)
+@-webkit-keyframes animation-dropdown-menu-move-up {
+  from {
+    opacity: 1;
+    -webkit-transform: translateY(8px);
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+  }
+}
+
+@keyframes animation-dropdown-menu-move-up {
+  from {
+    opacity: 1;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 @-webkit-keyframes animation-dropdown-menu-fade-in {
   from {
     opacity: 0;

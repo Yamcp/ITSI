@@ -1,5 +1,5 @@
 <!-- app/Views/partials/navbar.php -->
-<header class="app-header w-100">
+<header class="app-header">
     <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #00367c;">
         <a class="navbar-brand d-flex align-items-center" href="<?= base_url() ?>">
         </a>

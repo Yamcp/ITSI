@@ -176,7 +176,8 @@ class DocumentosServicioComunitarioModel extends Model
     public function getTiposDocumentos()
     {
         $tiposModel = new \App\Models\TiposDocumentosServicioComunitarioModel();
-        return $tiposModel->orderBy('ORDEN', 'ASC')->findAll();
+
+        return $tiposModel->getAllTipos();
     }
 
     /**

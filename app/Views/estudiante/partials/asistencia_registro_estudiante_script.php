@@ -35,7 +35,9 @@ $urlRegistrar = site_url('estudiante/practicas/registrar-asistencia');
         var c2 = document.getElementById('asist_est_count_obs');
         if (c1) c1.textContent = '0';
         if (c2) c2.textContent = '0';
-        new bootstrap.Modal(el).show();
+        if (typeof bootstrap !== 'undefined') {
+            bootstrap.Modal.getOrCreateInstance(el).show();
+        }
     };
 
     window.estudianteGuardarAsistencia = function() {
@@ -88,6 +90,11 @@ $urlRegistrar = site_url('estudiante/practicas/registrar-asistencia');
     };
 
     document.addEventListener('DOMContentLoaded', function() {
+        var modalAsist = document.getElementById('modalRegistroAsistenciaEstudiante');
+        if (modalAsist && modalAsist.parentNode !== document.body) {
+            document.body.appendChild(modalAsist);
+        }
+
         var sel = document.getElementById('asist_est_select_vinculo');
         if (sel && sel.tagName === 'SELECT') {
             sel.addEventListener('change', syncAsistenciaVinculoFromDom);
@@ -114,10 +121,12 @@ $urlRegistrar = site_url('estudiante/practicas/registrar-asistencia');
                 if (fi && fd) fi.value = fd;
                 syncAsistenciaVinculoFromDom();
             }
-            new bootstrap.Modal(el, {
-                backdrop: 'static',
-                keyboard: false
-            }).show();
+            if (typeof bootstrap !== 'undefined') {
+                bootstrap.Modal.getOrCreateInstance(el, {
+                    backdrop: 'static',
+                    keyboard: false
+                }).show();
+            }
         }
         <?php endif; ?>
     });

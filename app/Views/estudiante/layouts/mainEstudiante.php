@@ -36,9 +36,6 @@
                     <div class="container-fluid">
                         <?= $this->renderSection('content') ?>
                     </div>
-                    <div class="container-fluid">
-                        <?= $this->renderSection('modal') ?>
-                    </div>
                 </main>
 
                 <!-- Footer -->
@@ -46,6 +43,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Modales fuera del layout principal: evitan conflictos de z-index con la cabecera fija y el scroll -->
+    <?= $this->renderSection('modal') ?>
 
     <!-- Scripts -->
     <script src="<?= base_url('sistema/assets/libs/jquery/dist/jquery.min.js') ?>"></script>
@@ -58,6 +58,46 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
     <script>
+        // Función para manejar el cierre de sesión
+        function cerrarSesion() {
+            const btnCerrar = document.getElementById('btnCerrarSesion') || document.querySelector('a[href*="cerrar-sesion"]');
+            if (btnCerrar) {
+                btnCerrar.innerHTML = '<i class="ti ti-loader me-1"></i>Cerrando...';
+                btnCerrar.style.pointerEvents = 'none';
+                btnCerrar.style.opacity = '0.7';
+            }
+
+            window.location.href = '<?= base_url('auth/cerrar-sesion') ?>';
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const btnCerrarSesion = document.getElementById('btnCerrarSesion');
+            if (btnCerrarSesion) {
+                btnCerrarSesion.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    cerrarSesion();
+                });
+            }
+
+            const btnCerrarSesionSidebar = document.getElementById('btnCerrarSesionSidebar');
+            if (btnCerrarSesionSidebar) {
+                btnCerrarSesionSidebar.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    cerrarSesion();
+                });
+            }
+
+            const enlacesCerrarSesion = document.querySelectorAll('a[href*="cerrar-sesion"]:not(#btnCerrarSesion):not(#btnCerrarSesionSidebar)');
+            enlacesCerrarSesion.forEach(function(enlace) {
+                enlace.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    cerrarSesion();
+                });
+            });
+        });
+
+        window.cerrarSesion = cerrarSesion;
+
         // Cierre de sesión automático por inactividad (10 minutos)
         (function() {
             var INACTIVIDAD_MS = 10 * 60 * 1000; // 10 minutos

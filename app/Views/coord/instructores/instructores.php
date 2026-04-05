@@ -17,39 +17,27 @@
             </div>
         </div>
 
-        <!-- Estadísticas Rápidas -->
-        <div class="row mb-4 justify-content-center">
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #007bff 80%, #0056b3 100%); color: #fff; border: none;">
-                    <div class="card-body">
+        <!-- Estadísticas y acciones rápidas (una fila en pantallas grandes) -->
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3 mb-4 align-items-stretch">
+            <div class="col">
+                <div class="card text-center shadow-sm h-100" style="background: linear-gradient(135deg, #007bff 80%, #0056b3 100%); color: #fff; border: none;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center py-3">
                         <h2 class="card-title mb-2" id="totalInstructores" style="font-size:2.5rem;">12</h2>
-                        <p class="card-text fw-bold" style="color: #e0e0e0;">Total Instructores</p>
+                        <p class="card-text fw-bold mb-0" style="color: #e0e0e0;">Total Instructores</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #28a745 80%, #155724 100%); color: #fff; border: none;">
-                    <div class="card-body">
-                        <h2 class="card-title mb-2" id="instructoresActivos" style="font-size:2.5rem;">8</h2>
-                        <p class="card-text fw-bold" style="color: #ffe6e6;">Activos</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Acciones Rápidas -->
-        <div class="row mb-4 justify-content-center">
-            <div class="col-md-3 col-sm-6 mb-3">
+            <div class="col">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="#" onclick="showModal('modalNuevoInstructor')" style="text-decoration: none; color: inherit;">
+                        <a href="#" onclick="abrirModalNuevoInstructor(); return false;" style="text-decoration: none; color: inherit;">
                             <i class="fas fa-user-plus fa-2x mb-2" style="color: #28a745; text-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);"></i>
                             <div class="fw-bold">Nuevo Instructor</div>
                         </a>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
+            <div class="col">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="generarReporte()" style="text-decoration: none; color: inherit;">
@@ -59,7 +47,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
+            <div class="col">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="exportarDatos()" style="text-decoration: none; color: inherit;">
@@ -115,7 +103,6 @@
                                                         <th>Tipo</th>
                                                         <th>Especialidad</th>
                                                         <th>Actividades</th>
-                                                        <th>Evaluación</th>
                                                         <th>Estado</th>
                                                         <th>Acciones</th>
                                                     </tr>
@@ -141,18 +128,6 @@
                                                             <span class="badge bg-info">3 Activas</span>
                                                             <small class="text-muted d-block">8 Completadas</small>
                                                         </td>
-                                                        <td>
-                                                            <div class="d-flex align-items-center">
-                                                                <span class="me-2">4.9</span>
-                                                                <div class="stars">
-                                                                    <i class="fas fa-star text-warning"></i>
-                                                                    <i class="fas fa-star text-warning"></i>
-                                                                    <i class="fas fa-star text-warning"></i>
-                                                                    <i class="fas fa-star text-warning"></i>
-                                                                    <i class="fas fa-star text-warning"></i>
-                                                                </div>
-                                                            </div>
-                                                        </td>
                                                         <td><span class="badge bg-success">Activo</span></td>
                                                         <td>
                                                             <div class="btn-group btn-group-sm">
@@ -161,9 +136,6 @@
                                                                 </button>
                                                                 <button class="btn btn-outline-warning" onclick="editarInstructor(1)" title="Editar">
                                                                     <i class="fas fa-edit"></i>
-                                                                </button>
-                                                                <button class="btn btn-outline-info" onclick="verActividades(1)" title="Actividades">
-                                                                    <i class="fas fa-tasks"></i>
                                                                 </button>
                                                             </div>
                                                         </td>
@@ -188,18 +160,6 @@
                                                             <span class="badge bg-warning text-dark">2 Activas</span>
                                                             <small class="text-muted d-block">5 Completadas</small>
                                                         </td>
-                                                        <td>
-                                                            <div class="d-flex align-items-center">
-                                                                <span class="me-2">4.7</span>
-                                                                <div class="stars">
-                                                                    <i class="fas fa-star text-warning"></i>
-                                                                    <i class="fas fa-star text-warning"></i>
-                                                                    <i class="fas fa-star text-warning"></i>
-                                                                    <i class="fas fa-star text-warning"></i>
-                                                                    <i class="far fa-star text-warning"></i>
-                                                                </div>
-                                                            </div>
-                                                        </td>
                                                         <td><span class="badge bg-success">Activo</span></td>
                                                         <td>
                                                             <div class="btn-group btn-group-sm">
@@ -208,9 +168,6 @@
                                                                 </button>
                                                                 <button class="btn btn-outline-warning" onclick="editarInstructor(2)" title="Editar">
                                                                     <i class="fas fa-edit"></i>
-                                                                </button>
-                                                                <button class="btn btn-outline-info" onclick="verActividades(2)" title="Actividades">
-                                                                    <i class="fas fa-tasks"></i>
                                                                 </button>
                                                             </div>
                                                         </td>
@@ -235,7 +192,6 @@
                                                         <th>Departamento</th>
                                                         <th>Especialidad</th>
                                                         <th>Actividades</th>
-                                                        <th>Evaluación</th>
                                                         <th>Estado</th>
                                                         <th>Acciones</th>
                                                     </tr>
@@ -263,18 +219,6 @@
                                                         <td>
                                                             <span class="badge bg-info">3 Activas</span>
                                                             <small class="text-muted d-block">8 Completadas</small>
-                                                        </td>
-                                                        <td>
-                                                            <div class="d-flex align-items-center">
-                                                                <span class="me-2">4.9</span>
-                                                                <div class="stars">
-                                                                    <i class="fas fa-star text-warning"></i>
-                                                                    <i class="fas fa-star text-warning"></i>
-                                                                    <i class="fas fa-star text-warning"></i>
-                                                                    <i class="fas fa-star text-warning"></i>
-                                                                    <i class="fas fa-star text-warning"></i>
-                                                                </div>
-                                                            </div>
                                                         </td>
                                                         <td><span class="badge bg-success">Activo</span></td>
                                                         <td>
@@ -311,7 +255,6 @@
                                                         <th>Empresa/Institución</th>
                                                         <th>Especialidad</th>
                                                         <th>Actividades</th>
-                                                        <th>Evaluación</th>
                                                         <th>Estado</th>
                                                         <th>Acciones</th>
                                                     </tr>
@@ -340,18 +283,6 @@
                                                             <span class="badge bg-warning text-dark">2 Activas</span>
                                                             <small class="text-muted d-block">5 Completadas</small>
                                                         </td>
-                                                        <td>
-                                                            <div class="d-flex align-items-center">
-                                                                <span class="me-2">4.7</span>
-                                                                <div class="stars">
-                                                                    <i class="fas fa-star text-warning"></i>
-                                                                    <i class="fas fa-star text-warning"></i>
-                                                                    <i class="fas fa-star text-warning"></i>
-                                                                    <i class="fas fa-star text-warning"></i>
-                                                                    <i class="far fa-star text-warning"></i>
-                                                                </div>
-                                                            </div>
-                                                        </td>
                                                         <td><span class="badge bg-success">Activo</span></td>
                                                         <td>
                                                             <div class="btn-group btn-group-sm">
@@ -360,9 +291,6 @@
                                                                 </button>
                                                                 <button class="btn btn-outline-warning" onclick="editarInstructor(2)" title="Editar">
                                                                     <i class="fas fa-edit"></i>
-                                                                </button>
-                                                                <button class="btn btn-outline-info" onclick="evaluarInstructor(2)" title="Evaluar">
-                                                                    <i class="fas fa-star"></i>
                                                                 </button>
                                                             </div>
                                                         </td>
@@ -428,7 +356,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
-                    <i class="fas fa-user-plus me-2"></i>Nuevo Instructor
+                    <i class="fas fa-user-plus me-2" id="iconoModalInstructor"></i><span id="textoTituloModalInstructor">Nuevo Instructor</span>
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
@@ -438,6 +366,7 @@
                     <strong>Nota:</strong> Los campos marcados con <span class="text-danger">*</span> son obligatorios.
                 </div>
                 <form id="formNuevoInstructor">
+                    <input type="hidden" id="id_instructor_edicion" value="">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
@@ -529,7 +458,7 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" class="btn btn-primary" onclick="guardarInstructor()">
-                    <i class="fas fa-save me-1"></i>Guardar Instructor
+                    <i class="fas fa-save me-1"></i><span id="textoBtnGuardarInstructor">Guardar Instructor</span>
                 </button>
             </div>
         </div>
@@ -547,6 +476,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
+                <input type="hidden" id="detalleIdInstructor" value="">
                 <div class="row">
                     <div class="col-md-8">
                         <div class="card mb-3">
@@ -625,17 +555,6 @@
                                     <h4 id="totalActividadesInstructor">11</h4>
                                     <p class="text-muted">Total Actividades</p>
                                 </div>
-                                <div class="mb-3">
-                                    <h4 id="evaluacionPromedio">4.9</h4>
-                                    <p class="text-muted">Evaluación Promedio</p>
-                                    <div class="stars">
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star text-warning"></i>
-                                        <i class="fas fa-star text-warning"></i>
-                                    </div>
-                                </div>
                                 <div>
                                     <h4 id="participantesTotal">156</h4>
                                     <p class="text-muted">Participantes Totales</p>
@@ -649,17 +568,8 @@
                             </div>
                             <div class="card-body">
                                 <div class="d-grid gap-2">
-                                    <button class="btn btn-outline-primary btn-sm">
-                                        <i class="fas fa-tasks me-1"></i>Ver Todas las Actividades
-                                    </button>
-                                    <button class="btn btn-outline-success btn-sm">
+                                    <button type="button" class="btn btn-outline-success btn-sm" onclick="asignarActividad(parseInt(document.getElementById('detalleIdInstructor').value || '0', 10))">
                                         <i class="fas fa-plus me-1"></i>Asignar Nueva Actividad
-                                    </button>
-                                    <button class="btn btn-outline-info btn-sm">
-                                        <i class="fas fa-star me-1"></i>Evaluar Instructor
-                                    </button>
-                                    <button class="btn btn-outline-warning btn-sm">
-                                        <i class="fas fa-file-alt me-1"></i>Generar Reporte
                                     </button>
                                 </div>
                             </div>
@@ -669,7 +579,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary">
+                <button type="button" class="btn btn-primary" onclick="editarDesdeDetalleInstructor()">
                     <i class="fas fa-edit me-1"></i>Editar Instructor
                 </button>
             </div>
@@ -780,10 +690,10 @@
 
             if (result.success) {
                 const stats = result.data;
-                document.getElementById('totalInstructores').textContent = stats.total_instructores;
-                document.getElementById('instructoresActivos').textContent = stats.instructores_activos;
-                document.getElementById('actividadesActivas').textContent = stats.actividades_activas;
-                document.getElementById('promedioEvaluacion').textContent = stats.promedio_evaluacion;
+                const totalEl = document.getElementById('totalInstructores');
+                if (totalEl) {
+                    totalEl.textContent = stats.total_instructores;
+                }
             }
         } catch (error) {
             console.error('Error al cargar estadísticas:', error);
@@ -847,18 +757,6 @@
                 <span class="badge bg-info">${actividadesActivas} Activas</span>
                 <small class="text-muted d-block">${actividadesCompletadas} Completadas</small>
             </td>
-            <td>
-                <div class="d-flex align-items-center">
-                    <span class="me-2">4.8</span>
-                    <div class="stars">
-                        <i class="fas fa-star text-warning"></i>
-                        <i class="fas fa-star text-warning"></i>
-                        <i class="fas fa-star text-warning"></i>
-                        <i class="fas fa-star text-warning"></i>
-                        <i class="far fa-star text-warning"></i>
-                    </div>
-                </div>
-            </td>
             <td><span class="badge bg-success">Activo</span></td>
             <td>
                 <div class="btn-group btn-group-sm">
@@ -867,9 +765,6 @@
                     </button>
                     <button class="btn btn-outline-warning" onclick="editarInstructor(${instructor.ID_INSTRUCTOR})" title="Editar">
                         <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="btn btn-outline-info" onclick="verActividades(${instructor.ID_INSTRUCTOR})" title="Actividades">
-                        <i class="fas fa-tasks"></i>
                     </button>
                 </div>
             </td>
@@ -912,12 +807,12 @@
                     return;
                 }
                 const cells = tr.querySelectorAll('td');
-                if (cells.length < 7) {
+                if (cells.length < 6) {
                     return;
                 }
                 const instructorText = (cells[1]?.innerText || '').toLowerCase();
                 const tipoText = (cells[2]?.innerText || '').toLowerCase();
-                const estadoText = (cells[6]?.innerText || '').toLowerCase();
+                const estadoText = (cells[5]?.innerText || '').toLowerCase();
 
                 let show = true;
                 if (q && !instructorText.includes(q) && !(tr.innerText || '').toLowerCase().includes(q)) {
@@ -993,6 +888,11 @@
             if (result.success) {
                 const instructor = result.data;
 
+                const hidDet = document.getElementById('detalleIdInstructor');
+                if (hidDet) {
+                    hidDet.value = String(id);
+                }
+
                 document.getElementById('detalleNombre').textContent = `${instructor.TITULO_PROFESIONAL} ${instructor.NOMBRE} ${instructor.APELLIDO}`;
                 document.getElementById('detalleTitulo').textContent = instructor.TITULO_PROFESIONAL;
                 document.getElementById('detalleTipo').textContent = instructor.TIPO_INSTRUCTOR;
@@ -1003,7 +903,6 @@
                 document.getElementById('detalleDireccion').textContent = instructor.DIRECCION;
                 document.getElementById('detalleEspecialidad').textContent = instructor.ESPECIALIDAD;
                 document.getElementById('totalActividadesInstructor').textContent = instructor.actividades ? instructor.actividades.length : 0;
-                document.getElementById('evaluacionPromedio').textContent = '4.8';
 
                 // Actualizar tabla de actividades
                 const tbodyActividades = document.getElementById('tablaActividadesInstructor');
@@ -1032,20 +931,118 @@
         }
     }
 
-    function editarInstructor(id) {
-        showNotification('Función de edición en desarrollo', 'info');
+    function resetearModalFormularioInstructor() {
+        const form = document.getElementById('formNuevoInstructor');
+        if (!form) {
+            return;
+        }
+        const hid = document.getElementById('id_instructor_edicion');
+        if (hid) {
+            hid.value = '';
+        }
+        form.reset();
+        form.classList.remove('was-validated');
+        form.querySelectorAll('.is-invalid, .is-valid').forEach((el) => {
+            el.classList.remove('is-invalid', 'is-valid');
+        });
+        const nac = form.querySelector('[name="nacionalidad"]');
+        if (nac && !nac.value) {
+            nac.value = 'Ecuatoriana';
+        }
+        const titulo = document.getElementById('textoTituloModalInstructor');
+        const icono = document.getElementById('iconoModalInstructor');
+        const btnTxt = document.getElementById('textoBtnGuardarInstructor');
+        if (titulo) {
+            titulo.textContent = 'Nuevo Instructor';
+        }
+        if (icono) {
+            icono.className = 'fas fa-user-plus me-2';
+        }
+        if (btnTxt) {
+            btnTxt.textContent = 'Guardar Instructor';
+        }
     }
 
-    function verActividades(id) {
-        showNotification('Abriendo actividades del instructor...', 'info');
+    function abrirModalNuevoInstructor() {
+        resetearModalFormularioInstructor();
+        showModal('modalNuevoInstructor');
+    }
+
+    function editarDesdeDetalleInstructor() {
+        const detId = (document.getElementById('detalleIdInstructor')?.value || '').trim();
+        if (!detId) {
+            return;
+        }
+        const modalDet = document.getElementById('modalDetalleInstructor');
+        const instDet = modalDet ? bootstrap.Modal.getInstance(modalDet) : null;
+        if (instDet) {
+            instDet.hide();
+        }
+        setTimeout(() => editarInstructor(detId), 350);
+    }
+
+    async function editarInstructor(id) {
+        try {
+            const response = await fetch(`<?= base_url('coord/instructores/getInstructor') ?>/${id}`);
+            const result = await response.json();
+
+            if (!result.success || !result.data) {
+                showNotification('No se pudo cargar el instructor: ' + (result.message || ''), 'error');
+                return;
+            }
+
+            const ins = result.data;
+            const form = document.getElementById('formNuevoInstructor');
+            const hid = document.getElementById('id_instructor_edicion');
+            if (hid) {
+                hid.value = String(id);
+            }
+
+            const setVal = (name, value) => {
+                const el = form.querySelector(`[name="${name}"]`);
+                if (el) {
+                    el.value = value != null ? String(value) : '';
+                }
+            };
+
+            setVal('tipo_instructor', ins.ID_TIPO_INSTRUCTOR);
+            setVal('titulo_profesional', ins.TITULO_PROFESIONAL);
+            setVal('nombre', ins.NOMBRE);
+            setVal('apellido', ins.APELLIDO);
+            setVal('cedula', ins.CEDULA);
+            setVal('email', ins.EMAIL);
+            setVal('celular', ins.CELULAR);
+            setVal('genero', ins.GENERO);
+            setVal('direccion', ins.DIRECCION);
+            setVal('especialidad', ins.ESPECIALIDAD);
+            setVal('nacionalidad', ins.NACIONALIDAD || 'Ecuatoriana');
+
+            form.classList.remove('was-validated');
+            form.querySelectorAll('.is-invalid, .is-valid').forEach((el) => {
+                el.classList.remove('is-invalid', 'is-valid');
+            });
+
+            const titulo = document.getElementById('textoTituloModalInstructor');
+            const icono = document.getElementById('iconoModalInstructor');
+            const btnTxt = document.getElementById('textoBtnGuardarInstructor');
+            if (titulo) {
+                titulo.textContent = 'Editar Instructor';
+            }
+            if (icono) {
+                icono.className = 'fas fa-user-edit me-2';
+            }
+            if (btnTxt) {
+                btnTxt.textContent = 'Actualizar Instructor';
+            }
+
+            showModal('modalNuevoInstructor');
+        } catch (error) {
+            showNotification('Error de conexión: ' + error.message, 'error');
+        }
     }
 
     function asignarActividad(id) {
         showModal('modalAsignarActividad');
-    }
-
-    function evaluarInstructor(id) {
-        showNotification('Abriendo evaluación del instructor...', 'info');
     }
 
     async function guardarInstructor() {
@@ -1120,8 +1117,13 @@
         }
 
         // Enviar datos al servidor
+        const editId = (document.getElementById('id_instructor_edicion')?.value || '').trim();
+        const urlGuardar = editId ?
+            `<?= base_url('coord/instructores/actualizar') ?>/${encodeURIComponent(editId)}` :
+            '<?= base_url('coord/instructores/crear') ?>';
+
         try {
-            const response = await fetch('<?= base_url('coord/instructores/crear') ?>', {
+            const response = await fetch(urlGuardar, {
                 method: 'POST',
                 body: formData
             });
@@ -1129,9 +1131,8 @@
             const result = await response.json();
 
             if (result.success) {
-                showNotification('Instructor guardado exitosamente', 'success');
+                showNotification(result.message || (editId ? 'Instructor actualizado' : 'Instructor guardado exitosamente'), 'success');
                 bootstrap.Modal.getInstance(document.getElementById('modalNuevoInstructor')).hide();
-                form.reset();
                 cargarInstructores(); // Recargar la lista
                 cargarEstadisticas(); // Actualizar estadísticas
             } else {
@@ -1299,10 +1300,12 @@
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('crear') === '1') {
             setTimeout(function() {
-                showModal('modalNuevoInstructor');
+                abrirModalNuevoInstructor();
             }, 400);
             window.history.replaceState({}, document.title, window.location.pathname);
         }
+
+        document.getElementById('modalNuevoInstructor')?.addEventListener('hidden.bs.modal', resetearModalFormularioInstructor);
     });
 
     // Agregar validación en tiempo real a los campos

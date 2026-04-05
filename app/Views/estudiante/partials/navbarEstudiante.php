@@ -4,9 +4,10 @@ use Config\Database;
 
 ?>
 
-<header class="app-header w-100" style="padding: 0;">
+<header class="app-header" style="padding: 0;">
     <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #00367c;">
         <a class="navbar-brand d-flex align-items-center" href="<?= base_url('estudiante/inicio') ?>"></a>
+
         <ul class="navbar-nav">
             <li class="nav-item d-block d-xl-none">
                 <a class="nav-link sidebartoggler nav-icon-hover" id="headerCollapse" href="javascript:void(0)">
@@ -60,7 +61,7 @@ use Config\Database;
                                 <p class="mb-0 fs-3">Mi Cuenta</p>
                             </a>
                             <hr class="dropdown-divider">
-                            <a href="<?= base_url('auth/cerrar-sesion') ?>" class="btn btn-outline-danger mx-3 mt-2 d-block">
+                            <a href="<?= base_url('auth/cerrar-sesion') ?>" class="btn btn-outline-danger mx-3 mt-2 d-block" id="btnCerrarSesion">
                                 <i class="ti ti-logout me-1"></i>Cerrar sesión
                             </a>
                         </div>

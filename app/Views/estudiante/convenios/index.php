@@ -213,11 +213,11 @@
 
 <?= $this->section('scripts') ?>
 <script>
-    // Inicializar tooltips si es necesario
     document.addEventListener('DOMContentLoaded', function() {
+        if (typeof bootstrap === 'undefined') return;
         var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        var tooltipList = tooltipTriggerList.map(function(tooltipTriggerEl) {
-            return new bootstrap.Tooltip(tooltipTriggerEl);
+        tooltipTriggerList.forEach(function(tooltipTriggerEl) {
+            bootstrap.Tooltip.getOrCreateInstance(tooltipTriggerEl);
         });
     });
 </script>

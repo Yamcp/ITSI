@@ -195,8 +195,6 @@ class DocumentosPracticasEstudianteController extends BaseController
                     'TIPO_ARCHIVO' => $archivo->getClientMimeType() ?: $archivo->getClientName(),
                     'FECHA_SUBIDA' => date('Y-m-d H:i:s'),
                     'OBSERVACIONES' => $this->request->getPost('observaciones') ?? '',
-                    'ENTIDAD_RECEPTORA' => $this->request->getPost('entidad_receptora') ?? '',
-                    'DOCENTE_TUTOR' => $this->request->getPost('docente_tutor') ?? ''
                 ];
 
                 if ($this->documentosModel->insert($datos)) {

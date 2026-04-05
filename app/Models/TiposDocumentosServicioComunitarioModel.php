@@ -6,6 +6,9 @@ use CodeIgniter\Model;
 
 class TiposDocumentosServicioComunitarioModel extends Model
 {
+    /** Código del documento final en formato PSC-XXX (referencia para `crearTiposPredefinidos()`; el registro vive en BD). */
+    public const CODIGO_DOCUMENTO_FINAL = 'PSC-013';
+
     protected $table = 'TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO';
     protected $primaryKey = 'ID_TIPO_DOCUMENTO_SERVICIO';
     protected $useAutoIncrement = true;
@@ -275,7 +278,15 @@ class TiposDocumentosServicioComunitarioModel extends Model
                 'ORDEN' => 6,
                 'OBLIGATORIO' => 1,
                 'ACTIVO' => 1
-            ]
+            ],
+            [
+                'CODIGO' => self::CODIGO_DOCUMENTO_FINAL,
+                'NOMBRE' => 'Documento final',
+                'DESCRIPCION' => 'Documento de cierre o carpeta final del servicio comunitario.',
+                'ORDEN' => 7,
+                'OBLIGATORIO' => 1,
+                'ACTIVO' => 1
+            ],
         ];
 
         $db = \Config\Database::connect();

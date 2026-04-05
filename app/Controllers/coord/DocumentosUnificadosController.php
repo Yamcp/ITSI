@@ -222,7 +222,7 @@ class DocumentosUnificadosController extends BaseController
     {
         // Si no existe la tabla, retornar tipos predefinidos
         try {
-            return $this->tiposDocumentosServicioModel->findAll();
+            return $this->tiposDocumentosServicioModel->getAllTipos();
         } catch (\Exception $e) {
             // Tipos predefinidos de servicio comunitario
             return [

@@ -46,6 +46,14 @@
         font-size: 0.85rem !important;
         font-weight: 500 !important;
     }
+
+    .fc .fc-daygrid-event .fc-event-title {
+        display: block !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        line-height: 1.2;
+    }
 </style>
 <?= $this->endSection() ?>
 
@@ -62,53 +70,17 @@
             </div>
         </div>
 
-        <!-- Estadísticas Rápidas -->
-        <div class="row mb-4">
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #007bff 80%, #0056b3 100%); color: #fff; border: none;">
-                    <div class="card-body">
+        <!-- Estadísticas y acciones rápidas (una fila en pantallas grandes) -->
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-5 g-3 mb-4 align-items-stretch">
+            <div class="col">
+                <div class="card text-center shadow-sm h-100" style="background: linear-gradient(135deg, #007bff 80%, #0056b3 100%); color: #fff; border: none;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center py-3">
                         <h2 class="card-title mb-2" id="totalActividades" style="font-size:2.5rem;">0</h2>
-                        <p class="card-text fw-bold" style="color: #e0e0e0;">Total Actividades</p>
+                        <p class="card-text fw-bold mb-0" style="color: #e0e0e0;">Total Actividades</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg,  #28a745 80%, #155724 100%); color: #fff; border: none;">
-                    <div class="card-body">
-                        <h2 class="card-title mb-2" id="cursosActivos" style="font-size:2.5rem;">0</h2>
-                        <p class="card-text fw-bold" style="color: #ffe6e6;">Cursos Activos</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #17a2b8 80%, #0f6674 100%); color: #fff; border: none;">
-                    <div class="card-body">
-                        <h2 class="card-title mb-2" id="talleresActivos" style="font-size:2.5rem;">0</h2>
-                        <p class="card-text fw-bold" style="color: #e0e0e0;">Talleres Activos</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #6f42c1 80%, #4a2c7a 100%); color: #fff; border: none;">
-                    <div class="card-body">
-                        <h2 class="card-title mb-2" id="conferenciasActivos" style="font-size:2.5rem;">0</h2>
-                        <p class="card-text fw-bold" style="color: #e0e0e0;">Conferencias Activas</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #fd7e14 80%, #c65a00 100%); color: #fff; border: none;">
-                    <div class="card-body">
-                        <h2 class="card-title mb-2" id="capacitacionesActivos" style="font-size:2.5rem;">0</h2>
-                        <p class="card-text fw-bold" style="color: #ffe6d6;">Capacitaciones Activas</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Acciones Rápidas -->
-        <div class="row mb-4 justify-content-center">
-            <div class="col-md-3 col-sm-6 mb-3">
+            <div class="col">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="showModal('modalNuevaActividad')" style="text-decoration: none; color: inherit;">
@@ -118,7 +90,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
+            <div class="col">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="verCalendario()" style="text-decoration: none; color: inherit;">
@@ -128,7 +100,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
+            <div class="col">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="generarReporteEvaluaciones()" style="text-decoration: none; color: inherit;">
@@ -138,7 +110,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
+            <div class="col">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="exportarEvaluaciones()" style="text-decoration: none; color: inherit;">
@@ -697,14 +669,15 @@
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Modalidad<span class="text-danger">*</span></label>
-                                <select class="form-select" name="modalidad" required>
+                                <select class="form-select" name="modalidad" id="selectModalidadNuevaActividad" required>
                                     <option value="">Seleccionar modalidad...</option>
                                     <?php if (!empty($modalidades)): ?>
                                         <?php foreach ($modalidades as $modalidad): ?>
-                                            <option value="<?= $modalidad['ID_TIPO_MODALIDAD'] ?>"><?= $modalidad['MODALIDAD'] ?></option>
+                                            <option value="<?= $modalidad['ID_TIPO_MODALIDAD'] ?>" data-modalidad-nombre="<?= esc($modalidad['MODALIDAD'], 'attr') ?>"><?= esc($modalidad['MODALIDAD']) ?></option>
                                         <?php endforeach; ?>
                                     <?php endif; ?>
                                 </select>
+                                <small class="text-muted">Según la modalidad se pedirá lugar físico, enlace virtual o ambos (híbrida).</small>
                             </div>
                         </div>
                     </div>
@@ -729,16 +702,21 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Lugar<span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="lugar" required>
-                            </div>
+                        <div class="col-md-6 mb-3 d-none" id="wrapLugarNuevaActividad">
+                            <label class="form-label">Lugar <span class="text-danger req-lugar">*</span></label>
+                            <input type="text" class="form-control" name="lugar" id="inputLugarNuevaActividad" autocomplete="off">
                         </div>
+                        <div class="col-md-6 mb-3 d-none" id="wrapEnlaceNuevaActividad">
+                            <label class="form-label">Enlace <span class="text-danger req-enlace">*</span></label>
+                            <input type="url" class="form-control" name="enlace" id="inputEnlaceNuevaActividad" placeholder="https://meet.google.com/..." autocomplete="off">
+                            <small class="text-muted">URL de la reunión o plataforma (modalidad virtual o híbrida).</small>
+                        </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Horario</label>
-                                <input type="text" class="form-control" name="horario" placeholder="Ej: Lunes a Viernes 8:00-12:00">
+                                <label class="form-label">Horario<span class="text-danger">*</span></label>
+                                <input type="text" class="form-control" name="horario" placeholder="Ej: Lunes a Viernes 8:00-12:00" required>
                             </div>
                         </div>
                     </div>
@@ -764,7 +742,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="submit" class="btn btn-primary">
+                <button type="submit" class="btn btn-primary" form="formNuevaActividad">
                     <i class="fas fa-save me-1"></i>Guardar Actividad
                 </button>
             </div>
@@ -865,41 +843,11 @@
             </div>
             <div class="modal-body">
 
-                <!-- Filtros por tipo de actividad -->
-                <div class="row mb-3">
-                    <div class="col-12">
-                        <div class="btn-group" role="group">
-                            <input type="checkbox" class="btn-check" id="filtroCursos" checked>
-                            <label class="btn btn-outline-primary" for="filtroCursos">
-                                <i class="fas fa-book me-1"></i>Cursos
-                            </label>
-
-                            <input type="checkbox" class="btn-check" id="filtroTalleres" checked>
-                            <label class="btn btn-outline-success" for="filtroTalleres">
-                                <i class="fas fa-tools me-1"></i>Talleres
-                            </label>
-
-                            <input type="checkbox" class="btn-check" id="filtroConferencias" checked>
-                            <label class="btn btn-outline-info" for="filtroConferencias">
-                                <i class="fas fa-users me-1"></i>Conferencias
-                            </label>
-
-                            <input type="checkbox" class="btn-check" id="filtroCapacitaciones" checked>
-                            <label class="btn btn-outline-warning" for="filtroCapacitaciones">
-                                <i class="fas fa-chalkboard-teacher me-1"></i>Capacitaciones
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Calendario -->
                 <div id="calendario" style="background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" onclick="exportarCalendario()">
-                    <i class="fas fa-download me-1"></i>Exportar
-                </button>
             </div>
         </div>
     </div>
@@ -923,9 +871,13 @@
                             <i class="fas fa-user me-1"></i>
                             <span id="eventoInstructor">-</span>
                         </p>
-                        <p class="text-muted mb-2">
+                        <p class="text-muted mb-2" id="wrapEventoLugar">
                             <i class="fas fa-map-marker-alt me-1"></i>
                             <span id="eventoLugar">-</span>
+                        </p>
+                        <p class="text-muted mb-2 d-none" id="wrapEventoEnlace">
+                            <i class="fas fa-link me-1"></i>
+                            <a id="eventoEnlace" href="#" target="_blank" rel="noopener">Abrir enlace</a>
                         </p>
                         <p class="text-muted mb-2">
                             <i class="fas fa-clock me-1"></i>
@@ -1089,7 +1041,23 @@
             return;
         }
 
-        // Limpiar contenido previo
+        if (window.calendario) {
+            try {
+                window.calendario.destroy();
+            } catch (e) {
+                /* instancia ya destruida o DOM reemplazado */
+            }
+            window.calendario = null;
+        }
+
+        const vistos = new Set();
+        const eventosUnicos = (eventos || []).filter(e => {
+            const k = String(e.id);
+            if (vistos.has(k)) return false;
+            vistos.add(k);
+            return true;
+        });
+
         calendarEl.innerHTML = '';
 
         try {
@@ -1102,7 +1070,23 @@
                     center: 'title',
                     right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
                 },
-                events: eventos || [],
+                events: eventosUnicos,
+                eventContent: function(arg) {
+                    if (arg.view.type !== 'dayGridMonth') {
+                        return;
+                    }
+                    const text = arg.event.title;
+                    if (!text) {
+                        return;
+                    }
+                    const main = document.createElement('div');
+                    main.className = 'fc-event-main';
+                    const tit = document.createElement('div');
+                    tit.className = 'fc-event-title';
+                    tit.appendChild(document.createTextNode(text));
+                    main.appendChild(tit);
+                    return { domNodes: [main] };
+                },
                 eventClick: function(info) {
                     mostrarDetalleEvento(info.event);
                 },
@@ -1184,7 +1168,19 @@
     function mostrarDetalleEvento(evento) {
         document.getElementById('eventoNombre').textContent = evento.title;
         document.getElementById('eventoInstructor').textContent = evento.extendedProps.instructor;
-        document.getElementById('eventoLugar').textContent = evento.extendedProps.lugar;
+        const lugar = (evento.extendedProps.lugar || '').trim();
+        const enlace = (evento.extendedProps.enlace || '').trim();
+        document.getElementById('eventoLugar').textContent = lugar || '—';
+        document.getElementById('wrapEventoLugar').classList.toggle('d-none', !lugar);
+        const aEn = document.getElementById('eventoEnlace');
+        const wEn = document.getElementById('wrapEventoEnlace');
+        if (enlace) {
+            aEn.href = enlace.match(/^https?:\/\//i) ? enlace : 'https://' + enlace;
+            aEn.textContent = enlace;
+            wEn.classList.remove('d-none');
+        } else {
+            wEn.classList.add('d-none');
+        }
         document.getElementById('eventoHorario').textContent = evento.extendedProps.horario;
         document.getElementById('eventoFecha').textContent = `${evento.startStr} - ${evento.endStr}`;
         document.getElementById('eventoDuracion').textContent = `${evento.extendedProps.duracion} horas`;
@@ -1199,125 +1195,6 @@
 
         // Aquí podrías implementar la lógica para editar la actividad
         showNotification('Función de edición desde calendario en desarrollo', 'info');
-    }
-
-    function exportarCalendario() {
-        if (window.calendario) {
-            showNotification('Exportando calendario...', 'info');
-
-            // Obtener el elemento del calendario
-            const calendarElement = document.getElementById('calendario');
-
-            // Usar html2canvas para capturar el calendario como imagen
-            if (typeof html2canvas !== 'undefined') {
-                html2canvas(calendarElement, {
-                    backgroundColor: '#ffffff',
-                    scale: 2, // Mayor resolución
-                    useCORS: true,
-                    allowTaint: true
-                }).then(function(canvas) {
-                    // Crear enlace de descarga
-                    const link = document.createElement('a');
-                    link.download = 'calendario-actividades-' + new Date().toISOString().split('T')[0] + '.png';
-                    link.href = canvas.toDataURL('image/png');
-
-                    // Simular clic para descargar
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-
-                    showNotification('Calendario exportado exitosamente', 'success');
-                }).catch(function(error) {
-                    console.error('Error al exportar calendario:', error);
-                    showNotification('Error al exportar el calendario', 'error');
-                });
-            } else {
-                // Fallback: exportar como HTML
-                exportarComoHTML();
-            }
-        }
-    }
-
-    function exportarComoHTML() {
-        const calendarElement = document.getElementById('calendario');
-        const htmlContent = calendarElement.outerHTML;
-
-        // Crear contenido HTML completo
-        const fullHTML = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <title>Calendario de Actividades Educativas</title>
-            <style>
-                body { font-family: Arial, sans-serif; margin: 20px; }
-                .fc-toolbar-title { font-size: 1.5rem; font-weight: 600; color: #2c3e50; }
-                .fc-button { background-color: #007bff; border-color: #007bff; color: white; }
-                .fc-daygrid-day-number { color: #2c3e50; font-weight: 500; }
-                .fc-day-today { background-color: #e3f2fd; }
-                .fc-event { border-radius: 4px; font-size: 0.85rem; font-weight: 500; }
-            </style>
-        </head>
-        <body>
-            <h1>Calendario de Actividades Educativas</h1>
-            <p>Exportado el: ${new Date().toLocaleDateString('es-ES')}</p>
-            ${htmlContent}
-        </body>
-        </html>`;
-
-        // Crear y descargar archivo HTML
-        const blob = new Blob([fullHTML], {
-            type: 'text/html'
-        });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = 'calendario-actividades-' + new Date().toISOString().split('T')[0] + '.html';
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-
-        showNotification('Calendario exportado como HTML', 'success');
-    }
-
-    // Aplicar filtros del calendario
-    document.addEventListener('DOMContentLoaded', function() {
-        // Filtros de tipo de actividad
-        const filtros = ['filtroCursos', 'filtroTalleres', 'filtroConferencias', 'filtroCapacitaciones'];
-
-        filtros.forEach(filtro => {
-            const elemento = document.getElementById(filtro);
-            if (elemento) {
-                elemento.addEventListener('change', function() {
-                    aplicarFiltrosCalendario();
-                });
-            }
-        });
-    });
-
-    function aplicarFiltrosCalendario() {
-        if (!window.calendario) return;
-
-        const mostrarCursos = document.getElementById('filtroCursos').checked;
-        const mostrarTalleres = document.getElementById('filtroTalleres').checked;
-        const mostrarConferencias = document.getElementById('filtroConferencias').checked;
-        const mostrarCapacitaciones = document.getElementById('filtroCapacitaciones').checked;
-
-        // Obtener todos los eventos
-        const eventos = window.calendario.getEvents();
-
-        eventos.forEach(evento => {
-            const tipo = evento.extendedProps.tipo;
-            let visible = false;
-
-            if (tipo === 'Curso' && mostrarCursos) visible = true;
-            if (tipo === 'Taller' && mostrarTalleres) visible = true;
-            if (tipo === 'Conferencia' && mostrarConferencias) visible = true;
-            if (tipo === 'Capacitación' && mostrarCapacitaciones) visible = true;
-
-            evento.setProp('display', visible ? 'auto' : 'none');
-        });
     }
 
     function generarCertificados() {
@@ -1496,6 +1373,51 @@
         return filtros;
     }
 
+    function actividadEduSlugModalidad(texto) {
+        const t = (texto || '').toLowerCase();
+        if (/híbr|hibr|semi[\s\-]?presencial/.test(t)) {
+            return 'hibrida';
+        }
+        if (/virtual|en\s+l[ií]nea|l[ií]nea|remoto|online|distancia/.test(t)) {
+            return 'virtual';
+        }
+        if (/presencial/.test(t)) {
+            return 'presencial';
+        }
+        return '';
+    }
+
+    function actividadEduSincronizarLugarEnlaceNuevaActividad() {
+        const sel = document.getElementById('selectModalidadNuevaActividad');
+        if (!sel) {
+            return;
+        }
+        const opt = sel.options[sel.selectedIndex];
+        const label = opt ? (opt.getAttribute('data-modalidad-nombre') || opt.textContent || '').trim() : '';
+        const slug = actividadEduSlugModalidad(label);
+        const wL = document.getElementById('wrapLugarNuevaActividad');
+        const wE = document.getElementById('wrapEnlaceNuevaActividad');
+        const iL = document.getElementById('inputLugarNuevaActividad');
+        const iE = document.getElementById('inputEnlaceNuevaActividad');
+        if (!wL || !wE || !iL || !iE) {
+            return;
+        }
+        const showL = slug === 'presencial' || slug === 'hibrida';
+        const showE = slug === 'virtual' || slug === 'hibrida';
+        wL.classList.toggle('d-none', !showL);
+        wE.classList.toggle('d-none', !showE);
+        iL.required = showL;
+        iE.required = showE;
+        if (!showL) {
+            iL.value = '';
+            iL.classList.remove('is-invalid');
+        }
+        if (!showE) {
+            iE.value = '';
+            iE.classList.remove('is-invalid');
+        }
+    }
+
     // Función de validación del formulario
     function validarFormulario() {
         const camposObligatorios = [{
@@ -1535,8 +1457,8 @@
                 label: 'Fecha de Fin'
             },
             {
-                name: 'lugar',
-                label: 'Lugar'
+                name: 'horario',
+                label: 'Horario'
             }
         ];
 
@@ -1545,7 +1467,7 @@
 
         // Validar campos obligatorios
         camposObligatorios.forEach(campo => {
-            const elemento = document.querySelector(`[name="${campo.name}"]`);
+            const elemento = document.querySelector(`#formNuevaActividad [name="${campo.name}"]`);
             if (elemento) {
                 const valor = elemento.value.trim();
 
@@ -1585,9 +1507,35 @@
             }
         });
 
+        const selMod = document.getElementById('selectModalidadNuevaActividad');
+        if (selMod) {
+            const opt = selMod.options[selMod.selectedIndex];
+            const label = opt ? (opt.getAttribute('data-modalidad-nombre') || opt.textContent || '').trim() : '';
+            const slug = actividadEduSlugModalidad(label);
+            if (!slug) {
+                camposVacios.push('Modalidad');
+                selMod.classList.add('is-invalid');
+            } else {
+                if (slug === 'presencial' || slug === 'hibrida') {
+                    const el = document.querySelector('#formNuevaActividad [name="lugar"]');
+                    if (el && !el.value.trim()) {
+                        camposVacios.push('Lugar');
+                        el.classList.add('is-invalid');
+                    }
+                }
+                if (slug === 'virtual' || slug === 'hibrida') {
+                    const el = document.querySelector('#formNuevaActividad [name="enlace"]');
+                    if (el && !el.value.trim()) {
+                        camposVacios.push('Enlace (URL)');
+                        el.classList.add('is-invalid');
+                    }
+                }
+            }
+        }
+
         // Validar que fecha fin sea posterior a fecha inicio
-        const fechaInicio = document.querySelector('[name="fecha_inicio"]').value;
-        const fechaFin = document.querySelector('[name="fecha_fin"]').value;
+        const fechaInicio = document.querySelector('#formNuevaActividad [name="fecha_inicio"]').value;
+        const fechaFin = document.querySelector('#formNuevaActividad [name="fecha_fin"]').value;
 
         if (fechaInicio && fechaFin) {
             const inicio = new Date(fechaInicio);
@@ -1595,7 +1543,7 @@
 
             if (fin <= inicio) {
                 errores.push('La fecha de fin debe ser posterior a la fecha de inicio');
-                document.querySelector('[name="fecha_fin"]').classList.add('is-invalid');
+                document.querySelector('#formNuevaActividad [name="fecha_fin"]').classList.add('is-invalid');
             }
         }
 
@@ -1629,10 +1577,20 @@
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
         const today = new Date().toISOString().split('T')[0];
-        const fechaInicioInput = document.querySelector('input[name="fecha_inicio"]');
+        const fechaInicioInput = document.querySelector('#formNuevaActividad input[name="fecha_inicio"]');
         if (fechaInicioInput) {
             fechaInicioInput.value = today;
         }
+
+        const selMod = document.getElementById('selectModalidadNuevaActividad');
+        if (selMod) {
+            selMod.addEventListener('change', actividadEduSincronizarLugarEnlaceNuevaActividad);
+        }
+        const modalNueva = document.getElementById('modalNuevaActividad');
+        if (modalNueva) {
+            modalNueva.addEventListener('shown.bs.modal', actividadEduSincronizarLugarEnlaceNuevaActividad);
+        }
+        actividadEduSincronizarLugarEnlaceNuevaActividad();
 
         // Redirigir a instructores cuando el usuario elige "agregar instructor" en el select
         const selectInstructor = document.getElementById('selectInstructor');
@@ -1664,7 +1622,5 @@
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<!-- Incluir html2canvas para exportación de imágenes -->
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 
 <?= $this->endSection() ?>

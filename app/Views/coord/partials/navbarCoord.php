@@ -4,7 +4,7 @@ use Config\Database;
 
 ?>
 
-<header class="app-header w-100" style="padding: 0;">
+<header class="app-header" style="padding: 0;">
     <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #00367c;">
         <a class="navbar-brand d-flex align-items-center" href="<?= base_url('coord/dashboard') ?>"></a>
 

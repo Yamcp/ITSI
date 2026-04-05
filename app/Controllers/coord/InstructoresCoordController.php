@@ -11,6 +11,7 @@ use App\Controllers\BaseController;
 
 class InstructoresCoordController extends BaseController
 {
+    protected $db;
     protected $instructoresModel;
     protected $actividadesModel;
     protected $tipoInstructoresModel;
@@ -19,6 +20,7 @@ class InstructoresCoordController extends BaseController
 
     public function __construct()
     {
+        $this->db = \Config\Database::connect();
         $this->instructoresModel = new InstructoresModel();
         $this->actividadesModel = new ActividadesEducacionModel();
         $this->tipoInstructoresModel = new TiposInstructoresModel();

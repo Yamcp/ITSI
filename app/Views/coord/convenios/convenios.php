@@ -55,8 +55,8 @@
         </div>
 
         <!-- Acciones Rápidas en Tarjetas Separadas -->
-        <div class="row mb-4">
-            <div class="col-md-3 col-sm-6 mb-3">
+        <div class="row mb-2">
+            <div class="col-md-3 col-sm-6 mb-2">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="abrirModalNuevoConvenio(); return false;" style="text-decoration: none; color: inherit;">
@@ -66,7 +66,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
+            <div class="col-md-3 col-sm-6 mb-2">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="showModal('modalNuevaInstitucion')" style="text-decoration: none; color: inherit;">
@@ -76,7 +76,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
+            <div class="col-md-3 col-sm-6 mb-2">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="<?= base_url('coord/convenios/reportes') ?>" style="text-decoration: none; color: inherit;">
@@ -86,7 +86,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
+            <div class="col-md-3 col-sm-6 mb-2">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="exportData()" style="text-decoration: none; color: inherit;">

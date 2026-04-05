@@ -46,8 +46,6 @@ class PracticasCoordController extends BaseController
 
     public function index()
     {
-        helper('tiempo');
-
         $estadisticas = [
             'totalPracticas' => 0,
             'practicasActivas' => 0,
@@ -56,13 +54,11 @@ class PracticasCoordController extends BaseController
         ];
         $practicasPreprofesionales = [];
         $serviciosComunitarios = [];
-        $seguimiento = ['actividadesRecientes' => []];
 
         try {
             $estadisticas = $this->obtenerEstadisticas();
             $practicasPreprofesionales = $this->practicasPreprofesionalesModel->getListaParaCoordinador();
             $serviciosComunitarios = $this->serviciosComunitariosModel->getListaParaCoordinador();
-            $seguimiento = $this->obtenerSeguimientoGeneral();
         } catch (\Throwable $e) {
             log_message('error', 'PracticasCoordController::index - Error BD: ' . $e->getMessage());
         }
@@ -79,7 +75,6 @@ class PracticasCoordController extends BaseController
             'estadisticas' => $estadisticas,
             'practicasPreprofesionales' => $practicasPreprofesionales,
             'serviciosComunitarios' => $serviciosComunitarios,
-            'seguimiento' => $seguimiento,
             'carreras' => $carreras
         ];
 
@@ -210,36 +205,6 @@ class PracticasCoordController extends BaseController
             ->orderBy('sc.ID_SERVICIO_COMUNITARIO', 'DESC');
 
         return $builder->get()->getResultArray();
-    }
-
-    /**
-     * Obtener seguimiento general de todas las prácticas
-     */
-    private function obtenerSeguimientoGeneral()
-    {
-        $db = \Config\Database::connect();
-        
-        // Obtener últimas actividades de seguimiento
-        $actividadesRecientes = $db->table('TAB_SEGUIMIENTO_PRACTICAS_PREPROFESIONALES spp')
-            ->select('
-                spp.FECHA_REPORTE,
-                CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as ESTUDIANTE_NOMBRE,
-                "Preprofesional" as TIPO_PRACTICA,
-                spp.HORAS_CUMPLIDAS,
-                pp.HORAS_PRACTICAS as HORAS_TOTALES,
-                pp.ESTADO_PRACTICA
-            ')
-            ->join('TAB_PRACTICAS_PREPROFESIONALES pp', 'pp.ID_PRACTICA_PREPROFESIONAL = spp.ID_PRACTICA_PREPROFESIONAL')
-            ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = pp.ID_ESTUDIANTE')
-            ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
-            ->orderBy('spp.FECHA_REPORTE', 'DESC')
-            ->limit(5)
-            ->get()
-            ->getResultArray();
-
-        return [
-            'actividadesRecientes' => $actividadesRecientes
-        ];
     }
 
     /**

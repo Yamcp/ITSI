@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Manual técnico y guía de instalación — ITSI</title>
+  <style>
+    :root {
+      --ink: #1a1a2e;
+      --muted: #4a4a68;
+      --accent: #1565c0;
+      --border: #dde3ea;
+      --bg: #f8fafc;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      line-height: 1.55;
+      color: var(--ink);
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 4rem;
+      background: #fff;
+    }
+    h1 { font-size: 1.75rem; border-bottom: 3px solid var(--accent); padding-bottom: 0.35rem; }
+    h2 { font-size: 1.35rem; margin-top: 2rem; color: var(--accent); page-break-after: avoid; }
+    h3 { font-size: 1.1rem; margin-top: 1.25rem; page-break-after: avoid; }
+    p, li { color: var(--muted); }
+    strong { color: var(--ink); }
+    .cover {
+      text-align: center;
+      padding: 3rem 1rem 4rem;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: linear-gradient(180deg, #e3f2fd 0%, #fff 45%);
+      margin-bottom: 2.5rem;
+      page-break-after: always;
+    }
+    .cover h1 { border: none; font-size: 1.6rem; }
+    .cover .sub { font-size: 1rem; color: var(--muted); margin-top: 0.5rem; }
+    .meta { font-size: 0.9rem; color: var(--muted); margin-top: 2rem; }
+    nav.toc {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0 2rem;
+      page-break-after: always;
+    }
+    nav.toc ol { margin: 0; padding-left: 1.25rem; }
+    nav.toc a { color: var(--accent); text-decoration: none; }
+    nav.toc a:hover { text-decoration: underline; }
+    figure {
+      margin: 1.25rem 0;
+      text-align: center;
+      page-break-inside: avoid;
+    }
+    figure img {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      box-shadow: 0 2px 12px rgba(0,0,0,.08);
+    }
+    figcaption {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 0.5rem;
+      text-align: left;
+    }
+    code, pre {
+      font-family: ui-monospace, Consolas, monospace;
+      font-size: 0.88rem;
+    }
+    pre {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.85rem 1rem;
+      overflow-x: auto;
+      page-break-inside: avoid;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+      margin: 1rem 0;
+      page-break-inside: avoid;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 0.5rem 0.65rem;
+      text-align: left;
+    }
+    th { background: var(--bg); color: var(--ink); }
+    .note {
+      background: #fff8e1;
+      border-left: 4px solid #f9a825;
+      padding: 0.75rem 1rem;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+    }
+    .pdf-hint {
+      background: #e8f5e9;
+      border-left: 4px solid #2e7d32;
+      padding: 0.75rem 1rem;
+      margin: 1rem 0 2rem;
+      font-size: 0.95rem;
+    }
+    @media print {
+      body { padding: 0; max-width: none; }
+      .pdf-hint, nav.toc a { color: #000; }
+      a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 0.75rem; word-break: break-all; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cover">
+    <h1>Manual técnico y guía de instalación</h1>
+    <p class="sub"><strong>ITSI</strong> — Sistema web de vinculación con la sociedad<br />
+    (prácticas preprofesionales, servicio comunitario, educación continua y gestión documental)</p>
+    <p class="meta">Código fuente: <code>c:\xampp\htdocs\ITSI</code><br />
+    Documento generado para equipos técnicos y despliegue.<br />
+    Versión del manual: abril 2026</p>
+  </div>
+
+  <div class="pdf-hint">
+    <strong>Exportar a PDF:</strong> abra este archivo en Chrome o Edge, pulse <kbd>Ctrl+P</kbd>,
+    elija <em>Guardar como PDF</em> y active <em>Gráficos de fondo</em> si desea conservar los colores de portada y tablas.
+    También puede usar la copia PDF generada en la misma carpeta <code>docs</code> si está disponible.
+  </div>
+
+  <nav class="toc">
+    <h2 style="margin-top:0;">Índice</h2>
+    <ol>
+      <li><a href="#parte-a">Parte I — Manual técnico</a>
+        <ol>
+          <li><a href="#desc">Descripción general</a></li>
+          <li><a href="#arq">Arquitectura</a></li>
+          <li><a href="#tech">Tecnologías</a></li>
+          <li><a href="#estruct">Estructura del proyecto</a></li>
+          <li><a href="#dev">Entorno de desarrollo</a></li>
+          <li><a href="#inst">Instalación del sistema</a></li>
+          <li><a href="#bdd">Configuración de la base de datos</a></li>
+          <li><a href="#deploy">Despliegue</a></li>
+        </ol>
+      </li>
+      <li><a href="#parte-b">Parte II — Guía de instalación y ejecución</a>
+        <ol>
+          <li><a href="#req">Requisitos y herramientas</a></li>
+          <li><a href="#deps">Dependencias</a></li>
+          <li><a href="#conf">Configuración del proyecto</a></li>
+          <li><a href="#crear-bd">Creación de la base de datos</a></li>
+          <li><a href="#run">Ejecución del sistema</a></li>
+        </ol>
+      </li>
+    </ol>
+  </nav>
+
+  <h1 id="parte-a">Parte I — Manual técnico</h1>
+
+  <h2 id="desc">1. Descripción general del sistema</h2>
+  <p>
+    ITSI es una aplicación web orientada al <strong>Departamento de Vinculación</strong> (o unidad equivalente) de una institución educativa.
+    Permite gestionar <strong>prácticas preprofesionales</strong>, <strong>servicio comunitario</strong>, <strong>convenios</strong> con entidades receptoras,
+    <strong>documentos</strong> asociados a cada modalidad, <strong>actividades de educación continua</strong>, <strong>evaluaciones</strong>, <strong>asistencias</strong>,
+    <strong>instructores y docentes tutores</strong>, así como perfiles y cuentas de usuario. El acceso está segmentado por <strong>roles</strong>
+    (coordinación, docente, estudiante), cada uno con rutas y controladores bajo prefijos <code>coord</code>, <code>docente</code> y <code>estudiante</code>.
+  </p>
+  <p>
+    La autenticación centraliza en <code>AuthController</code>; existen flujos de <strong>recuperación de contraseña</strong> por correo
+    (configuración SMTP en <code>app/Config/Email.php</code> o variables <code>.env</code>).
+  </p>
+
+  <figure id="fig-login">
+    <img src="imagenes/fig01-login-it.png" alt="Pantalla de inicio de sesión del sistema ITSI" width="960" />
+    <figcaption><strong>Figura 1.</strong> Ejemplo ilustrativo de la interfaz de login (frontend). La pantalla real usa Bootstrap, fondo configurable en <code>app/Config/Auth.php</code> y estilos en <code>public/login/authstyles.css</code>.</figcaption>
+  </figure>
+
+  <h2 id="arq">2. Arquitectura del sistema</h2>
+  <p>
+    ITSI sigue el patrón <strong>MVC</strong> de CodeIgniter 4: el navegador envía peticiones HTTP al servidor web; el punto de entrada público es
+    <code>public/index.php</code>, que delega en el enrutador. Los <strong>controladores</strong> orquestan la lógica, los <strong>modelos</strong> acceden a MySQL
+    y las <strong>vistas</strong> (PHP + HTML + CSS/JS) generan la respuesta. Algunas funciones auxiliares residen en <code>app/Services</code> y <code>app/Helpers</code>.
+  </p>
+
+  <figure id="fig-arq">
+    <img src="imagenes/fig03-arquitectura-capas.png" alt="Diagrama de capas: cliente, servidor web, PHP CodeIgniter, base de datos" width="800" />
+    <figcaption><strong>Figura 2.</strong> Vista lógica por capas del despliegue típico (cliente, Apache, PHP/CodeIgniter 4, MySQL/MariaDB).</figcaption>
+  </figure>
+
+  <h3>Flujo de petición (resumen)</h3>
+  <ol>
+    <li>El usuario accede a una URL bajo <code>public/</code> (o virtual host apuntando a <code>public</code>).</li>
+    <li><code>app/Config/Routes.php</code> resuelve el controlador y método.</li>
+    <li>Los controladores utilizan modelos (<code>app/Models</code>) y devuelven vistas (<code>app/Views</code>) o redirecciones.</li>
+    <li>Los datos persistentes viven en la base <code>itsi</code>, definida en el script <code>bddITSI.sql</code>.</li>
+  </ol>
+
+  <figure id="fig-dash">
+    <img src="imagenes/fig02-dashboard-coord.png" alt="Panel de coordinación con menú lateral y tarjetas de resumen" width="960" />
+    <figcaption><strong>Figura 3.</strong> Ejemplo ilustrativo del panel de coordinación (frontend). Las vistas reales están en <code>app/Views/coord/</code>.</figcaption>
+  </figure>
+
+  <h2 id="tech">3. Tecnologías utilizadas</h2>
+  <table>
+    <thead>
+      <tr><th>Componente</th><th>Tecnología / versión</th><th>Notas</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Lenguaje</td><td>PHP ^8.1</td><td>Requisito de CodeIgniter 4 y de <code>public/index.php</code></td></tr>
+      <tr><td>Framework</td><td>CodeIgniter 4</td><td>Enrutamiento, sesiones, vistas, capa de base de datos</td></tr>
+      <tr><td>Base de datos</td><td>MySQL 5.7+ / MariaDB 10.2+</td><td>Charset <code>utf8mb4</code>, collation indicada en el script SQL</td></tr>
+      <tr><td>Servidor (desarrollo)</td><td>Apache (XAMPP)</td><td>Document root habitual: <code>htdocs/ITSI/public</code> o alias</td></tr>
+      <tr><td>Frontend</td><td>Bootstrap, Bootstrap Icons, JS en vistas</td><td>Assets en <code>public/login</code>, <code>public/sistema</code>, etc.</td></tr>
+      <tr><td>Librerías PHP</td><td>phpoffice/phpspreadsheet, tecnickcom/tcpdf</td><td>Exportaciones Excel y generación de PDF en informes</td></tr>
+      <tr><td>Gestión de dependencias</td><td>Composer</td><td><code>composer.json</code> en la raíz del proyecto</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="estruct">4. Estructura del proyecto</h2>
+  <p>Directorios principales (relativos a la raíz del repositorio <code>ITSI</code>):</p>
+  <table>
+    <thead>
+      <tr><th>Ruta</th><th>Propósito</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><code>app/Config/</code></td><td>Configuración: <code>App.php</code> (baseURL), <code>Database.php</code>, <code>Routes.php</code>, <code>Email.php</code>, <code>Filters.php</code>, etc.</td></tr>
+      <tr><td><code>app/Controllers/</code></td><td>Controladores; subcarpetas <code>coord</code>, <code>docente</code>, <code>estudiante</code> por rol</td></tr>
+      <tr><td><code>app/Models/</code></td><td>Modelos Active Record contra tablas <code>TAB_*</code></td></tr>
+      <tr><td><code>app/Views/</code></td><td>Vistas PHP por rol y módulo</td></tr>
+      <tr><td><code>app/Services/</code>, <code>app/Helpers/</code>, <code>app/Libraries/</code></td><td>Lógica reutilizable (p. ej. asistencia, email, notificaciones)</td></tr>
+      <tr><td><code>app/Filters/</code></td><td>Filtros HTTP personalizados (p. ej. <code>EstudianteAsistenciaObligatoriaFilter</code>)</td></tr>
+      <tr><td><code>public/</code></td><td>Front controller <code>index.php</code>, assets estáticos, carpeta de subidas si aplica</td></tr>
+      <tr><td><code>writable/</code></td><td>Logs, caché, sesiones, debugbar; debe ser escribible por el servidor web</td></tr>
+      <tr><td><code>vendor/</code></td><td>Dependencias Composer (no versionar en producción sin <code>composer install</code>)</td></tr>
+      <tr><td><code>bddITSI.sql</code></td><td>Script completo: creación de BD <code>itsi</code>, tablas y datos iniciales</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="dev">5. Configuración del entorno de desarrollo</h2>
+  <ul>
+    <li>Instale <strong>XAMPP</strong> (o stack equivalente) con Apache y MySQL/MariaDB activos.</li>
+    <li>Instale <strong>PHP 8.1+</strong> y <strong>Composer</strong> y asegúrese de que <code>php</code> y <code>composer</code> estén en el PATH.</li>
+    <li>Clone o copie el proyecto en <code>htdocs/ITSI</code> (o la ruta que use su servidor).</li>
+    <li>En la raíz del proyecto ejecute <code>composer install</code> para generar <code>vendor/</code>.</li>
+    <li>Ajuste <code>app/Config/App.php</code> → <code>$baseURL</code> a la URL real (p. ej. <code>http://localhost/ITSI/public/</code>).</li>
+    <li>Configure credenciales de base de datos en <code>app/Config/Database.php</code> o mediante archivo <code>.env</code> según convención CI4.</li>
+    <li>Para recuperación de contraseña, complete SMTP en <code>app/Config/Email.php</code> o variables de entorno documentadas en ese archivo.</li>
+    <li>Si usa la barra de depuración de CI4, los artefactos se escriben en <code>writable/debugbar/</code>.</li>
+  </ul>
+
+  <h2 id="inst">6. Instalación del sistema (resumen técnico)</h2>
+  <p>
+    La instalación consiste en disponer del código, instalar dependencias PHP, importar el esquema SQL y alinear la configuración (<code>baseURL</code>, BD, correo).
+    El detalle paso a paso se amplía en la <a href="#parte-b">Parte II — Guía de instalación</a>.
+  </p>
+
+  <h2 id="bdd">7. Configuración de la base de datos</h2>
+  <p>
+    El archivo <code>bddITSI.sql</code> crea la base <code>itsi</code> y todas las tablas (prefijo conceptual <code>TAB_</code>).
+    Incluye comentarios sobre importación: si una herramienta gráfica falla por comprobación de claves foráneas, importe por línea de comandos o desactive temporalmente esa opción.
+  </p>
+  <p>
+    En aplicación, el grupo por defecto está en <code>app/Config/Database.php</code> (<code>database = 'itsi'</code>, driver <code>MySQLi</code>, puerto 3306).
+    La collation en configuración puede ser <code>utf8mb4_general_ci</code>; el script usa <code>utf8mb4_unicode_ci</code> a nivel de BD — mantener UTF-8 de extremo a extremo.
+  </p>
+
+  <figure id="fig-bd">
+    <img src="imagenes/fig04-importacion-bd.png" alt="Herramienta de administración de base de datos mostrando importación" width="960" />
+    <figcaption><strong>Figura 4.</strong> Ejemplo ilustrativo de importación del script SQL en una herramienta tipo phpMyAdmin.</figcaption>
+  </figure>
+
+  <p>Ejemplo de importación por consola (ajuste usuario y ruta):</p>
+  <pre><code>mysql -u root -p &lt; "c:\xampp\htdocs\ITSI\bddITSI.sql"</code></pre>
+
+  <h2 id="deploy">8. Procedimiento de despliegue del sistema</h2>
+  <ol>
+    <li><strong>Servidor:</strong> PHP 8.1+, extensiones habituales (mysqli, mbstring, openssl, json, intl según necesidad), Apache o Nginx.</li>
+    <li><strong>Document root:</strong> en producción se recomienda apuntar el virtual host únicamente a <code>public/</code>, no a la raíz del proyecto.</li>
+    <li><strong>Archivos:</strong> subir el código (sin <code>writable/debugbar</code> innecesario en producción si se desea); ejecutar <code>composer install --no-dev --optimize-autoloader</code> en el servidor.</li>
+    <li><strong>Permisos:</strong> el usuario del servidor web debe poder escribir en <code>writable/</code> y en rutas de subida de archivos definidas en los controladores de documentos.</li>
+    <li><strong>Configuración:</strong> establecer <code>baseURL</code> con HTTPS en producción; desactivar o ajustar <code>DBDebug</code> y toolbar de depuración.</li>
+    <li><strong>Base de datos:</strong> restaurar desde <code>bddITSI.sql</code> o desde backup coordinado (<code>BackupCoordController</code> si está en uso).</li>
+    <li><strong>Correo:</strong> configurar SMTP real para notificaciones y recuperación de contraseña.</li>
+    <li><strong>Seguridad:</strong> revisar filtros en <code>app/Config/Filters.php</code> (p. ej. <code>forcehttps</code> en entornos con TLS terminado en proxy).</li>
+  </ol>
+  <div class="note">
+    Revise si en su entorno local el filtro global <code>forcehttps</code> provoca redirecciones no deseadas sin HTTPS; en ese caso ajuste la configuración solo para el entorno correspondiente.
+  </div>
+
+  <h1 id="parte-b" style="page-break-before: always;">Parte II — Guía de instalación y ejecución</h1>
+  <p>
+    Esta guía permite a una persona con conocimientos básicos de Windows y XAMPP instalar y ejecutar ITSI en un equipo de desarrollo.
+    Está integrada en el mismo documento que el manual técnico; puede extraerse como anexo si lo necesita su institución.
+  </p>
+
+  <h2 id="req">1. Requisitos del sistema y herramientas necesarias</h2>
+  <table>
+    <thead>
+      <tr><th>Requisito</th><th>Detalle</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Sistema operativo</td><td>Windows 10/11 (esta guía), Linux/macOS equivalente con Apache+Nginx+PHP+MySQL</td></tr>
+      <tr><td>RAM</td><td>Mínimo 4 GB recomendado para XAMPP + navegador + MySQL</td></tr>
+      <tr><td>XAMPP</td><td>Con Apache y MySQL/MariaDB</td></tr>
+      <tr><td>PHP</td><td>8.1 o superior (incluido en XAMPP reciente)</td></tr>
+      <tr><td>Composer</td><td><a href="https://getcomposer.org/">getcomposer.org</a></td></tr>
+      <tr><td>Navegador</td><td>Chrome, Edge o Firefox actualizado</td></tr>
+      <tr><td>Opcional</td><td>phpMyAdmin (incluido en XAMPP) para importar SQL</td></tr>
+    </tbody>
+  </table>
+
+  <h2 id="deps">2. Instalación de dependencias</h2>
+  <ol>
+    <li>Abra una terminal en la carpeta raíz del proyecto (<code>ITSI</code>).</li>
+    <li>Ejecute: <pre><code>composer install</code></pre></li>
+    <li>Verifique que exista la carpeta <code>vendor/</code> y que no haya errores de extensión PHP faltante.</li>
+  </ol>
+
+  <h2 id="conf">3. Configuración del proyecto</h2>
+  <ol>
+    <li>Edite <code>app/Config/App.php</code> y asigne <code>public string $baseURL</code> a la URL desde la que accederá, por ejemplo:
+      <pre><code>public string $baseURL = 'http://localhost/ITSI/public/';</code></pre>
+    </li>
+    <li>Edite <code>app/Config/Database.php</code> (o use <code>.env</code>) con usuario, contraseña y nombre de base <code>itsi</code>.</li>
+    <li>Para correo, siga los comentarios de <code>app/Config/Email.php</code> (SMTP recomendado en Windows).</li>
+    <li>Imagen de fondo del login: archivo referenciado en <code>app/Config/Auth.php</code> (<code>loginBackgroundImage</code>), relativo a <code>public/</code>.</li>
+  </ol>
+
+  <h2 id="crear-bd">4. Creación de la base de datos</h2>
+  <ol>
+    <li>Inicie MySQL desde el panel de control de XAMPP.</li>
+    <li>Importe el archivo completo <code>bddITSI.sql</code> (desde phpMyAdmin: Importar, o desde consola como en la sección 7).</li>
+    <li>Confirme que la base <code>itsi</code> existe y contiene tablas <code>TAB_USUARIOS</code>, <code>TAB_ESTUDIANTES</code>, etc.</li>
+  </ol>
+
+  <h2 id="run">5. Ejecución del sistema</h2>
+  <ol>
+    <li>Inicie Apache en XAMPP.</li>
+    <li>Abra el navegador en la URL configurada en <code>baseURL</code>, por ejemplo:
+      <pre><code>http://localhost/ITSI/public/</code></pre>
+    </li>
+    <li>Debe mostrarse la pantalla de inicio de sesión. Use las credenciales que existan en su base (datos semilla del script SQL o usuarios creados posteriormente).</li>
+    <li>Si aparece error 500, revise <code>writable/logs/</code> y permisos de escritura en <code>writable/</code>.</li>
+  </ol>
+
+  <p style="margin-top:2rem;font-size:0.9rem;color:var(--muted);">
+    Fin del documento. Las figuras 1–4 son <strong>ilustraciones representativas</strong> del aspecto del sistema y de las herramientas de base de datos;
+    sustitúyalas por capturas reales de su entorno si el manual se entrega oficialmente a la institución.
+  </p>
+
+</body>
+</html>

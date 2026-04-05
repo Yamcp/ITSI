@@ -241,7 +241,8 @@ $iniciales = static function (?string $nombre, ?string $apellido): string {
                         <div class="input-group">
                             <span class="input-group-text"><i class="fas fa-search"></i></span>
                             <input type="search" class="form-control" id="busquedaEstudiantes"
-                                placeholder="Nombre, apellido, cédula, correo, carrera…" autocomplete="off">
+                                placeholder="Nombre, apellido o cédula…" autocomplete="off"
+                                title="Solo se filtra por nombre, apellido y cédula. Use «Carrera» para filtrar por carrera.">
                         </div>
                     </div>
                     <div class="col-lg-3 col-md-6">
@@ -301,7 +302,7 @@ $iniciales = static function (?string $nombre, ?string $apellido): string {
                                 $fotoFile = trim((string) ($row['FOTO_URL'] ?? ''));
                                 $fotoPath = $fotoFile !== '' ? FCPATH . 'uploads/perfiles/' . $fotoFile : '';
                                 $tieneFoto = $fotoPath !== '' && is_file($fotoPath);
-                                $haystack = mb_strtolower($nombre . ' ' . $apellido . ' ' . $cedula . ' ' . $email . ' ' . $carrera . ' ' . $celular);
+                                $haystack = mb_strtolower(trim($nombre . ' ' . $apellido . ' ' . $cedula));
                                 ?>
                                 <tr class="fila-estudiante"
                                     data-search="<?= esc($haystack, 'attr') ?>"

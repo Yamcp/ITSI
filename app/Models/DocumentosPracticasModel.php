@@ -20,8 +20,6 @@ class DocumentosPracticasModel extends Model
         'FECHA_SUBIDA',
         'ID_ESTADO_REVISION',
         'OBSERVACIONES',
-        'ENTIDAD_RECEPTORA',
-        'DOCENTE_TUTOR'
     ];
 
     // Dates

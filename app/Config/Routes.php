@@ -259,16 +259,15 @@ $routes->group('estudiante', ['namespace' => 'App\Controllers\estudiante', 'filt
     $routes->get('actividades-educacion/calendario', 'ActividadesEducacionEstudianteController::calendario');
     $routes->get('actividades-educacion/api/estadisticas', 'ActividadesEducacionEstudianteController::getEstadisticas');
     $routes->get('actividades-educacion/api/encuestas-satisfaccion', 'ActividadesEducacionEstudianteController::apiEncuestasSatisfaccion'); // API enlaces satisfacción
+    $routes->post('actividades-educacion/inscribirse', 'ActividadesEducacionEstudianteController::inscribirse'); // Autoinscripción del estudiante
     $routes->get('evaluaciones', 'EvaluacionesEstudianteController::index');        // Ver evaluaciones
     $routes->get('evaluaciones/obtener', 'EvaluacionesEstudianteController::obtenerEvaluaciones'); // Obtener evaluaciones
     $routes->get('evaluaciones/estadisticas', 'EvaluacionesEstudianteController::obtenerEstadisticas'); // Estadísticas
     $routes->get('convenios', 'InstitucionesConveniosController::index');        // Ver la sección de convenios
     
     // Rutas para prácticas (más específicas primero)
-    $routes->get('practicas/servicio-comunitario/formatos/ver/(:segment)', 'PracticasEstudianteController::verFormatoServicio/$1');
     $routes->get('practicas/servicio-comunitario/formatos/descargar/(:segment)', 'PracticasEstudianteController::descargarFormatoServicio/$1');
     $routes->get('practicas/servicio-comunitario/formatos', 'PracticasEstudianteController::formatosServicioComunitario');
-    $routes->get('practicas/formatos/ver/(:segment)', 'PracticasEstudianteController::verFormatoPracticas/$1');
     $routes->get('practicas/formatos', 'PracticasEstudianteController::formatos');
     $routes->get('practicas/formatos/descargar/(:segment)', 'PracticasEstudianteController::descargarFormatoPracticas/$1');
     $routes->get('practicas', 'PracticasEstudianteController::index'); // Prácticas preprofesionales

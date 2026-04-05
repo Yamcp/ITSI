@@ -3,12 +3,9 @@
 $estadisticas = $estadisticas ?? [
     'totalPracticas' => 0,
     'practicasActivas' => 0,
-    'practicasFinalizadas' => 0,
-    'practicasPendientes' => 0
 ];
 $practicasPreprofesionales = $practicasPreprofesionales ?? [];
 $serviciosComunitarios = $serviciosComunitarios ?? [];
-$seguimiento = $seguimiento ?? ['actividadesRecientes' => []];
 $carreras = $carreras ?? [];
 ?>
 <?= $this->section('styles') ?>
@@ -59,45 +56,25 @@ $carreras = $carreras ?? [];
             </div>
         </div>
 
-        <!-- Estadísticas Rápidas en Cuadros -->
-        <div class="row mb-4">
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #007bff 80%, #0056b3 100%); color: #fff; border: none;">
-                    <div class="card-body">
-                        <h2 class="card-title mb-2" id="totalPracticas" style="font-size:2.5rem;"><?= $estadisticas['totalPracticas'] ?></h2>
-                        <p class="card-text fw-bold" style="color: #e0e0e0;">Total Prácticas</p>
+        <!-- Estadísticas y acciones rápidas (una fila en pantallas grandes) -->
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-5 g-3 mb-4 align-items-stretch">
+            <div class="col">
+                <div class="card text-center shadow-sm h-100" style="background: linear-gradient(135deg, #007bff 80%, #0056b3 100%); color: #fff; border: none;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center py-3">
+                        <h2 class="card-title mb-2" id="totalPracticas" style="font-size:2.5rem;"><?= (int) ($estadisticas['totalPracticas'] ?? 0) ?></h2>
+                        <p class="card-text fw-bold mb-0" style="color: #e0e0e0;">Total Prácticas</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #28a745 80%, #155724 100%); color: #fff; border: none;">
-                    <div class="card-body">
-                        <h2 class="card-title mb-2" id="practicasActivas" style="font-size:2.5rem;"><?= $estadisticas['practicasActivas'] ?></h2>
-                        <p class="card-text fw-bold" style="color: #e0e0e0;">Prácticas Activas</p>
+            <div class="col">
+                <div class="card text-center shadow-sm h-100" style="background: linear-gradient(135deg, #28a745 80%, #155724 100%); color: #fff; border: none;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center py-3">
+                        <h2 class="card-title mb-2" id="practicasActivas" style="font-size:2.5rem;"><?= (int) ($estadisticas['practicasActivas'] ?? 0) ?></h2>
+                        <p class="card-text fw-bold mb-0" style="color: #e0e0e0;">Prácticas Activas</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #17a2b8 80%, #0c5460 100%); color: #fff; border: none;">
-                    <div class="card-body">
-                        <h2 class="card-title mb-2" id="practicasFinalizadas" style="font-size:2.5rem;"><?= $estadisticas['practicasFinalizadas'] ?></h2>
-                        <p class="card-text fw-bold" style="color: #e0e0e0;">Finalizadas</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #ffc107 80%, #b38600 100%); color: #fff; border: none;">
-                    <div class="card-body">
-                        <h2 class="card-title mb-2" id="practicasPendientes" style="font-size:2.5rem;"><?= $estadisticas['practicasPendientes'] ?></h2>
-                        <p class="card-text fw-bold" style="color: #fffbe6;">Pendientes</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Acciones Rápidas en Tarjetas Separadas -->
-        <div class="row mb-4 justify-content-center">
-            <div class="col-md-3 col-sm-6 mb-3">
+            <div class="col">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="showModal('modalNuevaPractica')" style="text-decoration: none; color: inherit;">
@@ -107,7 +84,7 @@ $carreras = $carreras ?? [];
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
+            <div class="col">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="generateReport()" style="text-decoration: none; color: inherit;">
@@ -117,22 +94,12 @@ $carreras = $carreras ?? [];
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
+            <div class="col">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="exportData()" style="text-decoration: none; color: inherit;">
                             <i class="fas fa-download fa-2x mb-2" style="color: #dc3545; text-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);"></i>
                             <div class="fw-bold">Exportar Datos</div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm h-100" style="border: none;">
-                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="#" onclick="showModal('modalFiltros')" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-filter fa-2x mb-2" style="color: #0dcaf0; text-shadow: 0 2px 4px rgba(13, 202, 240, 0.3);"></i>
-                            <div class="fw-bold">Filtros</div>
                         </a>
                     </div>
                 </div>
@@ -169,11 +136,6 @@ $carreras = $carreras ?? [];
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link rounded-pill fw-semibold text-success" id="servicio-tab" data-bs-toggle="tab" data-bs-target="#servicio" type="button" role="tab" aria-selected="false">
                                     <i class="fas fa-heart me-2" style="color: #198754;"></i>Servicio Comunitario
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-pill fw-semibold text-info" id="seguimiento-tab" data-bs-toggle="tab" data-bs-target="#seguimiento" type="button" role="tab" aria-selected="false">
-                                    <i class="fas fa-chart-line me-2" style="color: #0dcaf0;"></i>Seguimiento
                                 </button>
                             </li>
                         </ul>
@@ -378,51 +340,6 @@ $carreras = $carreras ?? [];
                                                 </tbody>
                                             </table>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Seguimiento -->
-                            <div class="tab-pane fade" id="seguimiento" role="tabpanel">
-                                <div class="card shadow-sm border-0">
-                                    <div class="card-body">
-                                        <?php if (!empty($seguimiento['actividadesRecientes'])): ?>
-                                            <ul class="list-group list-group-flush">
-                                                <?php foreach ($seguimiento['actividadesRecientes'] as $actividad): ?>
-                                                    <?php
-                                                    $estado = $actividad['ESTADO_PRACTICA'] ?? '';
-                                                    $esCompletada = (strtoupper($estado) === 'COMPLETADA' || $estado === 'Completada');
-                                                    $esPendiente = (strtoupper($estado) === 'PENDIENTE' || $estado === 'Pendiente');
-                                                    if ($esCompletada) {
-                                                        $dotClass = 'bg-success';
-                                                        $titulo = 'Práctica Completada';
-                                                        $descripcion = esc($actividad['ESTUDIANTE_NOMBRE']) . ' finalizó su práctica preprofesional';
-                                                    } elseif ($esPendiente) {
-                                                        $dotClass = 'bg-warning';
-                                                        $titulo = 'Documento Pendiente';
-                                                        $descripcion = esc($actividad['ESTUDIANTE_NOMBRE']) . ' debe subir informe semanal';
-                                                    } else {
-                                                        $dotClass = 'bg-info';
-                                                        $titulo = 'Nuevo Seguimiento';
-                                                        $descripcion = esc($actividad['ESTUDIANTE_NOMBRE']) . ' registró ' . (int)($actividad['HORAS_CUMPLIDAS'] ?? 0) . ' horas de práctica';
-                                                    }
-                                                    ?>
-                                                    <li class="list-group-item d-flex align-items-start border-0 px-0">
-                                                        <span class="badge rounded-pill <?= $dotClass ?> me-3 mt-1 flex-shrink-0" style="width: 12px; height: 12px;">&nbsp;</span>
-                                                        <div class="flex-grow-1">
-                                                            <div class="fw-semibold"><?= $titulo ?></div>
-                                                            <div class="text-muted small"><?= $descripcion ?></div>
-                                                            <small class="text-muted"><?= tiempo_transcurrido($actividad['FECHA_REPORTE']) ?></small>
-                                                        </div>
-                                                    </li>
-                                                <?php endforeach; ?>
-                                            </ul>
-                                        <?php else: ?>
-                                            <div class="text-center text-muted py-5">
-                                                <i class="fas fa-inbox fa-2x mb-2"></i>
-                                                <p class="mb-0">No hay actividades recientes</p>
-                                            </div>
-                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>
@@ -1393,53 +1310,13 @@ $carreras = $carreras ?? [];
         const today = new Date().toISOString().split('T')[0];
         document.querySelector('input[name="fecha_inicio"]').value = today;
 
-        // Initialize progress chart
+        // Initialize progress chart (canvas en modal de detalle)
         drawProgressChart(75);
-
-        // Add timeline styles
-        const timelineStyle = document.createElement('style');
-        timelineStyle.textContent = `
-            .timeline {
-                position: relative;
-            }
-            .timeline-item {
-                position: relative;
-                padding-left: 2rem;
-                margin-bottom: 1.5rem;
-            }
-            .timeline-marker {
-                position: absolute;
-                left: 0;
-                top: 0.25rem;
-                width: 12px;
-                height: 12px;
-                border-radius: 50%;
-            }
-            .timeline-item:not(:last-child)::before {
-                content: '';
-                position: absolute;
-                left: 5px;
-                top: 1rem;
-                width: 2px;
-                height: calc(100% - 0.5rem);
-                background: #dee2e6;
-            }
-            .avatar-sm {
-                width: 35px;
-                height: 35px;
-                font-size: 0.75rem;
-            }
-        `;
-        document.head.appendChild(timelineStyle);
     });
 
     // Tab change handler
     document.querySelectorAll('[data-bs-toggle="tab"]').forEach(tab => {
-        tab.addEventListener('shown.bs.tab', function(e) {
-            const target = e.target.getAttribute('data-bs-target');
-            if (target === '#seguimiento') {
-                setTimeout(() => drawProgressChart(75), 100);
-            }
+        tab.addEventListener('shown.bs.tab', function() {
             aplicarBusquedaEstudiante();
         });
     });

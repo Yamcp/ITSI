@@ -54,7 +54,7 @@
                             </div>
                         <?php endif; ?>
 
-                        <form action="<?= base_url('coord/actividades-educacion/actualizar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" method="POST">
+                        <form action="<?= base_url('coord/actividades-educacion/actualizar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" method="POST" id="formEditarActividadCoord">
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
@@ -101,13 +101,14 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Modalidad<span class="text-danger">*</span></label>
-                                        <select class="form-select" name="modalidad" required>
+                                        <select class="form-select" name="modalidad" id="selectModalidadEditarActividadCoord" required>
                                             <option value="">Seleccionar modalidad...</option>
                                             <?php if (!empty($modalidades)): ?>
                                                 <?php foreach ($modalidades as $modalidad): ?>
                                                     <option value="<?= $modalidad['ID_TIPO_MODALIDAD'] ?>"
+                                                        data-modalidad-nombre="<?= esc($modalidad['MODALIDAD'], 'attr') ?>"
                                                         <?= (old('modalidad', $actividad['ID_TIPO_MODALIDAD']) == $modalidad['ID_TIPO_MODALIDAD']) ? 'selected' : '' ?>>
-                                                        <?= $modalidad['MODALIDAD'] ?>
+                                                        <?= esc($modalidad['MODALIDAD']) ?>
                                                     </option>
                                                 <?php endforeach; ?>
                                             <?php endif; ?>
@@ -141,13 +142,18 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Lugar<span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" name="lugar"
-                                            value="<?= old('lugar', $actividad['LUGAR']) ?>" required>
-                                    </div>
+                                <div class="col-md-6 mb-3 d-none" id="wrapLugarEditarActividadCoord">
+                                    <label class="form-label">Lugar <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="lugar" id="inputLugarEditarActividadCoord"
+                                        value="<?= esc(old('lugar', $actividad['LUGAR'])) ?>">
                                 </div>
+                                <div class="col-md-6 mb-3 d-none" id="wrapEnlaceEditarActividadCoord">
+                                    <label class="form-label">Enlace <span class="text-danger">*</span></label>
+                                    <input type="url" class="form-control" name="enlace" id="inputEnlaceEditarActividadCoord"
+                                        value="<?= esc(old('enlace', $actividad['ENLACE'] ?? '')) ?>" placeholder="https://...">
+                                </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Horario<span class="text-danger">*</span></label>
@@ -190,5 +196,40 @@
         </div>
     </div>
 </div>
+
+<script>
+(function () {
+    function slugModalidad(t) {
+        const s = (t || '').toLowerCase();
+        if (/híbr|hibr|semi[\s\-]?presencial/.test(s)) return 'hibrida';
+        if (/virtual|en\s+l[ií]nea|l[ií]nea|remoto|online|distancia/.test(s)) return 'virtual';
+        if (/presencial/.test(s)) return 'presencial';
+        return '';
+    }
+    function sync() {
+        const sel = document.getElementById('selectModalidadEditarActividadCoord');
+        if (!sel) return;
+        const opt = sel.options[sel.selectedIndex];
+        const label = opt ? (opt.getAttribute('data-modalidad-nombre') || opt.textContent || '').trim() : '';
+        const slug = slugModalidad(label);
+        const wL = document.getElementById('wrapLugarEditarActividadCoord');
+        const wE = document.getElementById('wrapEnlaceEditarActividadCoord');
+        const iL = document.getElementById('inputLugarEditarActividadCoord');
+        const iE = document.getElementById('inputEnlaceEditarActividadCoord');
+        if (!wL || !wE || !iL || !iE) return;
+        const showL = slug === 'presencial' || slug === 'hibrida';
+        const showE = slug === 'virtual' || slug === 'hibrida';
+        wL.classList.toggle('d-none', !showL);
+        wE.classList.toggle('d-none', !showE);
+        iL.required = showL;
+        iE.required = showE;
+    }
+    document.addEventListener('DOMContentLoaded', function () {
+        const sel = document.getElementById('selectModalidadEditarActividadCoord');
+        if (sel) sel.addEventListener('change', sync);
+        sync();
+    });
+})();
+</script>
 
 <?= $this->endSection() ?>

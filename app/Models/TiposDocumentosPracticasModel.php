@@ -17,8 +17,12 @@ class TiposDocumentosPracticasModel extends Model
         'NOMBRE',
         'DESCRIPCION',
         'ORDEN',
-        'OBLIGATORIO'
+        'OBLIGATORIO',
+        'ACTIVO',
     ];
+
+    /** Código del apartado 13 / documento final (referencia para `crearTiposPredefinidos()`; el registro vive en BD). */
+    public const CODIGO_DOCUMENTO_FINAL = '1.13';
 
     // Dates
     protected $useTimestamps = false;
@@ -33,7 +37,8 @@ class TiposDocumentosPracticasModel extends Model
         'NOMBRE' => 'required|max_length[150]',
         'DESCRIPCION' => 'permit_empty',
         'ORDEN' => 'permit_empty|integer|is_natural',
-        'OBLIGATORIO' => 'permit_empty|in_list[0,1]'
+        'OBLIGATORIO' => 'permit_empty|in_list[0,1]',
+        'ACTIVO' => 'permit_empty|in_list[0,1]',
     ];
 
     protected $validationMessages = [
@@ -55,7 +60,10 @@ class TiposDocumentosPracticasModel extends Model
         ],
         'OBLIGATORIO' => [
             'in_list' => 'El campo obligatorio debe ser 0 o 1'
-        ]
+        ],
+        'ACTIVO' => [
+            'in_list' => 'El campo activo debe ser 0 o 1'
+        ],
     ];
 
     protected $skipValidation = false;
@@ -296,7 +304,15 @@ class TiposDocumentosPracticasModel extends Model
                 'REQUERIDO' => 0,
                 'ORDEN' => 12,
                 'ACTIVO' => 1
-            ]
+            ],
+            [
+                'CODIGO' => self::CODIGO_DOCUMENTO_FINAL,
+                'NOMBRE' => 'Documento final',
+                'DESCRIPCION' => 'Documento de cierre o carpeta final de prácticas preprofesionales.',
+                'REQUERIDO' => 1,
+                'ORDEN' => 13,
+                'ACTIVO' => 1
+            ],
         ];
 
         $insertados = 0;

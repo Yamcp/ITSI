@@ -41,10 +41,13 @@
                         <?php endif; ?>
                     </p>
                 </div>
-                <div class="col-auto">
+                <div class="col-12 col-lg-auto d-flex flex-wrap align-items-center gap-2 mt-2 mt-lg-0">
                     <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#modalImagen" title="Cambiar imagen">
                         <i class="fas fa-camera me-1"></i>Cambiar foto
                     </button>
+                    <a href="<?= base_url('auth/cerrar-sesion') ?>" class="btn btn-outline-danger btn-sm" id="btnCerrarSesionPerfil">
+                        <i class="fas fa-sign-out-alt me-1"></i>Cerrar sesión
+                    </a>
                 </div>
             </div>
         </div>
@@ -84,6 +87,10 @@
                         <p class="mb-2"><strong>Estado civil:</strong> <?= $usuario['ESTADO_CIVIL'] ?: '—' ?></p>
                         <p class="mb-2"><strong>Nacionalidad:</strong> <?= $usuario['NACIONALIDAD'] ?: '—' ?></p>
                         <p class="mb-0"><strong>Fecha ingreso:</strong> <?= $usuario['FECHA_INGRESO'] ? date('d/m/Y', strtotime($usuario['FECHA_INGRESO'])) : '—' ?></p>
+                        <hr class="my-3">
+                        <a href="<?= base_url('auth/cerrar-sesion') ?>" class="btn btn-outline-danger btn-sm w-100">
+                            <i class="fas fa-sign-out-alt me-1"></i>Cerrar sesión
+                        </a>
                     </div>
                 </div>
             </div>
@@ -182,8 +189,11 @@
     </div>
 </div>
 
+<?= $this->endSection() ?>
+
+<?= $this->section('modal') ?>
 <!-- Modal imagen -->
-<div class="modal fade" id="modalImagen" tabindex="-1">
+<div class="modal fade" id="modalImagen" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
@@ -214,7 +224,6 @@
         </div>
     </div>
 </div>
-
 <?= $this->endSection() ?>
 
 <?= $this->section('scripts') ?>

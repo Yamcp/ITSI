@@ -233,37 +233,6 @@ class PracticasEstudianteController extends BaseController
     }
 
     /**
-     * Ver documento de formato (navegador / iframe): misma validación que descarga, Content-Disposition inline.
-     */
-    public function verFormatoPracticas($archivo)
-    {
-        if (!session()->get('logged_in')) {
-            return redirect()->to(base_url('/'));
-        }
-        $archivo = basename((string) $archivo);
-        if (!preg_match('/^[a-zA-Z0-9_\-\.]+$/', $archivo)) {
-            return $this->response->setStatusCode(400)->setBody('Archivo no válido');
-        }
-        $lista = $this->getListaFormatosPracticasEstudiante();
-        $enLista = false;
-        foreach ($lista as $item) {
-            if (($item['archivo'] ?? '') === $archivo) {
-                $enLista = true;
-                break;
-            }
-        }
-        if (!$enLista) {
-            return $this->response->setStatusCode(404)->setBody('Documento no encontrado');
-        }
-        $ruta = WRITEPATH . 'uploads/formatos_practicas/' . $archivo;
-        if (!file_exists($ruta) || !is_file($ruta)) {
-            return $this->response->setStatusCode(404)->setBody('Archivo no encontrado');
-        }
-
-        return $this->servirFormatoInline($ruta, $archivo);
-    }
-
-    /**
      * Descargar un documento de formato de servicio comunitario.
      */
     public function descargarFormatoServicio($archivo)
@@ -295,67 +264,6 @@ class PracticasEstudianteController extends BaseController
     }
 
     /**
-     * Ver formato de servicio comunitario en el navegador (iframe).
-     */
-    public function verFormatoServicio($archivo)
-    {
-        if (!session()->get('logged_in')) {
-            return redirect()->to(base_url('/'));
-        }
-        $archivo = basename((string) $archivo);
-        if (!preg_match('/^[a-zA-Z0-9_\-\.]+$/', $archivo)) {
-            return $this->response->setStatusCode(400)->setBody('Archivo no válido');
-        }
-        $lista = $this->getListaFormatosServicioEstudiante();
-        $enLista = false;
-        foreach ($lista as $item) {
-            if (($item['archivo'] ?? '') === $archivo) {
-                $enLista = true;
-                break;
-            }
-        }
-        if (!$enLista) {
-            return $this->response->setStatusCode(404)->setBody('Documento no encontrado');
-        }
-        $ruta = WRITEPATH . 'uploads/formatos_servicio/' . $archivo;
-        if (!file_exists($ruta) || !is_file($ruta)) {
-            return $this->response->setStatusCode(404)->setBody('Archivo no encontrado');
-        }
-
-        return $this->servirFormatoInline($ruta, $archivo);
-    }
-
-    /**
-     * Respuesta HTTP para previsualizar archivo (PDF, imágenes, etc.) sin forzar descarga.
-     */
-    private function servirFormatoInline(string $ruta, string $nombreArchivo)
-    {
-        if (!is_readable($ruta)) {
-            return $this->response->setStatusCode(404)->setBody('Archivo no encontrado');
-        }
-        $ext = strtolower((string) pathinfo($nombreArchivo, PATHINFO_EXTENSION));
-        $mime = match ($ext) {
-            'pdf' => 'application/pdf',
-            'png' => 'image/png',
-            'jpg', 'jpeg' => 'image/jpeg',
-            'gif' => 'image/gif',
-            'webp' => 'image/webp',
-            default => @mime_content_type($ruta) ?: 'application/octet-stream',
-        };
-        $contenido = @file_get_contents($ruta);
-        if ($contenido === false) {
-            return $this->response->setStatusCode(500)->setBody('No se pudo leer el archivo');
-        }
-        $nombreSeguro = str_replace(["\r", "\n", '"'], '', basename($nombreArchivo));
-
-        return $this->response
-            ->setHeader('Content-Type', $mime)
-            ->setHeader('Content-Disposition', 'inline; filename="' . $nombreSeguro . '"')
-            ->setHeader('X-Content-Type-Options', 'nosniff')
-            ->setBody($contenido);
-    }
-
-    /**
      * Subir documento de servicio comunitario (estudiante).
      */
     public function subirDocumentoServicioComunitario()
@@ -383,7 +291,7 @@ class PracticasEstudianteController extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Ya tienes un documento de este tipo. Elimina el anterior para reemplazarlo.']);
         }
         $archivo = $this->request->getFile('archivo');
-        if (!$archivo || !$archivo->isValid() || !$archivo->hasMoved()) {
+        if (!$archivo || !$archivo->isValid() || $archivo->hasMoved()) {
             return $this->response->setJSON(['success' => false, 'message' => 'Selecciona un archivo PDF válido (máx. 10 MB).']);
         }
         $ext = strtolower($archivo->getClientExtension());

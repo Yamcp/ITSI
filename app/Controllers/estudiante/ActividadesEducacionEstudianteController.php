@@ -4,6 +4,7 @@ namespace App\Controllers\estudiante;
 
 use App\Models\ActividadesEducacionModel;
 use App\Models\EvaluacionesEnlacesModel;
+use App\Models\InscripcionesActividadesModel;
 use App\Models\InstructoresModel;
 use App\Models\LineasInvestigacionModel;
 use App\Models\TiposModalidadesModel;
@@ -59,6 +60,61 @@ class ActividadesEducacionEstudianteController extends BaseController
         ]);
     }
 
+    /**
+     * ID_ESTUDIANTE del usuario en sesión, o null.
+     */
+    private function obtenerIdEstudianteSesion(): ?int
+    {
+        $idUsuario = (int) session()->get('id_usuario');
+        if ($idUsuario < 1) {
+            return null;
+        }
+
+        try {
+            $db = \Config\Database::connect();
+            $est = $db->table('TAB_ESTUDIANTES e')
+                ->select('e.ID_ESTUDIANTE')
+                ->join('TAB_USUARIOS u', 'u.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+                ->where('u.ID_USUARIO', $idUsuario)
+                ->get()
+                ->getRowArray();
+
+            return empty($est['ID_ESTUDIANTE']) ? null : (int) $est['ID_ESTUDIANTE'];
+        } catch (\Throwable $e) {
+            log_message('error', 'obtenerIdEstudianteSesion: ' . $e->getMessage());
+
+            return null;
+        }
+    }
+
+    /**
+     * IDs de actividades educativas en las que el estudiante logueado está inscrito.
+     *
+     * @return array<int, true>
+     */
+    private function obtenerMapaActividadesInscritasEstudiante(): array
+    {
+        $idEst = $this->obtenerIdEstudianteSesion();
+        if ($idEst === null) {
+            return [];
+        }
+
+        try {
+            $inscripcionesModel = new InscripcionesActividadesModel();
+            $rows = $inscripcionesModel->where('ID_ESTUDIANTE', $idEst)->findAll();
+            $map = [];
+            foreach ($rows as $r) {
+                $map[(int) $r['ID_ACTIVIDAD_EDUCACION']] = true;
+            }
+
+            return $map;
+        } catch (\Throwable $e) {
+            log_message('error', 'obtenerMapaActividadesInscritasEstudiante: ' . $e->getMessage());
+
+            return [];
+        }
+    }
+
     public function index()
     {
         $actividades = $this->actividadesModel->getActividadesConDatos();
@@ -67,6 +123,7 @@ class ActividadesEducacionEstudianteController extends BaseController
         $data = [
             'title' => 'Actividades Educativas',
             'actividades' => $actividades,
+            'actividadesInscritas' => $this->obtenerMapaActividadesInscritasEstudiante(),
             'encuestasPorActividad' => $encuestasPorActividad,
             'instructores' => $this->instructoresModel->getInstructoresConDatos(),
             'modalidades' => $this->tiposModalidadesModel->findAll(),
@@ -87,6 +144,72 @@ class ActividadesEducacionEstudianteController extends BaseController
         }
         $actividad['ACTIVIDAD'] = $actividad['TIPO_ACTIVIDAD'] ?? $actividad['ACTIVIDAD'] ?? '';
         return $this->response->setJSON(['success' => true, 'data' => $actividad]);
+    }
+
+    /**
+     * El estudiante autenticado se inscribe en una actividad vigente.
+     */
+    public function inscribirse()
+    {
+        if (strtolower($this->request->getMethod()) !== 'post') {
+            return $this->response->setStatusCode(405)->setJSON([
+                'success' => false,
+                'message' => 'Método no permitido',
+            ]);
+        }
+
+        $idActividad = (int) $this->request->getPost('id_actividad');
+        if ($idActividad < 1) {
+            $json = $this->request->getJSON(true);
+            if (is_array($json) && ! empty($json['id_actividad'])) {
+                $idActividad = (int) $json['id_actividad'];
+            }
+        }
+
+        if ($idActividad < 1) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Actividad no válida']);
+        }
+
+        $idEstudiante = $this->obtenerIdEstudianteSesion();
+        if ($idEstudiante === null) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'No se encontró tu perfil de estudiante. Inicia sesión de nuevo.',
+            ]);
+        }
+
+        $actividad = $this->actividadesModel->find($idActividad);
+        if (! $actividad) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Actividad no encontrada']);
+        }
+
+        $fechaFin = (string) ($actividad['FECHA_FIN'] ?? '');
+        if ($fechaFin !== '' && $fechaFin < date('Y-m-d')) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Esta actividad ya finalizó; no es posible inscribirse.',
+            ]);
+        }
+
+        $inscripcionesModel = new InscripcionesActividadesModel();
+        if ($inscripcionesModel->estaInscrito($idActividad, $idEstudiante)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Ya estás inscrito en esta actividad.',
+            ]);
+        }
+
+        if ($inscripcionesModel->inscribir($idActividad, $idEstudiante)) {
+            return $this->response->setJSON([
+                'success' => true,
+                'message' => 'Inscripción registrada correctamente.',
+            ]);
+        }
+
+        return $this->response->setJSON([
+            'success' => false,
+            'message' => 'No se pudo completar la inscripción. Intenta de nuevo.',
+        ]);
     }
 
     public function create()
@@ -341,9 +464,14 @@ class ActividadesEducacionEstudianteController extends BaseController
             ->orderBy('ae.FECHA_INICIO', 'ASC')
             ->findAll();
 
-        // Formatear para calendario
-        $eventos = [];
+        // Formatear para calendario (una sola entrada por actividad: el JOIN puede duplicar filas)
+        $eventosPorId = [];
         foreach ($actividades as $actividad) {
+            $idActividad = (int) $actividad['ID_ACTIVIDAD_EDUCACION'];
+            if (isset($eventosPorId[$idActividad])) {
+                continue;
+            }
+
             $color = '#007bff'; // Azul por defecto
             if ($actividad['TIPO_ACTIVIDAD'] === 'Taller') {
                 $color = '#28a745'; // Verde
@@ -351,11 +479,12 @@ class ActividadesEducacionEstudianteController extends BaseController
                 $color = '#17a2b8'; // Azul claro
             }
 
-            $eventos[] = [
-                'id' => $actividad['ID_ACTIVIDAD_EDUCACION'],
+            $eventosPorId[$idActividad] = [
+                'id' => (string) $idActividad,
                 'title' => $actividad['NOMBRE_ACTIVIDAD'],
                 'start' => $actividad['FECHA_INICIO'],
                 'end' => date('Y-m-d', strtotime($actividad['FECHA_FIN'] . ' +1 day')),
+                'allDay' => true,
                 'backgroundColor' => $color,
                 'borderColor' => $color,
                 'textColor' => '#ffffff',
@@ -366,12 +495,12 @@ class ActividadesEducacionEstudianteController extends BaseController
                     'horario' => $actividad['HORARIO'],
                     'duracion' => $actividad['DURACION_HORAS'],
                     'descripcion' => $actividad['DESCRIPCION'],
-                    'modalidad' => $actividad['MODALIDAD']
-                ]
+                    'modalidad' => $actividad['MODALIDAD'],
+                ],
             ];
         }
 
-        return $this->response->setJSON($eventos);
+        return $this->response->setJSON(array_values($eventosPorId));
     }
 
     // Método para obtener datos para AJAX

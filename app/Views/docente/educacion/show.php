@@ -57,7 +57,13 @@
                                 <p><strong>Duración:</strong>
                                     <span class="badge bg-warning text-dark"><?= (int)($actividad['DURACION_HORAS']) ?> horas</span>
                                 </p>
-                                <p><strong>Lugar:</strong> <?= esc($actividad['LUGAR']) ?></p>
+                                <?php if (trim((string) ($actividad['LUGAR'] ?? '')) !== ''): ?>
+                                    <p><strong>Lugar:</strong> <?= esc($actividad['LUGAR']) ?></p>
+                                <?php endif; ?>
+                                <?php if (trim((string) ($actividad['ENLACE'] ?? '')) !== ''): ?>
+                                    <?php $hrefEn = preg_match('#^https?://#i', $actividad['ENLACE']) ? $actividad['ENLACE'] : 'https://' . $actividad['ENLACE']; ?>
+                                    <p><strong>Enlace:</strong> <a href="<?= esc($hrefEn, 'attr') ?>" target="_blank" rel="noopener"><?= esc($actividad['ENLACE']) ?></a></p>
+                                <?php endif; ?>
                                 <p><strong>Horario:</strong> <?= esc($actividad['HORARIO']) ?></p>
                             </div>
                         </div>

@@ -76,6 +76,11 @@ class ActividadesEducacionCoordController extends BaseController
 
     public function store()
     {
+        $idModalidad = (int) $this->request->getPost('modalidad');
+        $filaModalidad = $idModalidad > 0 ? $this->tiposModalidadesModel->find($idModalidad) : null;
+        $slugMod = ActividadesEducacionModel::slugModalidadDesdeNombre($filaModalidad['MODALIDAD'] ?? '');
+        $reglasLyE = ActividadesEducacionModel::reglasLugarEnlacePorSlug($slugMod);
+
         $rules = [
             'tipo_actividad' => 'required|integer',
             'nombre_actividad' => 'required|max_length[200]',
@@ -86,7 +91,8 @@ class ActividadesEducacionCoordController extends BaseController
             'duracion_horas' => 'required|integer|greater_than[0]',
             'fecha_inicio' => 'required|valid_date',
             'fecha_fin' => 'required|valid_date',
-            'lugar' => 'required|max_length[150]',
+            'lugar' => $reglasLyE['lugar'],
+            'enlace' => $reglasLyE['enlace'],
             'horario' => 'required|max_length[100]'
         ];
 
@@ -129,8 +135,12 @@ class ActividadesEducacionCoordController extends BaseController
                 'valid_date' => 'La fecha de fin debe ser válida'
             ],
             'lugar' => [
-                'required' => 'El lugar es obligatorio',
+                'required' => 'El lugar es obligatorio para modalidad presencial o híbrida',
                 'max_length' => 'El lugar no puede exceder 150 caracteres'
+            ],
+            'enlace' => [
+                'required' => 'El enlace es obligatorio para modalidad virtual o híbrida',
+                'max_length' => 'El enlace no puede exceder 500 caracteres'
             ],
             'horario' => [
                 'required' => 'El horario es obligatorio',
@@ -153,7 +163,8 @@ class ActividadesEducacionCoordController extends BaseController
             'DURACION_HORAS' => $this->request->getPost('duracion_horas'),
             'FECHA_INICIO' => $this->request->getPost('fecha_inicio'),
             'FECHA_FIN' => $this->request->getPost('fecha_fin'),
-            'LUGAR' => $this->request->getPost('lugar'),
+            'LUGAR' => trim((string) $this->request->getPost('lugar')),
+            'ENLACE' => trim((string) $this->request->getPost('enlace')),
             'HORARIO' => $this->request->getPost('horario'),
 
             'PROGRAMA_DETALLADO' => $this->request->getPost('programa_detallado')
@@ -210,6 +221,11 @@ class ActividadesEducacionCoordController extends BaseController
 
     public function update($id)
     {
+        $idModalidad = (int) $this->request->getPost('modalidad');
+        $filaModalidad = $idModalidad > 0 ? $this->tiposModalidadesModel->find($idModalidad) : null;
+        $slugMod = ActividadesEducacionModel::slugModalidadDesdeNombre($filaModalidad['MODALIDAD'] ?? '');
+        $reglasLyE = ActividadesEducacionModel::reglasLugarEnlacePorSlug($slugMod);
+
         $rules = [
             'tipo_actividad' => 'required|integer',
             'nombre_actividad' => 'required|max_length[200]',
@@ -220,7 +236,8 @@ class ActividadesEducacionCoordController extends BaseController
             'duracion_horas' => 'required|integer|greater_than[0]',
             'fecha_inicio' => 'required|valid_date',
             'fecha_fin' => 'required|valid_date',
-            'lugar' => 'required|max_length[150]',
+            'lugar' => $reglasLyE['lugar'],
+            'enlace' => $reglasLyE['enlace'],
             'horario' => 'required|max_length[100]'
         ];
 
@@ -263,8 +280,12 @@ class ActividadesEducacionCoordController extends BaseController
                 'valid_date' => 'La fecha de fin debe ser válida'
             ],
             'lugar' => [
-                'required' => 'El lugar es obligatorio',
+                'required' => 'El lugar es obligatorio para modalidad presencial o híbrida',
                 'max_length' => 'El lugar no puede exceder 150 caracteres'
+            ],
+            'enlace' => [
+                'required' => 'El enlace es obligatorio para modalidad virtual o híbrida',
+                'max_length' => 'El enlace no puede exceder 500 caracteres'
             ],
             'horario' => [
                 'required' => 'El horario es obligatorio',
@@ -286,7 +307,8 @@ class ActividadesEducacionCoordController extends BaseController
             'DURACION_HORAS' => $this->request->getPost('duracion_horas'),
             'FECHA_INICIO' => $this->request->getPost('fecha_inicio'),
             'FECHA_FIN' => $this->request->getPost('fecha_fin'),
-            'LUGAR' => $this->request->getPost('lugar'),
+            'LUGAR' => trim((string) $this->request->getPost('lugar')),
+            'ENLACE' => trim((string) $this->request->getPost('enlace')),
             'HORARIO' => $this->request->getPost('horario'),
 
             'PROGRAMA_DETALLADO' => $this->request->getPost('programa_detallado')
@@ -310,8 +332,14 @@ class ActividadesEducacionCoordController extends BaseController
 
     public function calendario()
     {
+        $selectCal = 'ae.ID_ACTIVIDAD_EDUCACION, ae.NOMBRE_ACTIVIDAD, ae.FECHA_INICIO, ae.FECHA_FIN, ae.LUGAR, ';
+        if ($this->actividadesModel->tablaTieneColumnaEnlace()) {
+            $selectCal .= 'ae.ENLACE, ';
+        }
+        $selectCal .= 'ae.HORARIO, ae.DURACION_HORAS, ae.DESCRIPCION, ta.ACTIVIDAD as TIPO_ACTIVIDAD, tm.MODALIDAD, dp.NOMBRE, dp.APELLIDO';
+
         $actividades = $this->actividadesModel
-            ->select('ae.ID_ACTIVIDAD_EDUCACION, ae.NOMBRE_ACTIVIDAD, ae.FECHA_INICIO, ae.FECHA_FIN, ae.LUGAR, ae.HORARIO, ae.DURACION_HORAS, ae.DESCRIPCION, ta.ACTIVIDAD as TIPO_ACTIVIDAD, tm.MODALIDAD, dp.NOMBRE, dp.APELLIDO')
+            ->select($selectCal)
             ->from('TAB_ACTIVIDADES_EDUCACION ae')
             ->join('TAB_TIPOS_ACTIVIDADES ta', 'ta.ID_TIPO_ACTIVIDAD = ae.ID_TIPO_ACTIVIDAD')
             ->join('TAB_TIPOS_MODALIDADES tm', 'tm.ID_TIPO_MODALIDAD = ae.ID_TIPO_MODALIDAD')
@@ -345,6 +373,7 @@ class ActividadesEducacionCoordController extends BaseController
                     'tipo' => $actividad['TIPO_ACTIVIDAD'],
                     'instructor' => $actividad['NOMBRE'] . ' ' . $actividad['APELLIDO'],
                     'lugar' => $actividad['LUGAR'],
+                    'enlace' => $actividad['ENLACE'] ?? '',
                     'horario' => $actividad['HORARIO'],
                     'duracion' => $actividad['DURACION_HORAS'],
                     'descripcion' => $actividad['DESCRIPCION'],

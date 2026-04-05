@@ -47,6 +47,14 @@
         font-weight: 500 !important;
     }
 
+    .fc .fc-daygrid-event .fc-event-title {
+        display: block !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        line-height: 1.2;
+    }
+
     /* Estilos para evaluaciones integradas */
     .evaluation-card {
         transition: all 0.3s ease;
@@ -666,36 +674,11 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <!-- Filtros por tipo de actividad -->
-                <div class="row mb-3">
-                    <div class="col-12">
-                        <div class="btn-group" role="group">
-                            <input type="checkbox" class="btn-check" id="filtroCursos" checked>
-                            <label class="btn btn-outline-primary" for="filtroCursos">
-                                <i class="fas fa-book me-1"></i>Cursos
-                            </label>
-
-                            <input type="checkbox" class="btn-check" id="filtroTalleres" checked>
-                            <label class="btn btn-outline-success" for="filtroTalleres">
-                                <i class="fas fa-tools me-1"></i>Talleres
-                            </label>
-
-                            <input type="checkbox" class="btn-check" id="filtroSeminarios" checked>
-                            <label class="btn btn-outline-info" for="filtroSeminarios">
-                                <i class="fas fa-users me-1"></i>Seminarios
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Calendario -->
                 <div id="calendario" style="background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" onclick="exportarCalendario()">
-                    <i class="fas fa-download me-1"></i>Exportar
-                </button>
             </div>
         </div>
     </div>
@@ -739,7 +722,23 @@
             return;
         }
 
-        // Limpiar contenido previo
+        if (window.calendario) {
+            try {
+                window.calendario.destroy();
+            } catch (e) {
+                /* instancia ya destruida o DOM reemplazado */
+            }
+            window.calendario = null;
+        }
+
+        const vistos = new Set();
+        const eventosUnicos = (eventos || []).filter(e => {
+            const k = String(e.id);
+            if (vistos.has(k)) return false;
+            vistos.add(k);
+            return true;
+        });
+
         calendarEl.innerHTML = '';
 
         try {
@@ -752,7 +751,23 @@
                     center: 'title',
                     right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
                 },
-                events: eventos || [],
+                events: eventosUnicos,
+                eventContent: function(arg) {
+                    if (arg.view.type !== 'dayGridMonth') {
+                        return;
+                    }
+                    const text = arg.event.title;
+                    if (!text) {
+                        return;
+                    }
+                    const main = document.createElement('div');
+                    main.className = 'fc-event-main';
+                    const tit = document.createElement('div');
+                    tit.className = 'fc-event-title';
+                    tit.appendChild(document.createTextNode(text));
+                    main.appendChild(tit);
+                    return { domNodes: [main] };
+                },
                 eventClick: function(info) {
                     mostrarDetalleEvento(info.event);
                 },

@@ -57,7 +57,7 @@ class DocumentosPracticasCoordController extends BaseController
         $data = [
             'title' => 'Subir Documento de Práctica',
             'estudiantes' => $this->getEstudiantes(),
-            'tipos_documentos' => $this->tiposDocumentosModel->findAll()
+            'tipos_documentos' => $this->tiposDocumentosModel->getAllTipos()
         ];
 
         return view('coord/documentos/documentos_practicas', $data);

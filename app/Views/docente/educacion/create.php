@@ -55,7 +55,7 @@
                             </div>
                         <?php endif; ?>
 
-                        <form action="<?= base_url('docente/actividades-educacion/guardar') ?>" method="POST">
+                        <form action="<?= base_url('docente/actividades-educacion/guardar') ?>" method="POST" id="formNuevaActividadDocente">
                             <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
@@ -99,12 +99,12 @@
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Modalidad<span class="text-danger">*</span></label>
-                                        <select class="form-select" name="modalidad" required>
+                                        <select class="form-select" name="modalidad" id="selectModalidadNuevaActividadDocente" required>
                                             <option value="">Seleccionar...</option>
                                             <?php if (!empty($modalidades)): ?>
                                                 <?php foreach ($modalidades as $modalidad): ?>
-                                                    <option value="<?= $modalidad['ID_TIPO_MODALIDAD'] ?>" <?= old('modalidad') == $modalidad['ID_TIPO_MODALIDAD'] ? 'selected' : '' ?>>
-                                                        <?= $modalidad['MODALIDAD'] ?>
+                                                    <option value="<?= $modalidad['ID_TIPO_MODALIDAD'] ?>" data-modalidad-nombre="<?= esc($modalidad['MODALIDAD'], 'attr') ?>" <?= old('modalidad') == $modalidad['ID_TIPO_MODALIDAD'] ? 'selected' : '' ?>>
+                                                        <?= esc($modalidad['MODALIDAD']) ?>
                                                     </option>
                                                 <?php endforeach; ?>
                                             <?php endif; ?>
@@ -145,12 +145,16 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-md-6">
-                                    <div class="mb-3">
-                                        <label class="form-label">Lugar<span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" name="lugar" value="<?= old('lugar') ?>" required>
-                                    </div>
+                                <div class="col-md-6 mb-3 d-none" id="wrapLugarNuevaActividadDocente">
+                                    <label class="form-label">Lugar <span class="text-danger">*</span></label>
+                                    <input type="text" class="form-control" name="lugar" id="inputLugarNuevaActividadDocente" value="<?= esc(old('lugar')) ?>">
                                 </div>
+                                <div class="col-md-6 mb-3 d-none" id="wrapEnlaceNuevaActividadDocente">
+                                    <label class="form-label">Enlace <span class="text-danger">*</span></label>
+                                    <input type="url" class="form-control" name="enlace" id="inputEnlaceNuevaActividadDocente" value="<?= esc(old('enlace')) ?>" placeholder="https://...">
+                                </div>
+                            </div>
+                            <div class="row">
                                 <div class="col-md-6">
                                     <div class="mb-3">
                                         <label class="form-label">Horario<span class="text-danger">*</span></label>
@@ -190,31 +194,63 @@
 </div>
 
 <script>
+    function actividadEduSlugModalidadDocente(texto) {
+        const t = (texto || '').toLowerCase();
+        if (/híbr|hibr|semi[\s\-]?presencial/.test(t)) return 'hibrida';
+        if (/virtual|en\s+l[ií]nea|l[ií]nea|remoto|online|distancia/.test(t)) return 'virtual';
+        if (/presencial/.test(t)) return 'presencial';
+        return '';
+    }
+    function actividadEduSincronizarLugarEnlaceDocente() {
+        const sel = document.getElementById('selectModalidadNuevaActividadDocente');
+        if (!sel) return;
+        const opt = sel.options[sel.selectedIndex];
+        const label = opt ? (opt.getAttribute('data-modalidad-nombre') || opt.textContent || '').trim() : '';
+        const slug = actividadEduSlugModalidadDocente(label);
+        const wL = document.getElementById('wrapLugarNuevaActividadDocente');
+        const wE = document.getElementById('wrapEnlaceNuevaActividadDocente');
+        const iL = document.getElementById('inputLugarNuevaActividadDocente');
+        const iE = document.getElementById('inputEnlaceNuevaActividadDocente');
+        if (!wL || !wE || !iL || !iE) return;
+        const showL = slug === 'presencial' || slug === 'hibrida';
+        const showE = slug === 'virtual' || slug === 'hibrida';
+        wL.classList.toggle('d-none', !showL);
+        wE.classList.toggle('d-none', !showE);
+        iL.required = showL;
+        iE.required = showE;
+        if (!showL) { iL.value = ''; iL.classList.remove('is-invalid'); }
+        if (!showE) { iE.value = ''; iE.classList.remove('is-invalid'); }
+    }
     // Establecer fecha de hoy como fecha de inicio por defecto
     document.addEventListener('DOMContentLoaded', function() {
-        const fechaInicioInput = document.querySelector('input[name="fecha_inicio"]');
+        const fechaInicioInput = document.querySelector('#formNuevaActividadDocente input[name="fecha_inicio"]');
         if (fechaInicioInput && !fechaInicioInput.value) {
             const today = new Date().toISOString().split('T')[0];
             fechaInicioInput.value = today;
         }
 
+        const selMod = document.getElementById('selectModalidadNuevaActividadDocente');
+        if (selMod) selMod.addEventListener('change', actividadEduSincronizarLugarEnlaceDocente);
+        actividadEduSincronizarLugarEnlaceDocente();
+
         // Validar que la fecha de fin sea posterior a la fecha de inicio
-        const fechaInicio = document.querySelector('input[name="fecha_inicio"]');
-        const fechaFin = document.querySelector('input[name="fecha_fin"]');
+        const fechaInicio = document.querySelector('#formNuevaActividadDocente input[name="fecha_inicio"]');
+        const fechaFin = document.querySelector('#formNuevaActividadDocente input[name="fecha_fin"]');
+        if (fechaInicio && fechaFin) {
+            fechaInicio.addEventListener('change', function() {
+                if (fechaFin.value && fechaFin.value <= this.value) {
+                    fechaFin.value = '';
+                    alert('La fecha de fin debe ser posterior a la fecha de inicio');
+                }
+            });
 
-        fechaInicio.addEventListener('change', function() {
-            if (fechaFin.value && fechaFin.value <= this.value) {
-                fechaFin.value = '';
-                alert('La fecha de fin debe ser posterior a la fecha de inicio');
-            }
-        });
-
-        fechaFin.addEventListener('change', function() {
-            if (fechaInicio.value && this.value <= fechaInicio.value) {
-                alert('La fecha de fin debe ser posterior a la fecha de inicio');
-                this.value = '';
-            }
-        });
+            fechaFin.addEventListener('change', function() {
+                if (fechaInicio.value && this.value <= fechaInicio.value) {
+                    alert('La fecha de fin debe ser posterior a la fecha de inicio');
+                    this.value = '';
+                }
+            });
+        }
     });
 </script>
 

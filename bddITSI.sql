@@ -112,6 +112,7 @@ create table TAB_ACTIVIDADES_EDUCACION
    FECHA_INICIO         date not null,
    FECHA_FIN            date not null,
    LUGAR                varchar(150) not null,
+   ENLACE               varchar(500) null,
    HORARIO              varchar(100) not null,
    INCLUYE_CERTIFICADO  boolean not null,
    PROGRAMA_DETALLADO   text not null,

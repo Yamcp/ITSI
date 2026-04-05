@@ -16632,6 +16632,10 @@ textarea.form-control-lg {
 .app-header .navbar {
   min-height: 70px;
   padding: 0;
+  overflow: visible;
+}
+.app-header .navbar .navbar-collapse {
+  overflow: visible;
 }
 .app-header .navbar .navbar-nav .nav-item .nav-link {
   padding: 8px 16px;
@@ -16743,6 +16747,30 @@ textarea.form-control-lg {
     top: 70px;
   }
 }
+@-webkit-keyframes animation-dropdown-menu-move-up {
+  from {
+    opacity: 1;
+    -webkit-transform: translateY(8px);
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+  }
+}
+@keyframes animation-dropdown-menu-move-up {
+  from {
+    opacity: 1;
+    -webkit-transform: translateY(8px);
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    -webkit-transform: translateY(0);
+    transform: translateY(0);
+  }
+}
 @-webkit-keyframes animation-dropdown-menu-fade-in {
   from {
     opacity: 0;
@@ -16825,7 +16853,7 @@ textarea.form-control-lg {
 }
 #main-wrapper[data-layout=vertical][data-header-position=fixed] .app-header {
   position: fixed;
-  z-index: 10;
+  z-index: 1030;
 }
 #main-wrapper[data-layout=vertical][data-header-position=fixed] .body-wrapper > .container-fluid, #main-wrapper[data-layout=vertical][data-header-position=fixed] .body-wrapper > .container-sm, #main-wrapper[data-layout=vertical][data-header-position=fixed] .body-wrapper > .container-md, #main-wrapper[data-layout=vertical][data-header-position=fixed] .body-wrapper > .container-lg, #main-wrapper[data-layout=vertical][data-header-position=fixed] .body-wrapper > .container-xl, #main-wrapper[data-layout=vertical][data-header-position=fixed] .body-wrapper > .container-xxl {
   padding-top: calc(70px + 15px);
@@ -16841,6 +16869,11 @@ textarea.form-control-lg {
   #main-wrapper[data-layout=vertical][data-sidebartype=full] .body-wrapper {
     margin-left: 270px;
   }
+  #main-wrapper[data-layout=vertical][data-header-position=fixed][data-sidebartype=full] .app-header {
+    margin-left: 270px;
+    width: calc(100% - 270px) !important;
+    z-index: 1030;
+  }
 }
 @media (max-width: 1199px) {
   #main-wrapper[data-layout=vertical][data-sidebartype=mini-sidebar] .left-sidebar, #main-wrapper[data-layout=vertical][data-sidebartype=full] .left-sidebar {
@@ -16848,6 +16881,7 @@ textarea.form-control-lg {
   }
   #main-wrapper[data-layout=vertical][data-sidebartype=mini-sidebar].show-sidebar .left-sidebar, #main-wrapper[data-layout=vertical][data-sidebartype=full].show-sidebar .left-sidebar {
     left: 0;
+    z-index: 1040;
   }
 }
 * {

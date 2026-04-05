@@ -36,7 +36,7 @@
 
             /* Usamos tu imagen de fondo */
             /* La ruta asume que 'assets' está en la raíz de tu 'public' folder */
-            background-image: url('<?= base_url('login/assets/img/fondo_login.jpg') ?>');
+            background-image: url('<?= base_url(config('Auth')->loginBackgroundImage) ?>');
             background-size: cover;
             /* Cubre todo el espacio sin deformar */
             background-position: center;

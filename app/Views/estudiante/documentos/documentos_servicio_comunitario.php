@@ -502,8 +502,11 @@ foreach ($servicios_documentacion ?? [] as $row) {
     </div>
 </div>
 
+<?= $this->endSection() ?>
+
+<?= $this->section('modal') ?>
 <!-- Modal Subir Documento -->
-<div class="modal fade" id="modalSubirDocumento" tabindex="-1">
+<div class="modal fade" id="modalSubirDocumento" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -550,7 +553,9 @@ foreach ($servicios_documentacion ?? [] as $row) {
         </div>
     </div>
 </div>
+<?= $this->endSection() ?>
 
+<?= $this->section('scripts') ?>
 <script>
     var serviciosDocMetaList = <?= json_encode($serviciosDocJs ?? [], JSON_UNESCAPED_UNICODE) ?>;
 
@@ -600,16 +605,18 @@ foreach ($servicios_documentacion ?? [] as $row) {
         document.getElementById('tipo_documento_id').value = tipoId;
         document.getElementById('tipo_documento_nombre').value = tipoNombre;
 
-        const modal = new bootstrap.Modal(document.getElementById('modalSubirDocumento'));
-        modal.show();
+        const elModal = document.getElementById('modalSubirDocumento');
+        if (elModal && typeof bootstrap !== 'undefined') {
+            bootstrap.Modal.getOrCreateInstance(elModal).show();
+        }
     }
 
     function subirDocumento() {
         const form = document.getElementById('formSubirDocumento');
         const formData = new FormData(form);
 
-        const archivo = document.getElementById('archivoInput').files[0];
-        if (!archivo) {
+        const archivoEl = document.getElementById('archivoInput');
+        if (!archivoEl || !archivoEl.files || !archivoEl.files[0]) {
             showNotification('Debes seleccionar un archivo', 'error');
             return;
         }
@@ -778,8 +785,16 @@ foreach ($servicios_documentacion ?? [] as $row) {
                 const file = this.files[0];
                 const fileSize = (file.size / (1024 * 1024)).toFixed(2);
 
-                // Update upload area with file info
-                uploadArea.innerHTML = `
+                // Show file info without destroying the input element
+                let infoDiv = uploadArea.querySelector('.upload-file-info');
+                if (!infoDiv) {
+                    infoDiv = document.createElement('div');
+                    infoDiv.className = 'upload-file-info';
+                    uploadArea.appendChild(infoDiv);
+                }
+                // Hide original prompt elements
+                uploadArea.querySelectorAll(':scope > i, :scope > h5, :scope > p, :scope > small').forEach(el => el.style.display = 'none');
+                infoDiv.innerHTML = `
                     <i class="fas fa-file fa-3x text-primary mb-3"></i>
                     <h5 class="text-primary">${file.name}</h5>
                     <p class="text-muted mb-2">Tamaño: ${fileSize} MB</p>

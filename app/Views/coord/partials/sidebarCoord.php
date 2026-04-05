@@ -65,7 +65,7 @@
                         <span>
                             <i class="fa-solid fa-user-graduate fs-6"></i>
                         </span>
-                        <span class="hide-menu">Prácticas Asignadas</span>
+                        <span class="hide-menu">Prácticas asignadas</span>
                     </a>
                 </li>
                 <li class="sidebar-item">

@@ -303,6 +303,9 @@
     }
 </style>
 
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
 <!-- JavaScript para validación y funcionalidad -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {

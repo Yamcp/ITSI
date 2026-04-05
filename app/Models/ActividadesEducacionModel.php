@@ -10,7 +10,7 @@ class ActividadesEducacionModel extends Model
     protected $allowedFields = [
         'ID_INSTRUCTOR', 'ID_TIPO_MODALIDAD', 'ID_TIPO_ACTIVIDAD', 'ID_USUARIO',
         'NOMBRE_ACTIVIDAD', 'DESCRIPCION', 'OBJETIVOS', 'DURACION_HORAS',
-        'FECHA_INICIO', 'FECHA_FIN', 'LUGAR', 'HORARIO', 'INCLUYE_CERTIFICADO',
+        'FECHA_INICIO', 'FECHA_FIN', 'LUGAR', 'ENLACE', 'HORARIO', 'INCLUYE_CERTIFICADO',
         'PROGRAMA_DETALLADO'
     ];
     protected $returnType = 'array';
@@ -26,7 +26,8 @@ class ActividadesEducacionModel extends Model
         'FECHA_FIN' => 'required|valid_date',
         'DESCRIPCION' => 'required|min_length[10]',
         'OBJETIVOS' => 'required|min_length[10]',
-        'LUGAR' => 'required|max_length[150]',
+        'LUGAR' => 'permit_empty|max_length[150]',
+        'ENLACE' => 'permit_empty|max_length[500]',
         'HORARIO' => 'required|max_length[100]',
         'PROGRAMA_DETALLADO' => 'required',
         'INCLUYE_CERTIFICADO' => 'required|in_list[0,1]'
@@ -49,6 +50,75 @@ class ActividadesEducacionModel extends Model
             }
         }
         return $data;
+    }
+
+    /**
+     * Clasifica modalidad según el texto en TAB_TIPOS_MODALIDADES (presencial | virtual | hibrida).
+     */
+    public static function slugModalidadDesdeNombre(?string $nombreModalidad): string
+    {
+        $n = mb_strtolower(trim((string) $nombreModalidad));
+        if ($n === '') {
+            return '';
+        }
+        if (preg_match('/híbr|hibri|semi[\s\-]?presencial/u', $n)) {
+            return 'hibrida';
+        }
+        if (preg_match('/virtual|en\s+l[ií]nea|l[ií]nea|remoto|online|distancia/u', $n)) {
+            return 'virtual';
+        }
+        if (str_contains($n, 'presencial')) {
+            return 'presencial';
+        }
+
+        return 'presencial';
+    }
+
+    /**
+     * Reglas de validación request para lugar y enlace según slug de modalidad.
+     *
+     * @return array{lugar: string, enlace: string}
+     */
+    public static function reglasLugarEnlacePorSlug(string $slug): array
+    {
+        $lugar = 'permit_empty|max_length[150]';
+        $enlace = 'permit_empty|max_length[500]';
+        if ($slug === 'presencial') {
+            $lugar = 'required|max_length[150]';
+        } elseif ($slug === 'virtual') {
+            $enlace = 'required|max_length[500]';
+        } elseif ($slug === 'hibrida') {
+            $lugar = 'required|max_length[150]';
+            $enlace = 'required|max_length[500]';
+        }
+
+        return ['lugar' => $lugar, 'enlace' => $enlace];
+    }
+
+    /** @var bool|null */
+    protected $cacheTieneColumnaEnlace = null;
+
+    /**
+     * True si en BD existe la columna ENLACE (evita fallar en consultas en servidores sin migrar).
+     */
+    public function tablaTieneColumnaEnlace(): bool
+    {
+        if ($this->cacheTieneColumnaEnlace !== null) {
+            return $this->cacheTieneColumnaEnlace;
+        }
+        try {
+            $q = $this->db->query(
+                'SELECT COUNT(*) AS c FROM INFORMATION_SCHEMA.COLUMNS
+                 WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?',
+                [$this->table, 'ENLACE']
+            );
+            $row = $q->getRowArray();
+            $this->cacheTieneColumnaEnlace = ((int) ($row['c'] ?? 0)) > 0;
+        } catch (\Throwable $e) {
+            $this->cacheTieneColumnaEnlace = false;
+        }
+
+        return $this->cacheTieneColumnaEnlace;
     }
     
     // Obtener actividad con información relacionada

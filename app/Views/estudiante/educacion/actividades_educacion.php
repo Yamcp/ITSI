@@ -47,6 +47,15 @@
         font-weight: 500 !important;
     }
 
+    /* Vista mes: que el nombre se vea también en continuationes (varias filas/semanas) */
+    .fc .fc-daygrid-event .fc-event-title {
+        display: block !important;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        line-height: 1.2;
+    }
+
     /* Estilos para evaluaciones integradas */
     .evaluation-card {
         transition: all 0.3s ease;
@@ -171,62 +180,22 @@
             </div>
         </div>
 
-        <!-- Estadísticas Rápidas -->
-        <div class="row mb-4">
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #007bff 80%, #0056b3 100%); color: #fff; border: none;">
-                    <div class="card-body">
+        <!-- Estadísticas y acceso al calendario (misma fila) -->
+        <div class="row mb-4 align-items-stretch g-3">
+            <div class="col-md-6 col-sm-6">
+                <div class="card text-center shadow-sm h-100" style="background: linear-gradient(135deg, #007bff 80%, #0056b3 100%); color: #fff; border: none;">
+                    <div class="card-body d-flex flex-column justify-content-center py-4">
                         <h2 class="card-title mb-2" id="totalActividades" style="font-size:2.5rem;">0</h2>
-                        <p class="card-text fw-bold" style="color: #e0e0e0;">Actividades Disponibles</p>
+                        <p class="card-text fw-bold mb-0" style="color: #e0e0e0;">Actividades Disponibles</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #28a745 80%, #155724 100%); color: #fff; border: none;">
-                    <div class="card-body">
-                        <h2 class="card-title mb-2" id="misInscripciones" style="font-size:2.5rem;">0</h2>
-                        <p class="card-text fw-bold" style="color: #e0e0e0;">Mis Inscripciones</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #17a2b8 80%, #0f6674 100%); color: #fff; border: none;">
-                    <div class="card-body">
-                        <h2 class="card-title mb-2" id="certificadosObtenidos" style="font-size:2.5rem;">0</h2>
-                        <p class="card-text fw-bold" style="color: #e0e0e0;">Certificados</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Acciones Rápidas -->
-        <div class="row mb-4 justify-content-center">
-            <div class="col-md-3 col-sm-6 mb-3">
+            <div class="col-md-6 col-sm-6">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
-                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="#" onclick="verCalendario()" style="text-decoration: none; color: inherit;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center py-4">
+                        <a href="#" onclick="verCalendario(); return false;" style="text-decoration: none; color: inherit;">
                             <i class="fas fa-calendar-alt fa-2x mb-2" style="color: #007bff; text-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);"></i>
                             <div class="fw-bold">Ver Calendario</div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm h-100" style="border: none;">
-                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="#" onclick="verMisInscripciones()" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-list-alt fa-2x mb-2" style="color: #28a745; text-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);"></i>
-                            <div class="fw-bold">Mis Inscripciones</div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm h-100" style="border: none;">
-                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="#" onclick="verCertificados()" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-certificate fa-2x mb-2" style="color: #ffc107; text-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);"></i>
-                            <div class="fw-bold">Mis Certificados</div>
                         </a>
                     </div>
                 </div>
@@ -238,10 +207,16 @@
             <div class="col-12">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body pb-0">
+                        <?php $insc = $actividadesInscritas ?? []; ?>
                         <ul class="nav nav-tabs nav-justified rounded-pill bg-light px-2 py-1" id="actividadesTabs" role="tablist" style="gap: 0.5rem;">
                             <li class="nav-item" role="presentation">
                                 <button class="nav-link active rounded-pill fw-semibold text-primary" id="disponibles-tab" data-bs-toggle="tab" data-bs-target="#disponibles" type="button" role="tab" aria-selected="true">
                                     <i class="fas fa-book me-2"></i>Actividades Disponibles
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link rounded-pill fw-semibold text-success" id="tomadas-tab" data-bs-toggle="tab" data-bs-target="#tomadas" type="button" role="tab" aria-selected="false">
+                                    <i class="fas fa-user-check me-2"></i>Actividades Tomadas
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
@@ -281,6 +256,11 @@
                                                             $fechaFin = new DateTime($actividad['FECHA_FIN']);
                                                             $finalizado = $fechaFin < $hoy;
                                                             if ($finalizado) continue;
+
+                                                            $idAct = (int) $actividad['ID_ACTIVIDAD_EDUCACION'];
+                                                            if (!empty($insc[$idAct])) {
+                                                                continue;
+                                                            }
 
                                                             $hayDisponibles = true;
                                                             $tipo = $actividad['ACTIVIDAD'];
@@ -352,6 +332,108 @@
                                 </div>
                             </div>
 
+                            <!-- Actividades Tomadas (inscrito y aún en curso por calendario) -->
+                            <div class="tab-pane fade" id="tomadas" role="tabpanel">
+                                <div class="card shadow-sm border-0">
+                                    <div class="card-body p-0">
+                                        <div class="table-responsive">
+                                            <table class="table table-striped align-middle mb-0">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th>#</th>
+                                                        <th>Actividad</th>
+                                                        <th>Instructor</th>
+                                                        <th>Modalidad</th>
+                                                        <th>Período</th>
+                                                        <th>Duración</th>
+                                                        <th>Estado</th>
+                                                        <th>Acciones</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="tablaTomadas">
+                                                    <?php
+                                                    $hoy = new DateTime();
+                                                    $hayTomadas = false;
+                                                    if (!empty($actividades)) :
+                                                        foreach ($actividades as $actividad) :
+                                                            $fechaFin = new DateTime($actividad['FECHA_FIN']);
+                                                            $finalizado = $fechaFin < $hoy;
+                                                            if ($finalizado) {
+                                                                continue;
+                                                            }
+
+                                                            $idAct = (int) $actividad['ID_ACTIVIDAD_EDUCACION'];
+                                                            if (empty($insc[$idAct])) {
+                                                                continue;
+                                                            }
+
+                                                            $hayTomadas = true;
+                                                            $tipo = $actividad['ACTIVIDAD'];
+                                                    ?>
+                                                        <tr data-actividad-id="<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>" data-fecha-fin="<?= $actividad['FECHA_FIN'] ?>">
+                                                            <td><?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?></td>
+                                                            <td>
+                                                                <div class="d-flex align-items-center">
+                                                                    <?php if ($tipo === 'Curso') : ?>
+                                                                        <i class="fas fa-laptop-code fa-2x me-2 text-primary"></i>
+                                                                    <?php elseif ($tipo === 'Taller') : ?>
+                                                                        <i class="fas fa-wrench fa-2x me-2 text-success"></i>
+                                                                    <?php else : ?>
+                                                                        <i class="fas fa-comments fa-2x me-2 text-info"></i>
+                                                                    <?php endif; ?>
+                                                                    <div>
+                                                                        <div class="fw-semibold"><?= $actividad['NOMBRE_ACTIVIDAD'] ?></div>
+                                                                        <small class="text-muted"><?= $actividad['DESCRIPCION'] ?></small>
+                                                                    </div>
+                                                                </div>
+                                                            </td>
+                                                            <td>
+                                                                <div><?= $actividad['NOMBRE'] ?> <?= $actividad['APELLIDO'] ?></div>
+                                                                <small class="text-muted"><?= $actividad['ESPECIALIDAD'] ?></small>
+                                                            </td>
+                                                            <td>
+                                                                <?php if ($tipo === 'Curso') : ?>
+                                                                    <span class="badge bg-info"><?= $actividad['MODALIDAD'] ?></span>
+                                                                <?php elseif ($tipo === 'Taller') : ?>
+                                                                    <span class="badge bg-warning text-dark"><?= $actividad['MODALIDAD'] ?></span>
+                                                                <?php else : ?>
+                                                                    <span class="badge bg-info"><?= $actividad['MODALIDAD'] ?></span>
+                                                                <?php endif; ?>
+                                                            </td>
+                                                            <td>
+                                                                <div><?= date('M Y', strtotime($actividad['FECHA_INICIO'])) ?> - <?= date('M Y', strtotime($actividad['FECHA_FIN'])) ?></div>
+                                                                <small class="text-muted"><?= $actividad['DURACION_HORAS'] ?> horas</small>
+                                                            </td>
+                                                            <td><span class="badge bg-secondary"><?= $actividad['DURACION_HORAS'] ?>h</span></td>
+                                                            <td><span class="badge bg-success">En curso</span></td>
+                                                            <td>
+                                                                <div class="btn-group btn-group-sm">
+                                                                    <button class="btn btn-outline-primary" onclick="verDetalleActividad(<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>)" title="Ver Detalle">
+                                                                        <i class="fas fa-eye"></i>
+                                                                    </button>
+                                                                </div>
+                                                            </td>
+                                                        </tr>
+                                                    <?php
+                                                        endforeach;
+                                                    endif;
+
+                                                    if (!$hayTomadas) :
+                                                    ?>
+                                                        <tr>
+                                                            <td colspan="8" class="text-center text-muted py-4">
+                                                                <i class="fas fa-inbox fa-3x mb-3"></i>
+                                                                <p>No tienes actividades tomadas en curso. Inscríbete desde «Actividades disponibles».</p>
+                                                            </td>
+                                                        </tr>
+                                                    <?php endif; ?>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Actividades Culminadas (con enlace de encuesta/evaluación cuando exista) -->
                             <div class="tab-pane fade" id="culminadas" role="tabpanel">
                                 <div class="card shadow-sm border-0">
@@ -379,6 +461,11 @@
                                                             $fechaFin = new DateTime($actividad['FECHA_FIN']);
                                                             $finalizado = $fechaFin < $hoy;
                                                             if (!$finalizado) continue;
+
+                                                            $idAct = (int) $actividad['ID_ACTIVIDAD_EDUCACION'];
+                                                            if (empty($insc[$idAct])) {
+                                                                continue;
+                                                            }
 
                                                             $hayCulminadas = true;
                                                             $tipo = $actividad['ACTIVIDAD'];
@@ -809,8 +896,11 @@
     </div>
 </div>
 
+<?= $this->endSection() ?>
+
+<?= $this->section('modal') ?>
 <!-- Modal Detalle de Actividad -->
-<div class="modal fade" id="modalDetalleActividad" tabindex="-1">
+<div class="modal fade" id="modalDetalleActividad" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -837,7 +927,8 @@
                                     <div class="col-md-6">
                                         <p><strong>Período:</strong> <span id="detallePeriodo">-</span></p>
                                         <p><strong>Duración:</strong> <span id="detalleDuracion">-</span></p>
-                                        <p><strong>Lugar:</strong> <span id="detalleLugar">-</span></p>
+                                        <p id="wrapDetalleLugar"><strong>Lugar:</strong> <span id="detalleLugar">-</span></p>
+                                        <p id="wrapDetalleEnlace" class="d-none"><strong>Enlace:</strong> <a id="detalleEnlace" href="#" target="_blank" rel="noopener"></a></p>
                                         <p><strong>Horario:</strong> <span id="detalleHorario">-</span></p>
                                     </div>
                                 </div>
@@ -859,22 +950,6 @@
                             </div>
                             <div class="card-body text-center">
                                 <h4 id="estadoActividad">Disponible</h4>
-                                <p class="text-muted" id="certificadoInfo">Con certificado</p>
-                            </div>
-                        </div>
-                        <div class="card">
-                            <div class="card-header">
-                                <h6 class="mb-0">Acciones</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="d-grid gap-2">
-                                    <button class="btn btn-success btn-sm" onclick="inscribirseActividad()">
-                                        <i class="fas fa-user-plus me-1"></i>Inscribirse
-                                    </button>
-                                    <button class="btn btn-outline-info btn-sm">
-                                        <i class="fas fa-share me-1"></i>Compartir
-                                    </button>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -888,7 +963,7 @@
 </div>
 
 <!-- Modal Calendario de Actividades -->
-<div class="modal fade" id="modalCalendario" tabindex="-1">
+<div class="modal fade" id="modalCalendario" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header">
@@ -898,49 +973,54 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <!-- Filtros por tipo de actividad -->
-                <div class="row mb-3">
-                    <div class="col-12">
-                        <div class="btn-group" role="group">
-                            <input type="checkbox" class="btn-check" id="filtroCursos" checked>
-                            <label class="btn btn-outline-primary" for="filtroCursos">
-                                <i class="fas fa-book me-1"></i>Cursos
-                            </label>
-
-                            <input type="checkbox" class="btn-check" id="filtroTalleres" checked>
-                            <label class="btn btn-outline-success" for="filtroTalleres">
-                                <i class="fas fa-tools me-1"></i>Talleres
-                            </label>
-
-                            <input type="checkbox" class="btn-check" id="filtroSeminarios" checked>
-                            <label class="btn btn-outline-info" for="filtroSeminarios">
-                                <i class="fas fa-users me-1"></i>Seminarios
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Calendario -->
                 <div id="calendario" style="background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);"></div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
-                <button type="button" class="btn btn-primary" onclick="exportarCalendario()">
-                    <i class="fas fa-download me-1"></i>Exportar
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Confirmación de inscripción (sustituye al diálogo nativo del navegador) -->
+<div class="modal fade" id="modalConfirmarInscripcion" tabindex="-1" aria-labelledby="modalConfirmarInscripcionTitulo" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title" id="modalConfirmarInscripcionTitulo">
+                    <i class="fas fa-user-plus me-2 text-success"></i>Confirmar inscripción
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body pt-2">
+                <p class="mb-0 text-body" id="textoConfirmarInscripcion">¿Confirmas que deseas inscribirte en esta actividad?</p>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnConfirmarInscripcion" onclick="ejecutarInscripcionConfirmada()">
+                    <i class="fas fa-check me-1"></i>Sí, inscribirme
                 </button>
             </div>
         </div>
     </div>
 </div>
 
+<?= $this->endSection() ?>
+
+<?= $this->section('scripts') ?>
 <script>
     // Variables globales
     let actividadesData = [];
     let estadisticas = {};
+    let actividadIdInscripcionPendiente = null;
+    /** Reservado por si se usa inscripción sin id explícito */
+    window._idActividadParaInscripcion = null;
 
     function showModal(modalId) {
-        const modal = new bootstrap.Modal(document.getElementById(modalId));
-        modal.show();
+        const el = document.getElementById(modalId);
+        if (!el || typeof bootstrap === 'undefined') return;
+        bootstrap.Modal.getOrCreateInstance(el).show();
     }
 
     function verCalendario() {
@@ -951,22 +1031,13 @@
         }, 300);
     }
 
-    function verMisInscripciones() {
-        showNotification('Redirigiendo a mis inscripciones...', 'info');
-        // Implementar redirección a página de inscripciones
-    }
-
-    function verCertificados() {
-        showNotification('Redirigiendo a mis certificados...', 'info');
-        // Implementar redirección a página de certificados
-    }
-
     function exportarMiProgreso() {
         showNotification('Exportando mi progreso...', 'info');
         // Implementar exportación del progreso del estudiante
     }
 
     function verDetalleActividad(id) {
+        window._idActividadParaInscripcion = parseInt(id, 10) || null;
         // Cargar datos de la actividad
         fetch(`<?= base_url('estudiante/actividades-educacion/detalle/') ?>${id}`)
             .then(response => response.json())
@@ -979,7 +1050,19 @@
                     document.getElementById('detalleModalidad').textContent = actividad.MODALIDAD;
                     document.getElementById('detallePeriodo').textContent = `${actividad.FECHA_INICIO} - ${actividad.FECHA_FIN}`;
                     document.getElementById('detalleDuracion').textContent = `${actividad.DURACION_HORAS} horas`;
-                    document.getElementById('detalleLugar').textContent = actividad.LUGAR;
+                    const lugarD = (actividad.LUGAR || '').trim();
+                    const enlaceD = (actividad.ENLACE || '').trim();
+                    document.getElementById('detalleLugar').textContent = lugarD || '—';
+                    document.getElementById('wrapDetalleLugar').classList.toggle('d-none', !lugarD);
+                    const wEn = document.getElementById('wrapDetalleEnlace');
+                    const aEn = document.getElementById('detalleEnlace');
+                    if (enlaceD) {
+                        aEn.href = /^https?:\/\//i.test(enlaceD) ? enlaceD : 'https://' + enlaceD;
+                        aEn.textContent = enlaceD;
+                        wEn.classList.remove('d-none');
+                    } else {
+                        wEn.classList.add('d-none');
+                    }
                     document.getElementById('detalleHorario').textContent = actividad.HORARIO;
                     document.getElementById('detalleDescripcion').textContent = actividad.DESCRIPCION;
                     document.getElementById('detalleObjetivos').textContent = actividad.OBJETIVOS;
@@ -996,9 +1079,70 @@
     }
 
     function inscribirseActividad(id) {
-        if (confirm('¿Estás seguro de que quieres inscribirte en esta actividad?')) {
-            showNotification('Inscribiéndote en la actividad...', 'info');
-            // Implementar lógica de inscripción
+        let actId = id;
+        if (actId === undefined || actId === null || actId === '') {
+            actId = window._idActividadParaInscripcion;
+        }
+        actId = parseInt(actId, 10);
+        if (!actId || Number.isNaN(actId)) {
+            showNotification('No se pudo identificar la actividad.', 'warning');
+            return;
+        }
+        actividadIdInscripcionPendiente = actId;
+
+        const modalEl = document.getElementById('modalConfirmarInscripcion');
+        if (!modalEl || typeof bootstrap === 'undefined') return;
+        bootstrap.Modal.getOrCreateInstance(modalEl).show();
+    }
+
+    async function ejecutarInscripcionConfirmada() {
+        const id = actividadIdInscripcionPendiente;
+        const modalEl = document.getElementById('modalConfirmarInscripcion');
+        const inst = modalEl ? bootstrap.Modal.getInstance(modalEl) : null;
+        if (inst) inst.hide();
+
+        if (!id) {
+            return;
+        }
+
+        const btn = document.getElementById('btnConfirmarInscripcion');
+        if (btn) {
+            btn.disabled = true;
+        }
+
+        try {
+            const formData = new FormData();
+            formData.append('id_actividad', id);
+
+            const response = await fetch('<?= base_url('estudiante/actividades-educacion/inscribirse') ?>', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+
+            let data = {};
+            try {
+                data = await response.json();
+            } catch (parseErr) {
+                showNotification('Respuesta inválida del servidor.', 'error');
+                return;
+            }
+
+            if (data.success) {
+                showNotification(data.message || 'Te has inscrito correctamente.', 'success');
+                window.setTimeout(() => window.location.reload(), 900);
+            } else {
+                showNotification(data.message || 'No se pudo completar la inscripción.', 'error');
+            }
+        } catch (e) {
+            console.error(e);
+            showNotification('Error de conexión. Revisa tu red e intenta de nuevo.', 'error');
+        } finally {
+            if (btn) {
+                btn.disabled = false;
+            }
         }
     }
 
@@ -1022,6 +1166,24 @@
             return;
         }
 
+        if (window.calendario) {
+            try {
+                window.calendario.destroy();
+            } catch (e) {
+                /* instancia ya destruida o DOM reemplazado */
+            }
+            window.calendario = null;
+        }
+
+        // Una fila por id (por si la API devolviera duplicados)
+        const vistos = new Set();
+        const eventosUnicos = (eventos || []).filter(e => {
+            const k = String(e.id);
+            if (vistos.has(k)) return false;
+            vistos.add(k);
+            return true;
+        });
+
         // Limpiar contenido previo
         calendarEl.innerHTML = '';
 
@@ -1035,7 +1197,23 @@
                     center: 'title',
                     right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
                 },
-                events: eventos || [],
+                events: eventosUnicos,
+                eventContent: function(arg) {
+                    if (arg.view.type !== 'dayGridMonth') {
+                        return;
+                    }
+                    const text = arg.event.title;
+                    if (!text) {
+                        return;
+                    }
+                    const main = document.createElement('div');
+                    main.className = 'fc-event-main';
+                    const tit = document.createElement('div');
+                    tit.className = 'fc-event-title';
+                    tit.appendChild(document.createTextNode(text));
+                    main.appendChild(tit);
+                    return { domNodes: [main] };
+                },
                 eventClick: function(info) {
                     verDetalleActividad(info.event.id);
                 },
@@ -1110,9 +1288,6 @@
 
             // Actualizar las estadísticas en la interfaz
             document.getElementById('totalActividades').textContent = stats.totalActividades || 0;
-            document.getElementById('misInscripciones').textContent = stats.misInscripciones || 0;
-            document.getElementById('certificadosObtenidos').textContent = stats.certificadosObtenidos || 0;
-            document.getElementById('horasCompletadas').textContent = stats.horasCompletadas || 0;
 
             estadisticas = stats;
         } catch (error) {
@@ -1402,8 +1577,4 @@
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/locales/es.global.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
 <?= $this->endSection() ?>

@@ -73,80 +73,66 @@
             </div>
         </div>
 
-        <!-- Estadísticas (mismo orden y estilo que Prácticas Preprofesionales) -->
-        <div class="row mb-4">
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #007bff 80%, #0056b3 100%); color: #fff; border: none;">
-                    <div class="card-body">
+        <!-- Estadísticas y acciones (una fila en pantallas grandes: 7 columnas) -->
+        <div class="row g-3 mb-4 align-items-stretch">
+            <div class="col-12 col-sm-6 col-lg">
+                <div class="card text-center shadow-sm h-100" style="background: linear-gradient(135deg, #007bff 80%, #0056b3 100%); color: #fff; border: none;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center py-3">
                         <h2 class="card-title mb-2" id="Pendientes" style="font-size:2.5rem;"><?= $estadisticas['pendientes'] ?? 0 ?></h2>
-                        <p class="card-text fw-bold" style="color: #e0e0e0;">Pendientes</p>
+                        <p class="card-text fw-bold mb-0" style="color: #e0e0e0;">Pendientes</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #28a745 80%, #155724 100%); color: #fff; border: none;">
-                    <div class="card-body">
+            <div class="col-12 col-sm-6 col-lg">
+                <div class="card text-center shadow-sm h-100" style="background: linear-gradient(135deg, #28a745 80%, #155724 100%); color: #fff; border: none;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center py-3">
                         <h2 class="card-title mb-2" id="Aprobados" style="font-size:2.5rem;"><?= $estadisticas['Aprobados'] ?? 0 ?></h2>
-                        <p class="card-text fw-bold" style="color: #e0e0e0;">Aprobados</p>
+                        <p class="card-text fw-bold mb-0" style="color: #e0e0e0;">Aprobados</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #ffc107 80%, #b38600 100%); color: #fff; border: none;">
-                    <div class="card-body">
+            <div class="col-12 col-sm-6 col-lg">
+                <div class="card text-center shadow-sm h-100" style="background: linear-gradient(135deg, #ffc107 80%, #b38600 100%); color: #fff; border: none;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center py-3">
                         <h2 class="card-title mb-2" id="RequiereCorreccion" style="font-size:2.5rem;"><?= $estadisticas['requiere_correccion'] ?? 0 ?></h2>
-                        <p class="card-text fw-bold" style="color: #fffbe6;">Requiere Corrección</p>
+                        <p class="card-text fw-bold mb-0 small" style="color: #fffbe6;">Requiere Corrección</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #dc3545 80%, #c82333 100%); color: #fff; border: none;">
-                    <div class="card-body">
+            <div class="col-12 col-sm-6 col-lg">
+                <div class="card text-center shadow-sm h-100" style="background: linear-gradient(135deg, #dc3545 80%, #c82333 100%); color: #fff; border: none;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center py-3">
                         <h2 class="card-title mb-2" id="Rechazados" style="font-size:2.5rem;"><?= $estadisticas['rechazados'] ?? 0 ?></h2>
-                        <p class="card-text fw-bold" style="color: #ffe0e0;">Rechazados</p>
+                        <p class="card-text fw-bold mb-0" style="color: #ffe0e0;">Rechazados</p>
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Acciones Rápidas -->
-        <div class="row mb-4">
-            <div class="col-md-3 col-sm-6 mb-3">
+            <div class="col-12 col-sm-6 col-lg">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="showModal('modalSubirDocumentoServicio')" style="text-decoration: none; color: inherit;">
                             <i class="fas fa-cloud-upload-alt fa-2x mb-2" style="color: #28a745; text-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);"></i>
-                            <div class="fw-bold">Nuevo Documento</div>
+                            <div class="fw-bold small">Nuevo Documento</div>
                         </a>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm h-100" style="border: none;">
-                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="#" onclick="revisionMasiva()" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-tasks fa-2x mb-2" style="color: #007bff; text-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);"></i>
-                            <div class="fw-bold">Revisión Masiva</div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6 mb-3">
+            <div class="col-12 col-sm-6 col-lg">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="generarReporteServicio()" style="text-decoration: none; color: inherit;">
                             <i class="fas fa-chart-bar fa-2x mb-2" style="color: #ffc107; text-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);"></i>
-                            <div class="fw-bold">Generar Reporte</div>
+                            <div class="fw-bold small">Generar Reporte</div>
                         </a>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
+            <div class="col-12 col-sm-6 col-lg">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="<?= base_url('coord/documentos/servicio/reportes') ?>" style="text-decoration: none; color: inherit;">
                             <i class="fas fa-download fa-2x mb-2" style="color: #dc3545; text-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);"></i>
-                            <div class="fw-bold">Exportar Datos</div>
+                            <div class="fw-bold small">Exportar Datos</div>
                         </a>
                     </div>
                 </div>
@@ -1006,10 +992,6 @@
     function generarReporteServicio() {
         // Redirigir a la vista de reportes en la misma ventana
         window.location.href = '<?= base_url('coord/documentos/servicio/reportes') ?>';
-    }
-
-    function revisionMasiva() {
-        showNotification('Función de revisión masiva en desarrollo. Permite cambiar el estado de múltiples documentos a la vez.', 'info');
     }
 
     function abrirEditarTipoServicio(id) {
