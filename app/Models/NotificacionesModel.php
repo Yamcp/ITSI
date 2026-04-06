@@ -231,6 +231,18 @@ class NotificacionesModel extends Model
     }
 
     /**
+     * Contar notificaciones no leídas filtradas por tipo (p. ej. tutoria_asignada).
+     */
+    public function contarNoLeidasPorTipo($idUsuario, string $tipo)
+    {
+        return $this->where('ID_USUARIO_DESTINATARIO', $idUsuario)
+                   ->where('LEIDA', 0)
+                   ->where('ACTIVA', 1)
+                   ->where('TIPO_NOTIFICACION', $tipo)
+                   ->countAllResults();
+    }
+
+    /**
      * Eliminar notificación (soft delete)
      */
     public function eliminarNotificacion($idNotificacion, $idUsuario)

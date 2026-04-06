@@ -9,7 +9,6 @@ $periodoRangoDashboard   = $p['rango'];
 ?>
 
 <?= $this->section('styles') ?>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
     /* Diseño igual que dashboard Estudiante */
     :root {
@@ -18,7 +17,6 @@ $periodoRangoDashboard   = $p['rango'];
         --dashboard-shadow-hover: 0 12px 32px rgba(0, 0, 0, 0.12);
         --gradient-pre: linear-gradient(145deg, #0ea5e9 0%, #06b6d4 100%);
         --gradient-serv: linear-gradient(145deg, #ec4899 0%, #f59e0b 100%);
-        --gradient-active: linear-gradient(145deg, #10b981 0%, #14b8a6 100%);
         --gradient-actividades: linear-gradient(145deg, #6366f1 0%, #8b5cf6 100%);
     }
 
@@ -125,32 +123,6 @@ $periodoRangoDashboard   = $p['rango'];
         font-size: 1.05rem;
     }
 
-    .quick-action-btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        border-radius: 12px;
-        padding: 0.85rem 1.25rem;
-        font-weight: 600;
-        font-size: 0.95rem;
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-        border: none;
-        text-decoration: none;
-    }
-
-    .quick-action-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        color: inherit;
-    }
-
-    .chart-container {
-        position: relative;
-        height: 280px;
-        margin: 1rem 0;
-    }
-
     .table-dash {
         margin-bottom: 0;
     }
@@ -243,6 +215,25 @@ $periodoRangoDashboard   = $p['rango'];
             </div>
         </div>
 
+        <?php
+        $notifTutorDash = (int) ($notif_tutor_no_leidas ?? 0);
+        ?>
+        <?php if ($notifTutorDash > 0): ?>
+            <div class="alert alert-info alert-dismissible fade show border-start border-4 border-primary mb-4" role="alert">
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                    <i class="fas fa-chalkboard-teacher fa-lg text-primary"></i>
+                    <div class="flex-grow-1">
+                        <strong>Nueva asignación como tutor</strong>
+                        <p class="mb-0 small">
+                            Tienes <?= $notifTutorDash === 1 ? 'una notificación nueva' : esc($notifTutorDash) . ' notificaciones nuevas' ?> por tutoría de prácticas preprofesionales o servicio comunitario.
+                            Revisa el detalle en <a href="<?= base_url('docente/practicas#panel-notificaciones-practicas') ?>" class="alert-link fw-semibold">Supervisión de prácticas</a>.
+                        </p>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+        <?php endif; ?>
+
         <!-- Métricas -->
         <div class="row g-3 mb-4">
             <div class="col-md-3 col-sm-6">
@@ -278,34 +269,6 @@ $periodoRangoDashboard   = $p['rango'];
                         <h3 class="mb-0"><?= $total_estudiantes ?? 0 ?></h3>
                         <p class="metric-label mb-0">Estudiantes Asignados</p>
                         <small class="metric-sub">En prácticas</small>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Gráfica -->
-        <div class="row g-3 mb-4">
-            <div class="col-lg-8">
-                <div class="card card-dash">
-                    <div class="card-header">
-                        <i class="fas fa-chart-bar me-2 text-primary"></i>Actividades por Mes
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="actividadesChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4">
-                <div class="card card-dash">
-                    <div class="card-header">
-                        <i class="fas fa-chart-pie me-2 text-primary"></i>Distribución de Actividades
-                    </div>
-                    <div class="card-body">
-                        <div class="chart-container">
-                            <canvas id="distribucionChart"></canvas>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -361,76 +324,5 @@ $periodoRangoDashboard   = $p['rango'];
     }
     setInterval(actualizarHora, 1000);
     actualizarHora();
-
-    // Gráfica de actividades por mes
-    const ctxActividades = document.getElementById('actividadesChart').getContext('2d');
-    new Chart(ctxActividades, {
-        type: 'line',
-        data: {
-            labels: ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'],
-            datasets: [{
-                label: 'Actividades',
-                data: [2, 3, 1, 4, 2, 3, 5, 2, 4, 3, 2, 1],
-                borderColor: '#667eea',
-                backgroundColor: 'rgba(102, 126, 234, 0.1)',
-                borderWidth: 3,
-                fill: true,
-                tension: 0.4
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    display: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    grid: {
-                        color: 'rgba(0,0,0,0.1)'
-                    }
-                },
-                x: {
-                    grid: {
-                        display: false
-                    }
-                }
-            }
-        }
-    });
-
-    // Gráfica de distribución
-    const ctxDistribucion = document.getElementById('distribucionChart').getContext('2d');
-    new Chart(ctxDistribucion, {
-        type: 'doughnut',
-        data: {
-            labels: ['Cursos', 'Talleres', 'Seminarios'],
-            datasets: [{
-                data: [40, 35, 25],
-                backgroundColor: [
-                    '#667eea',
-                    '#f093fb',
-                    '#4facfe'
-                ],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: {
-                        padding: 20,
-                        usePointStyle: true
-                    }
-                }
-            }
-        }
-    });
 </script>
 <?= $this->endSection() ?>

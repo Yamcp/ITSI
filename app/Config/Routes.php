@@ -221,8 +221,10 @@ $routes->group('docente', ['namespace' => 'App\Controllers\docente'], function (
     //Rutas para la gestión de convenios
     $routes->get('convenios', 'InstitucionesConveniosController::index');        // Ver la sección de convenios
     
-    // Rutas para notificaciones
-    $routes->get('notificaciones', 'NotificacionesController::vistaDocente');    // Ver notificaciones del docente
+    // Notificaciones del docente integradas en Prácticas; URL antigua redirige allí
+    $routes->get('notificaciones', static function () {
+        return redirect()->to('docente/practicas?ver=notificaciones');
+    });
     
     // Rutas para evaluaciones
     $routes->get('evaluaciones', 'EvaluacionesDocenteController::index');        // Ver evaluaciones del docente
@@ -232,10 +234,9 @@ $routes->group('docente', ['namespace' => 'App\Controllers\docente'], function (
     // Rutas para prácticas (tutorías)
     $routes->get('practicas', 'PracticasDocenteController::index');              // Ver prácticas del docente
     $routes->get('practicas/detalle-estudiante/(:num)', 'PracticasDocenteController::detalleEstudiante/$1'); // Detalle de estudiante
-    $routes->post('practicas/evaluar-estudiante', 'PracticasDocenteController::evaluarEstudiante'); // Evaluar estudiante
-    $routes->post('practicas/generar-reporte', 'PracticasDocenteController::generarReporte'); // Generar reporte
     $routes->get('practicas/alertas', 'PracticasDocenteController::obtenerAlertas'); // Obtener alertas
     $routes->get('practicas/calendario', 'PracticasDocenteController::calendario'); // Calendario de prácticas
+    $routes->post('practicas/generar-reporte', 'PracticasDocenteController::generarReporte'); // Generar reporte (acción rápida)
     $routes->get('actividades', 'ActividadesDocenteController::index');          // Ver actividades del docente
     $routes->get('estudiantes', 'EstudiantesDocenteController::index');          // Ver estudiantes del docente
 });
@@ -291,8 +292,8 @@ $routes->group('estudiante', ['namespace' => 'App\Controllers\estudiante', 'filt
     $routes->get('documentos-servicio-comunitario/descargar/(:num)', 'PracticasEstudianteController::descargarDocumentoServicioComunitario/$1');
     $routes->post('documentos-servicio-comunitario/eliminar/(:num)', 'PracticasEstudianteController::eliminarDocumentoServicioComunitario/$1');
     
-    // Rutas para notificaciones
-    $routes->get('notificaciones', 'NotificacionesController::vistaEstudiante');    // Ver notificaciones del estudiante
+    // Rutas para notificaciones (controlador en App\Controllers, no en subcarpeta estudiante)
+    $routes->get('notificaciones', '\App\Controllers\NotificacionesController::vistaEstudiante');    // Ver notificaciones del estudiante
 });
 
 //----------------------------------------------------------------------------------------------------------------------

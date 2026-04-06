@@ -328,6 +328,8 @@ $periodoRangoDashboard   = $p['rango'];
             </div>
         </div>
 
+        <?= $this->include('estudiante/partials/tarjeta_contacto_coordinador_whatsapp') ?>
+
         <!-- Progreso por tipo -->
         <div class="row g-3 mb-4">
             <div class="col-md-6">

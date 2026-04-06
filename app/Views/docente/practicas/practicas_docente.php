@@ -35,18 +35,6 @@
         font-size: 0.9rem;
     }
 
-    .evaluacion-item {
-        background: #f8f9fa;
-        border-radius: 10px;
-        padding: 1rem;
-        margin-bottom: 0.5rem;
-        transition: all 0.3s ease;
-    }
-
-    .evaluacion-item:hover {
-        background: #e9ecef;
-    }
-
     .timeline-item {
         position: relative;
         padding-left: 2rem;
@@ -72,8 +60,80 @@
         height: calc(100% - 0.5rem);
         background: #dee2e6;
     }
+
+    /* Panel notificaciones (integrado en prácticas) */
+    #panel-notificaciones-practicas .notif-prac-item {
+        transition: background 0.2s ease, box-shadow 0.2s ease;
+        border-left: 4px solid transparent;
+    }
+
+    #panel-notificaciones-practicas .notif-prac-unread {
+        border-left-color: #28a745;
+        background-color: #f8fff8;
+    }
+
+    #panel-notificaciones-practicas .notif-prac-read {
+        border-left-color: #dee2e6;
+        background-color: #f8f9fa;
+    }
+
+    #panel-notificaciones-practicas .notif-prac-priority {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+    }
+
+    #panel-notificaciones-practicas .notif-prac-priority-alta {
+        background-color: #dc3545;
+    }
+
+    #panel-notificaciones-practicas .notif-prac-priority-media {
+        background-color: #ffc107;
+    }
+
+    #panel-notificaciones-practicas .notif-prac-priority-baja {
+        background-color: #28a745;
+    }
+
+    #panel-notificaciones-practicas .notif-prac-type {
+        font-size: 0.75rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 999px;
+        font-weight: 500;
+    }
+
+    #panel-notificaciones-practicas .notif-prac-type-asignacion_practica {
+        background-color: #e3f2fd;
+        color: #1976d2;
+    }
+
+    #panel-notificaciones-practicas .notif-prac-type-tutoria_asignada {
+        background-color: #f3e5f5;
+        color: #7b1fa2;
+    }
+
+    #panel-notificaciones-practicas .notif-prac-type-recordatorio {
+        background-color: #fff3e0;
+        color: #f57c00;
+    }
+
+    #panel-notificaciones-practicas .notif-prac-type-general {
+        background-color: #e8f5e9;
+        color: #388e3c;
+    }
+
+    #panel-notificaciones-practicas .notif-prac-actions {
+        opacity: 0.65;
+        transition: opacity 0.2s ease;
+    }
+
+    #panel-notificaciones-practicas .notif-prac-item:hover .notif-prac-actions {
+        opacity: 1;
+    }
 </style>
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
@@ -89,93 +149,68 @@
             </div>
         </div>
 
-        <!-- Estadísticas Rápidas -->
-        <div class="row mb-4">
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #007bff 80%, #0056b3 100%); color: #fff; border: none;">
-                    <div class="card-body">
-                        <h2 class="card-title mb-2" style="font-size:2.5rem;"><?= $estadisticas['estudiantesAsignados'] ?? 0 ?></h2>
-                        <p class="card-text fw-bold" style="color: #e0e0e0;">Estudiantes Asignados</p>
+        <!-- Resumen y acciones (una fila en pantallas grandes; cards misma altura/ancho de columna) -->
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-4 g-3 mb-4 align-items-stretch">
+            <div class="col d-flex">
+                <div class="card text-center shadow-sm h-100 w-100 d-flex flex-column border-0" style="background: linear-gradient(135deg, #007bff 80%, #0056b3 100%); color: #fff;">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center flex-grow-1 py-4 px-2">
+                        <h2 class="card-title mb-2" style="font-size: clamp(1.75rem, 4vw, 2.5rem);"><?= $estadisticas['estudiantesAsignados'] ?? 0 ?></h2>
+                        <p class="card-text fw-bold small mb-0 text-center" style="color: #e0e0e0;">Estudiantes asignados</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #28a745 80%, #155724 100%); color: #fff; border: none;">
-                    <div class="card-body">
-                        <h2 class="card-title mb-2" style="font-size:2.5rem;"><?= $estadisticas['practicasActivas'] ?? 0 ?></h2>
-                        <p class="card-text fw-bold" style="color: #e0e0e0;">Prácticas Activas</p>
+            <div class="col d-flex">
+                <div class="card text-center shadow-sm h-100 w-100 d-flex flex-column border-0" style="background: linear-gradient(135deg, #28a745 80%, #155724 100%); color: #fff;">
+                    <div class="card-body d-flex flex-column justify-content-center align-items-center flex-grow-1 py-4 px-2">
+                        <h2 class="card-title mb-2" style="font-size: clamp(1.75rem, 4vw, 2.5rem);"><?= $estadisticas['practicasActivas'] ?? 0 ?></h2>
+                        <p class="card-text fw-bold small mb-0 text-center" style="color: #e0e0e0;">Prácticas activas</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #17a2b8 80%, #0f6674 100%); color: #fff; border: none;">
-                    <div class="card-body">
-                        <h2 class="card-title mb-2" style="font-size:2.5rem;"><?= $estadisticas['evaluacionesPendientes'] ?? 0 ?></h2>
-                        <p class="card-text fw-bold" style="color: #e0e0e0;">Evaluaciones Pendientes</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Acciones Rápidas -->
-        <div class="row mb-4 justify-content-center">
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm h-100" style="border: none;">
-                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="#" onclick="generarReporte()" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-chart-bar fa-2x mb-2" style="color: #007bff; text-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);"></i>
-                            <div class="fw-bold">Generar Reporte</div>
+            <div class="col d-flex">
+                <div class="card text-center shadow-sm h-100 w-100 d-flex flex-column border">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center flex-grow-1 py-4 px-2">
+                        <a href="#" onclick="abrirGenerarReportePracticas(); return false;" class="text-decoration-none text-dark">
+                            <i class="fas fa-chart-bar fa-2x mb-2 d-block" style="color: #007bff; text-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);"></i>
+                            <span class="fw-bold">Generar reporte</span>
                         </a>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
-                <div class="card text-center shadow-sm h-100" style="border: none;">
-                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="#" onclick="verCalendario()" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-calendar-alt fa-2x mb-2" style="color: #ffc107; text-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);"></i>
-                            <div class="fw-bold">Ver Calendario</div>
+            <div class="col d-flex">
+                <div class="card text-center shadow-sm h-100 w-100 d-flex flex-column border">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center flex-grow-1 py-4 px-2">
+                        <a href="#" onclick="verCalendario(); return false;" class="text-decoration-none text-dark">
+                            <i class="fas fa-calendar-alt fa-2x mb-2 d-block" style="color: #ffc107; text-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);"></i>
+                            <span class="fw-bold">Ver calendario</span>
                         </a>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Tabs Navigation -->
+        <?= $this->include('docente/practicas/partials/panel_notificaciones_practicas') ?>
+
+        <!-- Mis estudiantes -->
         <div class="row">
             <div class="col-12">
                 <div class="card border-0 shadow-sm">
-                    <div class="card-body pb-0">
-                        <ul class="nav nav-tabs nav-justified rounded-pill bg-light px-2 py-1" id="supervisionTabs" role="tablist" style="gap: 0.5rem;">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active rounded-pill fw-semibold text-primary" id="estudiantes-tab" data-bs-toggle="tab" data-bs-target="#estudiantes" type="button" role="tab" aria-selected="true">
-                                    <i class="fas fa-users me-2"></i>Mis Estudiantes
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-pill fw-semibold text-success" id="evaluaciones-tab" data-bs-toggle="tab" data-bs-target="#evaluaciones" type="button" role="tab" aria-selected="false">
-                                    <i class="fas fa-star me-2"></i>Evaluaciones
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-pill fw-semibold text-info" id="reportes-tab" data-bs-toggle="tab" data-bs-target="#reportes" type="button" role="tab" aria-selected="false">
-                                    <i class="fas fa-chart-line me-2"></i>Reportes
-                                </button>
-                            </li>
-                        </ul>
-                        <hr class="mt-0 mb-2" style="border-top: 2px solid #e3e6f0;">
-
-                        <!-- Contenido de las pestañas -->
-                        <div class="tab-content mt-3" id="supervisionTabContent">
-                            <!-- Mis Estudiantes -->
-                            <div class="tab-pane fade show active" id="estudiantes" role="tabpanel">
-                                <div class="card shadow-sm border-0">
-                                    <div class="card-header bg-primary text-white">
-                                        <span><i class="fas fa-users me-2"></i>Mis Estudiantes</span>
-                                    </div>
-                                    <div class="card-body">
+                    <div class="card-header bg-primary text-white">
+                        <span><i class="fas fa-users me-2"></i>Mis estudiantes</span>
+                    </div>
+                    <div class="card-body">
                                         <?php if (!empty($estudiantesAsignados)): ?>
-                                            <?php foreach ($estudiantesAsignados as $estudiante): ?>
+                                            <?php foreach ($estudiantesAsignados as $idx => $estudiante): ?>
+                                                <?php
+                                                $nivelCumpl = $estudiante['CUMPLIMIENTO_NIVEL'] ?? 'secondary';
+                                                $badgeCumpl = match ($nivelCumpl) {
+                                                    'success' => 'bg-success',
+                                                    'warning' => 'bg-warning text-dark',
+                                                    'danger' => 'bg-danger',
+                                                    'info' => 'bg-info text-dark',
+                                                    default => 'bg-secondary',
+                                                };
+                                                ?>
                                                 <div class="card border shadow-sm mb-3">
                                                     <div class="card-header bg-primary text-white py-2">
                                                         <div class="row align-items-center">
@@ -184,7 +219,11 @@
                                                                     <img src="https://ui-avatars.com/api/?name=<?= urlencode($estudiante['NOMBRE_COMPLETO']) ?>&background=fff&color=0d6efd&size=50" class="estudiante-avatar me-3" alt="<?= substr($estudiante['NOMBRE_COMPLETO'], 0, 2) ?>">
                                                                     <div>
                                                                         <h6 class="mb-0"><?= $estudiante['NOMBRE_COMPLETO'] ?></h6>
-                                                                        <small class="opacity-75"><?= $estudiante['CARRERA'] ?> - <?= $estudiante['INSTITUCION_NOMBRE'] ?></small>
+                                                                        <small class="opacity-75"><?= esc($estudiante['CARRERA']) ?> — <?= esc($estudiante['INSTITUCION_NOMBRE']) ?></small>
+                                                                        <div class="mt-1">
+                                                                            <span class="badge bg-light text-primary me-1"><?= esc($estudiante['TIPO']) ?></span>
+                                                                            <span class="badge <?= $badgeCumpl ?>" title="<?= esc($estudiante['CUMPLIMIENTO_DESCRIPCION'] ?? '') ?>"><?= esc($estudiante['CUMPLIMIENTO_ETIQUETA'] ?? '—') ?></span>
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -226,22 +265,32 @@
                                                                 </div>
                                                                 <div class="row">
                                                                     <div class="col-md-6">
-                                                                        <strong>Última Actividad:</strong><br>
-                                                                        <small class="text-muted"><?= $estudiante['ULTIMA_ACTIVIDAD'] ?? 'Sin actividades' ?></small>
+                                                                        <strong>Última actividad registrada:</strong><br>
+                                                                        <small class="text-muted"><?= esc($estudiante['ULTIMA_ACTIVIDAD'] ?? 'Sin actividades') ?></small>
                                                                     </div>
                                                                     <div class="col-md-6">
-                                                                        <strong>Progreso:</strong><br>
+                                                                        <strong>Progreso de horas:</strong><br>
                                                                         <div class="progress" style="height: 8px;">
-                                                                            <div class="progress-bar bg-success" style="width: <?= $estudiante['PORCENTAJE_PROGRESO'] ?>%"></div>
+                                                                            <div class="progress-bar bg-success" style="width: <?= min(100, (float) $estudiante['PORCENTAJE_PROGRESO']) ?>%"></div>
                                                                         </div>
-                                                                        <small class="text-muted"><?= $estudiante['PORCENTAJE_PROGRESO'] ?>% completado</small>
+                                                                        <small class="text-muted"><?= esc((string) $estudiante['PORCENTAJE_PROGRESO']) ?>% de la meta de horas</small>
                                                                     </div>
                                                                 </div>
+                                                                <?php if (!empty($estudiante['CUMPLIMIENTO_DESCRIPCION'])): ?>
+                                                                    <div class="row mt-2">
+                                                                        <div class="col-12">
+                                                                            <div class="alert alert-light border small mb-0 py-2">
+                                                                                <strong class="text-dark"><i class="fas fa-clipboard-check me-1"></i>Cumplimiento:</strong>
+                                                                                <?= esc($estudiante['CUMPLIMIENTO_DESCRIPCION']) ?>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                <?php endif; ?>
                                                             </div>
                                                             <div class="col-md-4 text-center">
                                                                 <div class="progreso-circular">
-                                                                    <canvas id="progresoEst<?= $estudiante['ID_ESTUDIANTE'] ?>" width="80" height="80"></canvas>
-                                                                    <div class="progreso-texto"><?= $estudiante['PORCENTAJE_PROGRESO'] ?>%</div>
+                                                                    <canvas class="progreso-est-canvas" id="progresoEstCanvas<?= (int) $idx ?>" width="80" height="80" data-pct="<?= esc((string) $estudiante['PORCENTAJE_PROGRESO']) ?>"></canvas>
+                                                                    <div class="progreso-texto"><?= esc((string) $estudiante['PORCENTAJE_PROGRESO']) ?>%</div>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -249,9 +298,6 @@
                                                         <div class="btn-group w-100 btn-group-sm" role="group">
                                                             <button class="btn btn-outline-primary" onclick="verDetalleEstudiante(<?= $estudiante['ID_ESTUDIANTE'] ?>)">
                                                                 <i class="fas fa-eye me-1"></i>Ver Detalle
-                                                            </button>
-                                                            <button class="btn btn-outline-success" onclick="evaluarEstudiante(<?= $estudiante['ID_ESTUDIANTE'] ?>)">
-                                                                <i class="fas fa-star me-1"></i>Evaluar
                                                             </button>
                                                             <button class="btn btn-outline-info" onclick="enviarMensaje(<?= $estudiante['ID_ESTUDIANTE'] ?>)">
                                                                 <i class="fas fa-comment me-1"></i>Mensaje
@@ -270,159 +316,12 @@
                                                 <small class="text-muted">Contacta con el coordinador para asignaciones</small>
                                             </div>
                                         <?php endif; ?>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Evaluaciones -->
-                            <div class="tab-pane fade" id="evaluaciones" role="tabpanel">
-                                <div class="card shadow-sm border-0">
-                                    <div class="card-header bg-success text-white">
-                                        <span><i class="fas fa-star me-2"></i>Evaluaciones</span>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-md-8">
-                                                <h6 class="mb-3">
-                                                    <i class="fas fa-star me-2"></i>Evaluaciones Pendientes
-                                                </h6>
-                                                <?php if (!empty($evaluacionesPendientes)): ?>
-                                                    <?php foreach ($evaluacionesPendientes as $evaluacion): ?>
-                                                        <div class="evaluacion-item">
-                                                            <div class="d-flex justify-content-between align-items-center">
-                                                                <div>
-                                                                    <strong><?= $evaluacion['ESTUDIANTE_NOMBRE'] ?></strong>
-                                                                    <br><small class="text-muted"><?= $evaluacion['TIPO_EVALUACION'] ?> - <?= $evaluacion['INSTITUCION_NOMBRE'] ?></small>
-                                                                </div>
-                                                                <div>
-                                                                    <span class="badge bg-warning">Pendiente</span>
-                                                                    <button class="btn btn-sm btn-primary ms-2" onclick="realizarEvaluacion(<?= $evaluacion['ID_EVALUACION'] ?>)">
-                                                                        <i class="fas fa-edit"></i> Evaluar
-                                                                    </button>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    <?php endforeach; ?>
-                                                <?php else: ?>
-                                                    <div class="text-center py-4">
-                                                        <i class="fas fa-check-circle fa-2x text-success mb-2"></i>
-                                                        <p class="text-muted">No hay evaluaciones pendientes</p>
-                                                    </div>
-                                                <?php endif; ?>
-                                            </div>
-                                            <div class="col-md-4">
-                                                <h6 class="mb-3">
-                                                    <i class="fas fa-chart-pie me-2"></i>
-                                                    Resumen de Evaluaciones
-                                                </h6>
-                                                <div class="card">
-                                                    <div class="card-body">
-                                                        <div class="mb-3">
-                                                            <div class="d-flex justify-content-between">
-                                                                <span>Completadas</span>
-                                                                <span class="fw-bold text-success"><?= $estadisticas['evaluacionesCompletadas'] ?? 0 ?></span>
-                                                            </div>
-                                                            <div class="progress mt-1" style="height: 6px;">
-                                                                <div class="progress-bar bg-success" style="width: 70%"></div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <div class="d-flex justify-content-between">
-                                                                <span>Pendientes</span>
-                                                                <span class="fw-bold text-warning"><?= $estadisticas['evaluacionesPendientes'] ?? 0 ?></span>
-                                                            </div>
-                                                            <div class="progress mt-1" style="height: 6px;">
-                                                                <div class="progress-bar bg-warning" style="width: 30%"></div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="mb-3">
-                                                            <div class="d-flex justify-content-between">
-                                                                <span>Promedio General</span>
-                                                                <span class="fw-bold text-primary">8.5/10</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <!-- Reportes -->
-                                <div class="tab-pane fade" id="reportes" role="tabpanel">
-                                    <div class="card shadow-sm border-0">
-                                        <div class="card-header bg-info text-white">
-                                            <span><i class="fas fa-chart-line me-2"></i>Reportes</span>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="row">
-                                                <div class="col-md-6">
-                                                    <h6 class="mb-3">
-                                                        <i class="fas fa-chart-bar me-2"></i>Generar Reportes
-                                                    </h6>
-                                                    <div class="card">
-                                                        <div class="card-body">
-                                                            <form id="formGenerarReporte">
-                                                                <div class="mb-3">
-                                                                    <label class="form-label">Tipo de Reporte</label>
-                                                                    <select class="form-select" name="tipo_reporte" required>
-                                                                        <option value="">Seleccionar...</option>
-                                                                        <option value="progreso_estudiantes">Progreso de Estudiantes</option>
-                                                                        <option value="evaluaciones_periodo">Evaluaciones por Período</option>
-                                                                        <option value="actividades_realizadas">Actividades Realizadas</option>
-                                                                        <option value="documentos_entregados">Documentos Entregados</option>
-                                                                    </select>
-                                                                </div>
-                                                                <div class="row">
-                                                                    <div class="col-md-6">
-                                                                        <div class="mb-3">
-                                                                            <label class="form-label">Fecha Desde</label>
-                                                                            <input type="date" class="form-control" name="fecha_desde" required>
-                                                                        </div>
-                                                                    </div>
-                                                                    <div class="col-md-6">
-                                                                        <div class="mb-3">
-                                                                            <label class="form-label">Fecha Hasta</label>
-                                                                            <input type="date" class="form-control" name="fecha_hasta" required>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="mb-3">
-                                                                    <label class="form-label">Formato</label>
-                                                                    <select class="form-select" name="formato" required>
-                                                                        <option value="pdf">PDF</option>
-                                                                        <option value="excel">Excel</option>
-                                                                        <option value="word">Word</option>
-                                                                    </select>
-                                                                </div>
-                                                                <button type="submit" class="btn btn-primary w-100">
-                                                                    <i class="fas fa-download me-1"></i>Generar Reporte
-                                                                </button>
-                                                            </form>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <div class="col-md-6">
-                                                    <h6 class="mb-3">
-                                                        <i class="fas fa-chart-line me-2"></i>Estadísticas Rápidas
-                                                    </h6>
-                                                    <div class="card">
-                                                        <div class="card-body">
-                                                            <canvas id="estadisticasChart" width="400" height="200"></canvas>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
     <!-- Modal Detalle de Estudiante -->
     <div class="modal fade" id="modalDetalleEstudiante" tabindex="-1">
@@ -471,36 +370,23 @@
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="card mb-3">
-                                <div class="card-header">
-                                    <h6 class="mb-0">Progreso</h6>
-                                </div>
-                                <div class="card-body text-center">
-                                    <div class="progreso-circular">
-                                        <canvas id="progressChart" width="120" height="120"></canvas>
-                                        <div class="progreso-texto" style="font-size: 1.1rem;">75%</div>
-                                    </div>
-                                    <h5 class="mt-3" id="progressHours">180 de 240 horas</h5>
-                                </div>
+                            <div class="mb-2">
+                                <h6 class="text-muted text-uppercase small mb-0"><i class="fas fa-chart-pie me-1"></i>Progreso y cumplimiento</h6>
+                                <p class="small text-muted mb-2">Horas registradas (asistencias y seguimiento) frente a la meta y al período.</p>
                             </div>
+                            <div id="panelProgresosDetalle"></div>
 
-                            <div class="card">
+                            <div class="card mt-3">
                                 <div class="card-header">
                                     <h6 class="mb-0">Acciones Rápidas</h6>
                                 </div>
                                 <div class="card-body">
                                     <div class="d-grid gap-2">
-                                        <button class="btn btn-primary" onclick="evaluarEstudiante()">
-                                            <i class="fas fa-star me-1"></i>Evaluar
-                                        </button>
                                         <button class="btn btn-success" onclick="enviarMensaje()">
                                             <i class="fas fa-comment me-1"></i>Enviar Mensaje
                                         </button>
                                         <button class="btn btn-info" onclick="verActividades()">
                                             <i class="fas fa-list me-1"></i>Ver Actividades
-                                        </button>
-                                        <button class="btn btn-warning" onclick="generarReporte()">
-                                            <i class="fas fa-file-alt me-1"></i>Reporte Individual
                                         </button>
                                     </div>
                                 </div>
@@ -535,56 +421,50 @@
         </div>
     </div>
 
-    <!-- Modal Evaluar Estudiante -->
-    <div class="modal fade" id="modalEvaluarEstudiante" tabindex="-1">
-        <div class="modal-dialog modal-lg">
+    <!-- Modal generar reporte (acción rápida) -->
+    <div class="modal fade" id="modalGenerarReportePracticas" tabindex="-1" aria-labelledby="modalGenerarReportePracticasLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-star me-2"></i>
-                        Evaluar Estudiante
+                    <h5 class="modal-title" id="modalGenerarReportePracticasLabel">
+                        <i class="fas fa-chart-bar me-2"></i>Generar reporte
                     </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
                 </div>
                 <div class="modal-body">
-                    <form id="formEvaluarEstudiante" novalidate>
+                    <form id="formGenerarReportePracticas" novalidate>
+                        <?= csrf_field() ?>
+                        <div class="mb-3">
+                            <label class="form-label">Tipo de reporte</label>
+                            <select class="form-select" name="tipo_reporte" required>
+                                <option value="">Seleccionar…</option>
+                                <option value="progreso_estudiantes">Progreso de estudiantes</option>
+                                <option value="actividades_realizadas">Actividades realizadas</option>
+                                <option value="documentos_entregados">Documentos entregados</option>
+                            </select>
+                        </div>
                         <div class="row">
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Criterio de Evaluación</label>
-                                    <select class="form-select" name="criterio" required>
-                                        <option value="">Seleccionar...</option>
-                                        <option value="puntualidad">Puntualidad</option>
-                                        <option value="responsabilidad">Responsabilidad</option>
-                                        <option value="conocimientos">Conocimientos Técnicos</option>
-                                        <option value="iniciativa">Iniciativa</option>
-                                        <option value="trabajo_equipo">Trabajo en Equipo</option>
-                                        <option value="comunicacion">Comunicación</option>
-                                    </select>
-                                </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Fecha desde</label>
+                                <input type="date" class="form-control" name="fecha_desde" required>
                             </div>
-                            <div class="col-md-6">
-                                <div class="mb-3">
-                                    <label class="form-label">Calificación (1-10)</label>
-                                    <input type="number" class="form-control" name="calificacion" min="1" max="10" step="0.1" required>
-                                </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Fecha hasta</label>
+                                <input type="date" class="form-control" name="fecha_hasta" required>
                             </div>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Comentarios</label>
-                            <textarea class="form-control" name="comentarios" rows="4" placeholder="Comentarios sobre el desempeño del estudiante..."></textarea>
+                            <label class="form-label">Formato</label>
+                            <select class="form-select" name="formato" required>
+                                <option value="pdf">PDF (vista para imprimir)</option>
+                                <option value="excel">Excel (CSV)</option>
+                                <option value="word">Word (vista para imprimir)</option>
+                            </select>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Recomendaciones</label>
-                            <textarea class="form-control" name="recomendaciones" rows="3" placeholder="Recomendaciones para mejorar..."></textarea>
-                        </div>
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="fas fa-download me-1"></i>Generar
+                        </button>
                     </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-success" onclick="guardarEvaluacion()">
-                        <i class="fas fa-save me-1"></i>Guardar Evaluación
-                    </button>
                 </div>
             </div>
         </div>
@@ -593,11 +473,57 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/locales/es.global.min.js"></script>
     <script>
-        let estudianteActual = null;
         const baseUrlPracticas = '<?= base_url("docente/practicas") ?>';
+        const baseUrlNotificaciones = '<?= rtrim(base_url("notificaciones"), "/") ?>';
+
+        function escHtmlModal(s) {
+            if (s === null || s === undefined) return '';
+            return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        function fmtRangoPractica(ini, fin) {
+            if (!ini && !fin) return '—';
+            return (ini || '—') + ' → ' + (fin || '—');
+        }
+
+        function renderPanelProgresosDetalle(progresos) {
+            var host = document.getElementById('panelProgresosDetalle');
+            if (!host) return;
+            if (!progresos || !progresos.length) {
+                host.innerHTML = '<p class="text-muted small mb-0">Sin datos de progreso.</p>';
+                return;
+            }
+            var mapBadge = { success: 'bg-success', warning: 'bg-warning text-dark', danger: 'bg-danger', info: 'bg-info text-dark', secondary: 'bg-secondary' };
+            host.innerHTML = progresos.map(function(p, i) {
+                var c = p.cumplimiento || {};
+                var bc = mapBadge[c.nivel] || 'bg-secondary';
+                var pct = parseFloat(p.porcentaje) || 0;
+                var hc = parseFloat(p.horas_cumplidas) || 0;
+                var ht = parseFloat(p.horas_totales) || 0;
+                return (
+                    '<div class="card mb-3 border-0 shadow-sm">' +
+                    '<div class="card-header py-2 d-flex justify-content-between align-items-center flex-wrap gap-1">' +
+                    '<span class="fw-semibold small">' + escHtmlModal(p.tipo_etiqueta || '') + '</span>' +
+                    '<span class="badge ' + bc + '">' + escHtmlModal(c.etiqueta || '') + '</span></div>' +
+                    '<div class="card-body text-center pt-3">' +
+                    '<div class="position-relative d-inline-block">' +
+                    '<canvas id="detalleProgressChart' + i + '" width="110" height="110"></canvas>' +
+                    '<div class="position-absolute top-50 start-50 translate-middle fw-bold small">' + pct + '%</div></div>' +
+                    '<h6 class="mt-2 mb-2">' + hc + ' h de ' + ht + ' h</h6>' +
+                    '<p class="small text-muted text-start mb-2">' + escHtmlModal(c.descripcion || '') + '</p>' +
+                    (p.institucion ? '<p class="small text-start mb-1"><strong>Entidad:</strong> ' + escHtmlModal(p.institucion) + '</p>' : '') +
+                    '<p class="small text-start mb-1"><strong>Período:</strong> ' + escHtmlModal(fmtRangoPractica(p.fecha_inicio, p.fecha_fin)) + '</p>' +
+                    '<p class="small text-start mb-0"><strong>Estado registro:</strong> ' + escHtmlModal(p.estado || '—') + '</p>' +
+                    '</div></div>'
+                );
+            }).join('');
+            progresos.forEach(function(p, i) {
+                var pct = parseFloat(p.porcentaje) || 0;
+                setTimeout(function() { drawProgressChartOnCanvas('detalleProgressChart' + i, pct, 52, 8); }, 40 * (i + 1));
+            });
+        }
 
         function verDetalleEstudiante(id) {
-            estudianteActual = id;
             const modalEl = document.getElementById('modalDetalleEstudiante');
             const modal = new bootstrap.Modal(modalEl);
             modal.show();
@@ -608,21 +534,39 @@
             document.getElementById('detalleEstado').textContent = '';
             document.getElementById('detalleProgreso').textContent = '';
             document.getElementById('listaAsistenciasEstudiante').innerHTML = '<p class="text-muted small mb-0">Cargando...</p>';
+            var panelP = document.getElementById('panelProgresosDetalle');
+            if (panelP) panelP.innerHTML = '<p class="text-muted small mb-0">Cargando progreso...</p>';
             fetch(baseUrlPracticas + '/detalle-estudiante/' + id)
                 .then(r => r.json())
                 .then(data => {
                     if (data.success && data.data) {
                         const e = data.data.estudiante || {};
-                        const prog = data.data.progreso || 0;
+                        const progresos = data.data.progresos || [];
                         const actividades = data.data.actividades || [];
                         document.getElementById('detalleNombre').textContent = e.NOMBRE_COMPLETO || e.NOMBRE || '—';
                         document.getElementById('detalleCarrera').textContent = e.CARRERA_NOMBRE || '—';
-                        document.getElementById('detalleInstitucion').textContent = e.INSTITUCION_NOMBRE || '—';
-                        document.getElementById('detallePeriodo').textContent = (e.FECHA_INICIO || '—') + ' a ' + (e.FECHA_FIN || '—');
-                        document.getElementById('detalleEstado').textContent = e.ESTADO_PRACTICA || e.ESTADO_SERVICIO || 'En Progreso';
-                        document.getElementById('detalleProgreso').textContent = prog + '%';
-                        setTimeout(() => drawProgressChart(prog), 100);
-                        // Lista de asistencias registradas por el estudiante (control docente)
+
+                        if (progresos.length === 1) {
+                            const p0 = progresos[0];
+                            document.getElementById('detalleInstitucion').textContent = p0.institucion || e.INSTITUCION_NOMBRE || '—';
+                            document.getElementById('detallePeriodo').textContent = fmtRangoPractica(p0.fecha_inicio, p0.fecha_fin);
+                            document.getElementById('detalleEstado').textContent = p0.estado || '—';
+                            document.getElementById('detalleProgreso').textContent =
+                                (p0.porcentaje || 0) + '% · ' + (parseFloat(p0.horas_cumplidas) || 0) + ' h / ' + (parseFloat(p0.horas_totales) || 0) + ' h';
+                        } else if (progresos.length > 1) {
+                            document.getElementById('detalleInstitucion').textContent = e.INSTITUCION_NOMBRE || 'Varias entidades';
+                            document.getElementById('detallePeriodo').textContent = 'Práctica preprofesional y servicio comunitario';
+                            document.getElementById('detalleEstado').textContent = 'Ver cada bloque al lado';
+                            document.getElementById('detalleProgreso').textContent = 'Resumen por modalidad →';
+                        } else {
+                            document.getElementById('detalleInstitucion').textContent = e.INSTITUCION_NOMBRE || '—';
+                            document.getElementById('detallePeriodo').textContent = fmtRangoPractica(e.FECHA_INICIO, e.FECHA_FIN);
+                            document.getElementById('detalleEstado').textContent = e.ESTADO_PRACTICA || e.ESTADO_SERVICIO || '—';
+                            document.getElementById('detalleProgreso').textContent = (data.data.progreso || 0) + '%';
+                        }
+
+                        renderPanelProgresosDetalle(progresos);
+
                         const cont = document.getElementById('listaAsistenciasEstudiante');
                         if (actividades.length === 0) {
                             cont.innerHTML = '<p class="text-muted small mb-0">Aún no hay asistencias registradas.</p>';
@@ -633,42 +577,31 @@
                                 d.textContent = s;
                                 return d.innerHTML;
                             }
-                        cont.innerHTML = actividades.map(function(a) {
+                            cont.innerHTML = actividades.map(function(a) {
                                 var fecha = a.FECHA_ASISTENCIA || '';
                                 var ent = (a.HORA_ENTRADA || '').substring(0, 5);
                                 var sal = (a.HORA_SALIDA || '').substring(0, 5);
                                 var horas = (ent && sal) ? (ent + ' - ' + sal) : '';
+                                var tipoEt = a.TIPO_REGISTRO_ETIQUETA || '';
                                 var act = (a.ACTIVIDADES_DIA || '').substring(0, 120);
                                 if ((a.ACTIVIDADES_DIA || '').length > 120) act += '...';
                                 var obs = (a.OBSERVACIONES || '').trim();
                                 var obsHtml = obs ? '<div class="text-muted small mt-1"><strong>Obs.:</strong> ' + esc(obs.substring(0, 80)) + (obs.length > 80 ? '...' : '') + '</div>' : '';
-                                return '<div class="timeline-item"><div class="timeline-marker"></div><div><div class="fw-semibold">' + esc(fecha) + (horas ? ' · ' + esc(horas) : '') + '</div><div class="small">' + (act ? esc(act) : '—') + '</div>' + obsHtml + '</div></div>';
+                                var tipoHtml = tipoEt ? '<span class="badge bg-light text-secondary border me-1">' + esc(tipoEt) + '</span>' : '';
+                                return '<div class="timeline-item"><div class="timeline-marker"></div><div><div class="fw-semibold">' + tipoHtml + esc(fecha) + (horas ? ' · ' + esc(horas) : '') + '</div><div class="small">' + (act ? esc(act) : '—') + '</div>' + obsHtml + '</div></div>';
                             }).join('');
                         }
                     } else {
                         document.getElementById('detalleNombre').textContent = 'Error al cargar';
                         document.getElementById('listaAsistenciasEstudiante').innerHTML = '<p class="text-muted small mb-0">No se pudieron cargar las asistencias.</p>';
+                        if (panelP) panelP.innerHTML = '<p class="text-muted small mb-0">—</p>';
                     }
                 })
                 .catch(() => {
                     document.getElementById('detalleNombre').textContent = 'Error al cargar';
                     document.getElementById('listaAsistenciasEstudiante').innerHTML = '<p class="text-muted small mb-0">Error al cargar.</p>';
+                    if (panelP) panelP.innerHTML = '<p class="text-muted small mb-0">—</p>';
                 });
-        }
-
-        function evaluarEstudiante(id = null) {
-            if (id) estudianteActual = id;
-
-            const modal = new bootstrap.Modal(document.getElementById('modalEvaluarEstudiante'));
-            modal.show();
-        }
-
-        function generarReporte() {
-            var reportesTab = document.querySelector('#reportes-tab');
-            if (reportesTab) {
-                reportesTab.click();
-            }
-            showNotification('Complete el formulario y pulse Generar Reporte', 'info');
         }
 
         function showModal(modalId) {
@@ -677,6 +610,35 @@
                 const modal = new bootstrap.Modal(el);
                 modal.show();
             }
+        }
+
+        function abrirGenerarReportePracticas() {
+            var f = document.getElementById('formGenerarReportePracticas');
+            if (f) {
+                f.classList.remove('was-validated');
+            }
+            showModal('modalGenerarReportePracticas');
+        }
+
+        function mostrarReporteEnVentana(data) {
+            var col = data.columnas || [];
+            var filas = data.filas || [];
+            var html = '<div class="table-responsive"><table class="table table-sm table-bordered"><thead><tr>';
+            col.forEach(function(c) {
+                html += '<th>' + String(c).replace(/</g, '&lt;') + '</th>';
+            });
+            html += '</tr></thead><tbody>';
+            filas.forEach(function(fila) {
+                html += '<tr>';
+                (Array.isArray(fila) ? fila : []).forEach(function(celda) {
+                    html += '<td>' + (celda !== undefined && celda !== null ? String(celda).replace(/</g, '&lt;') : '') + '</td>';
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table></div>';
+            var ventana = window.open('', '_blank', 'width=800,height=600,scrollbars=yes');
+            ventana.document.write('<html><head><title>' + (data.titulo || 'Reporte') + '</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"></head><body class="p-4"><h4>' + (data.titulo || 'Reporte') + '</h4><p>Período: ' + (data.fecha_desde || '') + ' a ' + (data.fecha_hasta || '') + '</p>' + html + '<p class="mt-3"><button onclick="window.print()" class="btn btn-primary">Imprimir / Guardar como PDF</button></p></body></html>');
+            ventana.document.close();
         }
 
         function verCalendario() {
@@ -747,50 +709,28 @@
             showNotification('Mostrando actividades del estudiante...', 'info');
         }
 
-        function realizarEvaluacion(id) {
-            estudianteActual = id;
-            evaluarEstudiante();
-        }
-
-        function guardarEvaluacion() {
-            const form = document.getElementById('formEvaluarEstudiante');
-
-            if (!form.checkValidity()) {
-                form.classList.add('was-validated');
-                return;
-            }
-
-            // Simular guardado
-            showNotification('Evaluación guardada exitosamente', 'success');
-            bootstrap.Modal.getInstance(document.getElementById('modalEvaluarEstudiante')).hide();
-            form.reset();
-            form.classList.remove('was-validated');
-        }
-
-        function drawProgressChart(percentage) {
-            const canvas = document.getElementById('progressChart');
+        function drawProgressChartOnCanvas(canvasId, percentage, radius, lineWidth) {
+            const canvas = document.getElementById(canvasId);
             if (!canvas) return;
-
+            radius = radius || 50;
+            lineWidth = lineWidth || 8;
             const ctx = canvas.getContext('2d');
             const centerX = canvas.width / 2;
             const centerY = canvas.height / 2;
-            const radius = 50;
+            const pct = Math.max(0, Math.min(100, parseFloat(percentage) || 0));
 
-            // Limpiar canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // Círculo de fondo
             ctx.beginPath();
             ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
             ctx.strokeStyle = '#e9ecef';
-            ctx.lineWidth = 8;
+            ctx.lineWidth = lineWidth;
             ctx.stroke();
 
-            // Círculo de progreso
             ctx.beginPath();
-            ctx.arc(centerX, centerY, radius, -Math.PI / 2, (-Math.PI / 2) + (2 * Math.PI * percentage / 100));
+            ctx.arc(centerX, centerY, radius, -Math.PI / 2, (-Math.PI / 2) + (2 * Math.PI * pct / 100));
             ctx.strokeStyle = '#667eea';
-            ctx.lineWidth = 8;
+            ctx.lineWidth = lineWidth;
             ctx.lineCap = 'round';
             ctx.stroke();
         }
@@ -823,114 +763,252 @@
             }, 5000);
         }
 
+        function initNotificacionesPracticasPanel() {
+            var panel = document.getElementById('panel-notificaciones-practicas');
+            if (!panel) return;
+
+            function actualizarStatsNotifPrac() {
+                var items = panel.querySelectorAll('.notif-prac-item');
+                var total = items.length;
+                var noLeidas = 0;
+                items.forEach(function(el) {
+                    if (el.getAttribute('data-leida') === '0') noLeidas++;
+                });
+                var elT = document.getElementById('notifPracStatTotal');
+                var elN = document.getElementById('notifPracStatNoLeidas');
+                var elL = document.getElementById('notifPracStatLeidas');
+                if (elT) elT.textContent = total;
+                if (elN) elN.textContent = noLeidas;
+                if (elL) elL.textContent = Math.max(0, total - noLeidas);
+            }
+
+            function filtrarNotifPrac(filtro) {
+                panel.querySelectorAll('.notif-prac-item').forEach(function(elemento) {
+                    var mostrar = true;
+                    if (filtro === 'no_leidas') {
+                        mostrar = elemento.getAttribute('data-leida') === '0';
+                    } else if (filtro === 'tutoria_asignada' || filtro === 'asignacion_practica' || filtro === 'recordatorio' || filtro === 'general') {
+                        mostrar = elemento.getAttribute('data-tipo') === filtro;
+                    }
+                    elemento.style.display = mostrar ? '' : 'none';
+                });
+                panel.querySelectorAll('.notif-prac-filter-btn').forEach(function(btn) {
+                    btn.classList.toggle('active', btn.getAttribute('data-filter') === filtro);
+                });
+            }
+
+            panel.addEventListener('click', function(e) {
+                var t = e.target;
+                var btnLeida = t.closest && t.closest('.notif-prac-btn-leida');
+                var btnElim = t.closest && t.closest('.notif-prac-btn-eliminar');
+                var btnFilt = t.closest && t.closest('.notif-prac-filter-btn');
+
+                if (btnFilt) {
+                    filtrarNotifPrac(btnFilt.getAttribute('data-filter') || 'todas');
+                    return;
+                }
+
+                if (btnLeida) {
+                    var id = btnLeida.getAttribute('data-id');
+                    if (!id) return;
+                    fetch(baseUrlNotificaciones + '/marcar-leida/' + id, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(function(r) {
+                            return r.json();
+                        })
+                        .then(function(data) {
+                            if (data.success) {
+                                var elemento = panel.querySelector('.notif-prac-item[data-id="' + id + '"]');
+                                if (elemento) {
+                                    elemento.classList.remove('notif-prac-unread');
+                                    elemento.classList.add('notif-prac-read');
+                                    elemento.setAttribute('data-leida', '1');
+                                    var b = elemento.querySelector('.notif-prac-btn-leida');
+                                    if (b) b.remove();
+                                }
+                                actualizarStatsNotifPrac();
+                                showNotification('Notificación marcada como revisada', 'success');
+                            } else {
+                                showNotification('No se pudo marcar la notificación', 'error');
+                            }
+                        })
+                        .catch(function() {
+                            showNotification('Error de conexión', 'error');
+                        });
+                    return;
+                }
+
+                if (btnElim) {
+                    var idE = btnElim.getAttribute('data-id');
+                    if (!idE || !confirm('¿Eliminar esta notificación?')) return;
+                    fetch(baseUrlNotificaciones + '/eliminar/' + idE, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(function(r) {
+                            return r.json();
+                        })
+                        .then(function(data) {
+                            if (data.success) {
+                                var elemento = panel.querySelector('.notif-prac-item[data-id="' + idE + '"]');
+                                if (elemento) elemento.remove();
+                                actualizarStatsNotifPrac();
+                                showNotification('Notificación eliminada', 'success');
+                            } else {
+                                showNotification('No se pudo eliminar', 'error');
+                            }
+                        })
+                        .catch(function() {
+                            showNotification('Error de conexión', 'error');
+                        });
+                }
+            });
+
+            var btnTodas = document.getElementById('notifPracBtnMarcarTodas');
+            if (btnTodas) {
+                btnTodas.addEventListener('click', function() {
+                    if (!confirm('¿Marcar todas las notificaciones como revisadas?')) return;
+                    fetch(baseUrlNotificaciones + '/marcar-todas-leidas', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        })
+                        .then(function(r) {
+                            return r.json();
+                        })
+                        .then(function(data) {
+                            if (data.success) {
+                                panel.querySelectorAll('.notif-prac-item.notif-prac-unread').forEach(function(elemento) {
+                                    elemento.classList.remove('notif-prac-unread');
+                                    elemento.classList.add('notif-prac-read');
+                                    elemento.setAttribute('data-leida', '1');
+                                    var b = elemento.querySelector('.notif-prac-btn-leida');
+                                    if (b) b.remove();
+                                });
+                                actualizarStatsNotifPrac();
+                                showNotification('Listo: todas marcadas como revisadas', 'success');
+                            } else {
+                                showNotification('No se pudo completar la acción', 'error');
+                            }
+                        })
+                        .catch(function() {
+                            showNotification('Error de conexión', 'error');
+                        });
+                });
+            }
+        }
+
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
-            // Dibujar gráficos de progreso para los estudiantes
-            setTimeout(() => {
-                document.querySelectorAll('[id^="progresoEst"]').forEach(canvas => {
-                    const ctx = canvas.getContext('2d');
-                    const centerX = canvas.width / 2;
-                    const centerY = canvas.height / 2;
-                    const radius = 30;
-                    const percentage = 75; // Simular porcentaje
+            initNotificacionesPracticasPanel();
 
-                    // Círculo de fondo
+            var params = new URLSearchParams(window.location.search);
+            if (window.location.hash === '#panel-notificaciones-practicas' || params.get('ver') === 'notificaciones') {
+                var elPanel = document.getElementById('panel-notificaciones-practicas');
+                if (elPanel) {
+                    setTimeout(function() {
+                        elPanel.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }, 150);
+                }
+                if (params.get('ver') === 'notificaciones') {
+                    history.replaceState(null, '', window.location.pathname + window.location.hash);
+                }
+            }
+
+            var formRep = document.getElementById('formGenerarReportePracticas');
+            if (formRep) {
+                formRep.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    if (!formRep.checkValidity()) {
+                        formRep.classList.add('was-validated');
+                        return;
+                    }
+                    var btn = formRep.querySelector('button[type="submit"]');
+                    var txt = btn ? btn.innerHTML : '';
+                    if (btn) {
+                        btn.disabled = true;
+                        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Generando…';
+                    }
+                    var fd = new FormData(formRep);
+                    fetch(baseUrlPracticas + '/generar-reporte', {
+                            method: 'POST',
+                            body: fd,
+                            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                        })
+                        .then(function(r) { return r.json(); })
+                        .then(function(res) {
+                            if (btn) {
+                                btn.disabled = false;
+                                btn.innerHTML = txt;
+                            }
+                            if (res.success) {
+                                var modalEl = document.getElementById('modalGenerarReportePracticas');
+                                var modalInst = modalEl ? bootstrap.Modal.getInstance(modalEl) : null;
+                                if (res.csv && res.formato === 'excel') {
+                                    var blob = new Blob(['\ufeff' + res.csv], { type: 'text/csv;charset=utf-8' });
+                                    var a = document.createElement('a');
+                                    a.href = URL.createObjectURL(blob);
+                                    a.download = res.nombre_archivo || 'reporte_practicas.csv';
+                                    a.click();
+                                    URL.revokeObjectURL(a.href);
+                                    showNotification('Reporte descargado correctamente', 'success');
+                                    if (modalInst) modalInst.hide();
+                                } else if (res.data && (res.formato === 'pdf' || res.formato === 'word')) {
+                                    mostrarReporteEnVentana(res.data);
+                                    showNotification('Reporte generado. Puede imprimir desde la ventana.', 'success');
+                                    if (modalInst) modalInst.hide();
+                                } else {
+                                    showNotification(res.message || 'Reporte generado', 'success');
+                                    if (modalInst) modalInst.hide();
+                                }
+                            } else {
+                                showNotification(res.message || 'Error al generar el reporte', 'error');
+                            }
+                        })
+                        .catch(function() {
+                            if (btn) {
+                                btn.disabled = false;
+                                btn.innerHTML = txt;
+                            }
+                            showNotification('Error de conexión al generar el reporte', 'error');
+                        });
+                });
+            }
+
+            setTimeout(function() {
+                document.querySelectorAll('canvas.progreso-est-canvas').forEach(function(canvas) {
+                    var pct = parseFloat(canvas.getAttribute('data-pct')) || 0;
+                    var ctx = canvas.getContext('2d');
+                    var centerX = canvas.width / 2;
+                    var centerY = canvas.height / 2;
+                    var radius = 30;
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
                     ctx.beginPath();
                     ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
                     ctx.strokeStyle = '#e9ecef';
                     ctx.lineWidth = 6;
                     ctx.stroke();
-
-                    // Círculo de progreso
                     ctx.beginPath();
-                    ctx.arc(centerX, centerY, radius, -Math.PI / 2, (-Math.PI / 2) + (2 * Math.PI * percentage / 100));
+                    ctx.arc(centerX, centerY, radius, -Math.PI / 2, (-Math.PI / 2) + (2 * Math.PI * Math.min(100, pct) / 100));
                     ctx.strokeStyle = '#28a745';
                     ctx.lineWidth = 6;
                     ctx.lineCap = 'round';
                     ctx.stroke();
                 });
-            }, 100);
+            }, 150);
         });
-
-        // Manejo de formulario de reportes
-        document.getElementById('formGenerarReporte').addEventListener('submit', function(e) {
-            e.preventDefault();
-            var form = this;
-            if (!form.checkValidity()) {
-                form.classList.add('was-validated');
-                return;
-            }
-            var btn = form.querySelector('button[type="submit"]');
-            var txt = btn ? btn.innerHTML : '';
-            if (btn) {
-                btn.disabled = true;
-                btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Generando...';
-            }
-            var fd = new FormData(form);
-            fetch(baseUrlPracticas + '/generar-reporte', {
-                    method: 'POST',
-                    body: fd,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(function(r) {
-                    return r.json();
-                })
-                .then(function(res) {
-                    if (btn) {
-                        btn.disabled = false;
-                        btn.innerHTML = txt;
-                    }
-                    if (res.success) {
-                        if (res.csv && res.formato === 'excel') {
-                            var blob = new Blob(["\ufeff" + res.csv], {
-                                type: 'text/csv;charset=utf-8'
-                            });
-                            var a = document.createElement('a');
-                            a.href = URL.createObjectURL(blob);
-                            a.download = res.nombre_archivo || 'reporte_practicas.csv';
-                            a.click();
-                            URL.revokeObjectURL(a.href);
-                            showNotification('Reporte descargado correctamente', 'success');
-                        } else if (res.data && (res.formato === 'pdf' || res.formato === 'word')) {
-                            mostrarReporteEnModal(res.data);
-                            showNotification('Reporte generado. Puede imprimir desde la ventana.', 'success');
-                        } else {
-                            showNotification(res.message || 'Reporte generado', 'success');
-                        }
-                    } else {
-                        showNotification(res.message || 'Error al generar el reporte', 'error');
-                    }
-                })
-                .catch(function() {
-                    if (btn) {
-                        btn.disabled = false;
-                        btn.innerHTML = txt;
-                    }
-                    showNotification('Error de conexión al generar el reporte', 'error');
-                });
-        });
-
-        function mostrarReporteEnModal(data) {
-            var col = data.columnas || [];
-            var filas = data.filas || [];
-            var html = '<div class="table-responsive"><table class="table table-sm table-bordered"><thead><tr>';
-            col.forEach(function(c) {
-                html += '<th>' + c + '</th>';
-            });
-            html += '</tr></thead><tbody>';
-            filas.forEach(function(fila) {
-                html += '<tr>';
-                (Array.isArray(fila) ? fila : []).forEach(function(celda) {
-                    html += '<td>' + (celda !== undefined && celda !== null ? celda : '') + '</td>';
-                });
-                html += '</tr>';
-            });
-            html += '</tbody></table></div>';
-            var ventana = window.open('', '_blank', 'width=800,height=600,scrollbars=yes');
-            ventana.document.write('<html><head><title>' + (data.titulo || 'Reporte') + '</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet"></head><body class="p-4"><h4>' + (data.titulo || 'Reporte') + '</h4><p>Período: ' + (data.fecha_desde || '') + ' a ' + (data.fecha_hasta || '') + '</p>' + html + '<p class="mt-3"><button onclick="window.print()" class="btn btn-primary">Imprimir / Guardar como PDF</button></p></body></html>');
-            ventana.document.close();
-        }
     </script>
     <?= $this->endSection() ?>

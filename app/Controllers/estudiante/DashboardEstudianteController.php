@@ -5,6 +5,7 @@ namespace App\Controllers\estudiante;
 use App\Controllers\BaseController;
 use App\Models\ActividadesEducacionModel;
 use App\Models\EstudiantesModel;
+use App\Services\CoordinadorVinculacionContactoService;
 use App\Services\EstudianteAsistenciaService;
 use CodeIgniter\Database\BaseConnection;
 
@@ -45,7 +46,7 @@ class DashboardEstudianteController extends BaseController
 
         // Sin ID_DATO_PERSONA no podemos filtrar prácticas; dejar estadísticas en 0
         if (!$idDatoPersona) {
-            $data = [
+            $data = array_merge([
                 'title' => 'Dashboard Estudiante - Prácticas Preprofesionales y Servicio Comunitario',
                 'estudiante' => $estudiante,
                 'total_practicas' => 0,
@@ -62,7 +63,7 @@ class DashboardEstudianteController extends BaseController
                 'asistencia_fecha' => date('Y-m-d'),
                 'asistencia_modal_automatico' => false,
                 'asistencia_mostrar_tarjeta' => false,
-            ];
+            ], CoordinadorVinculacionContactoService::datosParaVistaEstudiante($this->db));
 
             return view('estudiante/dashboard/dashboardEstudiante', $data);
         }
@@ -130,7 +131,7 @@ class DashboardEstudianteController extends BaseController
 
         $pendAsist = EstudianteAsistenciaService::pendientesAsistenciaHoy((int) $idUsuario);
 
-        $data = [
+        $data = array_merge([
             'title' => 'Dashboard Estudiante - Prácticas Preprofesionales y Servicio Comunitario',
             'estudiante' => $estudiante,
             'total_practicas' => $totalPracticas,
@@ -147,7 +148,7 @@ class DashboardEstudianteController extends BaseController
             'asistencia_fecha' => $pendAsist['fecha'],
             'asistencia_modal_automatico' => $pendAsist['debe_registrar'],
             'asistencia_mostrar_tarjeta' => false,
-        ];
+        ], CoordinadorVinculacionContactoService::datosParaVistaEstudiante($this->db));
 
         return view('estudiante/dashboard/dashboardEstudiante', $data);
     }

@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Models\ActividadesEducacionModel;
 use App\Models\EstudiantesModel;
 use App\Models\InstructoresModel;
+use App\Models\NotificacionesModel;
 use CodeIgniter\Database\BaseConnection;
 
 class DashboardDocenteController extends BaseController
@@ -63,6 +64,13 @@ class DashboardDocenteController extends BaseController
             );
             $estudiantesAsignados = count(array_unique(array_filter($todosIds)));
         }
+
+        $notifTutorNoLeidas = 0;
+        try {
+            $notifTutorNoLeidas = (new NotificacionesModel())->contarNoLeidasPorTipo((int) $idUsuario, 'tutoria_asignada');
+        } catch (\Throwable $e) {
+            log_message('error', 'DashboardDocente - notif tutoría: ' . $e->getMessage());
+        }
         
         // Obtener estadísticas
         $data = [
@@ -76,6 +84,7 @@ class DashboardDocenteController extends BaseController
                     ->countAllResults()
                 : 0,
             'total_estudiantes' => $estudiantesAsignados,
+            'notif_tutor_no_leidas' => $notifTutorNoLeidas,
         ];
 
         return view('docente/dashboard/dashboardDocente', $data);

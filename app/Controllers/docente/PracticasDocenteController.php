@@ -6,16 +6,15 @@ use App\Controllers\BaseController;
 use App\Models\PracticasPreprofesionalesModel;
 use App\Models\ServiciosComunitariosModel;
 use App\Models\ActividadesPracticasModel;
-use App\Models\EvaluacionesPracticasModel;
 use App\Models\UsuariosModel;
 use App\Models\EstudiantesModel;
+use App\Models\NotificacionesModel;
 
 class PracticasDocenteController extends BaseController
 {
     protected $practicasPreprofesionalesModel;
     protected $serviciosComunitariosModel;
     protected $actividadesPracticasModel;
-    protected $evaluacionesPracticasModel;
     protected $usuariosModel;
     protected $estudiantesModel;
     protected $db;
@@ -25,7 +24,6 @@ class PracticasDocenteController extends BaseController
         $this->practicasPreprofesionalesModel = new PracticasPreprofesionalesModel();
         $this->serviciosComunitariosModel = new ServiciosComunitariosModel();
         $this->actividadesPracticasModel = new ActividadesPracticasModel();
-        $this->evaluacionesPracticasModel = new EvaluacionesPracticasModel();
         $this->usuariosModel = new UsuariosModel();
         $this->estudiantesModel = new EstudiantesModel();
         $this->db = \Config\Database::connect();
@@ -43,15 +41,25 @@ class PracticasDocenteController extends BaseController
             $idInstructor = 0;
         }
 
-        $estadisticas = $this->obtenerEstadisticasDocente($idInstructor, $idUsuario);
+        $estadisticas = $this->obtenerEstadisticasDocente($idInstructor);
         $estudiantesAsignados = $this->obtenerEstudiantesAsignados($idInstructor);
-        $evaluacionesPendientes = $this->obtenerEvaluacionesPendientes($idUsuario);
+
+        $notificacionesLista = [];
+        $estadisticasNotificaciones = ['total' => 0, 'no_leidas' => 0, 'leidas' => 0];
+        try {
+            $notifModel = new NotificacionesModel();
+            $notificacionesLista = $notifModel->obtenerNotificacionesUsuario((int) $idUsuario, 50);
+            $estadisticasNotificaciones = $notifModel->obtenerEstadisticas((int) $idUsuario);
+        } catch (\Throwable $e) {
+            log_message('error', 'PracticasDocente - notificaciones: ' . $e->getMessage());
+        }
 
         $data = [
             'title' => 'Supervisión de Prácticas - ITSI',
             'estadisticas' => $estadisticas,
             'estudiantesAsignados' => $estudiantesAsignados,
-            'evaluacionesPendientes' => $evaluacionesPendientes
+            'notificaciones_lista' => $notificacionesLista,
+            'estadisticas_notificaciones' => $estadisticasNotificaciones,
         ];
 
         return view('docente/practicas/practicas_docente', $data);
@@ -81,7 +89,10 @@ class PracticasDocenteController extends BaseController
                 ->where('pp.ID_ESTUDIANTE', $estudianteId)->where('pp.ID_INSTRUCTOR', $idInstructor)
                 ->get()->getRowArray();
             if ($pp) {
-                $actividadesRecientes = array_merge($actividadesRecientes, $this->obtenerActividadesRecientesPractica($pp['ID_PRACTICA_PREPROFESIONAL'], 'preprofesional', 50));
+                foreach ($this->obtenerActividadesRecientesPractica($pp['ID_PRACTICA_PREPROFESIONAL'], 'preprofesional', 50) as $ap) {
+                    $ap['TIPO_REGISTRO_ETIQUETA'] = 'Práctica preprofesional';
+                    $actividadesRecientes[] = $ap;
+                }
             }
             $sc = $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
                 ->select('sc.*, ic.NOMBRE as INSTITUCION_NOMBRE')
@@ -89,7 +100,10 @@ class PracticasDocenteController extends BaseController
                 ->where('sc.ID_ESTUDIANTE', $estudianteId)->where('sc.ID_INSTRUCTOR', $idInstructor)
                 ->get()->getRowArray();
             if ($sc) {
-                $actividadesRecientes = array_merge($actividadesRecientes, $this->obtenerActividadesRecientesPractica($sc['ID_SERVICIO_COMUNITARIO'], 'servicio', 50));
+                foreach ($this->obtenerActividadesRecientesPractica($sc['ID_SERVICIO_COMUNITARIO'], 'servicio', 50) as $as) {
+                    $as['TIPO_REGISTRO_ETIQUETA'] = 'Servicio comunitario';
+                    $actividadesRecientes[] = $as;
+                }
             }
             usort($actividadesRecientes, function ($a, $b) {
                 $f1 = $a['FECHA_ASISTENCIA'] ?? '';
@@ -100,17 +114,22 @@ class PracticasDocenteController extends BaseController
                 return strcmp($r2, $r1);
             });
             $actividadesRecientes = array_slice($actividadesRecientes, 0, 50);
-            $progreso = 0;
+
+            $progresos = [];
             if ($pp) {
-                $progreso = $this->calcularProgresoPractica($pp['ID_PRACTICA_PREPROFESIONAL'], $pp['HORAS_PRACTICAS'] ?? 0, 'preprofesional');
+                $bloque = $this->construirBloqueProgresoTutor($pp, 'preprofesional');
+                if ($bloque) {
+                    $progresos[] = $bloque;
+                }
                 $estudiante['INSTITUCION_NOMBRE'] = $pp['INSTITUCION_NOMBRE'] ?? null;
                 $estudiante['FECHA_INICIO'] = $pp['FECHA_INICIO'] ?? null;
                 $estudiante['FECHA_FIN'] = $pp['FECHA_FIN'] ?? null;
                 $estudiante['ESTADO_PRACTICA'] = $pp['ESTADO_PRACTICA'] ?? null;
             }
             if ($sc) {
-                if ($progreso === 0) {
-                    $progreso = $this->calcularProgresoPractica($sc['ID_SERVICIO_COMUNITARIO'], $sc['HORAS_SERVICIO'] ?? 0, 'servicio');
+                $bloqueSc = $this->construirBloqueProgresoTutor($sc, 'servicio');
+                if ($bloqueSc) {
+                    $progresos[] = $bloqueSc;
                 }
                 if (empty($estudiante['INSTITUCION_NOMBRE'])) {
                     $estudiante['INSTITUCION_NOMBRE'] = $sc['INSTITUCION_NOMBRE'] ?? null;
@@ -120,12 +139,18 @@ class PracticasDocenteController extends BaseController
                 }
             }
 
+            $progreso = $progresos[0]['porcentaje'] ?? 0;
+            if (isset($progresos[1])) {
+                $estudiante['TIENE_AMBAS_MODALIDADES'] = true;
+            }
+
             return $this->response->setJSON([
                 'success' => true,
                 'data' => [
                     'estudiante' => $estudiante,
                     'actividades' => $actividadesRecientes,
-                    'progreso' => $progreso
+                    'progreso' => $progreso,
+                    'progresos' => $progresos,
                 ]
             ]);
 
@@ -135,79 +160,26 @@ class PracticasDocenteController extends BaseController
         }
     }
 
-    public function evaluarEstudiante()
-    {
-        // Verificar autenticación
-        if (!session()->get('logged_in')) {
-            return $this->response->setJSON(['success' => false, 'message' => 'No autorizado']);
-        }
-
-        $docenteId = session()->get('id_usuario');
-        
-        // Validar datos
-        $rules = [
-            'estudiante_id' => 'required|integer',
-            'criterio' => 'required',
-            'calificacion' => 'required|decimal|greater_than_equal_to[1]|less_than_equal_to[10]',
-            'comentarios' => 'permit_empty|max_length[500]',
-            'recomendaciones' => 'permit_empty|max_length[500]'
-        ];
-
-        if (!$this->validate($rules)) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Datos inválidos',
-                'errors' => $this->validator->getErrors()
-            ]);
-        }
-
-        try {
-            $data = [
-                'ID_DOCENTE' => $docenteId,
-                'ID_ESTUDIANTE' => $this->request->getPost('estudiante_id'),
-                'CRITERIO_EVALUACION' => $this->request->getPost('criterio'),
-                'CALIFICACION' => $this->request->getPost('calificacion'),
-                'COMENTARIOS' => $this->request->getPost('comentarios'),
-                'RECOMENDACIONES' => $this->request->getPost('recomendaciones'),
-                'FECHA_EVALUACION' => date('Y-m-d H:i:s'),
-                'ESTADO' => 'Completada'
-            ];
-
-            $this->evaluacionesPracticasModel->insert($data);
-
-            return $this->response->setJSON([
-                'success' => true,
-                'message' => 'Evaluación guardada exitosamente'
-            ]);
-
-        } catch (\Exception $e) {
-            log_message('error', 'Error al evaluar estudiante: ' . $e->getMessage());
-            return $this->response->setJSON(['success' => false, 'message' => 'Error al guardar la evaluación']);
-        }
-    }
-
     public function generarReporte()
     {
-        // Verificar autenticación
         if (!session()->get('logged_in')) {
             return $this->response->setJSON(['success' => false, 'message' => 'No autorizado']);
         }
 
         $docenteId = session()->get('id_usuario');
-        
-        // Validar datos
+
         $rules = [
             'tipo_reporte' => 'required',
             'fecha_desde' => 'required|valid_date',
             'fecha_hasta' => 'required|valid_date',
-            'formato' => 'required|in_list[pdf,excel,word]'
+            'formato' => 'required|in_list[pdf,excel,word]',
         ];
 
         if (!$this->validate($rules)) {
             return $this->response->setJSON([
                 'success' => false,
                 'message' => 'Datos inválidos',
-                'errors' => $this->validator->getErrors()
+                'errors' => $this->validator->getErrors(),
             ]);
         }
 
@@ -235,11 +207,11 @@ class PracticasDocenteController extends BaseController
                 'data' => $datosReporte,
                 'formato' => $formato,
                 'csv' => $csv,
-                'nombre_archivo' => 'reporte_practicas_' . date('Y-m-d_His') . ($formato === 'excel' ? '.csv' : '')
+                'nombre_archivo' => 'reporte_practicas_' . date('Y-m-d_His') . ($formato === 'excel' ? '.csv' : ''),
             ]);
-
         } catch (\Exception $e) {
             log_message('error', 'Error al generar reporte: ' . $e->getMessage());
+
             return $this->response->setJSON(['success' => false, 'message' => 'Error al generar el reporte']);
         }
     }
@@ -370,7 +342,7 @@ class PracticasDocenteController extends BaseController
         return $row ? (int) $row['ID_INSTRUCTOR'] : null;
     }
 
-    private function obtenerEstadisticasDocente($idInstructor, $idUsuario)
+    private function obtenerEstadisticasDocente($idInstructor)
     {
         try {
             $estudiantesPp = 0;
@@ -393,24 +365,9 @@ class PracticasDocenteController extends BaseController
                     ->where('sc.ESTADO_SERVICIO', 'En Progreso')
                     ->countAllResults();
             }
-            $evalPend = $this->db->table('TAB_EVALUACIONES_PRACTICAS_PREPROFESIONALES ep')
-                ->where('ep.ID_EVALUADOR', $idUsuario)
-                ->countAllResults();
-            $evalPend += $this->db->table('TAB_EVALUACIONES_SERVICIO_COMUNITARIO es')
-                ->where('es.ID_EVALUADOR', $idUsuario)
-                ->countAllResults();
-            $evalCompl = $this->db->table('TAB_EVALUACIONES_PRACTICAS_PREPROFESIONALES ep')
-                ->where('ep.ID_EVALUADOR', $idUsuario)
-                ->countAllResults();
-            $evalCompl += $this->db->table('TAB_EVALUACIONES_SERVICIO_COMUNITARIO es')
-                ->where('es.ID_EVALUADOR', $idUsuario)
-                ->countAllResults();
-
             return [
                 'estudiantesAsignados' => $estudiantesPp + $estudiantesSc,
                 'practicasActivas' => $practicasActivas + $serviciosActivos,
-                'evaluacionesPendientes' => $evalPend,
-                'evaluacionesCompletadas' => $evalCompl,
                 'alertas' => $idInstructor > 0 ? $this->contarAlertas($idInstructor) : 0
             ];
         } catch (\Exception $e) {
@@ -418,8 +375,6 @@ class PracticasDocenteController extends BaseController
             return [
                 'estudiantesAsignados' => 0,
                 'practicasActivas' => 0,
-                'evaluacionesPendientes' => 0,
-                'evaluacionesCompletadas' => 0,
                 'alertas' => 0
             ];
         }
@@ -453,6 +408,15 @@ class PracticasDocenteController extends BaseController
 
             $estudiantes = [];
             foreach ($practicasPp as $p) {
+                $horasCum = $this->calcularHorasCumplidasPractica($p['ID_PRACTICA_PREPROFESIONAL'], 'preprofesional');
+                $horasTot = (float) ($p['HORAS_PRACTICAS'] ?? 0);
+                $cumpl = $this->evaluarRitmoCumplimiento(
+                    $p['FECHA_INICIO'] ?? null,
+                    $p['FECHA_FIN'] ?? null,
+                    $horasTot,
+                    $horasCum,
+                    $p['ESTADO_PRACTICA'] ?? null
+                );
                 $estudiantes[] = [
                     'ID_ESTUDIANTE' => $p['ID_ESTUDIANTE'],
                     'NOMBRE_COMPLETO' => $p['ESTUDIANTE_NOMBRE'],
@@ -460,15 +424,27 @@ class PracticasDocenteController extends BaseController
                     'INSTITUCION_NOMBRE' => $p['INSTITUCION_NOMBRE'],
                     'FECHA_INICIO' => $p['FECHA_INICIO'],
                     'FECHA_FIN' => $p['FECHA_FIN'],
-                    'HORAS_TOTALES' => $p['HORAS_PRACTICAS'] ?? 0,
+                    'HORAS_TOTALES' => $horasTot,
                     'ESTADO_PRACTICA' => $p['ESTADO_PRACTICA'],
                     'TIPO' => 'Preprofesional',
-                    'HORAS_CUMPLIDAS' => $this->calcularHorasCumplidasPractica($p['ID_PRACTICA_PREPROFESIONAL'], 'preprofesional'),
-                    'PORCENTAJE_PROGRESO' => $this->calcularProgresoPractica($p['ID_PRACTICA_PREPROFESIONAL'], $p['HORAS_PRACTICAS'] ?? 0, 'preprofesional'),
-                    'ULTIMA_ACTIVIDAD' => $this->obtenerUltimaActividadPractica($p['ID_PRACTICA_PREPROFESIONAL'], 'preprofesional')
+                    'HORAS_CUMPLIDAS' => $horasCum,
+                    'PORCENTAJE_PROGRESO' => $this->calcularProgresoPractica($p['ID_PRACTICA_PREPROFESIONAL'], $horasTot, 'preprofesional'),
+                    'ULTIMA_ACTIVIDAD' => $this->obtenerUltimaActividadPractica($p['ID_PRACTICA_PREPROFESIONAL'], 'preprofesional'),
+                    'CUMPLIMIENTO_ETIQUETA' => $cumpl['etiqueta'],
+                    'CUMPLIMIENTO_NIVEL' => $cumpl['nivel'],
+                    'CUMPLIMIENTO_DESCRIPCION' => $cumpl['descripcion'],
                 ];
             }
             foreach ($serviciosSc as $s) {
+                $horasCum = $this->calcularHorasCumplidasPractica($s['ID_SERVICIO_COMUNITARIO'], 'servicio');
+                $horasTot = (float) ($s['HORAS_SERVICIO'] ?? 0);
+                $cumpl = $this->evaluarRitmoCumplimiento(
+                    $s['FECHA_INICIO'] ?? null,
+                    $s['FECHA_FIN'] ?? null,
+                    $horasTot,
+                    $horasCum,
+                    $s['ESTADO_SERVICIO'] ?? null
+                );
                 $estudiantes[] = [
                     'ID_ESTUDIANTE' => $s['ID_ESTUDIANTE'],
                     'NOMBRE_COMPLETO' => $s['ESTUDIANTE_NOMBRE'],
@@ -476,56 +452,20 @@ class PracticasDocenteController extends BaseController
                     'INSTITUCION_NOMBRE' => $s['INSTITUCION_NOMBRE'],
                     'FECHA_INICIO' => $s['FECHA_INICIO'],
                     'FECHA_FIN' => $s['FECHA_FIN'],
-                    'HORAS_TOTALES' => $s['HORAS_SERVICIO'] ?? 0,
+                    'HORAS_TOTALES' => $horasTot,
                     'ESTADO_PRACTICA' => $s['ESTADO_SERVICIO'],
                     'TIPO' => 'Servicio Comunitario',
-                    'HORAS_CUMPLIDAS' => $this->calcularHorasCumplidasPractica($s['ID_SERVICIO_COMUNITARIO'], 'servicio'),
-                    'PORCENTAJE_PROGRESO' => $this->calcularProgresoPractica($s['ID_SERVICIO_COMUNITARIO'], $s['HORAS_SERVICIO'] ?? 0, 'servicio'),
-                    'ULTIMA_ACTIVIDAD' => $this->obtenerUltimaActividadPractica($s['ID_SERVICIO_COMUNITARIO'], 'servicio')
+                    'HORAS_CUMPLIDAS' => $horasCum,
+                    'PORCENTAJE_PROGRESO' => $this->calcularProgresoPractica($s['ID_SERVICIO_COMUNITARIO'], $horasTot, 'servicio'),
+                    'ULTIMA_ACTIVIDAD' => $this->obtenerUltimaActividadPractica($s['ID_SERVICIO_COMUNITARIO'], 'servicio'),
+                    'CUMPLIMIENTO_ETIQUETA' => $cumpl['etiqueta'],
+                    'CUMPLIMIENTO_NIVEL' => $cumpl['nivel'],
+                    'CUMPLIMIENTO_DESCRIPCION' => $cumpl['descripcion'],
                 ];
             }
             return $estudiantes;
         } catch (\Exception $e) {
             log_message('error', 'Error al obtener estudiantes asignados: ' . $e->getMessage());
-            return [];
-        }
-    }
-
-    private function obtenerEvaluacionesPendientes($idUsuario)
-    {
-        try {
-            $lista = [];
-            $pp = $this->db->table('TAB_EVALUACIONES_PRACTICAS_PREPROFESIONALES ep')
-                ->select('ep.ID_EVALUACION_PREPROFESIONAL as ID_EVALUACION, ep.TIPO_EVALUACION, CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as ESTUDIANTE_NOMBRE, ic.NOMBRE as INSTITUCION_NOMBRE')
-                ->join('TAB_PRACTICAS_PREPROFESIONALES pp', 'pp.ID_PRACTICA_PREPROFESIONAL = ep.ID_PRACTICA_PREPROFESIONAL')
-                ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = pp.ID_ESTUDIANTE')
-                ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
-                ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = pp.ID_INSTITUCION_CONVENIO')
-                ->where('ep.ID_EVALUADOR', $idUsuario)
-                ->orderBy('ep.FECHA_EVALUACION', 'DESC')
-                ->get()
-                ->getResultArray();
-            foreach ($pp as $r) {
-                $r['TIPO'] = 'Preprofesional';
-                $lista[] = $r;
-            }
-            $sc = $this->db->table('TAB_EVALUACIONES_SERVICIO_COMUNITARIO es')
-                ->select('es.ID_EVALUACION_SERVICIO as ID_EVALUACION, es.TIPO_EVALUACION, CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as ESTUDIANTE_NOMBRE, ic.NOMBRE as INSTITUCION_NOMBRE')
-                ->join('TAB_SERVICIO_COMUNITARIO sc', 'sc.ID_SERVICIO_COMUNITARIO = es.ID_SERVICIO_COMUNITARIO')
-                ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE')
-                ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
-                ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = sc.ID_INSTITUCION_CONVENIO')
-                ->where('es.ID_EVALUADOR', $idUsuario)
-                ->orderBy('es.FECHA_EVALUACION', 'DESC')
-                ->get()
-                ->getResultArray();
-            foreach ($sc as $r) {
-                $r['TIPO'] = 'Servicio Comunitario';
-                $lista[] = $r;
-            }
-            return $lista;
-        } catch (\Exception $e) {
-            log_message('error', 'Error al obtener evaluaciones pendientes: ' . $e->getMessage());
             return [];
         }
     }
@@ -592,28 +532,190 @@ class PracticasDocenteController extends BaseController
     {
         try {
             if ($tipo === 'preprofesional') {
-                $rows = $this->db->table('TAB_ASISTENCIAS_PRACTICAS_PREPROFESIONALES')
-                    ->select('HORA_ENTRADA, HORA_SALIDA')
+                $asist = $this->db->table('TAB_ASISTENCIAS_PRACTICAS_PREPROFESIONALES')
+                    ->select('SUM(TIMESTAMPDIFF(HOUR, HORA_ENTRADA, HORA_SALIDA)) AS total_horas', false)
                     ->where('ID_PRACTICA_PREPROFESIONAL', $idPractica)
                     ->get()
-                    ->getResultArray();
+                    ->getRow();
+                $seg = $this->db->table('TAB_SEGUIMIENTO_PRACTICAS_PREPROFESIONALES')
+                    ->selectSum('HORAS_CUMPLIDAS', 'total_horas')
+                    ->where('ID_PRACTICA_PREPROFESIONAL', $idPractica)
+                    ->get()
+                    ->getRow();
             } else {
-                $rows = $this->db->table('TAB_ASISTENCIAS_SERVICIO_COMUNITARIO')
-                    ->select('HORA_ENTRADA, HORA_SALIDA')
+                $asist = $this->db->table('TAB_ASISTENCIAS_SERVICIO_COMUNITARIO')
+                    ->select('SUM(TIMESTAMPDIFF(HOUR, HORA_ENTRADA, HORA_SALIDA)) AS total_horas', false)
                     ->where('ID_SERVICIO_COMUNITARIO', $idPractica)
                     ->get()
-                    ->getResultArray();
+                    ->getRow();
+                $seg = $this->db->table('TAB_SEGUIMIENTO_SERVICIO_COMUNITARIO')
+                    ->selectSum('HORAS_CUMPLIDAS', 'total_horas')
+                    ->where('ID_SERVICIO_COMUNITARIO', $idPractica)
+                    ->get()
+                    ->getRow();
             }
-            $total = 0;
-            foreach ($rows as $r) {
-                $entrada = strtotime($r['HORA_ENTRADA'] ?? '00:00:00');
-                $salida = strtotime($r['HORA_SALIDA'] ?? '00:00:00');
-                $total += max(0, ($salida - $entrada) / 3600);
-            }
-            return round($total, 1);
+
+            return round((float) ($asist->total_horas ?? 0) + (float) ($seg->total_horas ?? 0), 1);
         } catch (\Exception $e) {
+            log_message('error', 'calcularHorasCumplidasPractica: ' . $e->getMessage());
+
             return 0;
         }
+    }
+
+    /**
+     * Resume horas y cumplimiento temporal para tutor (preprofesional o servicio).
+     */
+    private function construirBloqueProgresoTutor(array $fila, string $tipoApi): ?array
+    {
+        if ($tipoApi === 'preprofesional') {
+            $id = (int) ($fila['ID_PRACTICA_PREPROFESIONAL'] ?? 0);
+            $horasTot = (float) ($fila['HORAS_PRACTICAS'] ?? 0);
+            $estado = $fila['ESTADO_PRACTICA'] ?? null;
+            $etiquetaTipo = 'Práctica preprofesional';
+            $tipoCalc = 'preprofesional';
+        } else {
+            $id = (int) ($fila['ID_SERVICIO_COMUNITARIO'] ?? 0);
+            $horasTot = (float) ($fila['HORAS_SERVICIO'] ?? 0);
+            $estado = $fila['ESTADO_SERVICIO'] ?? null;
+            $etiquetaTipo = 'Servicio comunitario';
+            $tipoCalc = 'servicio';
+        }
+        if ($id <= 0) {
+            return null;
+        }
+        $horasCum = $this->calcularHorasCumplidasPractica($id, $tipoCalc);
+        $porcentaje = $this->calcularProgresoPractica($id, $horasTot, $tipoCalc);
+        $cumpl = $this->evaluarRitmoCumplimiento(
+            $fila['FECHA_INICIO'] ?? null,
+            $fila['FECHA_FIN'] ?? null,
+            $horasTot,
+            $horasCum,
+            $estado
+        );
+
+        return [
+            'tipo' => $tipoApi,
+            'tipo_etiqueta' => $etiquetaTipo,
+            'id_practica' => $id,
+            'institucion' => $fila['INSTITUCION_NOMBRE'] ?? null,
+            'fecha_inicio' => $fila['FECHA_INICIO'] ?? null,
+            'fecha_fin' => $fila['FECHA_FIN'] ?? null,
+            'estado' => $estado,
+            'horas_cumplidas' => $horasCum,
+            'horas_totales' => $horasTot,
+            'porcentaje' => $porcentaje,
+            'cumplimiento' => $cumpl,
+        ];
+    }
+
+    /**
+     * Compara horas registradas frente a la meta y al calendario del período (ritmo esperado).
+     *
+     * @return array{etiqueta: string, descripcion: string, nivel: string, porcentaje_horas?: float}
+     */
+    private function evaluarRitmoCumplimiento(
+        ?string $fechaInicio,
+        ?string $fechaFin,
+        float $horasTotales,
+        float $horasCumplidas,
+        ?string $estado
+    ): array {
+        $estadoNorm = $estado !== null ? trim((string) $estado) : '';
+        $pctHoras = $horasTotales > 0 ? min(100, round(($horasCumplidas / $horasTotales) * 100, 1)) : 0;
+
+        if ($horasTotales <= 0) {
+            return [
+                'etiqueta' => 'Meta de horas no definida',
+                'descripcion' => 'No hay horas objetivo registradas para comparar el avance del estudiante.',
+                'nivel' => 'secondary',
+                'porcentaje_horas' => $pctHoras,
+            ];
+        }
+
+        if ($estadoNorm === 'Completada' || $horasCumplidas >= $horasTotales - 0.05) {
+            return [
+                'etiqueta' => 'Meta de horas cumplida',
+                'descripcion' => 'El estudiante alcanzó las horas requeridas para esta asignación.',
+                'nivel' => 'success',
+                'porcentaje_horas' => $pctHoras,
+            ];
+        }
+
+        $ts0 = $fechaInicio ? strtotime($fechaInicio . ' 00:00:00') : false;
+        $ts1 = $fechaFin ? strtotime($fechaFin . ' 23:59:59') : false;
+
+        if ($ts0 === false || $ts1 === false || $ts1 < $ts0) {
+            return [
+                'etiqueta' => 'Avance por horas',
+                'descripcion' => sprintf(
+                    'Lleva %.1f h de %.0f h requeridas (%s%%). No hay fechas válidas del período para calcular ritmo en calendario.',
+                    $horasCumplidas,
+                    $horasTotales,
+                    $pctHoras
+                ),
+                'nivel' => $pctHoras >= 40 ? 'info' : 'warning',
+                'porcentaje_horas' => $pctHoras,
+            ];
+        }
+
+        $now = time();
+        $diasTotal = max(1, (int) ceil(($ts1 - $ts0) / 86400));
+
+        if ($now < $ts0) {
+            return [
+                'etiqueta' => 'Período no iniciado',
+                'descripcion' => 'Aún no comienza el período oficial de la práctica.',
+                'nivel' => 'info',
+                'porcentaje_horas' => $pctHoras,
+            ];
+        }
+
+        $tsFinEfectivo = min($now, $ts1);
+        $diasTrans = max(1, (int) ceil(($tsFinEfectivo - $ts0) / 86400));
+        $horasEsperadas = $horasTotales * ($diasTrans / $diasTotal);
+        $tolerancia = 0.88;
+
+        if ($now > $ts1 && $horasCumplidas < $horasTotales - 0.05) {
+            $faltan = max(0, $horasTotales - $horasCumplidas);
+
+            return [
+                'etiqueta' => 'Plazo vencido',
+                'descripcion' => sprintf(
+                    'El período terminó y faltan aproximadamente %.1f h de %.0f h requeridas.',
+                    $faltan,
+                    $horasTotales
+                ),
+                'nivel' => 'danger',
+                'porcentaje_horas' => $pctHoras,
+            ];
+        }
+
+        if ($horasCumplidas >= $horasEsperadas * $tolerancia) {
+            return [
+                'etiqueta' => 'Ritmo adecuado',
+                'descripcion' => sprintf(
+                    'Las horas registradas (%.1f h / %.0f h, %s%%) están alineadas con el tiempo transcurrido del período.',
+                    $horasCumplidas,
+                    $horasTotales,
+                    $pctHoras
+                ),
+                'nivel' => 'success',
+                'porcentaje_horas' => $pctHoras,
+            ];
+        }
+
+        return [
+            'etiqueta' => 'Por debajo del ritmo esperado',
+            'descripcion' => sprintf(
+                'Respecto al calendario, conviene reforzar registros de asistencia. Lleva %.1f h; en esta etapa del período se esperaba alrededor de %.1f h (meta %.0f h).',
+                $horasCumplidas,
+                round($horasEsperadas, 1),
+                $horasTotales
+            ),
+            'nivel' => 'warning',
+            'porcentaje_horas' => $pctHoras,
+        ];
     }
 
     private function obtenerUltimaActividadPractica($idPractica, $tipo)
@@ -669,7 +771,7 @@ class PracticasDocenteController extends BaseController
                 'fecha_hasta' => $fechaHasta,
                 'titulo' => $titulo,
                 'columnas' => ['Mensaje'],
-                'filas' => [['No tiene estudiantes asignados en el período.']]
+                'filas' => [['No tiene estudiantes asignados en el período.']],
             ];
         }
 
@@ -687,7 +789,7 @@ class PracticasDocenteController extends BaseController
                         $e['HORAS_CUMPLIDAS'] ?? 0,
                         $e['HORAS_TOTALES'] ?? 0,
                         ($e['PORCENTAJE_PROGRESO'] ?? 0) . '%',
-                        $e['ESTADO_PRACTICA'] ?? ''
+                        $e['ESTADO_PRACTICA'] ?? '',
                     ];
                 }
             } elseif ($tipo === 'actividades_realizadas') {
@@ -711,7 +813,7 @@ class PracticasDocenteController extends BaseController
                         'Práctica preprofesional',
                         isset($r['ACTIVIDADES_DIA']) ? (strlen($r['ACTIVIDADES_DIA']) > 80 ? substr($r['ACTIVIDADES_DIA'], 0, 77) . '...' : $r['ACTIVIDADES_DIA']) : '',
                         $r['HORA_ENTRADA'] ?? '',
-                        $r['HORA_SALIDA'] ?? ''
+                        $r['HORA_SALIDA'] ?? '',
                     ];
                 }
                 $sc = $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
@@ -732,46 +834,7 @@ class PracticasDocenteController extends BaseController
                         'Servicio comunitario',
                         isset($r['ACTIVIDADES_DIA']) ? (strlen($r['ACTIVIDADES_DIA']) > 80 ? substr($r['ACTIVIDADES_DIA'], 0, 77) . '...' : $r['ACTIVIDADES_DIA']) : '',
                         $r['HORA_ENTRADA'] ?? '',
-                        $r['HORA_SALIDA'] ?? ''
-                    ];
-                }
-            } elseif ($tipo === 'evaluaciones_periodo') {
-                $titulo = 'Evaluaciones por período';
-                $columnas = ['Fecha', 'Estudiante', 'Tipo', 'Evaluación'];
-                $evalPp = $this->db->table('TAB_EVALUACIONES_PRACTICAS_PREPROFESIONALES ep')
-                    ->select('ep.FECHA_EVALUACION, ep.TIPO_EVALUACION, ep.NOTA_FINAL, CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as ESTUDIANTE')
-                    ->join('TAB_PRACTICAS_PREPROFESIONALES pp', 'pp.ID_PRACTICA_PREPROFESIONAL = ep.ID_PRACTICA_PREPROFESIONAL')
-                    ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = pp.ID_ESTUDIANTE')
-                    ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
-                    ->where('ep.ID_EVALUADOR', session()->get('id_usuario'))
-                    ->where('DATE(ep.FECHA_EVALUACION) >=', $fechaDesde)
-                    ->where('DATE(ep.FECHA_EVALUACION) <=', $fechaHasta)
-                    ->get()
-                    ->getResultArray();
-                foreach ($evalPp as $r) {
-                    $filas[] = [
-                        $r['FECHA_EVALUACION'] ?? '',
-                        $r['ESTUDIANTE'] ?? '',
-                        'Práctica preprofesional',
-                        ($r['TIPO_EVALUACION'] ?? '') . ' - Nota: ' . ($r['NOTA_FINAL'] ?? '')
-                    ];
-                }
-                $evalSc = $this->db->table('TAB_EVALUACIONES_SERVICIO_COMUNITARIO es')
-                    ->select('es.FECHA_EVALUACION, es.TIPO_EVALUACION, es.NOTA_FINAL, CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as ESTUDIANTE')
-                    ->join('TAB_SERVICIO_COMUNITARIO sc', 'sc.ID_SERVICIO_COMUNITARIO = es.ID_SERVICIO_COMUNITARIO')
-                    ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE')
-                    ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
-                    ->where('es.ID_EVALUADOR', session()->get('id_usuario'))
-                    ->where('DATE(es.FECHA_EVALUACION) >=', $fechaDesde)
-                    ->where('DATE(es.FECHA_EVALUACION) <=', $fechaHasta)
-                    ->get()
-                    ->getResultArray();
-                foreach ($evalSc as $r) {
-                    $filas[] = [
-                        $r['FECHA_EVALUACION'] ?? '',
-                        $r['ESTUDIANTE'] ?? '',
-                        'Servicio comunitario',
-                        ($r['TIPO_EVALUACION'] ?? '') . ' - Nota: ' . ($r['NOTA_FINAL'] ?? '')
+                        $r['HORA_SALIDA'] ?? '',
                     ];
                 }
             } else {
@@ -784,7 +847,7 @@ class PracticasDocenteController extends BaseController
                         $e['CARRERA'] ?? '',
                         $e['TIPO'] ?? '',
                         ($e['PORCENTAJE_PROGRESO'] ?? 0) . '%',
-                        $e['ESTADO_PRACTICA'] ?? ''
+                        $e['ESTADO_PRACTICA'] ?? '',
                     ];
                 }
             }
@@ -800,7 +863,7 @@ class PracticasDocenteController extends BaseController
             'fecha_hasta' => $fechaHasta,
             'titulo' => $titulo,
             'columnas' => $columnas,
-            'filas' => $filas
+            'filas' => $filas,
         ];
     }
 
@@ -816,6 +879,7 @@ class PracticasDocenteController extends BaseController
         rewind($out);
         $csv = stream_get_contents($out);
         fclose($out);
+
         return $csv;
     }
 

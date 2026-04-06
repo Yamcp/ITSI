@@ -72,6 +72,8 @@
             </div>
         <?php endif; ?>
 
+        <?= $this->include('estudiante/partials/tarjeta_contacto_coordinador_whatsapp') ?>
+
         <div class="row">
             <div class="col-lg-4 mb-4">
                 <div class="card">

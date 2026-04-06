@@ -33,10 +33,36 @@ class PerfilDocenteController extends BaseController
             return redirect()->to(base_url('docente/perfil'))->with('error', 'No se pudo cargar la información del perfil');
         }
 
+        $tutorCountPre = 0;
+        $tutorCountSc = 0;
+        try {
+            $usuarioRow = $this->db->table('TAB_USUARIOS')->where('ID_USUARIO', $userId)->get()->getRowArray();
+            if ($usuarioRow) {
+                $instructor = $this->db->table('TAB_INSTRUCTORES')
+                    ->where('ID_DATO_PERSONA', $usuarioRow['ID_DATO_PERSONA'])
+                    ->get()
+                    ->getRowArray();
+                if ($instructor) {
+                    $idInstructor = (int) $instructor['ID_INSTRUCTOR'];
+                    $tutorCountPre = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES')
+                        ->where('ID_INSTRUCTOR', $idInstructor)
+                        ->countAllResults();
+                    $tutorCountSc = $this->db->table('TAB_SERVICIO_COMUNITARIO')
+                        ->where('ID_INSTRUCTOR', $idInstructor)
+                        ->countAllResults();
+                }
+            }
+        } catch (\Throwable $e) {
+            log_message('error', 'PerfilDocente - tutor prácticas: ' . $e->getMessage());
+        }
+
         $data = [
             'title' => 'Mi Perfil | ITSI',
             'usuario' => $usuario,
-            'validation' => null
+            'validation' => null,
+            'es_tutor_practicas' => ($tutorCountPre + $tutorCountSc) > 0,
+            'tutor_count_pre' => $tutorCountPre,
+            'tutor_count_sc' => $tutorCountSc,
         ];
 
         return view('docente/perfil/perfilDocente', $data);

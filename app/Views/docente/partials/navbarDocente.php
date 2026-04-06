@@ -1,6 +1,17 @@
 <?php
 
+use App\Models\NotificacionesModel;
 use Config\Database;
+
+$notifDocenteNoLeidas = 0;
+$idUsuarioNav = session()->get('id_usuario');
+if ($idUsuarioNav) {
+    try {
+        $notifDocenteNoLeidas = (int) (new NotificacionesModel())->contarNoLeidas((int) $idUsuarioNav);
+    } catch (\Throwable $e) {
+        log_message('error', 'Navbar docente - notificaciones: ' . $e->getMessage());
+    }
+}
 
 ?>
 
@@ -21,6 +32,16 @@ use Config\Database;
                         <i class="ti ti-user-circle me-1"></i>
                         Bienvenido al sistema, <?= session('nombre') ?? 'Docente' ?>
                     </span>
+                </li>
+                <li class="nav-item me-2 align-self-center">
+                    <a class="nav-link nav-icon-hover position-relative d-inline-flex p-2" href="<?= base_url('docente/practicas#panel-notificaciones-practicas') ?>" title="Avisos en prácticas" aria-label="Avisos en prácticas">
+                        <i class="ti ti-bell fs-5" style="color: #ffffff;"></i>
+                        <?php if ($notifDocenteNoLeidas > 0): ?>
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem; min-width: 1.1rem;">
+                                <?= $notifDocenteNoLeidas > 99 ? '99+' : $notifDocenteNoLeidas ?>
+                            </span>
+                        <?php endif; ?>
+                    </a>
                 </li>
                 <li class="nav-item dropdown">
                     <a class="nav-link nav-icon-hover" href="javascript:void(0)" id="drop2" data-bs-toggle="dropdown" aria-expanded="false">

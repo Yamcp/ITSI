@@ -4,6 +4,7 @@ namespace App\Controllers\estudiante;
 
 use App\Models\UsuariosModel;
 use App\Controllers\BaseController;
+use App\Services\CoordinadorVinculacionContactoService;
 
 class PerfilEstudianteController extends BaseController
 {
@@ -33,11 +34,11 @@ class PerfilEstudianteController extends BaseController
             return redirect()->to(base_url('estudiante/perfil'))->with('error', 'No se pudo cargar la información del perfil');
         }
 
-        $data = [
+        $data = array_merge([
             'title' => 'Mi Perfil | ITSI',
             'usuario' => $usuario,
-            'validation' => null
-        ];
+            'validation' => null,
+        ], CoordinadorVinculacionContactoService::datosParaVistaEstudiante($this->db));
 
         return view('estudiante/perfil/perfilEstudiante', $data);
     }
