@@ -96,6 +96,14 @@ COMMENT='Solo rango académico: mes/año inicio y mes/año fin';
 
 /*==============================================================*/
 /* Table: TAB_ACTIVIDADES_EDUCACION                             */
+/* ENLACE: reunión en línea / enlace virtual (tras LUGAR).      */
+/* Integrado desde docs/sql/alter_tab_actividades_educacion_    */
+/* enlace.sql — en importación completa de este archivo la      */
+/* columna ya existe en CREATE. Si tienes una base antigua sin  */
+/* ENLACE y no reimportas el dump, ejecuta una sola vez:        */
+/*   ALTER TABLE TAB_ACTIVIDADES_EDUCACION                      */
+/*       ADD COLUMN ENLACE VARCHAR(500) NULL DEFAULT NULL       */
+/*       AFTER LUGAR;                                           */
 /*==============================================================*/
 create table TAB_ACTIVIDADES_EDUCACION
 (
@@ -112,7 +120,7 @@ create table TAB_ACTIVIDADES_EDUCACION
    FECHA_INICIO         date not null,
    FECHA_FIN            date not null,
    LUGAR                varchar(150) not null,
-   ENLACE               varchar(500) null,
+   ENLACE               varchar(500) null comment 'Enlace virtual o reunión en línea',
    HORARIO              varchar(100) not null,
    INCLUYE_CERTIFICADO  boolean not null,
    PROGRAMA_DETALLADO   text not null,
