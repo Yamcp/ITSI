@@ -74,6 +74,13 @@
 
         <?= $this->include('estudiante/partials/tarjeta_contacto_coordinador_whatsapp') ?>
 
+        <?php if (!empty($actividades_perfil_enlaces)): ?>
+            <?= $this->include('partials/actividades_enlaces_perfil', [
+                'filas' => $actividades_perfil_enlaces,
+                'urlDetalleBase' => base_url('estudiante/actividades-educacion/detalle'),
+            ]) ?>
+        <?php endif; ?>
+
         <div class="row">
             <div class="col-lg-4 mb-4">
                 <div class="card">

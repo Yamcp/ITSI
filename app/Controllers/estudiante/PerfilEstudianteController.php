@@ -2,6 +2,7 @@
 
 namespace App\Controllers\estudiante;
 
+use App\Models\ActividadesEducacionModel;
 use App\Models\UsuariosModel;
 use App\Controllers\BaseController;
 use App\Services\CoordinadorVinculacionContactoService;
@@ -34,10 +35,28 @@ class PerfilEstudianteController extends BaseController
             return redirect()->to(base_url('estudiante/perfil'))->with('error', 'No se pudo cargar la información del perfil');
         }
 
+        $actividadesPerfilEnlaces = [];
+        try {
+            $rowEst = $this->db->table('TAB_ESTUDIANTES e')
+                ->select('e.ID_ESTUDIANTE')
+                ->join('TAB_USUARIOS u', 'u.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+                ->where('u.ID_USUARIO', $userId)
+                ->get()
+                ->getRowArray();
+            $idEst = !empty($rowEst['ID_ESTUDIANTE']) ? (int) $rowEst['ID_ESTUDIANTE'] : 0;
+            if ($idEst > 0) {
+                $actividadesModel = new ActividadesEducacionModel();
+                $actividadesPerfilEnlaces = $actividadesModel->getActividadesInscritasParaPerfilEstudiante($idEst);
+            }
+        } catch (\Throwable $e) {
+            log_message('error', 'PerfilEstudiante - actividades enlaces: ' . $e->getMessage());
+        }
+
         $data = array_merge([
             'title' => 'Mi Perfil | ITSI',
             'usuario' => $usuario,
             'validation' => null,
+            'actividades_perfil_enlaces' => $actividadesPerfilEnlaces,
         ], CoordinadorVinculacionContactoService::datosParaVistaEstudiante($this->db));
 
         return view('estudiante/perfil/perfilEstudiante', $data);

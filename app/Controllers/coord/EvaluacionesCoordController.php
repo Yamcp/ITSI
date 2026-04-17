@@ -41,7 +41,7 @@ class EvaluacionesCoordController extends BaseController
         try {
             $data = [
                 'ID_ACTIVIDAD_EDUCACION' => $this->request->getPost('curso_id'),
-                'ID_USUARIO_CREADOR' => session()->get('user_id'),
+                'ID_USUARIO_CREADOR' => session()->get('id_usuario') ?? session()->get('usuario_id'),
                 'NOMBRE_EVALUACION' => $this->request->getPost('nombre_evaluacion'),
                 'TIPO_EVALUACION' => $this->request->getPost('tipo_evaluacion'),
                 'ENLACE_FORMULARIO' => $this->request->getPost('enlace_formulario'),

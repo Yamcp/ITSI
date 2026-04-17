@@ -28,10 +28,31 @@ class InstructoresCoordController extends BaseController
         $this->empleadosModel = new EmpleadosModel();
     }
 
+    /**
+     * Regla de negocio: desde este módulo solo se gestionan instructores externos.
+     */
+    private function obtenerIdTipoInstructorExterno(): ?int
+    {
+        $tipos = $this->tipoInstructoresModel->findAll();
+        $tipoExterno = null;
+        foreach ($tipos as $tipo) {
+            if (strtolower(trim((string) ($tipo['TIPO'] ?? ''))) === 'externo') {
+                $tipoExterno = $tipo;
+                break;
+            }
+        }
+
+        if (!$tipoExterno) {
+            return null;
+        }
+
+        return (int) ($tipoExterno['ID_TIPO_INSTRUCTOR'] ?? 0);
+    }
+
     public function index()
     {
         $data = [
-            'title' => 'Gestión de Instructores',
+            'title' => 'Instructores externos',
             'instructores' => $this->instructoresModel->getInstructoresConDatos(),
             'tiposInstructores' => $this->tipoInstructoresModel->findAll()
         ];
@@ -39,27 +60,152 @@ class InstructoresCoordController extends BaseController
         return view('coord/instructores/instructores', $data);
     }
 
-    // Obtener todos los instructores (AJAX)
+    /**
+     * Vista de docentes/tutores internos (misma fuente de datos que el apartado en instructores).
+     */
+    public function docentes()
+    {
+        $instructores = $this->instructoresModel->getInstructoresConDatos();
+        $lista = $this->obtenerDocentesInternosUnificados($instructores);
+        $lista = $this->adjuntarEstadisticasActividades($lista);
+        usort($lista, static function (array $a, array $b): int {
+            $na = trim((string) ($a['APELLIDO'] ?? '') . ' ' . (string) ($a['NOMBRE'] ?? ''));
+            $nb = trim((string) ($b['APELLIDO'] ?? '') . ' ' . (string) ($b['NOMBRE'] ?? ''));
+
+            return strcasecmp($na, $nb);
+        });
+
+        return view('coord/docentes/docentes', [
+            'title' => 'Gestión de docentes',
+            'docentes' => $lista,
+        ]);
+    }
+
+    private function esTipoInstructorInterno(?string $tipo): bool
+    {
+        return strtolower(trim((string) $tipo)) === 'interno';
+    }
+
+    private function esTipoInstructorExterno(?string $tipo): bool
+    {
+        return strtolower(trim((string) $tipo)) === 'externo';
+    }
+
+    /**
+     * Solo instructores con tipo «Externo» (educación continua / externos).
+     *
+     * @param list<array<string, mixed>> $instructoresTodos
+     * @return list<array<string, mixed>>
+     */
+    private function obtenerInstructoresExternosDesdeLista(array $instructoresTodos): array
+    {
+        $out = [];
+        foreach ($instructoresTodos as $row) {
+            if ($this->esTipoInstructorExterno($row['TIPO_INSTRUCTOR'] ?? null)) {
+                $out[] = $row;
+            }
+        }
+
+        return $out;
+    }
+
+    /**
+     * Docentes internos: instructores con tipo «Interno» en TAB_INSTRUCTORES y empleados con cargo docente/tutor.
+     *
+     * @param list<array<string, mixed>> $instructoresTodos Resultado de getInstructoresConDatos()
+     * @return list<array<string, mixed>>
+     */
+    private function obtenerDocentesInternosUnificados(array $instructoresTodos): array
+    {
+        $docentesInternos = [];
+        foreach ($instructoresTodos as $instructor) {
+            if ($this->esTipoInstructorInterno($instructor['TIPO_INSTRUCTOR'] ?? null)) {
+                $docentesInternos[] = $instructor;
+            }
+        }
+
+        $docentesInstituto = $this->db->table('TAB_EMPLEADOS e')
+            ->select('
+                NULL as ID_INSTRUCTOR,
+                e.ID_DATO_PERSONA,
+                NULL as ID_TIPO_INSTRUCTOR,
+                dp.NOMBRE,
+                dp.APELLIDO,
+                dp.CEDULA,
+                dp.EMAIL,
+                dp.CELULAR,
+                dp.DIRECCION,
+                dp.GENERO,
+                dp.ESTADO_CIVIL,
+                dp.NACIONALIDAD,
+                dp.FOTO_URL,
+                e.CARGO as ESPECIALIDAD,
+                e.CARGO as TITULO_PROFESIONAL,
+                "Interno" as TIPO_INSTRUCTOR
+            ')
+            ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+            ->where('dp.ACTIVO', 1)
+            ->groupStart()
+            ->where('UPPER(e.CARGO) LIKE', '%DOCENTE%')
+            ->orWhere('UPPER(e.CARGO) LIKE', '%TUTOR%')
+            ->groupEnd()
+            ->get()
+            ->getResultArray();
+
+        $docentesInternosPorPersona = [];
+        foreach ($docentesInternos as $docenteInterno) {
+            $idDatoPersona = (int) ($docenteInterno['ID_DATO_PERSONA'] ?? 0);
+            if ($idDatoPersona > 0) {
+                $docentesInternosPorPersona[$idDatoPersona] = $docenteInterno;
+            }
+        }
+        foreach ($docentesInstituto as $docenteInstituto) {
+            $idDatoPersona = (int) ($docenteInstituto['ID_DATO_PERSONA'] ?? 0);
+            if ($idDatoPersona > 0 && !isset($docentesInternosPorPersona[$idDatoPersona])) {
+                $docentesInternosPorPersona[$idDatoPersona] = $docenteInstituto;
+            }
+        }
+
+        return array_values($docentesInternosPorPersona);
+    }
+
+    /**
+     * @param list<array<string, mixed>> $registros
+     * @return list<array<string, mixed>>
+     */
+    private function adjuntarEstadisticasActividades(array $registros): array
+    {
+        foreach ($registros as &$registro) {
+            $idInstructor = (int) ($registro['ID_INSTRUCTOR'] ?? 0);
+            if ($idInstructor > 0) {
+                $actividades = $this->actividadesModel->where('ID_INSTRUCTOR', $idInstructor)->findAll();
+            } else {
+                $actividades = [];
+            }
+            $registro['total_actividades'] = count($actividades);
+            $registro['actividades_activas'] = count(array_filter($actividades, static function ($act) {
+                return strtotime($act['FECHA_FIN']) >= time();
+            }));
+            $registro['actividades_completadas'] = count(array_filter($actividades, static function ($act) {
+                return strtotime($act['FECHA_FIN']) < time();
+            }));
+        }
+        unset($registro);
+
+        return $registros;
+    }
+
+    // Instructores externos únicamente (los internos están en coord/docentes).
     public function getInstructores()
     {
         try {
             $instructores = $this->instructoresModel->getInstructoresConDatos();
-            
-            // Agregar estadísticas para cada instructor
-            foreach ($instructores as &$instructor) {
-                $actividades = $this->actividadesModel->where('ID_INSTRUCTOR', $instructor['ID_INSTRUCTOR'])->findAll();
-                $instructor['total_actividades'] = count($actividades);
-                $instructor['actividades_activas'] = count(array_filter($actividades, function($act) {
-                    return strtotime($act['FECHA_FIN']) >= time();
-                }));
-                $instructor['actividades_completadas'] = count(array_filter($actividades, function($act) {
-                    return strtotime($act['FECHA_FIN']) < time();
-                }));
-            }
+            $registros = $this->obtenerInstructoresExternosDesdeLista($instructores);
+            $registros = $this->adjuntarEstadisticasActividades($registros);
 
             return $this->response->setJSON([
                 'success' => true,
-                'data' => $instructores
+                'data' => $registros
             ]);
         } catch (\Exception $e) {
             return $this->response->setJSON([
@@ -105,7 +251,6 @@ class InstructoresCoordController extends BaseController
             $validation = \Config\Services::validation();
             
             $validation->setRules([
-                'tipo_instructor' => 'required|integer',
                 'titulo_profesional' => 'required|min_length[3]|max_length[200]',
                 'nombre' => 'required|min_length[2]|max_length[100]',
                 'apellido' => 'required|min_length[2]|max_length[100]',
@@ -128,6 +273,14 @@ class InstructoresCoordController extends BaseController
 
             $this->db->transStart();
 
+            $idTipoExterno = $this->obtenerIdTipoInstructorExterno();
+            if (!$idTipoExterno) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'No existe el tipo de instructor Externo configurado en el sistema.'
+                ]);
+            }
+
             // Crear datos personales
             $datosPersona = [
                 'NOMBRE' => $this->request->getPost('nombre'),
@@ -147,7 +300,7 @@ class InstructoresCoordController extends BaseController
 
             // Crear instructor
             $instructor = [
-                'ID_TIPO_INSTRUCTOR' => $this->request->getPost('tipo_instructor'),
+                'ID_TIPO_INSTRUCTOR' => $idTipoExterno,
                 'ID_DATO_PERSONA' => $idDatoPersona,
                 'ESPECIALIDAD' => $this->request->getPost('especialidad'),
                 'TITULO_PROFESIONAL' => $this->request->getPost('titulo_profesional')
@@ -194,7 +347,6 @@ class InstructoresCoordController extends BaseController
             $validation = \Config\Services::validation();
             
             $validation->setRules([
-                'tipo_instructor' => 'required|integer',
                 'titulo_profesional' => 'required|min_length[3]|max_length[200]',
                 'nombre' => 'required|min_length[2]|max_length[100]',
                 'apellido' => 'required|min_length[2]|max_length[100]',
@@ -217,6 +369,14 @@ class InstructoresCoordController extends BaseController
 
             $this->db->transStart();
 
+            $idTipoExterno = $this->obtenerIdTipoInstructorExterno();
+            if (!$idTipoExterno) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'No existe el tipo de instructor Externo configurado en el sistema.'
+                ]);
+            }
+
             // Actualizar datos personales
             $datosPersona = [
                 'NOMBRE' => $this->request->getPost('nombre'),
@@ -233,7 +393,7 @@ class InstructoresCoordController extends BaseController
 
             // Actualizar instructor
             $datosInstructor = [
-                'ID_TIPO_INSTRUCTOR' => $this->request->getPost('tipo_instructor'),
+                'ID_TIPO_INSTRUCTOR' => $idTipoExterno,
                 'ESPECIALIDAD' => $this->request->getPost('especialidad'),
                 'TITULO_PROFESIONAL' => $this->request->getPost('titulo_profesional')
             ];
@@ -319,8 +479,9 @@ class InstructoresCoordController extends BaseController
     public function generarReporte()
     {
         try {
-            $instructores = $this->instructoresModel->getInstructoresConDatos();
-            
+            $todos = $this->instructoresModel->getInstructoresConDatos();
+            $instructores = $this->obtenerInstructoresExternosDesdeLista($todos);
+
             // Agregar estadísticas
             foreach ($instructores as &$instructor) {
                 $actividades = $this->actividadesModel->where('ID_INSTRUCTOR', $instructor['ID_INSTRUCTOR'])->findAll();
@@ -355,8 +516,9 @@ class InstructoresCoordController extends BaseController
                 ob_end_clean();
             }
             
-            $instructores = $this->instructoresModel->getInstructoresConDatos();
-            
+            $todos = $this->instructoresModel->getInstructoresConDatos();
+            $instructores = $this->obtenerInstructoresExternosDesdeLista($todos);
+
             // Agregar estadísticas
             foreach ($instructores as &$instructor) {
                 $actividades = $this->actividadesModel->where('ID_INSTRUCTOR', $instructor['ID_INSTRUCTOR'])->findAll();
@@ -496,8 +658,9 @@ class InstructoresCoordController extends BaseController
     public function exportarCSV()
     {
         try {
-            $instructores = $this->instructoresModel->getInstructoresConDatos();
-            
+            $todos = $this->instructoresModel->getInstructoresConDatos();
+            $instructores = $this->obtenerInstructoresExternosDesdeLista($todos);
+
             // Agregar estadísticas
             foreach ($instructores as &$instructor) {
                 $actividades = $this->actividadesModel->where('ID_INSTRUCTOR', $instructor['ID_INSTRUCTOR'])->findAll();
@@ -555,10 +718,19 @@ class InstructoresCoordController extends BaseController
     public function getEstadisticas()
     {
         try {
-            $totalInstructores = $this->instructoresModel->countAllResults();
-            $instructoresActivos = $this->instructoresModel->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = TAB_INSTRUCTORES.ID_DATO_PERSONA')
-                ->where('dp.ACTIVO', 1)
-                ->countAllResults();
+            $idTipoExterno = $this->obtenerIdTipoInstructorExterno();
+            $totalInstructores = 0;
+            $instructoresActivos = 0;
+            if ($idTipoExterno) {
+                $totalInstructores = (int) $this->db->table('TAB_INSTRUCTORES')
+                    ->where('ID_TIPO_INSTRUCTOR', $idTipoExterno)
+                    ->countAllResults();
+                $instructoresActivos = (int) $this->db->table('TAB_INSTRUCTORES i')
+                    ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = i.ID_DATO_PERSONA')
+                    ->where('i.ID_TIPO_INSTRUCTOR', $idTipoExterno)
+                    ->where('dp.ACTIVO', 1)
+                    ->countAllResults();
+            }
             
             $totalActividades = $this->actividadesModel->countAllResults();
             $actividadesActivas = $this->actividadesModel->where('FECHA_FIN >=', date('Y-m-d'))->countAllResults();

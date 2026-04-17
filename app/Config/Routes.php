@@ -82,6 +82,7 @@ $routes->group('coord', ['namespace' => 'App\Controllers\coord'], function ($rou
     
     // Rutas para la gestión de instructores
     $routes->get('instructores', 'InstructoresCoordController::index'); // Ver la lista de instructores
+    $routes->get('docentes', 'InstructoresCoordController::docentes'); // Listado de docentes/tutores internos
     $routes->get('instructores/getInstructores', 'InstructoresCoordController::getInstructores');
     $routes->get('instructores/getInstructor/(:num)', 'InstructoresCoordController::getInstructor/$1');
     $routes->post('instructores/crear', 'InstructoresCoordController::crear');

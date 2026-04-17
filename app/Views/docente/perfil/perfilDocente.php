@@ -101,6 +101,13 @@
             </div>
         <?php endif; ?>
 
+        <?php if (!empty($actividades_perfil_enlaces)): ?>
+            <?= $this->include('partials/actividades_enlaces_perfil', [
+                'filas' => $actividades_perfil_enlaces,
+                'urlDetalleBase' => base_url('docente/actividades-educacion/ver'),
+            ]) ?>
+        <?php endif; ?>
+
         <div class="row">
             <div class="col-lg-4 mb-4">
                 <div class="card">

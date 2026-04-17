@@ -67,6 +67,11 @@
                     <i class="fas fa-graduation-cap me-2"></i>
                     Gestión de Actividades Educativas
                 </h3>
+                <div class="alert alert-light border mx-auto mb-0" style="max-width: 52rem;" role="note">
+                    <i class="fas fa-info-circle text-primary me-2"></i>
+                    <strong>Enlaces de acceso:</strong> al crear o editar la actividad, registre el enlace si la modalidad es virtual o híbrida; el mismo dato aparece en el perfil del instructor y de los estudiantes inscritos.
+                    <strong>Encuesta de satisfacción:</strong> en la columna <strong>Encuesta</strong> use siempre <em>Agregar enlace</em> (nuevo o edición); si ya hay URL, también verá <em>Abrir encuesta</em> (mismo estilo verde outline).
+                </div>
             </div>
         </div>
 
@@ -218,14 +223,14 @@
                                                                         <?php endif; ?>
                                                                     </td>
                                                                     <td>
-                                                                        <?php if ($finalizadoC): ?>
-                                                                            <?php if ($encuestaC): ?>
-                                                                                <a href="<?= esc($encuestaC['ENLACE_FORMULARIO']) ?>" target="_blank" rel="noopener" class="btn btn-success btn-sm" title="Abrir encuesta"><i class="fas fa-external-link-alt"></i></a>
-                                                                            <?php else: ?>
-                                                                                <a href="<?= base_url('coord/actividades-educacion/ver/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-success btn-sm" title="Agregar encuesta de satisfacción"><i class="fas fa-plus"></i></a>
-                                                                            <?php endif; ?>
+                                                                        <?php if ($encuestaC): ?>
+                                                                            <?php $fvListC = !empty($encuestaC['FECHA_VENCIMIENTO']) ? substr((string) $encuestaC['FECHA_VENCIMIENTO'], 0, 10) : ''; ?>
+                                                                            <div class="d-flex flex-wrap gap-1 align-items-center">
+                                                                                <button type="button" class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado" title="Agregar o cambiar enlace de encuesta" data-encuesta-modo="editar" data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>" data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>" data-evaluacion-id="<?= (int) ($encuestaC['ID_EVALUACION_ENLACE'] ?? 0) ?>" data-nombre-evaluacion="<?= esc($encuestaC['NOMBRE_EVALUACION'] ?? '', 'attr') ?>" data-enlace-formulario="<?= esc($encuestaC['ENLACE_FORMULARIO'] ?? '', 'attr') ?>" data-descripcion="<?= esc($encuestaC['DESCRIPCION'] ?? '', 'attr') ?>" data-fecha-vencimiento="<?= esc($fvListC, 'attr') ?>" data-estado="<?= esc($encuestaC['ESTADO'] ?? 'activo', 'attr') ?>"><i class="fas fa-link me-1"></i>Agregar enlace</button>
+                                                                                <a href="<?= esc($encuestaC['ENLACE_FORMULARIO'], 'attr') ?>" target="_blank" rel="noopener" class="btn btn-outline-success btn-sm" title="Abrir formulario de la encuesta"><i class="fas fa-external-link-alt me-1"></i>Abrir encuesta</a>
+                                                                            </div>
                                                                         <?php else: ?>
-                                                                            <span class="text-muted small">—</span>
+                                                                            <button type="button" class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado" title="Agregar enlace de encuesta de satisfacción" data-encuesta-modo="nuevo" data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>" data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>"><i class="fas fa-link me-1"></i>Agregar enlace</button>
                                                                         <?php endif; ?>
                                                                     </td>
                                                                     <td>
@@ -314,14 +319,14 @@
                                                                         <?php endif; ?>
                                                                     </td>
                                                                     <td>
-                                                                        <?php if ($finalizadoT): ?>
-                                                                            <?php if ($encuestaT): ?>
-                                                                                <a href="<?= esc($encuestaT['ENLACE_FORMULARIO']) ?>" target="_blank" rel="noopener" class="btn btn-success btn-sm" title="Abrir encuesta"><i class="fas fa-external-link-alt"></i></a>
-                                                                            <?php else: ?>
-                                                                                <a href="<?= base_url('coord/actividades-educacion/ver/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-success btn-sm" title="Agregar encuesta de satisfacción"><i class="fas fa-plus"></i></a>
-                                                                            <?php endif; ?>
+                                                                        <?php if ($encuestaT): ?>
+                                                                            <?php $fvListT = !empty($encuestaT['FECHA_VENCIMIENTO']) ? substr((string) $encuestaT['FECHA_VENCIMIENTO'], 0, 10) : ''; ?>
+                                                                            <div class="d-flex flex-wrap gap-1 align-items-center">
+                                                                                <button type="button" class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado" title="Agregar o cambiar enlace de encuesta" data-encuesta-modo="editar" data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>" data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>" data-evaluacion-id="<?= (int) ($encuestaT['ID_EVALUACION_ENLACE'] ?? 0) ?>" data-nombre-evaluacion="<?= esc($encuestaT['NOMBRE_EVALUACION'] ?? '', 'attr') ?>" data-enlace-formulario="<?= esc($encuestaT['ENLACE_FORMULARIO'] ?? '', 'attr') ?>" data-descripcion="<?= esc($encuestaT['DESCRIPCION'] ?? '', 'attr') ?>" data-fecha-vencimiento="<?= esc($fvListT, 'attr') ?>" data-estado="<?= esc($encuestaT['ESTADO'] ?? 'activo', 'attr') ?>"><i class="fas fa-link me-1"></i>Agregar enlace</button>
+                                                                                <a href="<?= esc($encuestaT['ENLACE_FORMULARIO'], 'attr') ?>" target="_blank" rel="noopener" class="btn btn-outline-success btn-sm" title="Abrir formulario de la encuesta"><i class="fas fa-external-link-alt me-1"></i>Abrir encuesta</a>
+                                                                            </div>
                                                                         <?php else: ?>
-                                                                            <span class="text-muted small">—</span>
+                                                                            <button type="button" class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado" title="Agregar enlace de encuesta de satisfacción" data-encuesta-modo="nuevo" data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>" data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>"><i class="fas fa-link me-1"></i>Agregar enlace</button>
                                                                         <?php endif; ?>
                                                                     </td>
                                                                     <td>
@@ -410,14 +415,14 @@
                                                                         <?php endif; ?>
                                                                     </td>
                                                                     <td>
-                                                                        <?php if ($finalizadoCo): ?>
-                                                                            <?php if ($encuestaCo): ?>
-                                                                                <a href="<?= esc($encuestaCo['ENLACE_FORMULARIO']) ?>" target="_blank" rel="noopener" class="btn btn-success btn-sm" title="Abrir encuesta"><i class="fas fa-external-link-alt"></i></a>
-                                                                            <?php else: ?>
-                                                                                <a href="<?= base_url('coord/actividades-educacion/ver/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-success btn-sm" title="Agregar encuesta de satisfacción"><i class="fas fa-plus"></i></a>
-                                                                            <?php endif; ?>
+                                                                        <?php if ($encuestaCo): ?>
+                                                                            <?php $fvListCo = !empty($encuestaCo['FECHA_VENCIMIENTO']) ? substr((string) $encuestaCo['FECHA_VENCIMIENTO'], 0, 10) : ''; ?>
+                                                                            <div class="d-flex flex-wrap gap-1 align-items-center">
+                                                                                <button type="button" class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado" title="Agregar o cambiar enlace de encuesta" data-encuesta-modo="editar" data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>" data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>" data-evaluacion-id="<?= (int) ($encuestaCo['ID_EVALUACION_ENLACE'] ?? 0) ?>" data-nombre-evaluacion="<?= esc($encuestaCo['NOMBRE_EVALUACION'] ?? '', 'attr') ?>" data-enlace-formulario="<?= esc($encuestaCo['ENLACE_FORMULARIO'] ?? '', 'attr') ?>" data-descripcion="<?= esc($encuestaCo['DESCRIPCION'] ?? '', 'attr') ?>" data-fecha-vencimiento="<?= esc($fvListCo, 'attr') ?>" data-estado="<?= esc($encuestaCo['ESTADO'] ?? 'activo', 'attr') ?>"><i class="fas fa-link me-1"></i>Agregar enlace</button>
+                                                                                <a href="<?= esc($encuestaCo['ENLACE_FORMULARIO'], 'attr') ?>" target="_blank" rel="noopener" class="btn btn-outline-success btn-sm" title="Abrir formulario de la encuesta"><i class="fas fa-external-link-alt me-1"></i>Abrir encuesta</a>
+                                                                            </div>
                                                                         <?php else: ?>
-                                                                            <span class="text-muted small">—</span>
+                                                                            <button type="button" class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado" title="Agregar enlace de encuesta de satisfacción" data-encuesta-modo="nuevo" data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>" data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>"><i class="fas fa-link me-1"></i>Agregar enlace</button>
                                                                         <?php endif; ?>
                                                                     </td>
                                                                     <td>
@@ -506,14 +511,14 @@
                                                                         <?php endif; ?>
                                                                     </td>
                                                                     <td>
-                                                                        <?php if ($finalizadoCa): ?>
-                                                                            <?php if ($encuestaCa): ?>
-                                                                                <a href="<?= esc($encuestaCa['ENLACE_FORMULARIO']) ?>" target="_blank" rel="noopener" class="btn btn-success btn-sm" title="Abrir encuesta"><i class="fas fa-external-link-alt"></i></a>
-                                                                            <?php else: ?>
-                                                                                <a href="<?= base_url('coord/actividades-educacion/ver/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-success btn-sm" title="Agregar encuesta de satisfacción"><i class="fas fa-plus"></i></a>
-                                                                            <?php endif; ?>
+                                                                        <?php if ($encuestaCa): ?>
+                                                                            <?php $fvListCa = !empty($encuestaCa['FECHA_VENCIMIENTO']) ? substr((string) $encuestaCa['FECHA_VENCIMIENTO'], 0, 10) : ''; ?>
+                                                                            <div class="d-flex flex-wrap gap-1 align-items-center">
+                                                                                <button type="button" class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado" title="Agregar o cambiar enlace de encuesta" data-encuesta-modo="editar" data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>" data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>" data-evaluacion-id="<?= (int) ($encuestaCa['ID_EVALUACION_ENLACE'] ?? 0) ?>" data-nombre-evaluacion="<?= esc($encuestaCa['NOMBRE_EVALUACION'] ?? '', 'attr') ?>" data-enlace-formulario="<?= esc($encuestaCa['ENLACE_FORMULARIO'] ?? '', 'attr') ?>" data-descripcion="<?= esc($encuestaCa['DESCRIPCION'] ?? '', 'attr') ?>" data-fecha-vencimiento="<?= esc($fvListCa, 'attr') ?>" data-estado="<?= esc($encuestaCa['ESTADO'] ?? 'activo', 'attr') ?>"><i class="fas fa-link me-1"></i>Agregar enlace</button>
+                                                                                <a href="<?= esc($encuestaCa['ENLACE_FORMULARIO'], 'attr') ?>" target="_blank" rel="noopener" class="btn btn-outline-success btn-sm" title="Abrir formulario de la encuesta"><i class="fas fa-external-link-alt me-1"></i>Abrir encuesta</a>
+                                                                            </div>
                                                                         <?php else: ?>
-                                                                            <span class="text-muted small">—</span>
+                                                                            <button type="button" class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado" title="Agregar enlace de encuesta de satisfacción" data-encuesta-modo="nuevo" data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>" data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>"><i class="fas fa-link me-1"></i>Agregar enlace</button>
                                                                         <?php endif; ?>
                                                                     </td>
                                                                     <td>
@@ -744,6 +749,63 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 <button type="submit" class="btn btn-primary" form="formNuevaActividad">
                     <i class="fas fa-save me-1"></i>Guardar Actividad
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: agregar enlace de encuesta (desde columna Encuesta del listado) -->
+<div class="modal fade" id="modalEncuestaListadoCoord" tabindex="-1" aria-labelledby="modalEncuestaListadoCoordLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title" id="modalEncuestaListadoCoordLabel"><i class="fas fa-clipboard-check me-2"></i><span id="modalEncuestaListadoCoordTituloTexto">Encuesta de satisfacción — agregar enlace</span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formEncuestaListadoCoord">
+                    <?= csrf_field() ?>
+                    <input type="hidden" id="encuestaListado_evaluacion_id" value="">
+                    <input type="hidden" name="curso_id" id="encuestaListado_curso_id" value="">
+                    <input type="hidden" name="tipo_evaluacion" value="satisfaccion">
+                    <div class="mb-3">
+                        <label class="form-label">Actividad</label>
+                        <input type="text" class="form-control" id="encuestaListado_curso_nombre" value="" readonly>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Nombre de la evaluación <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" name="nombre_evaluacion" id="encuestaListado_nombre_evaluacion" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Enlace del formulario <span class="text-danger">*</span></label>
+                        <input type="url" class="form-control" name="enlace_formulario" id="encuestaListado_enlace_formulario" placeholder="https://forms.google.com/..." required autocomplete="off">
+                        <small class="text-muted">Pegue aquí la URL de Google Forms, Microsoft Forms, etc.</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Descripción</label>
+                        <textarea class="form-control" name="descripcion" id="encuestaListado_descripcion" rows="2" placeholder="Opcional"></textarea>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Fecha de vencimiento <span class="text-danger">*</span></label>
+                            <input type="date" class="form-control" name="fecha_vencimiento" id="encuestaListado_fecha_vencimiento" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Estado</label>
+                            <select class="form-select" name="estado" id="encuestaListado_estado">
+                                <option value="activo">Activo</option>
+                                <option value="inactivo">Inactivo</option>
+                                <option value="borrador">Borrador</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-success" id="btnGuardarEncuestaListadoCoord">
+                    <i class="fas fa-save me-1"></i><span id="btnGuardarEncuestaListadoCoordTexto">Guardar enlace</span>
                 </button>
             </div>
         </div>
@@ -1612,6 +1674,107 @@
                 this.classList.remove('is-invalid');
             });
         });
+
+        // Encuesta: modal desde la columna (nuevo = agregar, editar = actualizar)
+        document.querySelectorAll('.js-abrir-modal-encuesta-listado').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                const modo = this.getAttribute('data-encuesta-modo') || 'nuevo';
+                const idAct = this.getAttribute('data-actividad-id') || '';
+                const nombre = this.getAttribute('data-actividad-nombre') || '';
+                const idEvField = document.getElementById('encuestaListado_evaluacion_id');
+                const fv = document.getElementById('encuestaListado_fecha_vencimiento');
+                const hoy = new Date().toISOString().slice(0, 10);
+                const fin = new Date();
+                fin.setMonth(fin.getMonth() + 6);
+                const fechaDef = fin.toISOString().slice(0, 10);
+
+                document.getElementById('encuestaListado_curso_id').value = idAct;
+                document.getElementById('encuestaListado_curso_nombre').value = nombre;
+
+                const tituloModalTxt = document.getElementById('modalEncuestaListadoCoordTituloTexto');
+                const btnTxt = document.getElementById('btnGuardarEncuestaListadoCoordTexto');
+
+                if (modo === 'editar') {
+                    idEvField.value = this.getAttribute('data-evaluacion-id') || '';
+                    document.getElementById('encuestaListado_nombre_evaluacion').value = this.getAttribute('data-nombre-evaluacion') || '';
+                    document.getElementById('encuestaListado_enlace_formulario').value = this.getAttribute('data-enlace-formulario') || '';
+                    document.getElementById('encuestaListado_descripcion').value = this.getAttribute('data-descripcion') || '';
+                    fv.min = hoy;
+                    fv.value = this.getAttribute('data-fecha-vencimiento') || fechaDef;
+                    document.getElementById('encuestaListado_estado').value = this.getAttribute('data-estado') || 'activo';
+                    if (tituloModalTxt) {
+                        tituloModalTxt.textContent = 'Encuesta de satisfacción — agregar o cambiar enlace';
+                    }
+                    if (btnTxt) {
+                        btnTxt.textContent = 'Guardar cambios';
+                    }
+                } else {
+                    idEvField.value = '';
+                    document.getElementById('encuestaListado_nombre_evaluacion').value = 'Encuesta de satisfacción - ' + nombre;
+                    document.getElementById('encuestaListado_enlace_formulario').value = '';
+                    document.getElementById('encuestaListado_descripcion').value = '';
+                    document.getElementById('encuestaListado_estado').value = 'activo';
+                    fv.min = hoy;
+                    fv.value = fechaDef;
+                    if (tituloModalTxt) {
+                        tituloModalTxt.textContent = 'Encuesta de satisfacción — agregar enlace';
+                    }
+                    if (btnTxt) {
+                        btnTxt.textContent = 'Guardar enlace';
+                    }
+                }
+                new bootstrap.Modal(document.getElementById('modalEncuestaListadoCoord')).show();
+            });
+        });
+
+        const btnGuardarEncLista = document.getElementById('btnGuardarEncuestaListadoCoord');
+        if (btnGuardarEncLista) {
+            btnGuardarEncLista.addEventListener('click', function() {
+                const form = document.getElementById('formEncuestaListadoCoord');
+                if (!form || !form.checkValidity()) {
+                    if (form) {
+                        form.reportValidity();
+                    }
+                    return;
+                }
+                const btn = this;
+                const orig = btn.innerHTML;
+                const idEv = (document.getElementById('encuestaListado_evaluacion_id') || {}).value || '';
+                const url = idEv
+                    ? '<?= base_url('coord/evaluaciones/actualizar') ?>/' + encodeURIComponent(idEv)
+                    : '<?= base_url('coord/evaluaciones/agregar') ?>';
+
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Guardando...';
+                const fd = new FormData(form);
+                fetch(url, {
+                    method: 'POST',
+                    body: fd,
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                }).then(function(r) {
+                    return r.json();
+                }).then(function(data) {
+                    if (data.success) {
+                        const inst = bootstrap.Modal.getInstance(document.getElementById('modalEncuestaListadoCoord'));
+                        if (inst) {
+                            inst.hide();
+                        }
+                        showNotification(data.message || 'Enlace guardado. Actualizando listado...', 'success');
+                        setTimeout(function() {
+                            window.location.reload();
+                        }, 900);
+                    } else {
+                        showNotification(data.message || 'No se pudo guardar el enlace', 'error');
+                        btn.disabled = false;
+                        btn.innerHTML = orig;
+                    }
+                }).catch(function() {
+                    showNotification('Error de conexión al guardar', 'error');
+                    btn.disabled = false;
+                    btn.innerHTML = orig;
+                });
+            });
+        }
     });
 </script>
 

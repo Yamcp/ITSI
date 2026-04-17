@@ -21,7 +21,7 @@ class InstructoresModel extends Model
     public function getInstructoresConDatos()
     {
         $builder = $this->db->table('TAB_INSTRUCTORES i')
-            ->select('i.*, dp.NOMBRE, dp.APELLIDO, dp.CEDULA, dp.EMAIL, dp.CELULAR, dp.DIRECCION, dp.GENERO, dp.ESTADO_CIVIL, dp.NACIONALIDAD, ti.TIPO as TIPO_INSTRUCTOR')
+            ->select('i.*, dp.NOMBRE, dp.APELLIDO, dp.CEDULA, dp.EMAIL, dp.CELULAR, dp.DIRECCION, dp.GENERO, dp.ESTADO_CIVIL, dp.NACIONALIDAD, dp.FOTO_URL, ti.TIPO as TIPO_INSTRUCTOR')
             ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = i.ID_DATO_PERSONA')
             ->join('TAB_TIPOS_INSTRUCTORES ti', 'ti.ID_TIPO_INSTRUCTOR = i.ID_TIPO_INSTRUCTOR')
             ->where('dp.ACTIVO', 1)
@@ -34,7 +34,7 @@ class InstructoresModel extends Model
     public function getInstructorCompleto($id)
     {
         $builder = $this->db->table('TAB_INSTRUCTORES i')
-            ->select('i.*, dp.NOMBRE, dp.APELLIDO, dp.CEDULA, dp.EMAIL, dp.CELULAR, dp.DIRECCION, dp.GENERO, dp.ESTADO_CIVIL, dp.NACIONALIDAD, ti.TIPO as TIPO_INSTRUCTOR')
+            ->select('i.*, dp.NOMBRE, dp.APELLIDO, dp.CEDULA, dp.EMAIL, dp.CELULAR, dp.DIRECCION, dp.GENERO, dp.ESTADO_CIVIL, dp.NACIONALIDAD, dp.FOTO_URL, ti.TIPO as TIPO_INSTRUCTOR')
             ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = i.ID_DATO_PERSONA')
             ->join('TAB_TIPOS_INSTRUCTORES ti', 'ti.ID_TIPO_INSTRUCTOR = i.ID_TIPO_INSTRUCTOR')
             ->where('i.ID_INSTRUCTOR', $id);

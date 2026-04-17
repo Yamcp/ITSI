@@ -2,6 +2,7 @@
 
 namespace App\Controllers\docente;
 
+use App\Models\ActividadesEducacionModel;
 use App\Models\UsuariosModel;
 use App\Controllers\BaseController;
 
@@ -35,6 +36,7 @@ class PerfilDocenteController extends BaseController
 
         $tutorCountPre = 0;
         $tutorCountSc = 0;
+        $actividadesPerfilEnlaces = [];
         try {
             $usuarioRow = $this->db->table('TAB_USUARIOS')->where('ID_USUARIO', $userId)->get()->getRowArray();
             if ($usuarioRow) {
@@ -50,10 +52,12 @@ class PerfilDocenteController extends BaseController
                     $tutorCountSc = $this->db->table('TAB_SERVICIO_COMUNITARIO')
                         ->where('ID_INSTRUCTOR', $idInstructor)
                         ->countAllResults();
+                    $actividadesModel = new ActividadesEducacionModel();
+                    $actividadesPerfilEnlaces = $actividadesModel->getActividadesInstructorParaPerfil($idInstructor);
                 }
             }
         } catch (\Throwable $e) {
-            log_message('error', 'PerfilDocente - tutor prácticas: ' . $e->getMessage());
+            log_message('error', 'PerfilDocente - tutor prácticas / actividades: ' . $e->getMessage());
         }
 
         $data = [
@@ -63,6 +67,7 @@ class PerfilDocenteController extends BaseController
             'es_tutor_practicas' => ($tutorCountPre + $tutorCountSc) > 0,
             'tutor_count_pre' => $tutorCountPre,
             'tutor_count_sc' => $tutorCountSc,
+            'actividades_perfil_enlaces' => $actividadesPerfilEnlaces,
         ];
 
         return view('docente/perfil/perfilDocente', $data);

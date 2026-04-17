@@ -26,7 +26,7 @@
                 </li>
                 <li class="nav-small-cap">
                     <i class="fa-solid fa-users nav-small-cap-icon fs-6"></i>
-                    <span class="hide-menu">ESTUDIANTES</span>
+                    <span class="hide-menu">PERSONAL</span>
                 </li>
                 <li class="sidebar-item">
                     <a class="sidebar-link" href="<?= base_url('coord/estudiantes') ?>" aria-expanded="false">
@@ -34,6 +34,14 @@
                             <i class="fa-solid fa-users fs-6"></i>
                         </span>
                         <span class="hide-menu">Estudiantes</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link" href="<?= base_url('coord/docentes') ?>" aria-expanded="false">
+                        <span>
+                            <i class="fa-solid fa-user-tie fs-6"></i>
+                        </span>
+                        <span class="hide-menu">Docentes</span>
                     </a>
                 </li>
                 <li class="nav-small-cap">

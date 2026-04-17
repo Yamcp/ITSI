@@ -182,4 +182,51 @@ class ActividadesEducacionModel extends Model
             
         return $builder->get()->getResultArray();
     }
+
+    /**
+     * Actividades en las que el estudiante está inscrito (para perfil: enlace registrado por coordinador).
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function getActividadesInscritasParaPerfilEstudiante(int $idEstudiante): array
+    {
+        if ($idEstudiante < 1) {
+            return [];
+        }
+        $builder = $this->db->table('TAB_INSCRIPCIONES_ACTIVIDADES ia')
+            ->select('ae.ID_ACTIVIDAD_EDUCACION, ae.NOMBRE_ACTIVIDAD, ae.FECHA_INICIO, ae.FECHA_FIN, ae.HORARIO, tm.MODALIDAD, ta.ACTIVIDAD as TIPO_ACTIVIDAD')
+            ->join('TAB_ACTIVIDADES_EDUCACION ae', 'ae.ID_ACTIVIDAD_EDUCACION = ia.ID_ACTIVIDAD_EDUCACION')
+            ->join('TAB_TIPOS_MODALIDADES tm', 'tm.ID_TIPO_MODALIDAD = ae.ID_TIPO_MODALIDAD', 'left')
+            ->join('TAB_TIPOS_ACTIVIDADES ta', 'ta.ID_TIPO_ACTIVIDAD = ae.ID_TIPO_ACTIVIDAD', 'left')
+            ->where('ia.ID_ESTUDIANTE', $idEstudiante)
+            ->orderBy('ae.FECHA_INICIO', 'DESC');
+        if ($this->tablaTieneColumnaEnlace()) {
+            $builder->select('ae.ENLACE', false);
+        }
+
+        return $builder->get()->getResultArray();
+    }
+
+    /**
+     * Actividades donde el usuario es instructor (para perfil docente: enlace del coordinador).
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function getActividadesInstructorParaPerfil(int $idInstructor): array
+    {
+        if ($idInstructor < 1) {
+            return [];
+        }
+        $builder = $this->db->table('TAB_ACTIVIDADES_EDUCACION ae')
+            ->select('ae.ID_ACTIVIDAD_EDUCACION, ae.NOMBRE_ACTIVIDAD, ae.FECHA_INICIO, ae.FECHA_FIN, ae.HORARIO, tm.MODALIDAD, ta.ACTIVIDAD as TIPO_ACTIVIDAD')
+            ->join('TAB_TIPOS_MODALIDADES tm', 'tm.ID_TIPO_MODALIDAD = ae.ID_TIPO_MODALIDAD', 'left')
+            ->join('TAB_TIPOS_ACTIVIDADES ta', 'ta.ID_TIPO_ACTIVIDAD = ae.ID_TIPO_ACTIVIDAD', 'left')
+            ->where('ae.ID_INSTRUCTOR', $idInstructor)
+            ->orderBy('ae.FECHA_INICIO', 'DESC');
+        if ($this->tablaTieneColumnaEnlace()) {
+            $builder->select('ae.ENLACE', false);
+        }
+
+        return $builder->get()->getResultArray();
+    }
 }

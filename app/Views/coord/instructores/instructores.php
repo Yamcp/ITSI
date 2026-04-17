@@ -12,7 +12,7 @@
             <div class="col-12">
                 <h3 class="text-center my-3">
                     <i class="fas fa-chalkboard-teacher me-2"></i>
-                    Gestión de Instructores
+                    Instructores externos
                 </h3>
             </div>
         </div>
@@ -23,7 +23,7 @@
                 <div class="card text-center shadow-sm h-100" style="background: linear-gradient(135deg, #007bff 80%, #0056b3 100%); color: #fff; border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center py-3">
                         <h2 class="card-title mb-2" id="totalInstructores" style="font-size:2.5rem;">12</h2>
-                        <p class="card-text fw-bold mb-0" style="color: #e0e0e0;">Total Instructores</p>
+                        <p class="card-text fw-bold mb-0" style="color: #e0e0e0;">Instructores externos</p>
                     </div>
                 </div>
             </div>
@@ -59,39 +59,17 @@
             </div>
         </div>
 
-        <!-- Tabs Navigation -->
+        <!-- Apartados de instructores -->
         <div class="row">
             <div class="col-12">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body pb-0">
-                        <ul class="nav nav-tabs nav-justified rounded-pill bg-light px-2 py-1" id="instructoresTabs" role="tablist" style="gap: 0.5rem;">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active rounded-pill fw-semibold text-primary" id="todos-tab" data-bs-toggle="tab" data-bs-target="#todos" type="button" role="tab" aria-selected="true">
-                                    <i class="fas fa-users me-2" style="color: #007bff;"></i>Todos
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-pill fw-semibold text-success" id="internos-tab" data-bs-toggle="tab" data-bs-target="#internos" type="button" role="tab" aria-selected="false">
-                                    <i class="fas fa-building me-2" style="color: #28a745;"></i>Internos
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-pill fw-semibold text-info" id="externos-tab" data-bs-toggle="tab" data-bs-target="#externos" type="button" role="tab" aria-selected="false">
-                                    <i class="fas fa-user-tie me-2" style="color: #17a2b8;"></i>Externos
-                                </button>
-                            </li>
-                        </ul>
-                        <div class="d-flex justify-content-end mt-2">
-                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="showModal('modalFiltros')">
-                                <i class="fas fa-filter me-1"></i>Filtros
-                            </button>
-                        </div>
-                        <hr class="mt-0 mb-2" style="border-top: 2px solid #e3e6f0;">
-
-                        <!-- Contenido de las pestañas -->
-                        <div class="tab-content mt-3" id="instructoresTabContent">
-                            <!-- Todos los Instructores -->
-                            <div class="tab-pane fade show active" id="todos" role="tabpanel">
+                        <div class="mt-3" id="instructoresApartados">
+                            <!-- Instructores externos -->
+                            <div class="mb-4" id="apartado-instructores">
+                                <h5 class="mb-3 text-info fw-semibold">
+                                    <i class="fas fa-user-tie me-2"></i>Listado
+                                </h5>
                                 <div class="card shadow-sm border-0">
                                     <div class="card-body p-0">
                                         <div class="table-responsive">
@@ -107,194 +85,7 @@
                                                         <th>Acciones</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody id="tablaTodos">
-                                                    <tr>
-                                                        <td>001</td>
-                                                        <td>
-                                                            <div class="d-flex align-items-center">
-                                                                <img src="https://ui-avatars.com/api/?name=Carlos+Mendoza&background=0d6efd&color=fff&size=32" class="rounded-circle me-2" alt="CM">
-                                                                <div>
-                                                                    <div class="fw-semibold">Ing. Carlos Mendoza</div>
-                                                                    <small class="text-muted">carlos.mendoza@itsi.edu.ec</small>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td><span class="badge bg-success">Interno</span></td>
-                                                        <td>
-                                                            <div>Desarrollo de Software</div>
-                                                            <small class="text-muted">Ingeniería en Sistemas</small>
-                                                        </td>
-                                                        <td>
-                                                            <span class="badge bg-info">3 Activas</span>
-                                                            <small class="text-muted d-block">8 Completadas</small>
-                                                        </td>
-                                                        <td><span class="badge bg-success">Activo</span></td>
-                                                        <td>
-                                                            <div class="btn-group btn-group-sm">
-                                                                <button class="btn btn-outline-primary" onclick="verDetalle(1)" title="Ver Detalle">
-                                                                    <i class="fas fa-eye"></i>
-                                                                </button>
-                                                                <button class="btn btn-outline-warning" onclick="editarInstructor(1)" title="Editar">
-                                                                    <i class="fas fa-edit"></i>
-                                                                </button>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>002</td>
-                                                        <td>
-                                                            <div class="d-flex align-items-center">
-                                                                <img src="https://ui-avatars.com/api/?name=Ana+Ruiz&background=198754&color=fff&size=32" class="rounded-circle me-2" alt="AR">
-                                                                <div>
-                                                                    <div class="fw-semibold">Tec. Ana Ruiz</div>
-                                                                    <small class="text-muted">ana.ruiz@itsi.edu.ec</small>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td><span class="badge bg-info">Externo</span></td>
-                                                        <td>
-                                                            <div>Hardware y Redes</div>
-                                                            <small class="text-muted">Técnico en Electrónica</small>
-                                                        </td>
-                                                        <td>
-                                                            <span class="badge bg-warning text-dark">2 Activas</span>
-                                                            <small class="text-muted d-block">5 Completadas</small>
-                                                        </td>
-                                                        <td><span class="badge bg-success">Activo</span></td>
-                                                        <td>
-                                                            <div class="btn-group btn-group-sm">
-                                                                <button class="btn btn-outline-primary" onclick="verDetalle(2)" title="Ver Detalle">
-                                                                    <i class="fas fa-eye"></i>
-                                                                </button>
-                                                                <button class="btn btn-outline-warning" onclick="editarInstructor(2)" title="Editar">
-                                                                    <i class="fas fa-edit"></i>
-                                                                </button>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Instructores Internos -->
-                            <div class="tab-pane fade" id="internos" role="tabpanel">
-                                <div class="card shadow-sm border-0">
-                                    <div class="card-body p-0">
-                                        <div class="table-responsive">
-                                            <table class="table table-striped align-middle mb-0">
-                                                <thead class="table-light">
-                                                    <tr>
-                                                        <th>#</th>
-                                                        <th>Instructor</th>
-                                                        <th>Departamento</th>
-                                                        <th>Especialidad</th>
-                                                        <th>Actividades</th>
-                                                        <th>Estado</th>
-                                                        <th>Acciones</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="tablaInternos">
-                                                    <tr>
-                                                        <td>001</td>
-                                                        <td>
-                                                            <div class="d-flex align-items-center">
-                                                                <img src="https://ui-avatars.com/api/?name=Carlos+Mendoza&background=0d6efd&color=fff&size=32" class="rounded-circle me-2" alt="CM">
-                                                                <div>
-                                                                    <div class="fw-semibold">Ing. Carlos Mendoza</div>
-                                                                    <small class="text-muted">carlos.mendoza@itsi.edu.ec</small>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <div>Desarrollo de Software</div>
-                                                            <small class="text-muted">Tecnologías de la Información</small>
-                                                        </td>
-                                                        <td>
-                                                            <div>Desarrollo Web Full Stack</div>
-                                                            <small class="text-muted">JavaScript, React, Node.js</small>
-                                                        </td>
-                                                        <td>
-                                                            <span class="badge bg-info">3 Activas</span>
-                                                            <small class="text-muted d-block">8 Completadas</small>
-                                                        </td>
-                                                        <td><span class="badge bg-success">Activo</span></td>
-                                                        <td>
-                                                            <div class="btn-group btn-group-sm">
-                                                                <button class="btn btn-outline-primary" onclick="verDetalle(1)" title="Ver Detalle">
-                                                                    <i class="fas fa-eye"></i>
-                                                                </button>
-                                                                <button class="btn btn-outline-warning" onclick="editarInstructor(1)" title="Editar">
-                                                                    <i class="fas fa-edit"></i>
-                                                                </button>
-                                                                <button class="btn btn-outline-success" onclick="asignarActividad(1)" title="Asignar">
-                                                                    <i class="fas fa-plus"></i>
-                                                                </button>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Instructores Externos -->
-                            <div class="tab-pane fade" id="externos" role="tabpanel">
-                                <div class="card shadow-sm border-0">
-                                    <div class="card-body p-0">
-                                        <div class="table-responsive">
-                                            <table class="table table-striped align-middle mb-0">
-                                                <thead class="table-light">
-                                                    <tr>
-                                                        <th>#</th>
-                                                        <th>Instructor</th>
-                                                        <th>Empresa/Institución</th>
-                                                        <th>Especialidad</th>
-                                                        <th>Actividades</th>
-                                                        <th>Estado</th>
-                                                        <th>Acciones</th>
-                                                    </tr>
-                                                </thead>
                                                 <tbody id="tablaExternos">
-                                                    <tr>
-                                                        <td>002</td>
-                                                        <td>
-                                                            <div class="d-flex align-items-center">
-                                                                <img src="https://ui-avatars.com/api/?name=Ana+Ruiz&background=198754&color=fff&size=32" class="rounded-circle me-2" alt="AR">
-                                                                <div>
-                                                                    <div class="fw-semibold">Tec. Ana Ruiz</div>
-                                                                    <small class="text-muted">ana.ruiz@empresa.com</small>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <div>TechCorp Solutions</div>
-                                                            <small class="text-muted">Empresa Privada</small>
-                                                        </td>
-                                                        <td>
-                                                            <div>Hardware y Redes</div>
-                                                            <small class="text-muted">Cisco, Microsoft, Linux</small>
-                                                        </td>
-                                                        <td>
-                                                            <span class="badge bg-warning text-dark">2 Activas</span>
-                                                            <small class="text-muted d-block">5 Completadas</small>
-                                                        </td>
-                                                        <td><span class="badge bg-success">Activo</span></td>
-                                                        <td>
-                                                            <div class="btn-group btn-group-sm">
-                                                                <button class="btn btn-outline-primary" onclick="verDetalle(2)" title="Ver Detalle">
-                                                                    <i class="fas fa-eye"></i>
-                                                                </button>
-                                                                <button class="btn btn-outline-warning" onclick="editarInstructor(2)" title="Editar">
-                                                                    <i class="fas fa-edit"></i>
-                                                                </button>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
                                                 </tbody>
                                             </table>
                                         </div>
@@ -320,18 +111,10 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                <p class="text-muted small mb-3">Los filtros se aplican a las tablas Todos, Internos y Externos en esta página.</p>
+                <p class="text-muted small mb-3">Los filtros se aplican al listado de instructores externos.</p>
                 <div class="mb-3">
                     <label class="form-label" for="filtroBusquedaInstructor">Buscar</label>
                     <input type="search" class="form-control" id="filtroBusquedaInstructor" placeholder="Nombre, correo o texto en la fila" autocomplete="off">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label" for="filtroTipoInstructor">Tipo</label>
-                    <select class="form-select" id="filtroTipoInstructor">
-                        <option value="">Todos</option>
-                        <option value="interno">Interno</option>
-                        <option value="externo">Externo</option>
-                    </select>
                 </div>
                 <div class="mb-0">
                     <label class="form-label" for="filtroEstadoInstructor">Estado</label>
@@ -356,7 +139,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">
-                    <i class="fas fa-user-plus me-2" id="iconoModalInstructor"></i><span id="textoTituloModalInstructor">Nuevo Instructor</span>
+                    <i class="fas fa-user-plus me-2" id="iconoModalInstructor"></i><span id="textoTituloModalInstructor">Nuevo Instructor Externo</span>
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
@@ -368,19 +151,6 @@
                 <form id="formNuevoInstructor">
                     <input type="hidden" id="id_instructor_edicion" value="">
                     <div class="row">
-                        <div class="col-md-6">
-                            <div class="mb-3">
-                                <label class="form-label">Tipo de Instructor<span class="text-danger">*</span></label>
-                                <select class="form-select" name="tipo_instructor" required>
-                                    <option value="">Seleccionar...</option>
-                                    <option value="1">Interno</option>
-                                    <option value="2">Externo</option>
-                                </select>
-                                <div class="invalid-feedback">
-                                    Por favor selecciona un tipo de instructor.
-                                </div>
-                            </div>
-                        </div>
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Título Profesional<span class="text-danger">*</span></label>
@@ -700,48 +470,47 @@
         }
     }
 
-    // Actualizar tabla de instructores
+    // Actualizar tabla (solo instructores externos; el API ya no devuelve internos)
     function actualizarTablaInstructores() {
-        const tbodyTodos = document.getElementById('tablaTodos');
-        const tbodyInternos = document.getElementById('tablaInternos');
         const tbodyExternos = document.getElementById('tablaExternos');
-
-        // Limpiar tablas
-        tbodyTodos.innerHTML = '';
-        tbodyInternos.innerHTML = '';
+        if (!tbodyExternos) {
+            return;
+        }
         tbodyExternos.innerHTML = '';
 
-        instructoresData.forEach((instructor, index) => {
-            const row = crearFilaInstructor(instructor, index + 1);
-
-            // Agregar a tabla "Todos"
-            tbodyTodos.appendChild(row.cloneNode(true));
-
-            // Agregar a tabla específica según tipo
-            if (instructor.TIPO_INSTRUCTOR === 'Interno') {
-                tbodyInternos.appendChild(row.cloneNode(true));
-            } else if (instructor.TIPO_INSTRUCTOR === 'Externo') {
-                tbodyExternos.appendChild(row.cloneNode(true));
-            }
+        let contadorExternos = 1;
+        instructoresData.forEach((instructor) => {
+            tbodyExternos.appendChild(crearFilaInstructor(instructor, contadorExternos++));
         });
     }
 
     // Crear fila de instructor
     function crearFilaInstructor(instructor, numero) {
         const tr = document.createElement('tr');
+        const idInstructor = parseInt(instructor.ID_INSTRUCTOR || 0, 10);
 
-        const tipoBadge = instructor.TIPO_INSTRUCTOR === 'Interno' ?
-            '<span class="badge bg-success">Interno</span>' :
-            '<span class="badge bg-info">Externo</span>';
+        const tipoBadge = '<span class="badge bg-info">Externo</span>';
 
         const actividadesActivas = instructor.actividades_activas || 0;
         const actividadesCompletadas = instructor.actividades_completadas || 0;
+        const accionesHtml = idInstructor > 0
+            ? `
+                <div class="btn-group btn-group-sm">
+                    <button class="btn btn-outline-primary" onclick="verDetalle(${idInstructor})" title="Ver Detalle">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-outline-warning" onclick="editarInstructor(${idInstructor})" title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </div>
+            `
+            : '<small class="text-muted">Solo lectura</small>';
 
         tr.innerHTML = `
             <td>${numero.toString().padStart(3, '0')}</td>
             <td>
                 <div class="d-flex align-items-center">
-                    <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(instructor.NOMBRE + '+' + instructor.APELLIDO)}&background=${instructor.TIPO_INSTRUCTOR === 'Interno' ? '0d6efd' : '198754'}&color=fff&size=32" class="rounded-circle me-2" alt="${instructor.NOMBRE.charAt(0)}${instructor.APELLIDO.charAt(0)}">
+                    <img src="https://ui-avatars.com/api/?name=${encodeURIComponent(instructor.NOMBRE + '+' + instructor.APELLIDO)}&background=198754&color=fff&size=32" class="rounded-circle me-2" alt="${instructor.NOMBRE.charAt(0)}${instructor.APELLIDO.charAt(0)}">
                     <div>
                         <div class="fw-semibold">${instructor.TITULO_PROFESIONAL} ${instructor.NOMBRE} ${instructor.APELLIDO}</div>
                         <small class="text-muted">${instructor.EMAIL}</small>
@@ -759,14 +528,7 @@
             </td>
             <td><span class="badge bg-success">Activo</span></td>
             <td>
-                <div class="btn-group btn-group-sm">
-                    <button class="btn btn-outline-primary" onclick="verDetalle(${instructor.ID_INSTRUCTOR})" title="Ver Detalle">
-                        <i class="fas fa-eye"></i>
-                    </button>
-                    <button class="btn btn-outline-warning" onclick="editarInstructor(${instructor.ID_INSTRUCTOR})" title="Editar">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                </div>
+                ${accionesHtml}
             </td>
         `;
 
@@ -785,61 +547,37 @@
 
     function aplicarFiltrosInstructoresTablas() {
         const q = (document.getElementById('filtroBusquedaInstructor')?.value || '').trim().toLowerCase();
-        const tipo = (document.getElementById('filtroTipoInstructor')?.value || '').trim();
         const est = (document.getElementById('filtroEstadoInstructor')?.value || '').trim();
-        const hasFilters = Boolean(q || tipo || est);
+        const hasFilters = Boolean(q || est);
 
-        const tablas = [
-            { id: 'tablaTodos', kind: 'todos' },
-            { id: 'tablaInternos', kind: 'internos' },
-            { id: 'tablaExternos', kind: 'externos' },
-        ];
-
-        tablas.forEach(({ id, kind }) => {
-            const tbody = document.getElementById(id);
-            if (!tbody) {
+        const tbody = document.getElementById('tablaExternos');
+        if (!tbody) {
+            return;
+        }
+        tbody.querySelectorAll('tr').forEach((tr) => {
+            const emptyCell = tr.querySelector('td[colspan]');
+            if (emptyCell) {
+                tr.style.display = hasFilters ? 'none' : '';
                 return;
             }
-            tbody.querySelectorAll('tr').forEach((tr) => {
-                const emptyCell = tr.querySelector('td[colspan]');
-                if (emptyCell) {
-                    tr.style.display = hasFilters ? 'none' : '';
-                    return;
-                }
-                const cells = tr.querySelectorAll('td');
-                if (cells.length < 6) {
-                    return;
-                }
-                const instructorText = (cells[1]?.innerText || '').toLowerCase();
-                const tipoText = (cells[2]?.innerText || '').toLowerCase();
-                const estadoText = (cells[5]?.innerText || '').toLowerCase();
+            const cells = tr.querySelectorAll('td');
+            if (cells.length < 7) {
+                return;
+            }
+            const instructorText = (cells[1]?.innerText || '').toLowerCase();
+            const estadoText = (cells[5]?.innerText || '').toLowerCase();
 
-                let show = true;
-                if (q && !instructorText.includes(q) && !(tr.innerText || '').toLowerCase().includes(q)) {
-                    show = false;
-                }
-                if (tipo === 'interno') {
-                    if (kind === 'externos') {
-                        show = false;
-                    } else if (kind === 'todos' && !tipoText.includes('interno')) {
-                        show = false;
-                    }
-                }
-                if (tipo === 'externo') {
-                    if (kind === 'internos') {
-                        show = false;
-                    } else if (kind === 'todos' && !tipoText.includes('externo')) {
-                        show = false;
-                    }
-                }
-                if (est === 'activo' && !estadoText.includes('activo')) {
-                    show = false;
-                }
-                if (est === 'inactivo' && !estadoText.includes('inactiv')) {
-                    show = false;
-                }
-                tr.style.display = show ? '' : 'none';
-            });
+            let show = true;
+            if (q && !instructorText.includes(q) && !(tr.innerText || '').toLowerCase().includes(q)) {
+                show = false;
+            }
+            if (est === 'activo' && !estadoText.includes('activo')) {
+                show = false;
+            }
+            if (est === 'inactivo' && !estadoText.includes('inactiv')) {
+                show = false;
+            }
+            tr.style.display = show ? '' : 'none';
         });
 
         const modalEl = document.getElementById('modalFiltros');
@@ -853,26 +591,19 @@
 
     function limpiarFiltrosInstructoresTablas() {
         const b = document.getElementById('filtroBusquedaInstructor');
-        const t = document.getElementById('filtroTipoInstructor');
         const e = document.getElementById('filtroEstadoInstructor');
         if (b) {
             b.value = '';
         }
-        if (t) {
-            t.value = '';
-        }
         if (e) {
             e.value = '';
         }
-        ['tablaTodos', 'tablaInternos', 'tablaExternos'].forEach((tbodyId) => {
-            const tbody = document.getElementById(tbodyId);
-            if (!tbody) {
-                return;
-            }
+        const tbody = document.getElementById('tablaExternos');
+        if (tbody) {
             tbody.querySelectorAll('tr').forEach((tr) => {
                 tr.style.display = '';
             });
-        });
+        }
     }
 
     document.getElementById('btnAplicarFiltrosInstructores')?.addEventListener('click', aplicarFiltrosInstructoresTablas);
@@ -953,7 +684,7 @@
         const icono = document.getElementById('iconoModalInstructor');
         const btnTxt = document.getElementById('textoBtnGuardarInstructor');
         if (titulo) {
-            titulo.textContent = 'Nuevo Instructor';
+            titulo.textContent = 'Nuevo Instructor Externo';
         }
         if (icono) {
             icono.className = 'fas fa-user-plus me-2';
@@ -1005,7 +736,6 @@
                 }
             };
 
-            setVal('tipo_instructor', ins.ID_TIPO_INSTRUCTOR);
             setVal('titulo_profesional', ins.TITULO_PROFESIONAL);
             setVal('nombre', ins.NOMBRE);
             setVal('apellido', ins.APELLIDO);
@@ -1058,7 +788,6 @@
 
         // Validar campos obligatorios
         const camposObligatorios = [
-            'tipo_instructor',
             'titulo_profesional',
             'nombre',
             'apellido',
@@ -1290,9 +1019,6 @@
         // Set default values
         const today = new Date().toISOString().split('T')[0];
 
-        // Cargar tipos de instructores en el select
-        cargarTiposInstructores();
-
         // Agregar validación en tiempo real
         agregarValidacionTiempoReal();
 
@@ -1373,26 +1099,5 @@
         return esValido;
     }
 
-    // Cargar tipos de instructores para el formulario
-    async function cargarTiposInstructores() {
-        try {
-            const response = await fetch('<?= base_url('coord/instructores/getTiposInstructores') ?>');
-            const result = await response.json();
-
-            if (result.success) {
-                const select = document.querySelector('select[name="tipo_instructor"]');
-                select.innerHTML = '<option value="">Seleccionar...</option>';
-
-                result.data.forEach(tipo => {
-                    const option = document.createElement('option');
-                    option.value = tipo.ID_TIPO_INSTRUCTOR;
-                    option.textContent = tipo.TIPO;
-                    select.appendChild(option);
-                });
-            }
-        } catch (error) {
-            console.error('Error al cargar tipos de instructores:', error);
-        }
-    }
 </script>
 <?= $this->endSection() ?>
