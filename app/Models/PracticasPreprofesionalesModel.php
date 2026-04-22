@@ -11,7 +11,7 @@ class PracticasPreprofesionalesModel extends Model
     protected $allowedFields = [
         'ID_ASIGNACION_PRACTICA',
         'ID_ESTUDIANTE',
-        'ID_INSTRUCTOR',
+        'ID_DOCENTE_TUTOR',
         'ID_INSTITUCION_CONVENIO',
         'AREA_ESPECIALIZACION',
         'PROYECTO_ESPECIFICO',
@@ -27,7 +27,7 @@ class PracticasPreprofesionalesModel extends Model
 
     protected $validationRules = [
         'ID_ESTUDIANTE' => 'required|integer',
-        'ID_INSTRUCTOR' => 'permit_empty|integer',
+        'ID_DOCENTE_TUTOR' => 'permit_empty|integer',
         'ID_INSTITUCION_CONVENIO' => 'permit_empty|integer',
         'HORAS_PRACTICAS' => 'required|integer|greater_than[0]',
         'FECHA_INICIO' => 'required|valid_date',
@@ -177,15 +177,15 @@ class PracticasPreprofesionalesModel extends Model
                 c.NOMBRE as CARRERA_NOMBRE,
                 ic.NOMBRE as INSTITUCION_NOMBRE,
                 ti.INSTITUCION as TIPO_INSTITUCION,
-                CONCAT(dpi.NOMBRE, " ", dpi.APELLIDO) as INSTRUCTOR_NOMBRE
+                CONCAT(dpdt.NOMBRE, " ", dpdt.APELLIDO) as INSTRUCTOR_NOMBRE
             ')
             ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = pp.ID_ESTUDIANTE')
             ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
             ->join('TAB_CARRERAS c', 'c.ID_CARRERA = e.ID_CARRERA')
             ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = pp.ID_INSTITUCION_CONVENIO')
             ->join('TAB_TIPOS_INSTITUCION ti', 'ti.ID_TIPO_INSTITUCION = ic.ID_TIPO_INSTITUCION')
-            ->join('TAB_INSTRUCTORES i', 'i.ID_INSTRUCTOR = pp.ID_INSTRUCTOR', 'left')
-            ->join('TAB_DATOS_PERSONAS dpi', 'dpi.ID_DATO_PERSONA = i.ID_DATO_PERSONA', 'left')
+            ->join('TAB_DOCENTES_TUTORES dt', 'dt.ID_DOCENTE_TUTOR = pp.ID_DOCENTE_TUTOR', 'left')
+            ->join('TAB_DATOS_PERSONAS dpdt', 'dpdt.ID_DATO_PERSONA = dt.ID_DATO_PERSONA', 'left')
             ->orderBy('pp.ID_PRACTICA_PREPROFESIONAL', 'DESC');
 
         return $builder->get()->getResultArray();

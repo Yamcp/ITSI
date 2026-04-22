@@ -8,6 +8,7 @@ use App\Models\ServiciosComunitariosModel;
 use App\Models\ActividadesPracticasModel;
 use App\Models\UsuariosModel;
 use App\Models\EstudiantesModel;
+use App\Models\DocentesTutoresModel;
 use App\Models\NotificacionesModel;
 
 class PracticasDocenteController extends BaseController
@@ -17,6 +18,7 @@ class PracticasDocenteController extends BaseController
     protected $actividadesPracticasModel;
     protected $usuariosModel;
     protected $estudiantesModel;
+    protected $docentesTutoresModel;
     protected $db;
 
     public function __construct()
@@ -26,6 +28,7 @@ class PracticasDocenteController extends BaseController
         $this->actividadesPracticasModel = new ActividadesPracticasModel();
         $this->usuariosModel = new UsuariosModel();
         $this->estudiantesModel = new EstudiantesModel();
+        $this->docentesTutoresModel = new DocentesTutoresModel();
         $this->db = \Config\Database::connect();
     }
 
@@ -36,13 +39,13 @@ class PracticasDocenteController extends BaseController
         }
 
         $idUsuario = session()->get('id_usuario');
-        $idInstructor = $this->obtenerIdInstructorPorUsuario($idUsuario);
-        if ($idInstructor === null) {
-            $idInstructor = 0;
+        $idDocente = $this->obtenerIdDocentePorUsuario($idUsuario);
+        if ($idDocente === null) {
+            $idDocente = 0;
         }
 
-        $estadisticas = $this->obtenerEstadisticasDocente($idInstructor);
-        $estudiantesAsignados = $this->obtenerEstudiantesAsignados($idInstructor);
+        $estadisticas = $this->obtenerEstadisticasDocente($idDocente);
+        $estudiantesAsignados = $this->obtenerEstudiantesAsignados($idDocente);
 
         $notificacionesLista = [];
         $estadisticasNotificaciones = ['total' => 0, 'no_leidas' => 0, 'leidas' => 0];
@@ -72,12 +75,12 @@ class PracticasDocenteController extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'No autorizado']);
         }
 
-        $idInstructor = $this->obtenerIdInstructorPorUsuario(session()->get('id_usuario'));
-        if ($idInstructor === null) {
-            $idInstructor = 0;
+        $idDocente = $this->obtenerIdDocentePorUsuario(session()->get('id_usuario'));
+        if ($idDocente === null) {
+            $idDocente = 0;
         }
         try {
-            $estudiante = $this->obtenerEstudianteAsignado($estudianteId, $idInstructor);
+            $estudiante = $this->obtenerEstudianteAsignado($estudianteId, $idDocente);
             if (!$estudiante) {
                 return $this->response->setJSON(['success' => false, 'message' => 'Estudiante no encontrado']);
             }
@@ -86,7 +89,7 @@ class PracticasDocenteController extends BaseController
             $pp = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
                 ->select('pp.*, ic.NOMBRE as INSTITUCION_NOMBRE')
                 ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = pp.ID_INSTITUCION_CONVENIO', 'left')
-                ->where('pp.ID_ESTUDIANTE', $estudianteId)->where('pp.ID_INSTRUCTOR', $idInstructor)
+                ->where('pp.ID_ESTUDIANTE', $estudianteId)->where('pp.ID_DOCENTE_TUTOR', $idDocente)
                 ->get()->getRowArray();
             if ($pp) {
                 foreach ($this->obtenerActividadesRecientesPractica($pp['ID_PRACTICA_PREPROFESIONAL'], 'preprofesional', 50) as $ap) {
@@ -97,7 +100,7 @@ class PracticasDocenteController extends BaseController
             $sc = $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
                 ->select('sc.*, ic.NOMBRE as INSTITUCION_NOMBRE')
                 ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = sc.ID_INSTITUCION_CONVENIO', 'left')
-                ->where('sc.ID_ESTUDIANTE', $estudianteId)->where('sc.ID_INSTRUCTOR', $idInstructor)
+                ->where('sc.ID_ESTUDIANTE', $estudianteId)->where('sc.ID_DOCENTE_TUTOR', $idDocente)
                 ->get()->getRowArray();
             if ($sc) {
                 foreach ($this->obtenerActividadesRecientesPractica($sc['ID_SERVICIO_COMUNITARIO'], 'servicio', 50) as $as) {
@@ -189,12 +192,12 @@ class PracticasDocenteController extends BaseController
             $fechaHasta = $this->request->getPost('fecha_hasta');
             $formato = $this->request->getPost('formato');
 
-            $idInstructor = $this->obtenerIdInstructorPorUsuario($docenteId);
-            if ($idInstructor === null) {
-                $idInstructor = 0;
+            $idDocente = $this->obtenerIdDocentePorUsuario($docenteId);
+            if ($idDocente === null) {
+                $idDocente = 0;
             }
 
-            $datosReporte = $this->generarDatosReporte($tipoReporte, $fechaDesde, $fechaHasta, $idInstructor);
+            $datosReporte = $this->generarDatosReporte($tipoReporte, $fechaDesde, $fechaHasta, $idDocente);
 
             $csv = null;
             if ($formato === 'excel') {
@@ -224,8 +227,8 @@ class PracticasDocenteController extends BaseController
         if (!session()->get('logged_in')) {
             return $this->response->setJSON([]);
         }
-        $idInstructor = $this->obtenerIdInstructorPorUsuario(session()->get('id_usuario'));
-        if ($idInstructor === null || $idInstructor <= 0) {
+        $idDocente = $this->obtenerIdDocentePorUsuario(session()->get('id_usuario'));
+        if ($idDocente === null || $idDocente <= 0) {
             return $this->response->setJSON([]);
         }
         $eventos = [];
@@ -234,7 +237,7 @@ class PracticasDocenteController extends BaseController
                 ->select('pp.ID_PRACTICA_PREPROFESIONAL, CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as ESTUDIANTE')
                 ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = pp.ID_ESTUDIANTE')
                 ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
-                ->where('pp.ID_INSTRUCTOR', $idInstructor)
+                ->where('pp.ID_DOCENTE_TUTOR', $idDocente)
                 ->get()
                 ->getResultArray();
             $idsPp = array_column($pp, 'ID_PRACTICA_PREPROFESIONAL');
@@ -268,7 +271,7 @@ class PracticasDocenteController extends BaseController
                 ->select('sc.ID_SERVICIO_COMUNITARIO, CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as ESTUDIANTE')
                 ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE')
                 ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
-                ->where('sc.ID_INSTRUCTOR', $idInstructor)
+                ->where('sc.ID_DOCENTE_TUTOR', $idDocente)
                 ->get()
                 ->getResultArray();
             $idsSc = array_column($sc, 'ID_SERVICIO_COMUNITARIO');
@@ -310,12 +313,12 @@ class PracticasDocenteController extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'No autorizado']);
         }
 
-        $idInstructor = $this->obtenerIdInstructorPorUsuario(session()->get('id_usuario'));
-        if ($idInstructor === null) {
-            $idInstructor = 0;
+        $idDocente = $this->obtenerIdDocentePorUsuario(session()->get('id_usuario'));
+        if ($idDocente === null) {
+            $idDocente = 0;
         }
         try {
-            $alertas = $this->generarAlertas($idInstructor);
+            $alertas = $this->generarAlertas($idDocente);
 
             return $this->response->setJSON([
                 'success' => true,
@@ -329,46 +332,41 @@ class PracticasDocenteController extends BaseController
     }
 
     /**
-     * Obtiene ID_INSTRUCTOR del usuario logueado (docente) vía TAB_INSTRUCTORES + TAB_USUARIOS.
+     * Obtiene ID_DOCENTE_TUTOR del usuario logueado (docente) vía TAB_DOCENTES_TUTORES.
      */
-    private function obtenerIdInstructorPorUsuario($idUsuario)
+    private function obtenerIdDocentePorUsuario($idUsuario)
     {
-        $row = $this->db->table('TAB_USUARIOS u')
-            ->select('i.ID_INSTRUCTOR')
-            ->join('TAB_INSTRUCTORES i', 'i.ID_DATO_PERSONA = u.ID_DATO_PERSONA')
-            ->where('u.ID_USUARIO', $idUsuario)
-            ->get()
-            ->getRowArray();
-        return $row ? (int) $row['ID_INSTRUCTOR'] : null;
+        $docente = $this->docentesTutoresModel->getDocentePorUsuario($idUsuario);
+        return $docente ? (int) $docente['ID_DOCENTE_TUTOR'] : null;
     }
 
-    private function obtenerEstadisticasDocente($idInstructor)
+    private function obtenerEstadisticasDocente($idDocente)
     {
         try {
             $estudiantesPp = 0;
             $estudiantesSc = 0;
             $practicasActivas = 0;
             $serviciosActivos = 0;
-            if ($idInstructor > 0) {
+            if ($idDocente > 0) {
                 $estudiantesPp = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
-                    ->where('pp.ID_INSTRUCTOR', $idInstructor)
+                    ->where('pp.ID_DOCENTE_TUTOR', $idDocente)
                     ->countAllResults();
                 $estudiantesSc = $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
-                    ->where('sc.ID_INSTRUCTOR', $idInstructor)
+                    ->where('sc.ID_DOCENTE_TUTOR', $idDocente)
                     ->countAllResults();
                 $practicasActivas = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
-                    ->where('pp.ID_INSTRUCTOR', $idInstructor)
+                    ->where('pp.ID_DOCENTE_TUTOR', $idDocente)
                     ->where('pp.ESTADO_PRACTICA', 'En Progreso')
                     ->countAllResults();
                 $serviciosActivos = $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
-                    ->where('sc.ID_INSTRUCTOR', $idInstructor)
+                    ->where('sc.ID_DOCENTE_TUTOR', $idDocente)
                     ->where('sc.ESTADO_SERVICIO', 'En Progreso')
                     ->countAllResults();
             }
             return [
                 'estudiantesAsignados' => $estudiantesPp + $estudiantesSc,
                 'practicasActivas' => $practicasActivas + $serviciosActivos,
-                'alertas' => $idInstructor > 0 ? $this->contarAlertas($idInstructor) : 0
+                'alertas' => $idDocente > 0 ? $this->contarAlertas($idDocente) : 0
             ];
         } catch (\Exception $e) {
             log_message('error', 'Error al obtener estadísticas del docente: ' . $e->getMessage());
@@ -380,9 +378,9 @@ class PracticasDocenteController extends BaseController
         }
     }
 
-    private function obtenerEstudiantesAsignados($idInstructor)
+    private function obtenerEstudiantesAsignados($idDocente)
     {
-        if ($idInstructor <= 0) {
+        if ($idDocente <= 0) {
             return [];
         }
         try {
@@ -392,7 +390,7 @@ class PracticasDocenteController extends BaseController
                 ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
                 ->join('TAB_CARRERAS c', 'c.ID_CARRERA = e.ID_CARRERA')
                 ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = pp.ID_INSTITUCION_CONVENIO')
-                ->where('pp.ID_INSTRUCTOR', $idInstructor)
+                ->where('pp.ID_DOCENTE_TUTOR', $idDocente)
                 ->get()
                 ->getResultArray();
 
@@ -402,7 +400,7 @@ class PracticasDocenteController extends BaseController
                 ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
                 ->join('TAB_CARRERAS c', 'c.ID_CARRERA = e.ID_CARRERA')
                 ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = sc.ID_INSTITUCION_CONVENIO')
-                ->where('sc.ID_INSTRUCTOR', $idInstructor)
+                ->where('sc.ID_DOCENTE_TUTOR', $idDocente)
                 ->get()
                 ->getResultArray();
 
@@ -488,12 +486,12 @@ class PracticasDocenteController extends BaseController
             }
             $asignado = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
                 ->where('pp.ID_ESTUDIANTE', $estudianteId)
-                ->where('pp.ID_INSTRUCTOR', $idInstructor)
+                ->where('pp.ID_DOCENTE_TUTOR', $idInstructor)
                 ->countAllResults() > 0;
             if (!$asignado) {
                 $asignado = $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
                     ->where('sc.ID_ESTUDIANTE', $estudianteId)
-                    ->where('sc.ID_INSTRUCTOR', $idInstructor)
+                    ->where('sc.ID_DOCENTE_TUTOR', $idInstructor)
                     ->countAllResults() > 0;
             }
             return $asignado ? $estudiante : null;
@@ -800,7 +798,7 @@ class PracticasDocenteController extends BaseController
                     ->join('TAB_ASISTENCIAS_PRACTICAS_PREPROFESIONALES a', 'a.ID_PRACTICA_PREPROFESIONAL = pp.ID_PRACTICA_PREPROFESIONAL')
                     ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = pp.ID_ESTUDIANTE')
                     ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
-                    ->where('pp.ID_INSTRUCTOR', $idInstructor)
+                    ->where('pp.ID_DOCENTE_TUTOR', $idInstructor)
                     ->where('a.FECHA_ASISTENCIA >=', $fechaDesde)
                     ->where('a.FECHA_ASISTENCIA <=', $fechaHasta)
                     ->orderBy('a.FECHA_ASISTENCIA', 'DESC')
@@ -821,7 +819,7 @@ class PracticasDocenteController extends BaseController
                     ->join('TAB_ASISTENCIAS_SERVICIO_COMUNITARIO a', 'a.ID_SERVICIO_COMUNITARIO = sc.ID_SERVICIO_COMUNITARIO')
                     ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE')
                     ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
-                    ->where('sc.ID_INSTRUCTOR', $idInstructor)
+                    ->where('sc.ID_DOCENTE_TUTOR', $idInstructor)
                     ->where('a.FECHA_ASISTENCIA >=', $fechaDesde)
                     ->where('a.FECHA_ASISTENCIA <=', $fechaHasta)
                     ->orderBy('a.FECHA_ASISTENCIA', 'DESC')
@@ -894,7 +892,7 @@ class PracticasDocenteController extends BaseController
                 ->select('pp.ID_PRACTICA_PREPROFESIONAL, CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as NOMBRE_COMPLETO')
                 ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = pp.ID_ESTUDIANTE')
                 ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
-                ->where('pp.ID_INSTRUCTOR', $idInstructor)
+                ->where('pp.ID_DOCENTE_TUTOR', $idInstructor)
                 ->where('pp.ESTADO_PRACTICA', 'En Progreso')
                 ->get()
                 ->getResultArray();
@@ -919,7 +917,7 @@ class PracticasDocenteController extends BaseController
                 ->select('sc.ID_SERVICIO_COMUNITARIO, CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as NOMBRE_COMPLETO')
                 ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE')
                 ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
-                ->where('sc.ID_INSTRUCTOR', $idInstructor)
+                ->where('sc.ID_DOCENTE_TUTOR', $idInstructor)
                 ->where('sc.ESTADO_SERVICIO', 'En Progreso')
                 ->get()
                 ->getResultArray();

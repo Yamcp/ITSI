@@ -7,6 +7,8 @@ use App\Models\ActividadesEducacionModel;
 use App\Models\TiposInstructoresModel;
 use App\Models\DatosPersonasModel;
 use App\Models\EmpleadosModel;
+use App\Models\DocentesTutoresModel;
+use App\Models\UsuariosModel;
 use App\Controllers\BaseController;
 
 class InstructoresCoordController extends BaseController
@@ -17,6 +19,7 @@ class InstructoresCoordController extends BaseController
     protected $tipoInstructoresModel;
     protected $datosPersonasModel;
     protected $empleadosModel;
+    protected $docentesTutoresModel;
 
     public function __construct()
     {
@@ -26,6 +29,7 @@ class InstructoresCoordController extends BaseController
         $this->tipoInstructoresModel = new TiposInstructoresModel();
         $this->datosPersonasModel = new DatosPersonasModel();
         $this->empleadosModel = new EmpleadosModel();
+        $this->docentesTutoresModel = new DocentesTutoresModel();
     }
 
     /**
@@ -61,19 +65,28 @@ class InstructoresCoordController extends BaseController
     }
 
     /**
-     * Vista de docentes/tutores internos (misma fuente de datos que el apartado en instructores).
+     * Vista de docentes/tutores internos — datos desde TAB_DOCENTES_TUTORES.
      */
     public function docentes()
     {
-        $instructores = $this->instructoresModel->getInstructoresConDatos();
-        $lista = $this->obtenerDocentesInternosUnificados($instructores);
-        $lista = $this->adjuntarEstadisticasActividades($lista);
-        usort($lista, static function (array $a, array $b): int {
-            $na = trim((string) ($a['APELLIDO'] ?? '') . ' ' . (string) ($a['NOMBRE'] ?? ''));
-            $nb = trim((string) ($b['APELLIDO'] ?? '') . ' ' . (string) ($b['NOMBRE'] ?? ''));
+        $lista = $this->docentesTutoresModel->getDocentesConDatos();
 
-            return strcasecmp($na, $nb);
-        });
+        // Contar prácticas asignadas a cada docente
+        foreach ($lista as &$docente) {
+            $idDocente = (int) ($docente['ID_DOCENTE_TUTOR'] ?? 0);
+            $docente['total_practicas_pp'] = 0;
+            $docente['total_practicas_sc'] = 0;
+            if ($idDocente > 0) {
+                $docente['total_practicas_pp'] = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES')
+                    ->where('ID_DOCENTE_TUTOR', $idDocente)
+                    ->countAllResults();
+                $docente['total_practicas_sc'] = $this->db->table('TAB_SERVICIO_COMUNITARIO')
+                    ->where('ID_DOCENTE_TUTOR', $idDocente)
+                    ->countAllResults();
+            }
+            $docente['total_actividades'] = $docente['total_practicas_pp'] + $docente['total_practicas_sc'];
+        }
+        unset($docente);
 
         return view('coord/docentes/docentes', [
             'title' => 'Gestión de docentes',

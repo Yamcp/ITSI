@@ -13,6 +13,7 @@ use App\Models\UsuariosModel;
 use App\Models\PracticasPreprofesionalesModel;
 use App\Models\ServiciosComunitariosModel;
 use App\Models\DetallesConveniosModel;
+use App\Models\DocentesTutoresModel;
 use App\Libraries\EmailNotificaciones;
 
 class PracticasCoordController extends BaseController
@@ -27,6 +28,7 @@ class PracticasCoordController extends BaseController
     protected $practicasPreprofesionalesModel;
     protected $serviciosComunitariosModel;
     protected $detallesConveniosModel;
+    protected $docentesTutoresModel;
     protected $emailNotificaciones;
 
     public function __construct()
@@ -41,6 +43,7 @@ class PracticasCoordController extends BaseController
         $this->practicasPreprofesionalesModel = new PracticasPreprofesionalesModel();
         $this->serviciosComunitariosModel = new ServiciosComunitariosModel();
         $this->detallesConveniosModel = new DetallesConveniosModel();
+        $this->docentesTutoresModel = new DocentesTutoresModel();
         $this->emailNotificaciones = new EmailNotificaciones();
     }
 
@@ -164,15 +167,15 @@ class PracticasCoordController extends BaseController
                 c.NOMBRE as CARRERA_NOMBRE,
                 ic.NOMBRE as INSTITUCION_NOMBRE,
                 ti.INSTITUCION as TIPO_INSTITUCION,
-                CONCAT(dpi.NOMBRE, " ", dpi.APELLIDO) as INSTRUCTOR_NOMBRE
+                CONCAT(dpdt.NOMBRE, " ", dpdt.APELLIDO) as INSTRUCTOR_NOMBRE
             ')
             ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = pp.ID_ESTUDIANTE')
             ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
             ->join('TAB_CARRERAS c', 'c.ID_CARRERA = e.ID_CARRERA')
             ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = pp.ID_INSTITUCION_CONVENIO')
             ->join('TAB_TIPOS_INSTITUCION ti', 'ti.ID_TIPO_INSTITUCION = ic.ID_TIPO_INSTITUCION')
-            ->join('TAB_INSTRUCTORES i', 'i.ID_INSTRUCTOR = pp.ID_INSTRUCTOR', 'left')
-            ->join('TAB_DATOS_PERSONAS dpi', 'dpi.ID_DATO_PERSONA = i.ID_DATO_PERSONA', 'left')
+            ->join('TAB_DOCENTES_TUTORES dt', 'dt.ID_DOCENTE_TUTOR = pp.ID_DOCENTE_TUTOR', 'left')
+            ->join('TAB_DATOS_PERSONAS dpdt', 'dpdt.ID_DATO_PERSONA = dt.ID_DATO_PERSONA', 'left')
             ->orderBy('pp.ID_PRACTICA_PREPROFESIONAL', 'DESC');
 
         return $builder->get()->getResultArray();
@@ -193,15 +196,15 @@ class PracticasCoordController extends BaseController
                 c.NOMBRE as CARRERA_NOMBRE,
                 ic.NOMBRE as INSTITUCION_NOMBRE,
                 ti.INSTITUCION as TIPO_INSTITUCION,
-                CONCAT(dpi.NOMBRE, " ", dpi.APELLIDO) as INSTRUCTOR_NOMBRE
+                CONCAT(dpdt.NOMBRE, " ", dpdt.APELLIDO) as INSTRUCTOR_NOMBRE
             ')
             ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE')
             ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
             ->join('TAB_CARRERAS c', 'c.ID_CARRERA = e.ID_CARRERA')
             ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = sc.ID_INSTITUCION_CONVENIO')
             ->join('TAB_TIPOS_INSTITUCION ti', 'ti.ID_TIPO_INSTITUCION = ic.ID_TIPO_INSTITUCION')
-            ->join('TAB_INSTRUCTORES i', 'i.ID_INSTRUCTOR = sc.ID_INSTRUCTOR', 'left')
-            ->join('TAB_DATOS_PERSONAS dpi', 'dpi.ID_DATO_PERSONA = i.ID_DATO_PERSONA', 'left')
+            ->join('TAB_DOCENTES_TUTORES dt', 'dt.ID_DOCENTE_TUTOR = sc.ID_DOCENTE_TUTOR', 'left')
+            ->join('TAB_DATOS_PERSONAS dpdt', 'dpdt.ID_DATO_PERSONA = dt.ID_DATO_PERSONA', 'left')
             ->orderBy('sc.ID_SERVICIO_COMUNITARIO', 'DESC');
 
         return $builder->get()->getResultArray();
@@ -215,7 +218,7 @@ class PracticasCoordController extends BaseController
         $estudiantes = $this->obtenerEstudiantes();
         $instituciones = $this->institucionesModel->getInstitucionesConTipo();
         $tiposPracticas = $this->tiposPracticasModel->findAll();
-        $instructores = $this->obtenerInstructoresParaModal();
+        $instructores = $this->docentesTutoresModel->getDocentesParaSelect();
         return $this->response->setJSON([
             'success' => true,
             'data' => [
@@ -228,18 +231,12 @@ class PracticasCoordController extends BaseController
     }
 
     /**
-     * Lista de instructores/tutores para el modal de nueva asignación.
+     * Lista de docentes/tutores para el modal de nueva asignación.
+     * Ahora lee de TAB_DOCENTES_TUTORES (ya no de TAB_INSTRUCTORES).
      */
-    private function obtenerInstructoresParaModal(): array
+    private function obtenerDocentesParaModal(): array
     {
-        $db = \Config\Database::connect();
-        return $db->table('TAB_INSTRUCTORES i')
-            ->select('i.ID_INSTRUCTOR, CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as NOMBRE_COMPLETO')
-            ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = i.ID_DATO_PERSONA')
-            ->orderBy('dp.APELLIDO', 'ASC')
-            ->orderBy('dp.NOMBRE', 'ASC')
-            ->get()
-            ->getResultArray();
+        return $this->docentesTutoresModel->getDocentesParaSelect();
     }
 
     /**
@@ -336,26 +333,26 @@ class PracticasCoordController extends BaseController
         $tipoPractica = (int) ($this->request->getPost('tipo_practica') ?: $this->request->getPost('tipo_practica_asignar'));
         $estudiante = (int) ($this->request->getPost('estudiante') ?: $this->request->getPost('estudiante_asignar'));
         $institucion = $this->request->getPost('institucion') ?: $this->request->getPost('institucion_asignar');
-        $idInstructor = (int) ($this->request->getPost('instructor') ?: $this->request->getPost('instructor_asignar'));
+        $idDocenteTutor = (int) ($this->request->getPost('instructor') ?: $this->request->getPost('instructor_asignar'));
         $fechaInicio = $this->request->getPost('fecha_inicio') ?: $this->request->getPost('fecha_inicio_asignar');
         $fechaFinRaw = $this->request->getPost('fecha_fin') ?: $this->request->getPost('fecha_fin_asignar');
         $fechaFin = ($fechaFinRaw !== null && $fechaFinRaw !== '') ? trim((string) $fechaFinRaw) : null;
         $descripcion = $this->request->getPost('descripcion') ?: $this->request->getPost('descripcion_asignar');
 
-        if ($idInstructor <= 0) {
+        if ($idDocenteTutor <= 0) {
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Debe seleccionar un tutor o docente (instructor) para la práctica.',
+                'message' => 'Debe seleccionar un docente tutor para la práctica.',
             ]);
         }
 
         // Regla de negocio: una sola vez por estudiante y horas fijas (240 h preprofesionales, 60 h servicio comunitario)
         $db = \Config\Database::connect();
-        $instructorValido = $db->table('TAB_INSTRUCTORES')->where('ID_INSTRUCTOR', $idInstructor)->countAllResults();
-        if ($instructorValido === 0) {
+        $docenteValido = $db->table('TAB_DOCENTES_TUTORES')->where('ID_DOCENTE_TUTOR', $idDocenteTutor)->where('ACTIVO', 1)->countAllResults();
+        if ($docenteValido === 0) {
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'El instructor seleccionado no es válido.',
+                'message' => 'El docente tutor seleccionado no es válido.',
             ]);
         }
         if ($tipoPractica == 2) { // Prácticas Preprofesionales
@@ -404,7 +401,7 @@ class PracticasCoordController extends BaseController
                 $practicaData = [
                     'ID_ASIGNACION_PRACTICA' => $asignacionId,
                     'ID_ESTUDIANTE' => $estudiante,
-                    'ID_INSTRUCTOR' => $idInstructor,
+                    'ID_DOCENTE_TUTOR' => $idDocenteTutor,
                     'ID_INSTITUCION_CONVENIO' => $institucion,
                     'HORAS_PRACTICAS' => $horasTotal,
                     'FECHA_INICIO' => $fechaInicio,
@@ -418,7 +415,7 @@ class PracticasCoordController extends BaseController
                 $servicioData = [
                     'ID_ASIGNACION_PRACTICA' => $asignacionId,
                     'ID_ESTUDIANTE' => $estudiante,
-                    'ID_INSTRUCTOR' => $idInstructor,
+                    'ID_DOCENTE_TUTOR' => $idDocenteTutor,
                     'ID_INSTITUCION_CONVENIO' => $institucion,
                     'HORAS_SERVICIO' => $horasTotal,
                     'FECHA_INICIO' => $fechaInicio,
@@ -440,7 +437,7 @@ class PracticasCoordController extends BaseController
             }
 
             // Enviar notificaciones después de crear la práctica exitosamente
-            $this->enviarNotificacionesPractica($estudiante, $institucion, $tipoPractica, $asignacionId, $fechaInicio, $fechaFin, $horasTotal, $descripcion, $idInstructor);
+            $this->enviarNotificacionesPractica($estudiante, $institucion, $tipoPractica, $asignacionId, $fechaInicio, $fechaFin, $horasTotal, $descripcion, $idDocenteTutor);
 
             return $this->response->setJSON([
                 'success' => true,
@@ -469,14 +466,14 @@ class PracticasCoordController extends BaseController
                     CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as ESTUDIANTE_NOMBRE,
                     c.NOMBRE as CARRERA_NOMBRE,
                     ic.NOMBRE as INSTITUCION_NOMBRE,
-                    CONCAT(dpi.NOMBRE, " ", dpi.APELLIDO) as INSTRUCTOR_NOMBRE
+                    CONCAT(dpdt.NOMBRE, " ", dpdt.APELLIDO) as INSTRUCTOR_NOMBRE
                 ')
                 ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = pp.ID_ESTUDIANTE')
                 ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
                 ->join('TAB_CARRERAS c', 'c.ID_CARRERA = e.ID_CARRERA')
                 ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = pp.ID_INSTITUCION_CONVENIO')
-                ->join('TAB_INSTRUCTORES i', 'i.ID_INSTRUCTOR = pp.ID_INSTRUCTOR', 'left')
-                ->join('TAB_DATOS_PERSONAS dpi', 'dpi.ID_DATO_PERSONA = i.ID_DATO_PERSONA', 'left')
+                ->join('TAB_DOCENTES_TUTORES dt', 'dt.ID_DOCENTE_TUTOR = pp.ID_DOCENTE_TUTOR', 'left')
+                ->join('TAB_DATOS_PERSONAS dpdt', 'dpdt.ID_DATO_PERSONA = dt.ID_DATO_PERSONA', 'left')
                 ->where('pp.ID_PRACTICA_PREPROFESIONAL', $id);
         } else {
             $builder = $db->table('TAB_SERVICIO_COMUNITARIO sc')
@@ -485,14 +482,14 @@ class PracticasCoordController extends BaseController
                     CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as ESTUDIANTE_NOMBRE,
                     c.NOMBRE as CARRERA_NOMBRE,
                     ic.NOMBRE as INSTITUCION_NOMBRE,
-                    CONCAT(dpi.NOMBRE, " ", dpi.APELLIDO) as INSTRUCTOR_NOMBRE
+                    CONCAT(dpdt.NOMBRE, " ", dpdt.APELLIDO) as INSTRUCTOR_NOMBRE
                 ')
                 ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE')
                 ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
                 ->join('TAB_CARRERAS c', 'c.ID_CARRERA = e.ID_CARRERA')
                 ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = sc.ID_INSTITUCION_CONVENIO')
-                ->join('TAB_INSTRUCTORES i', 'i.ID_INSTRUCTOR = sc.ID_INSTRUCTOR', 'left')
-                ->join('TAB_DATOS_PERSONAS dpi', 'dpi.ID_DATO_PERSONA = i.ID_DATO_PERSONA', 'left')
+                ->join('TAB_DOCENTES_TUTORES dt', 'dt.ID_DOCENTE_TUTOR = sc.ID_DOCENTE_TUTOR', 'left')
+                ->join('TAB_DATOS_PERSONAS dpdt', 'dpdt.ID_DATO_PERSONA = dt.ID_DATO_PERSONA', 'left')
                 ->where('sc.ID_SERVICIO_COMUNITARIO', $id);
         }
 

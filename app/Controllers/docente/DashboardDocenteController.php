@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Models\ActividadesEducacionModel;
 use App\Models\EstudiantesModel;
 use App\Models\InstructoresModel;
+use App\Models\DocentesTutoresModel;
 use App\Models\NotificacionesModel;
 use CodeIgniter\Database\BaseConnection;
 
@@ -14,6 +15,7 @@ class DashboardDocenteController extends BaseController
     protected $actividadesModel;
     protected $estudiantesModel;
     protected $instructoresModel;
+    protected $docentesTutoresModel;
     protected $db;
 
     public function __construct()
@@ -21,6 +23,7 @@ class DashboardDocenteController extends BaseController
         $this->actividadesModel = new ActividadesEducacionModel();
         $this->estudiantesModel = new EstudiantesModel();
         $this->instructoresModel = new InstructoresModel();
+        $this->docentesTutoresModel = new DocentesTutoresModel();
         $this->db = \Config\Database::connect();
     }
 
@@ -31,31 +34,23 @@ class DashboardDocenteController extends BaseController
             return redirect()->to('/');
         }
 
-        // Obtener datos del docente actual
+        // Obtener datos del docente actual desde TAB_DOCENTES_TUTORES
         $idUsuario = session()->get('id_usuario');
-        
-        // Buscar instructor por ID_DATO_PERSONA del usuario
-        $usuario = $this->db->table('TAB_USUARIOS')->where('ID_USUARIO', $idUsuario)->get()->getRowArray();
-        $instructor = null;
-        
-        if ($usuario) {
-            $instructor = $this->db->table('TAB_INSTRUCTORES')
-                ->where('ID_DATO_PERSONA', $usuario['ID_DATO_PERSONA'])
-                ->get()->getRowArray();
-        }
+        $docente = $this->docentesTutoresModel->getDocentePorUsuario($idUsuario);
 
         // Estudiantes asignados a este docente (prácticas preprofesionales + servicio comunitario)
         $estudiantesAsignados = 0;
-        if ($instructor) {
-            $idInstructor = (int) $instructor['ID_INSTRUCTOR'];
+        $instructor = null;
+        if ($docente) {
+            $idDocente = (int) $docente['ID_DOCENTE_TUTOR'];
             $idsPp = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES')
                 ->select('ID_ESTUDIANTE')
-                ->where('ID_INSTRUCTOR', $idInstructor)
+                ->where('ID_DOCENTE_TUTOR', $idDocente)
                 ->get()
                 ->getResultArray();
             $idsSc = $this->db->table('TAB_SERVICIO_COMUNITARIO')
                 ->select('ID_ESTUDIANTE')
-                ->where('ID_INSTRUCTOR', $idInstructor)
+                ->where('ID_DOCENTE_TUTOR', $idDocente)
                 ->get()
                 ->getResultArray();
             $todosIds = array_merge(
@@ -63,6 +58,14 @@ class DashboardDocenteController extends BaseController
                 array_column($idsSc, 'ID_ESTUDIANTE')
             );
             $estudiantesAsignados = count(array_unique(array_filter($todosIds)));
+
+            // Para actividades de educación, buscar si el docente también está en TAB_INSTRUCTORES
+            $usuario = $this->db->table('TAB_USUARIOS')->where('ID_USUARIO', $idUsuario)->get()->getRowArray();
+            if ($usuario) {
+                $instructor = $this->db->table('TAB_INSTRUCTORES')
+                    ->where('ID_DATO_PERSONA', $usuario['ID_DATO_PERSONA'])
+                    ->get()->getRowArray();
+            }
         }
 
         $notifTutorNoLeidas = 0;

@@ -466,7 +466,7 @@ create table TAB_PRACTICAS_PREPROFESIONALES
    ID_PERIODO_ACADEMICO       int,
    ID_ASIGNACION_PRACTICA     int,
    ID_ESTUDIANTE             int,
-   ID_INSTRUCTOR             int,
+   ID_DOCENTE_TUTOR          int,
    ID_INSTITUCION_CONVENIO   int,
    AREA_ESPECIALIZACION      varchar(200),
    PROYECTO_ESPECIFICO       text,
@@ -478,7 +478,8 @@ create table TAB_PRACTICAS_PREPROFESIONALES
    EVALUACION_FINAL          decimal(3,2),
    OBSERVACIONES             text,
    primary key (ID_PRACTICA_PREPROFESIONAL),
-   key IDX_PERIODO_ACADEMICO (ID_PERIODO_ACADEMICO)
+   key IDX_PERIODO_ACADEMICO (ID_PERIODO_ACADEMICO),
+   key IDX_DOCENTE_TUTOR (ID_DOCENTE_TUTOR)
 );
 
 /*==============================================================*/
@@ -490,7 +491,7 @@ create table TAB_SERVICIO_COMUNITARIO
    ID_PERIODO_ACADEMICO      int,
    ID_ASIGNACION_PRACTICA    int,
    ID_ESTUDIANTE             int,
-   ID_INSTRUCTOR             int,
+   ID_DOCENTE_TUTOR          int,
    ID_INSTITUCION_CONVENIO   int,
    PROYECTO_SOCIAL           varchar(200),
    COMUNIDAD_BENEFICIADA     text,
@@ -502,7 +503,8 @@ create table TAB_SERVICIO_COMUNITARIO
    IMPACTO_SOCIAL            text,
    OBSERVACIONES             text,
    primary key (ID_SERVICIO_COMUNITARIO),
-   key IDX_PERIODO_ACADEMICO (ID_PERIODO_ACADEMICO)
+   key IDX_PERIODO_ACADEMICO (ID_PERIODO_ACADEMICO),
+   key IDX_DOCENTE_TUTOR (ID_DOCENTE_TUTOR)
 );
 
 /*==============================================================*/
@@ -1016,9 +1018,6 @@ alter table TAB_PRACTICAS_PREPROFESIONALES add constraint FK_PRACTICAS_PREPROFES
 alter table TAB_PRACTICAS_PREPROFESIONALES add constraint FK_PRACTICAS_PREPROFESIONALES_ESTUDIANTE foreign key (ID_ESTUDIANTE)
       references TAB_ESTUDIANTES (ID_ESTUDIANTE) on delete restrict on update restrict;
 
-alter table TAB_PRACTICAS_PREPROFESIONALES add constraint FK_PRACTICAS_PREPROFESIONALES_INSTRUCTOR foreign key (ID_INSTRUCTOR)
-      references TAB_INSTRUCTORES (ID_INSTRUCTOR) on delete restrict on update restrict;
-
 alter table TAB_PRACTICAS_PREPROFESIONALES add constraint FK_PRACTICAS_PREPROFESIONALES_INSTITUCION foreign key (ID_INSTITUCION_CONVENIO)
       references TAB_INSTITUCIONES_CONVENIOS (ID_INSTITUCION_CONVENIO) on delete restrict on update restrict;
 
@@ -1028,14 +1027,14 @@ alter table TAB_PRACTICAS_PREPROFESIONALES add constraint FK_PRACTICAS_ESTADO_PR
 alter table TAB_PRACTICAS_PREPROFESIONALES add constraint FK_PRACTICAS_PERIODO foreign key (ID_PERIODO_ACADEMICO)
       references TAB_PERIODOS_ACADEMICOS (ID_PERIODO_ACADEMICO) on delete restrict on update restrict;
 
+alter table TAB_PRACTICAS_PREPROFESIONALES add constraint FK_PRACTICAS_DOCENTE_TUTOR foreign key (ID_DOCENTE_TUTOR)
+      references TAB_DOCENTES_TUTORES (ID_DOCENTE_TUTOR) on delete restrict on update restrict;
+
 alter table TAB_SERVICIO_COMUNITARIO add constraint FK_SERVICIO_COMUNITARIO_ASIGNACION foreign key (ID_ASIGNACION_PRACTICA)
       references TAB_ASIGNACIONES_PRACTICAS (ID_ASIGNACION_PRACTICA) on delete restrict on update restrict;
 
 alter table TAB_SERVICIO_COMUNITARIO add constraint FK_SERVICIO_COMUNITARIO_ESTUDIANTE foreign key (ID_ESTUDIANTE)
       references TAB_ESTUDIANTES (ID_ESTUDIANTE) on delete restrict on update restrict;
-
-alter table TAB_SERVICIO_COMUNITARIO add constraint FK_SERVICIO_COMUNITARIO_INSTRUCTOR foreign key (ID_INSTRUCTOR)
-      references TAB_INSTRUCTORES (ID_INSTRUCTOR) on delete restrict on update restrict;
 
 alter table TAB_SERVICIO_COMUNITARIO add constraint FK_SERVICIO_COMUNITARIO_INSTITUCION foreign key (ID_INSTITUCION_CONVENIO)
       references TAB_INSTITUCIONES_CONVENIOS (ID_INSTITUCION_CONVENIO) on delete restrict on update restrict;
@@ -1045,6 +1044,9 @@ alter table TAB_SERVICIO_COMUNITARIO add constraint FK_SERVICIO_ESTADO_SERVICIO_
 
 alter table TAB_SERVICIO_COMUNITARIO add constraint FK_SERVICIO_PERIODO foreign key (ID_PERIODO_ACADEMICO)
       references TAB_PERIODOS_ACADEMICOS (ID_PERIODO_ACADEMICO) on delete restrict on update restrict;
+
+alter table TAB_SERVICIO_COMUNITARIO add constraint FK_SERVICIO_DOCENTE_TUTOR foreign key (ID_DOCENTE_TUTOR)
+      references TAB_DOCENTES_TUTORES (ID_DOCENTE_TUTOR) on delete restrict on update restrict;
 
 alter table TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES add constraint FK_DOCS_PREPROFESIONALES_PRACTICA foreign key (ID_PRACTICA_PREPROFESIONAL)
       references TAB_PRACTICAS_PREPROFESIONALES (ID_PRACTICA_PREPROFESIONAL) on delete restrict on update restrict;

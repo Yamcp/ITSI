@@ -104,12 +104,12 @@ class DocumentosPracticasEstudianteController extends BaseController
 
             // Usar siempre TAB_INSTITUCIONES_CONVENIOS (MySQL resuelve mayúsculas/minúsculas). No usar tableExists():
             // en servidores con tablas en minúsculas, listTables() no coincide y el fallback "instituciones_convenios" rompe la consulta.
-            // Mismo criterio que coordinador/prácticas: convenio + instructor vía TAB_INSTRUCTORES → datos persona
+            // Tutor docente vía TAB_DOCENTES_TUTORES → datos persona
             return $db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
-                ->select('pp.ID_PRACTICA_PREPROFESIONAL, ic.NOMBRE as INSTITUCION_NOMBRE, CONCAT(COALESCE(dpi.NOMBRE,\'\'), \' \', COALESCE(dpi.APELLIDO,\'\')) as SUPERVISOR_NOMBRE', false)
+                ->select('pp.ID_PRACTICA_PREPROFESIONAL, ic.NOMBRE as INSTITUCION_NOMBRE, CONCAT(COALESCE(dpdt.NOMBRE,\'\'), \' \', COALESCE(dpdt.APELLIDO,\'\')) as SUPERVISOR_NOMBRE', false)
                 ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = pp.ID_INSTITUCION_CONVENIO', 'left')
-                ->join('TAB_INSTRUCTORES ins', 'ins.ID_INSTRUCTOR = pp.ID_INSTRUCTOR', 'left')
-                ->join('TAB_DATOS_PERSONAS dpi', 'dpi.ID_DATO_PERSONA = ins.ID_DATO_PERSONA', 'left')
+                ->join('TAB_DOCENTES_TUTORES dt', 'dt.ID_DOCENTE_TUTOR = pp.ID_DOCENTE_TUTOR', 'left')
+                ->join('TAB_DATOS_PERSONAS dpdt', 'dpdt.ID_DATO_PERSONA = dt.ID_DATO_PERSONA', 'left')
                 ->where('pp.ID_ESTUDIANTE', $idEst)
                 ->orderBy('pp.FECHA_INICIO', 'DESC')
                 ->get()

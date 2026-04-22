@@ -65,9 +65,6 @@ if (session()->get('logged_in') && (int) session()->get('rol') === 1) {
                     <div class="container-fluid">
                         <?= $this->renderSection('content') ?>
                     </div>
-                    <div class="container-fluid">
-                        <?= $this->renderSection('modal') ?>
-                    </div>
                 </main>
 
                 <!-- Footer -->
@@ -75,6 +72,9 @@ if (session()->get('logged_in') && (int) session()->get('rol') === 1) {
             </div>
         </div>
     </div>
+
+    <!-- Modales fuera del layout principal: evitan conflictos de z-index con la cabecera fija y el scroll -->
+    <?= $this->renderSection('modal') ?>
 
     <!-- Scripts -->
     <script src="<?= base_url('sistema/assets/libs/jquery/dist/jquery.min.js') ?>"></script>

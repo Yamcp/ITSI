@@ -853,21 +853,21 @@ $carreras = $carreras ?? [];
             selectTipos.appendChild(option);
         }
 
-        // Poblar instructores / tutores
+        // Poblar docentes / tutores
         const selectInstructor = document.querySelector('select[name="instructor"]');
         if (selectInstructor) {
-            selectInstructor.innerHTML = '<option value="">Seleccionar tutor o docente...</option>';
+            selectInstructor.innerHTML = '<option value="">Seleccionar docente tutor...</option>';
             if (datosModal.instructores && datosModal.instructores.length > 0) {
                 datosModal.instructores.forEach(function(ins) {
                     const opt = document.createElement('option');
-                    opt.value = ins.ID_INSTRUCTOR;
-                    opt.textContent = ins.NOMBRE_COMPLETO || ('Instructor ' + ins.ID_INSTRUCTOR);
+                    opt.value = ins.ID_DOCENTE_TUTOR;
+                    opt.textContent = ins.NOMBRE_COMPLETO || ('Docente ' + ins.ID_DOCENTE_TUTOR);
                     selectInstructor.appendChild(opt);
                 });
             } else {
                 const opt = document.createElement('option');
                 opt.value = '';
-                opt.textContent = 'No hay instructores registrados';
+                opt.textContent = 'No hay docentes registrados';
                 selectInstructor.appendChild(opt);
             }
         }

@@ -95,10 +95,10 @@ class DocumentosServicioComunitarioEstudianteController extends BaseController
             $idEst = (int) $est['ID_ESTUDIANTE'];
 
             return $db->table('TAB_SERVICIO_COMUNITARIO sc')
-                ->select('sc.ID_SERVICIO_COMUNITARIO, sc.PROYECTO_SOCIAL, ic.NOMBRE as INSTITUCION_NOMBRE, CONCAT(COALESCE(dpi.NOMBRE,\'\'), \' \', COALESCE(dpi.APELLIDO,\'\')) as SUPERVISOR_NOMBRE', false)
+                ->select('sc.ID_SERVICIO_COMUNITARIO, sc.PROYECTO_SOCIAL, ic.NOMBRE as INSTITUCION_NOMBRE, CONCAT(COALESCE(dpdt.NOMBRE,\'\'), \' \', COALESCE(dpdt.APELLIDO,\'\')) as SUPERVISOR_NOMBRE', false)
                 ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = sc.ID_INSTITUCION_CONVENIO', 'left')
-                ->join('TAB_INSTRUCTORES ins', 'ins.ID_INSTRUCTOR = sc.ID_INSTRUCTOR', 'left')
-                ->join('TAB_DATOS_PERSONAS dpi', 'dpi.ID_DATO_PERSONA = ins.ID_DATO_PERSONA', 'left')
+                ->join('TAB_DOCENTES_TUTORES dt', 'dt.ID_DOCENTE_TUTOR = sc.ID_DOCENTE_TUTOR', 'left')
+                ->join('TAB_DATOS_PERSONAS dpdt', 'dpdt.ID_DATO_PERSONA = dt.ID_DATO_PERSONA', 'left')
                 ->where('sc.ID_ESTUDIANTE', $idEst)
                 ->orderBy('sc.FECHA_INICIO', 'DESC')
                 ->get()

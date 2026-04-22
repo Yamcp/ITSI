@@ -70,4 +70,25 @@ class EmpleadosModel extends Model
         $empleadosInstructoresModel = new \App\Models\EmpleadosInstructoresModel();
         return $empleadosInstructoresModel->getRelacionesCompletas();
     }
+
+    /**
+     * Obtener empleado(s) con datos personales, departamento y tipo de contrato.
+     * Sin parámetro: retorna todos los empleados.
+     * Con $id: retorna un solo empleado.
+     */
+    public function getEmpleadoCompleto($id = null)
+    {
+        $builder = $this->db->table('TAB_EMPLEADOS e')
+            ->select('e.*, dp.NOMBRE, dp.APELLIDO, dp.CEDULA, dp.EMAIL, dp.CELULAR,
+                     d.NOMBRE as DEPARTAMENTO, tc.TIPO_CONTRATO')
+            ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+            ->join('TAB_DEPARTAMENTOS d', 'd.ID_DEPARTAMENTO = e.ID_DEPARTAMENTO')
+            ->join('TAB_TIPO_CONTRATO tc', 'tc.ID_TIPO_CONTRATO = e.ID_TIPO_CONTRATO');
+
+        if ($id !== null) {
+            return $builder->where('e.ID_EMPLEADO', $id)->get()->getRowArray();
+        }
+
+        return $builder->get()->getResultArray();
+    }
 }

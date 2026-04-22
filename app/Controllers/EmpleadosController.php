@@ -5,7 +5,7 @@ namespace App\Controllers;
 use App\Models\EmpleadosModel;
 use App\Models\DatosPersonasModel;
 use App\Models\DepartamentosModel;
-use App\Models\TipoContratoModel;
+use App\Models\TiposContratosModel;
 
 class EmpleadosController extends BaseController
 {
@@ -19,7 +19,7 @@ class EmpleadosController extends BaseController
         $this->empleadosModel = new \App\Models\EmpleadosModel();
         $this->datosPersonasModel = new \App\Models\DatosPersonasModel();
         $this->departamentosModel = new \App\Models\DepartamentosModel();
-        $this->tipoContratoModel = new \App\Models\TipoContratoModel();
+        $this->tipoContratoModel = new \App\Models\TiposContratosModel();
     }
 
     public function index()
