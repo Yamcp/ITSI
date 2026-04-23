@@ -80,12 +80,12 @@ abstract class BaseController extends Controller
         $path = trim($path, '/');
         $rol = (int) $session->get('rol');
 
-        if (str_starts_with($path, 'admin/') && $rol !== 4) {
+        if (str_starts_with($path, 'admin/') && $rol !== 1) {
             redirect()->to('/')->with('error', 'Acceso no autorizado')->send();
             exit;
         }
 
-        if ($rol === 4 && str_starts_with($path, 'coord/')) {
+        if ($rol === 1 && str_starts_with($path, 'coord/')) {
             if (!str_starts_with($path, 'coord/estudiantes')
                 && !str_starts_with($path, 'coord/docentes')
                 && !str_starts_with($path, 'coord/backup')
@@ -101,25 +101,25 @@ abstract class BaseController extends Controller
 
         switch ($rol) {
             case 1:
-                $rutasPermitidas[] = 'coord/cuenta';
-                $rutasPermitidas[] = 'coord/cuenta/cambiar-password';
-                $rutaCuenta = 'coord/cuenta';
-                break;
-            case 2:
-                $rutasPermitidas[] = 'docente/cuenta';
-                $rutasPermitidas[] = 'docente/cuenta/cambiar-password';
-                $rutaCuenta = 'docente/cuenta';
-                break;
-            case 3:
-                $rutasPermitidas[] = 'estudiante/cuenta';
-                $rutasPermitidas[] = 'estudiante/cuenta/cambiar-password';
-                $rutaCuenta = 'estudiante/cuenta';
-                break;
-            case 4:
                 $rutasPermitidas[] = 'admin/cuenta';
                 $rutasPermitidas[] = 'admin/cuenta/cambiar-password';
                 $rutaCuenta = 'admin/cuenta';
                 break;
+            case 2:
+                $rutasPermitidas[] = 'coord/cuenta';
+                $rutasPermitidas[] = 'coord/cuenta/cambiar-password';
+                $rutaCuenta = 'coord/cuenta';
+                break;
+            case 3:
+                $rutasPermitidas[] = 'docente/cuenta';
+                $rutasPermitidas[] = 'docente/cuenta/cambiar-password';
+                $rutaCuenta = 'docente/cuenta';
+                break;
+            case 4:
+                $rutasPermitidas[] = 'estudiante/cuenta';
+                $rutasPermitidas[] = 'estudiante/cuenta/cambiar-password';
+                $rutaCuenta = 'estudiante/cuenta';
+                break;            
             default:
                 $session->destroy();
                 redirect()->to('/')->send();
@@ -136,6 +136,6 @@ abstract class BaseController extends Controller
 
     protected function getLayoutForRole(string $default = 'coord/layouts/mainCoord'): string
     {
-        return (int) session()->get('rol') === 4 ? 'admin/layouts/mainAdmin' : $default;
+        return (int) session()->get('rol') === 1 ? 'admin/layouts/mainAdmin' : $default;
     }
 }

@@ -23,7 +23,7 @@ class DashboardCoordController extends BaseController
 
     public function __construct()
     {
-        if (!session()->get('logged_in') || !in_array((int) session()->get('rol'), [1, 4], true)) {
+        if (!session()->get('logged_in') || !in_array((int) session()->get('rol'), [2, 1], true)) {
             return redirect()->to('/');
         }
         
@@ -421,7 +421,7 @@ class DashboardCoordController extends BaseController
     // Método para obtener estadísticas adicionales (opcional)
     public function estadisticas()
     {
-        if (!session()->get('logged_in') || !in_array((int) session()->get('rol'), [1, 4], true)) {
+        if (!session()->get('logged_in') || !in_array((int) session()->get('rol'), [2, 1], true)) {
             return redirect()->to('/');
         }
         
@@ -470,7 +470,7 @@ class DashboardCoordController extends BaseController
     // Método temporal para debug de carreras
     public function debugCarreras()
     {
-        if (!session()->get('logged_in') || !in_array((int) session()->get('rol'), [1, 4], true)) {
+        if (!session()->get('logged_in') || !in_array((int) session()->get('rol'), [2, 1], true)) {
             return redirect()->to('/');
         }
         
@@ -521,7 +521,7 @@ class DashboardCoordController extends BaseController
     // Método para obtener estadísticas de actividades educativas (similar al controlador de actividades)
     public function getEstadisticasActividades()
     {
-        if (!session()->get('logged_in') || !in_array((int) session()->get('rol'), [1, 4], true)) {
+        if (!session()->get('logged_in') || !in_array((int) session()->get('rol'), [2, 1], true)) {
             return $this->response->setJSON(['error' => 'No autorizado']);
         }
         

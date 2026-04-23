@@ -1231,8 +1231,9 @@ INSERT INTO `TAB_RECUPERACION_CONTRASENA` (`ID_RECUPERACION`, `ID_USUARIO`, `TOK
 
 INSERT INTO `TAB_TIPOS_ROLES` (`ID_TIPOS_ROLES`, `ROL`) VALUES
 (1, 'Administrador'),
-(2, 'Docente'),
-(3, 'Estudiante');
+(2, 'Coordinador'),
+(3, 'Docente'),
+(4, 'Estudiante');
 
 INSERT INTO `TAB_ROLES` (`ID_ROL`, `ID_USUARIO`, `ID_TIPOS_ROLES`) VALUES
 (1, 1, 1),
