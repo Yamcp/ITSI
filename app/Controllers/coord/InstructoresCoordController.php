@@ -91,6 +91,7 @@ class InstructoresCoordController extends BaseController
         return view('coord/docentes/docentes', [
             'title' => 'Gestión de docentes',
             'docentes' => $lista,
+            'layout' => $this->getLayoutForRole()
         ]);
     }
 

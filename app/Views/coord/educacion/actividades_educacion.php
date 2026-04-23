@@ -67,18 +67,14 @@
                     <i class="fas fa-graduation-cap me-2"></i>
                     Gestión de Actividades Educativas
                 </h3>
-                <div class="alert alert-light border mx-auto mb-0" style="max-width: 52rem;" role="note">
-                    <i class="fas fa-info-circle text-primary me-2"></i>
-                    <strong>Enlaces de acceso:</strong> al crear o editar la actividad, registre el enlace si la modalidad es virtual o híbrida; el mismo dato aparece en el perfil del instructor y de los estudiantes inscritos.
-                    <strong>Encuesta de satisfacción:</strong> en la columna <strong>Encuesta</strong> use siempre <em>Agregar enlace</em> (nuevo o edición); si ya hay URL, también verá <em>Abrir encuesta</em> (mismo estilo verde outline).
-                </div>
             </div>
         </div>
 
         <!-- Estadísticas y acciones rápidas (una fila en pantallas grandes) -->
         <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-5 g-3 mb-4 align-items-stretch">
             <div class="col">
-                <div class="card text-center shadow-sm h-100" style="background: linear-gradient(135deg, #007bff 80%, #0056b3 100%); color: #fff; border: none;">
+                <div class="card text-center shadow-sm h-100"
+                    style="background: linear-gradient(135deg, #007bff 80%, #0056b3 100%); color: #fff; border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center py-3">
                         <h2 class="card-title mb-2" id="totalActividades" style="font-size:2.5rem;">0</h2>
                         <p class="card-text fw-bold mb-0" style="color: #e0e0e0;">Total Actividades</p>
@@ -88,8 +84,10 @@
             <div class="col">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="#" onclick="showModal('modalNuevaActividad')" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-plus-circle fa-2x mb-2" style="color: #28a745; text-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);"></i>
+                        <a href="#" onclick="showModal('modalNuevaActividad')"
+                            style="text-decoration: none; color: inherit;">
+                            <i class="fas fa-plus-circle fa-2x mb-2"
+                                style="color: #28a745; text-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);"></i>
                             <div class="fw-bold">Nueva Actividad</div>
                         </a>
                     </div>
@@ -99,7 +97,8 @@
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="verCalendario()" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-calendar-alt fa-2x mb-2" style="color: #007bff; text-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);"></i>
+                            <i class="fas fa-calendar-alt fa-2x mb-2"
+                                style="color: #007bff; text-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);"></i>
                             <div class="fw-bold">Ver Calendario</div>
                         </a>
                     </div>
@@ -108,8 +107,10 @@
             <div class="col">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="#" onclick="generarReporteEvaluaciones()" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-chart-bar fa-2x mb-2" style="color: #ffc107; text-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);"></i>
+                        <a href="#" onclick="generarReporteEvaluaciones()"
+                            style="text-decoration: none; color: inherit;">
+                            <i class="fas fa-chart-bar fa-2x mb-2"
+                                style="color: #ffc107; text-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);"></i>
                             <div class="fw-bold">Generar Reporte</div>
                         </a>
                     </div>
@@ -119,7 +120,8 @@
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="exportarEvaluaciones()" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-download fa-2x mb-2" style="color: #dc3545; text-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);"></i>
+                            <i class="fas fa-download fa-2x mb-2"
+                                style="color: #dc3545; text-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);"></i>
                             <div class="fw-bold">Exportar Datos</div>
                         </a>
                     </div>
@@ -132,30 +134,40 @@
             <div class="col-12">
                 <div class="card border-0 shadow-sm">
                     <div class="card-body pb-0">
-                        <ul class="nav nav-tabs nav-justified rounded-pill bg-light px-2 py-1" id="actividadesTabs" role="tablist" style="gap: 0.5rem;">
+                        <ul class="nav nav-tabs nav-justified rounded-pill bg-light px-2 py-1" id="actividadesTabs"
+                            role="tablist" style="gap: 0.5rem;">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active rounded-pill fw-semibold text-primary" id="cursos-tab" data-bs-toggle="tab" data-bs-target="#cursos" type="button" role="tab" aria-selected="true">
+                                <button class="nav-link active rounded-pill fw-semibold text-primary" id="cursos-tab"
+                                    data-bs-toggle="tab" data-bs-target="#cursos" type="button" role="tab"
+                                    aria-selected="true">
                                     <i class="fas fa-book me-2"></i>Cursos
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-pill fw-semibold text-success" id="talleres-tab" data-bs-toggle="tab" data-bs-target="#talleres" type="button" role="tab" aria-selected="false">
+                                <button class="nav-link rounded-pill fw-semibold text-success" id="talleres-tab"
+                                    data-bs-toggle="tab" data-bs-target="#talleres" type="button" role="tab"
+                                    aria-selected="false">
                                     <i class="fas fa-tools me-2"></i>Talleres
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-pill fw-semibold text-info" id="conferencias-tab" data-bs-toggle="tab" data-bs-target="#conferencias" type="button" role="tab" aria-selected="false">
+                                <button class="nav-link rounded-pill fw-semibold text-info" id="conferencias-tab"
+                                    data-bs-toggle="tab" data-bs-target="#conferencias" type="button" role="tab"
+                                    aria-selected="false">
                                     <i class="fas fa-users me-2"></i>Conferencias
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-pill fw-semibold text-primary" id="capacitacion-tab" data-bs-toggle="tab" data-bs-target="#capacitaciones" type="button" role="tab" aria-selected="false">
+                                <button class="nav-link rounded-pill fw-semibold text-primary" id="capacitacion-tab"
+                                    data-bs-toggle="tab" data-bs-target="#capacitaciones" type="button" role="tab"
+                                    aria-selected="false">
                                     <i class="fas fa-chalkboard-teacher me-2"></i>Capacitación
                                 </button>
                             </li>
                         </ul>
                         <div class="d-flex justify-content-end mt-2">
-                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="showModal('modalFiltros')">
+                            <button type="button" class="btn btn-outline-secondary btn-sm"
+                                onclick="showModal('modalFiltros')">
                                 <i class="fas fa-filter me-1"></i>Filtros
                             </button>
                         </div>
@@ -198,23 +210,37 @@
                                                                     <td><?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?></td>
                                                                     <td>
                                                                         <div class="d-flex align-items-center">
-                                                                            <i class="fas fa-laptop-code fa-2x me-2 text-primary"></i>
+                                                                            <i
+                                                                                class="fas fa-laptop-code fa-2x me-2 text-primary"></i>
                                                                             <div>
-                                                                                <div class="fw-semibold"><?= $actividad['NOMBRE_ACTIVIDAD'] ?></div>
-                                                                                <small class="text-muted"><?= $actividad['DESCRIPCION'] ?></small>
+                                                                                <div class="fw-semibold">
+                                                                                    <?= $actividad['NOMBRE_ACTIVIDAD'] ?></div>
+                                                                                <small
+                                                                                    class="text-muted"><?= $actividad['DESCRIPCION'] ?></small>
                                                                             </div>
                                                                         </div>
                                                                     </td>
                                                                     <td>
-                                                                        <div><?= $actividad['NOMBRE'] ?> <?= $actividad['APELLIDO'] ?></div>
-                                                                        <small class="text-muted"><?= $actividad['ESPECIALIDAD'] ?></small>
+                                                                        <div><?= $actividad['NOMBRE'] ?>
+                                                                            <?= $actividad['APELLIDO'] ?></div>
+                                                                        <small
+                                                                            class="text-muted"><?= $actividad['ESPECIALIDAD'] ?></small>
                                                                     </td>
-                                                                    <td><span class="badge bg-info"><?= $actividad['MODALIDAD'] ?></span></td>
+                                                                    <td><span
+                                                                            class="badge bg-info"><?= $actividad['MODALIDAD'] ?></span>
+                                                                    </td>
                                                                     <td>
-                                                                        <div><?= date('M Y', strtotime($actividad['FECHA_INICIO'])) ?> - <?= date('M Y', strtotime($actividad['FECHA_FIN'])) ?></div>
-                                                                        <small class="text-muted"><?= $actividad['DURACION_HORAS'] ?> horas</small>
+                                                                        <div>
+                                                                            <?= date('M Y', strtotime($actividad['FECHA_INICIO'])) ?>
+                                                                            - <?= date('M Y', strtotime($actividad['FECHA_FIN'])) ?>
+                                                                        </div>
+                                                                        <small
+                                                                            class="text-muted"><?= $actividad['DURACION_HORAS'] ?>
+                                                                            horas</small>
                                                                     </td>
-                                                                    <td><span class="badge bg-secondary"><?= $actividad['DURACION_HORAS'] ?>h</span></td>
+                                                                    <td><span
+                                                                            class="badge bg-secondary"><?= $actividad['DURACION_HORAS'] ?>h</span>
+                                                                    </td>
                                                                     <td>
                                                                         <?php if ($finalizadoC): ?>
                                                                             <span class="badge bg-secondary">Finalizado</span>
@@ -226,19 +252,45 @@
                                                                         <?php if ($encuestaC): ?>
                                                                             <?php $fvListC = !empty($encuestaC['FECHA_VENCIMIENTO']) ? substr((string) $encuestaC['FECHA_VENCIMIENTO'], 0, 10) : ''; ?>
                                                                             <div class="d-flex flex-wrap gap-1 align-items-center">
-                                                                                <button type="button" class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado" title="Agregar o cambiar enlace de encuesta" data-encuesta-modo="editar" data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>" data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>" data-evaluacion-id="<?= (int) ($encuestaC['ID_EVALUACION_ENLACE'] ?? 0) ?>" data-nombre-evaluacion="<?= esc($encuestaC['NOMBRE_EVALUACION'] ?? '', 'attr') ?>" data-enlace-formulario="<?= esc($encuestaC['ENLACE_FORMULARIO'] ?? '', 'attr') ?>" data-descripcion="<?= esc($encuestaC['DESCRIPCION'] ?? '', 'attr') ?>" data-fecha-vencimiento="<?= esc($fvListC, 'attr') ?>" data-estado="<?= esc($encuestaC['ESTADO'] ?? 'activo', 'attr') ?>"><i class="fas fa-link me-1"></i>Agregar enlace</button>
-                                                                                <a href="<?= esc($encuestaC['ENLACE_FORMULARIO'], 'attr') ?>" target="_blank" rel="noopener" class="btn btn-outline-success btn-sm" title="Abrir formulario de la encuesta"><i class="fas fa-external-link-alt me-1"></i>Abrir encuesta</a>
+                                                                                <button type="button"
+                                                                                    class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado"
+                                                                                    title="Agregar o cambiar enlace de encuesta"
+                                                                                    data-encuesta-modo="editar"
+                                                                                    data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>"
+                                                                                    data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>"
+                                                                                    data-evaluacion-id="<?= (int) ($encuestaC['ID_EVALUACION_ENLACE'] ?? 0) ?>"
+                                                                                    data-nombre-evaluacion="<?= esc($encuestaC['NOMBRE_EVALUACION'] ?? '', 'attr') ?>"
+                                                                                    data-enlace-formulario="<?= esc($encuestaC['ENLACE_FORMULARIO'] ?? '', 'attr') ?>"
+                                                                                    data-descripcion="<?= esc($encuestaC['DESCRIPCION'] ?? '', 'attr') ?>"
+                                                                                    data-fecha-vencimiento="<?= esc($fvListC, 'attr') ?>"
+                                                                                    data-estado="<?= esc($encuestaC['ESTADO'] ?? 'activo', 'attr') ?>"><i
+                                                                                        class="fas fa-link me-1"></i>Agregar
+                                                                                    enlace</button>
+                                                                                <a href="<?= esc($encuestaC['ENLACE_FORMULARIO'], 'attr') ?>"
+                                                                                    target="_blank" rel="noopener"
+                                                                                    class="btn btn-outline-success btn-sm"
+                                                                                    title="Abrir formulario de la encuesta"><i
+                                                                                        class="fas fa-external-link-alt me-1"></i>Abrir
+                                                                                    encuesta</a>
                                                                             </div>
                                                                         <?php else: ?>
-                                                                            <button type="button" class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado" title="Agregar enlace de encuesta de satisfacción" data-encuesta-modo="nuevo" data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>" data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>"><i class="fas fa-link me-1"></i>Agregar enlace</button>
+                                                                            <button type="button"
+                                                                                class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado"
+                                                                                title="Agregar enlace de encuesta de satisfacción"
+                                                                                data-encuesta-modo="nuevo"
+                                                                                data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>"
+                                                                                data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>"><i
+                                                                                    class="fas fa-link me-1"></i>Agregar enlace</button>
                                                                         <?php endif; ?>
                                                                     </td>
                                                                     <td>
                                                                         <div class="btn-group btn-group-sm">
-                                                                            <a href="<?= base_url('coord/actividades-educacion/ver/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-primary" title="Ver Detalle">
+                                                                            <a href="<?= base_url('coord/actividades-educacion/ver/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>"
+                                                                                class="btn btn-outline-primary" title="Ver Detalle">
                                                                                 <i class="fas fa-eye"></i>
                                                                             </a>
-                                                                            <a href="<?= base_url('coord/actividades-educacion/editar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-warning" title="Editar">
+                                                                            <a href="<?= base_url('coord/actividades-educacion/editar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>"
+                                                                                class="btn btn-outline-warning" title="Editar">
                                                                                 <i class="fas fa-edit"></i>
                                                                             </a>
                                                                         </div>
@@ -296,21 +348,34 @@
                                                                         <div class="d-flex align-items-center">
                                                                             <i class="fas fa-wrench fa-2x me-2 text-success"></i>
                                                                             <div>
-                                                                                <div class="fw-semibold"><?= $actividad['NOMBRE_ACTIVIDAD'] ?></div>
-                                                                                <small class="text-muted"><?= $actividad['DESCRIPCION'] ?></small>
+                                                                                <div class="fw-semibold">
+                                                                                    <?= $actividad['NOMBRE_ACTIVIDAD'] ?></div>
+                                                                                <small
+                                                                                    class="text-muted"><?= $actividad['DESCRIPCION'] ?></small>
                                                                             </div>
                                                                         </div>
                                                                     </td>
                                                                     <td>
-                                                                        <div><?= $actividad['NOMBRE'] ?> <?= $actividad['APELLIDO'] ?></div>
-                                                                        <small class="text-muted"><?= $actividad['ESPECIALIDAD'] ?></small>
+                                                                        <div><?= $actividad['NOMBRE'] ?>
+                                                                            <?= $actividad['APELLIDO'] ?></div>
+                                                                        <small
+                                                                            class="text-muted"><?= $actividad['ESPECIALIDAD'] ?></small>
                                                                     </td>
-                                                                    <td><span class="badge bg-warning text-dark"><?= $actividad['MODALIDAD'] ?></span></td>
+                                                                    <td><span
+                                                                            class="badge bg-warning text-dark"><?= $actividad['MODALIDAD'] ?></span>
+                                                                    </td>
                                                                     <td>
-                                                                        <div><?= date('M Y', strtotime($actividad['FECHA_INICIO'])) ?> - <?= date('M Y', strtotime($actividad['FECHA_FIN'])) ?></div>
-                                                                        <small class="text-muted"><?= $actividad['DURACION_HORAS'] ?> horas</small>
+                                                                        <div>
+                                                                            <?= date('M Y', strtotime($actividad['FECHA_INICIO'])) ?>
+                                                                            - <?= date('M Y', strtotime($actividad['FECHA_FIN'])) ?>
+                                                                        </div>
+                                                                        <small
+                                                                            class="text-muted"><?= $actividad['DURACION_HORAS'] ?>
+                                                                            horas</small>
                                                                     </td>
-                                                                    <td><span class="badge bg-secondary"><?= $actividad['DURACION_HORAS'] ?>h</span></td>
+                                                                    <td><span
+                                                                            class="badge bg-secondary"><?= $actividad['DURACION_HORAS'] ?>h</span>
+                                                                    </td>
                                                                     <td>
                                                                         <?php if ($finalizadoT): ?>
                                                                             <span class="badge bg-secondary">Finalizado</span>
@@ -322,19 +387,45 @@
                                                                         <?php if ($encuestaT): ?>
                                                                             <?php $fvListT = !empty($encuestaT['FECHA_VENCIMIENTO']) ? substr((string) $encuestaT['FECHA_VENCIMIENTO'], 0, 10) : ''; ?>
                                                                             <div class="d-flex flex-wrap gap-1 align-items-center">
-                                                                                <button type="button" class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado" title="Agregar o cambiar enlace de encuesta" data-encuesta-modo="editar" data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>" data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>" data-evaluacion-id="<?= (int) ($encuestaT['ID_EVALUACION_ENLACE'] ?? 0) ?>" data-nombre-evaluacion="<?= esc($encuestaT['NOMBRE_EVALUACION'] ?? '', 'attr') ?>" data-enlace-formulario="<?= esc($encuestaT['ENLACE_FORMULARIO'] ?? '', 'attr') ?>" data-descripcion="<?= esc($encuestaT['DESCRIPCION'] ?? '', 'attr') ?>" data-fecha-vencimiento="<?= esc($fvListT, 'attr') ?>" data-estado="<?= esc($encuestaT['ESTADO'] ?? 'activo', 'attr') ?>"><i class="fas fa-link me-1"></i>Agregar enlace</button>
-                                                                                <a href="<?= esc($encuestaT['ENLACE_FORMULARIO'], 'attr') ?>" target="_blank" rel="noopener" class="btn btn-outline-success btn-sm" title="Abrir formulario de la encuesta"><i class="fas fa-external-link-alt me-1"></i>Abrir encuesta</a>
+                                                                                <button type="button"
+                                                                                    class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado"
+                                                                                    title="Agregar o cambiar enlace de encuesta"
+                                                                                    data-encuesta-modo="editar"
+                                                                                    data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>"
+                                                                                    data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>"
+                                                                                    data-evaluacion-id="<?= (int) ($encuestaT['ID_EVALUACION_ENLACE'] ?? 0) ?>"
+                                                                                    data-nombre-evaluacion="<?= esc($encuestaT['NOMBRE_EVALUACION'] ?? '', 'attr') ?>"
+                                                                                    data-enlace-formulario="<?= esc($encuestaT['ENLACE_FORMULARIO'] ?? '', 'attr') ?>"
+                                                                                    data-descripcion="<?= esc($encuestaT['DESCRIPCION'] ?? '', 'attr') ?>"
+                                                                                    data-fecha-vencimiento="<?= esc($fvListT, 'attr') ?>"
+                                                                                    data-estado="<?= esc($encuestaT['ESTADO'] ?? 'activo', 'attr') ?>"><i
+                                                                                        class="fas fa-link me-1"></i>Agregar
+                                                                                    enlace</button>
+                                                                                <a href="<?= esc($encuestaT['ENLACE_FORMULARIO'], 'attr') ?>"
+                                                                                    target="_blank" rel="noopener"
+                                                                                    class="btn btn-outline-success btn-sm"
+                                                                                    title="Abrir formulario de la encuesta"><i
+                                                                                        class="fas fa-external-link-alt me-1"></i>Abrir
+                                                                                    encuesta</a>
                                                                             </div>
                                                                         <?php else: ?>
-                                                                            <button type="button" class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado" title="Agregar enlace de encuesta de satisfacción" data-encuesta-modo="nuevo" data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>" data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>"><i class="fas fa-link me-1"></i>Agregar enlace</button>
+                                                                            <button type="button"
+                                                                                class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado"
+                                                                                title="Agregar enlace de encuesta de satisfacción"
+                                                                                data-encuesta-modo="nuevo"
+                                                                                data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>"
+                                                                                data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>"><i
+                                                                                    class="fas fa-link me-1"></i>Agregar enlace</button>
                                                                         <?php endif; ?>
                                                                     </td>
                                                                     <td>
                                                                         <div class="btn-group btn-group-sm">
-                                                                            <a href="<?= base_url('coord/actividades-educacion/ver/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-primary" title="Ver Detalle">
+                                                                            <a href="<?= base_url('coord/actividades-educacion/ver/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>"
+                                                                                class="btn btn-outline-primary" title="Ver Detalle">
                                                                                 <i class="fas fa-eye"></i>
                                                                             </a>
-                                                                            <a href="<?= base_url('coord/actividades-educacion/editar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-warning" title="Editar">
+                                                                            <a href="<?= base_url('coord/actividades-educacion/editar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>"
+                                                                                class="btn btn-outline-warning" title="Editar">
                                                                                 <i class="fas fa-edit"></i>
                                                                             </a>
                                                                         </div>
@@ -392,21 +483,34 @@
                                                                         <div class="d-flex align-items-center">
                                                                             <i class="fas fa-comments fa-2x me-2 text-info"></i>
                                                                             <div>
-                                                                                <div class="fw-semibold"><?= $actividad['NOMBRE_ACTIVIDAD'] ?></div>
-                                                                                <small class="text-muted"><?= $actividad['DESCRIPCION'] ?></small>
+                                                                                <div class="fw-semibold">
+                                                                                    <?= $actividad['NOMBRE_ACTIVIDAD'] ?></div>
+                                                                                <small
+                                                                                    class="text-muted"><?= $actividad['DESCRIPCION'] ?></small>
                                                                             </div>
                                                                         </div>
                                                                     </td>
                                                                     <td>
-                                                                        <div><?= $actividad['NOMBRE'] ?> <?= $actividad['APELLIDO'] ?></div>
-                                                                        <small class="text-muted"><?= $actividad['ESPECIALIDAD'] ?></small>
+                                                                        <div><?= $actividad['NOMBRE'] ?>
+                                                                            <?= $actividad['APELLIDO'] ?></div>
+                                                                        <small
+                                                                            class="text-muted"><?= $actividad['ESPECIALIDAD'] ?></small>
                                                                     </td>
-                                                                    <td><span class="badge bg-info"><?= $actividad['MODALIDAD'] ?></span></td>
+                                                                    <td><span
+                                                                            class="badge bg-info"><?= $actividad['MODALIDAD'] ?></span>
+                                                                    </td>
                                                                     <td>
-                                                                        <div><?= date('M Y', strtotime($actividad['FECHA_INICIO'])) ?> - <?= date('M Y', strtotime($actividad['FECHA_FIN'])) ?></div>
-                                                                        <small class="text-muted"><?= $actividad['DURACION_HORAS'] ?> horas</small>
+                                                                        <div>
+                                                                            <?= date('M Y', strtotime($actividad['FECHA_INICIO'])) ?>
+                                                                            - <?= date('M Y', strtotime($actividad['FECHA_FIN'])) ?>
+                                                                        </div>
+                                                                        <small
+                                                                            class="text-muted"><?= $actividad['DURACION_HORAS'] ?>
+                                                                            horas</small>
                                                                     </td>
-                                                                    <td><span class="badge bg-secondary"><?= $actividad['DURACION_HORAS'] ?>h</span></td>
+                                                                    <td><span
+                                                                            class="badge bg-secondary"><?= $actividad['DURACION_HORAS'] ?>h</span>
+                                                                    </td>
                                                                     <td>
                                                                         <?php if ($finalizadoCo): ?>
                                                                             <span class="badge bg-secondary">Finalizado</span>
@@ -418,19 +522,45 @@
                                                                         <?php if ($encuestaCo): ?>
                                                                             <?php $fvListCo = !empty($encuestaCo['FECHA_VENCIMIENTO']) ? substr((string) $encuestaCo['FECHA_VENCIMIENTO'], 0, 10) : ''; ?>
                                                                             <div class="d-flex flex-wrap gap-1 align-items-center">
-                                                                                <button type="button" class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado" title="Agregar o cambiar enlace de encuesta" data-encuesta-modo="editar" data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>" data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>" data-evaluacion-id="<?= (int) ($encuestaCo['ID_EVALUACION_ENLACE'] ?? 0) ?>" data-nombre-evaluacion="<?= esc($encuestaCo['NOMBRE_EVALUACION'] ?? '', 'attr') ?>" data-enlace-formulario="<?= esc($encuestaCo['ENLACE_FORMULARIO'] ?? '', 'attr') ?>" data-descripcion="<?= esc($encuestaCo['DESCRIPCION'] ?? '', 'attr') ?>" data-fecha-vencimiento="<?= esc($fvListCo, 'attr') ?>" data-estado="<?= esc($encuestaCo['ESTADO'] ?? 'activo', 'attr') ?>"><i class="fas fa-link me-1"></i>Agregar enlace</button>
-                                                                                <a href="<?= esc($encuestaCo['ENLACE_FORMULARIO'], 'attr') ?>" target="_blank" rel="noopener" class="btn btn-outline-success btn-sm" title="Abrir formulario de la encuesta"><i class="fas fa-external-link-alt me-1"></i>Abrir encuesta</a>
+                                                                                <button type="button"
+                                                                                    class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado"
+                                                                                    title="Agregar o cambiar enlace de encuesta"
+                                                                                    data-encuesta-modo="editar"
+                                                                                    data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>"
+                                                                                    data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>"
+                                                                                    data-evaluacion-id="<?= (int) ($encuestaCo['ID_EVALUACION_ENLACE'] ?? 0) ?>"
+                                                                                    data-nombre-evaluacion="<?= esc($encuestaCo['NOMBRE_EVALUACION'] ?? '', 'attr') ?>"
+                                                                                    data-enlace-formulario="<?= esc($encuestaCo['ENLACE_FORMULARIO'] ?? '', 'attr') ?>"
+                                                                                    data-descripcion="<?= esc($encuestaCo['DESCRIPCION'] ?? '', 'attr') ?>"
+                                                                                    data-fecha-vencimiento="<?= esc($fvListCo, 'attr') ?>"
+                                                                                    data-estado="<?= esc($encuestaCo['ESTADO'] ?? 'activo', 'attr') ?>"><i
+                                                                                        class="fas fa-link me-1"></i>Agregar
+                                                                                    enlace</button>
+                                                                                <a href="<?= esc($encuestaCo['ENLACE_FORMULARIO'], 'attr') ?>"
+                                                                                    target="_blank" rel="noopener"
+                                                                                    class="btn btn-outline-success btn-sm"
+                                                                                    title="Abrir formulario de la encuesta"><i
+                                                                                        class="fas fa-external-link-alt me-1"></i>Abrir
+                                                                                    encuesta</a>
                                                                             </div>
                                                                         <?php else: ?>
-                                                                            <button type="button" class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado" title="Agregar enlace de encuesta de satisfacción" data-encuesta-modo="nuevo" data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>" data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>"><i class="fas fa-link me-1"></i>Agregar enlace</button>
+                                                                            <button type="button"
+                                                                                class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado"
+                                                                                title="Agregar enlace de encuesta de satisfacción"
+                                                                                data-encuesta-modo="nuevo"
+                                                                                data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>"
+                                                                                data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>"><i
+                                                                                    class="fas fa-link me-1"></i>Agregar enlace</button>
                                                                         <?php endif; ?>
                                                                     </td>
                                                                     <td>
                                                                         <div class="btn-group btn-group-sm">
-                                                                            <a href="<?= base_url('coord/actividades-educacion/ver/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-primary" title="Ver Detalle">
+                                                                            <a href="<?= base_url('coord/actividades-educacion/ver/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>"
+                                                                                class="btn btn-outline-primary" title="Ver Detalle">
                                                                                 <i class="fas fa-eye"></i>
                                                                             </a>
-                                                                            <a href="<?= base_url('coord/actividades-educacion/editar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-warning" title="Editar">
+                                                                            <a href="<?= base_url('coord/actividades-educacion/editar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>"
+                                                                                class="btn btn-outline-warning" title="Editar">
                                                                                 <i class="fas fa-edit"></i>
                                                                             </a>
                                                                         </div>
@@ -486,23 +616,37 @@
                                                                     <td><?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?></td>
                                                                     <td>
                                                                         <div class="d-flex align-items-center">
-                                                                            <i class="fas fa-chalkboard-teacher fa-2x me-2 text-warning"></i>
+                                                                            <i
+                                                                                class="fas fa-chalkboard-teacher fa-2x me-2 text-warning"></i>
                                                                             <div>
-                                                                                <div class="fw-semibold"><?= $actividad['NOMBRE_ACTIVIDAD'] ?></div>
-                                                                                <small class="text-muted"><?= $actividad['DESCRIPCION'] ?></small>
+                                                                                <div class="fw-semibold">
+                                                                                    <?= $actividad['NOMBRE_ACTIVIDAD'] ?></div>
+                                                                                <small
+                                                                                    class="text-muted"><?= $actividad['DESCRIPCION'] ?></small>
                                                                             </div>
                                                                         </div>
                                                                     </td>
                                                                     <td>
-                                                                        <div><?= $actividad['NOMBRE'] ?> <?= $actividad['APELLIDO'] ?></div>
-                                                                        <small class="text-muted"><?= $actividad['ESPECIALIDAD'] ?></small>
+                                                                        <div><?= $actividad['NOMBRE'] ?>
+                                                                            <?= $actividad['APELLIDO'] ?></div>
+                                                                        <small
+                                                                            class="text-muted"><?= $actividad['ESPECIALIDAD'] ?></small>
                                                                     </td>
-                                                                    <td><span class="badge bg-warning text-dark"><?= $actividad['MODALIDAD'] ?></span></td>
+                                                                    <td><span
+                                                                            class="badge bg-warning text-dark"><?= $actividad['MODALIDAD'] ?></span>
+                                                                    </td>
                                                                     <td>
-                                                                        <div><?= date('M Y', strtotime($actividad['FECHA_INICIO'])) ?> - <?= date('M Y', strtotime($actividad['FECHA_FIN'])) ?></div>
-                                                                        <small class="text-muted"><?= $actividad['DURACION_HORAS'] ?> horas</small>
+                                                                        <div>
+                                                                            <?= date('M Y', strtotime($actividad['FECHA_INICIO'])) ?>
+                                                                            - <?= date('M Y', strtotime($actividad['FECHA_FIN'])) ?>
+                                                                        </div>
+                                                                        <small
+                                                                            class="text-muted"><?= $actividad['DURACION_HORAS'] ?>
+                                                                            horas</small>
                                                                     </td>
-                                                                    <td><span class="badge bg-secondary"><?= $actividad['DURACION_HORAS'] ?>h</span></td>
+                                                                    <td><span
+                                                                            class="badge bg-secondary"><?= $actividad['DURACION_HORAS'] ?>h</span>
+                                                                    </td>
                                                                     <td>
                                                                         <?php if ($finalizadoCa): ?>
                                                                             <span class="badge bg-secondary">Finalizado</span>
@@ -514,19 +658,45 @@
                                                                         <?php if ($encuestaCa): ?>
                                                                             <?php $fvListCa = !empty($encuestaCa['FECHA_VENCIMIENTO']) ? substr((string) $encuestaCa['FECHA_VENCIMIENTO'], 0, 10) : ''; ?>
                                                                             <div class="d-flex flex-wrap gap-1 align-items-center">
-                                                                                <button type="button" class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado" title="Agregar o cambiar enlace de encuesta" data-encuesta-modo="editar" data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>" data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>" data-evaluacion-id="<?= (int) ($encuestaCa['ID_EVALUACION_ENLACE'] ?? 0) ?>" data-nombre-evaluacion="<?= esc($encuestaCa['NOMBRE_EVALUACION'] ?? '', 'attr') ?>" data-enlace-formulario="<?= esc($encuestaCa['ENLACE_FORMULARIO'] ?? '', 'attr') ?>" data-descripcion="<?= esc($encuestaCa['DESCRIPCION'] ?? '', 'attr') ?>" data-fecha-vencimiento="<?= esc($fvListCa, 'attr') ?>" data-estado="<?= esc($encuestaCa['ESTADO'] ?? 'activo', 'attr') ?>"><i class="fas fa-link me-1"></i>Agregar enlace</button>
-                                                                                <a href="<?= esc($encuestaCa['ENLACE_FORMULARIO'], 'attr') ?>" target="_blank" rel="noopener" class="btn btn-outline-success btn-sm" title="Abrir formulario de la encuesta"><i class="fas fa-external-link-alt me-1"></i>Abrir encuesta</a>
+                                                                                <button type="button"
+                                                                                    class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado"
+                                                                                    title="Agregar o cambiar enlace de encuesta"
+                                                                                    data-encuesta-modo="editar"
+                                                                                    data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>"
+                                                                                    data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>"
+                                                                                    data-evaluacion-id="<?= (int) ($encuestaCa['ID_EVALUACION_ENLACE'] ?? 0) ?>"
+                                                                                    data-nombre-evaluacion="<?= esc($encuestaCa['NOMBRE_EVALUACION'] ?? '', 'attr') ?>"
+                                                                                    data-enlace-formulario="<?= esc($encuestaCa['ENLACE_FORMULARIO'] ?? '', 'attr') ?>"
+                                                                                    data-descripcion="<?= esc($encuestaCa['DESCRIPCION'] ?? '', 'attr') ?>"
+                                                                                    data-fecha-vencimiento="<?= esc($fvListCa, 'attr') ?>"
+                                                                                    data-estado="<?= esc($encuestaCa['ESTADO'] ?? 'activo', 'attr') ?>"><i
+                                                                                        class="fas fa-link me-1"></i>Agregar
+                                                                                    enlace</button>
+                                                                                <a href="<?= esc($encuestaCa['ENLACE_FORMULARIO'], 'attr') ?>"
+                                                                                    target="_blank" rel="noopener"
+                                                                                    class="btn btn-outline-success btn-sm"
+                                                                                    title="Abrir formulario de la encuesta"><i
+                                                                                        class="fas fa-external-link-alt me-1"></i>Abrir
+                                                                                    encuesta</a>
                                                                             </div>
                                                                         <?php else: ?>
-                                                                            <button type="button" class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado" title="Agregar enlace de encuesta de satisfacción" data-encuesta-modo="nuevo" data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>" data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>"><i class="fas fa-link me-1"></i>Agregar enlace</button>
+                                                                            <button type="button"
+                                                                                class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado"
+                                                                                title="Agregar enlace de encuesta de satisfacción"
+                                                                                data-encuesta-modo="nuevo"
+                                                                                data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>"
+                                                                                data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>"><i
+                                                                                    class="fas fa-link me-1"></i>Agregar enlace</button>
                                                                         <?php endif; ?>
                                                                     </td>
                                                                     <td>
                                                                         <div class="btn-group btn-group-sm">
-                                                                            <a href="<?= base_url('coord/actividades-educacion/ver/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-primary" title="Ver Detalle">
+                                                                            <a href="<?= base_url('coord/actividades-educacion/ver/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>"
+                                                                                class="btn btn-outline-primary" title="Ver Detalle">
                                                                                 <i class="fas fa-eye"></i>
                                                                             </a>
-                                                                            <a href="<?= base_url('coord/actividades-educacion/editar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-warning" title="Editar">
+                                                                            <a href="<?= base_url('coord/actividades-educacion/editar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>"
+                                                                                class="btn btn-outline-warning" title="Editar">
                                                                                 <i class="fas fa-edit"></i>
                                                                             </a>
                                                                         </div>
@@ -567,10 +737,12 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                <p class="text-muted small mb-3">Los filtros se aplican a las tablas de Cursos, Talleres, Conferencias y Capacitaciones en esta página.</p>
+                <p class="text-muted small mb-3">Los filtros se aplican a las tablas de Cursos, Talleres, Conferencias y
+                    Capacitaciones en esta página.</p>
                 <div class="mb-3">
                     <label class="form-label" for="filtroBusqueda">Buscar</label>
-                    <input type="search" class="form-control" id="filtroBusqueda" placeholder="Nombre o descripción de la actividad" autocomplete="off">
+                    <input type="search" class="form-control" id="filtroBusqueda"
+                        placeholder="Nombre o descripción de la actividad" autocomplete="off">
                 </div>
                 <div class="mb-3">
                     <label class="form-label" for="filtroInstructor">Instructor</label>
@@ -606,7 +778,8 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" id="btnLimpiarFiltrosActividades">Limpiar</button>
+                <button type="button" class="btn btn-outline-secondary"
+                    id="btnLimpiarFiltrosActividades">Limpiar</button>
                 <button type="button" class="btn btn-primary" id="btnAplicarFiltrosActividades">Aplicar</button>
             </div>
         </div>
@@ -628,7 +801,8 @@
                     <i class="fas fa-info-circle me-2"></i>
                     <strong>Nota:</strong> Los campos marcados con <span class="text-danger">*</span> son obligatorios.
                 </div>
-                <form id="formNuevaActividad" action="<?= base_url('coord/actividades-educacion/guardar') ?>" method="POST" onsubmit="return validarFormulario()">
+                <form id="formNuevaActividad" action="<?= base_url('coord/actividades-educacion/guardar') ?>"
+                    method="POST" onsubmit="return validarFormulario()">
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
@@ -645,7 +819,8 @@
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Nombre de la Actividad<span class="text-danger">*</span></label>
+                                <label class="form-label">Nombre de la Actividad<span
+                                        class="text-danger">*</span></label>
                                 <input type="text" class="form-control" name="nombre_actividad" required>
                             </div>
                         </div>
@@ -659,30 +834,39 @@
                                         <option value="">Seleccionar instructor...</option>
                                         <?php if (!empty($instructores)): ?>
                                             <?php foreach ($instructores as $instructor): ?>
-                                                <option value="<?= $instructor['ID_INSTRUCTOR'] ?>"><?= $instructor['NOMBRE'] ?> <?= $instructor['APELLIDO'] ?> - <?= $instructor['ESPECIALIDAD'] ?></option>
+                                                <option value="<?= $instructor['ID_INSTRUCTOR'] ?>"><?= $instructor['NOMBRE'] ?>
+                                                    <?= $instructor['APELLIDO'] ?> - <?= $instructor['ESPECIALIDAD'] ?></option>
                                             <?php endforeach; ?>
                                         <?php endif; ?>
-                                        <option value="__agregar_instructor__">➕ No está en la lista — Ir a agregar instructor</option>
+                                        <option value="__agregar_instructor__">➕ No está en la lista — Ir a agregar
+                                            instructor</option>
                                     </select>
-                                    <a href="<?= base_url('coord/instructores') ?>?crear=1" class="btn btn-outline-primary" type="button" title="Ir a agregar nuevo instructor" target="_self">
+                                    <a href="<?= base_url('coord/instructores') ?>?crear=1"
+                                        class="btn btn-outline-primary" type="button"
+                                        title="Ir a agregar nuevo instructor" target="_self">
                                         <i class="fas fa-plus"></i>
                                     </a>
                                 </div>
-                                <small class="text-muted">Selecciona un instructor existente o use el botón + para ir a agregar uno nuevo</small>
+                                <small class="text-muted">Selecciona un instructor existente o use el botón + para ir a
+                                    agregar uno nuevo</small>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Modalidad<span class="text-danger">*</span></label>
-                                <select class="form-select" name="modalidad" id="selectModalidadNuevaActividad" required>
+                                <select class="form-select" name="modalidad" id="selectModalidadNuevaActividad"
+                                    required>
                                     <option value="">Seleccionar modalidad...</option>
                                     <?php if (!empty($modalidades)): ?>
                                         <?php foreach ($modalidades as $modalidad): ?>
-                                            <option value="<?= $modalidad['ID_TIPO_MODALIDAD'] ?>" data-modalidad-nombre="<?= esc($modalidad['MODALIDAD'], 'attr') ?>"><?= esc($modalidad['MODALIDAD']) ?></option>
+                                            <option value="<?= $modalidad['ID_TIPO_MODALIDAD'] ?>"
+                                                data-modalidad-nombre="<?= esc($modalidad['MODALIDAD'], 'attr') ?>">
+                                                <?= esc($modalidad['MODALIDAD']) ?></option>
                                         <?php endforeach; ?>
                                     <?php endif; ?>
                                 </select>
-                                <small class="text-muted">Según la modalidad se pedirá lugar físico, enlace virtual o ambos (híbrida).</small>
+                                <small class="text-muted">Según la modalidad se pedirá lugar físico, enlace virtual o
+                                    ambos (híbrida).</small>
                             </div>
                         </div>
                     </div>
@@ -709,19 +893,23 @@
                     <div class="row">
                         <div class="col-md-6 mb-3 d-none" id="wrapLugarNuevaActividad">
                             <label class="form-label">Lugar <span class="text-danger req-lugar">*</span></label>
-                            <input type="text" class="form-control" name="lugar" id="inputLugarNuevaActividad" autocomplete="off">
+                            <input type="text" class="form-control" name="lugar" id="inputLugarNuevaActividad"
+                                autocomplete="off">
                         </div>
                         <div class="col-md-6 mb-3 d-none" id="wrapEnlaceNuevaActividad">
                             <label class="form-label">Enlace <span class="text-danger req-enlace">*</span></label>
-                            <input type="url" class="form-control" name="enlace" id="inputEnlaceNuevaActividad" placeholder="https://meet.google.com/..." autocomplete="off">
-                            <small class="text-muted">URL de la reunión o plataforma (modalidad virtual o híbrida).</small>
+                            <input type="url" class="form-control" name="enlace" id="inputEnlaceNuevaActividad"
+                                placeholder="https://meet.google.com/..." autocomplete="off">
+                            <small class="text-muted">URL de la reunión o plataforma (modalidad virtual o
+                                híbrida).</small>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
                                 <label class="form-label">Horario<span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="horario" placeholder="Ej: Lunes a Viernes 8:00-12:00" required>
+                                <input type="text" class="form-control" name="horario"
+                                    placeholder="Ej: Lunes a Viernes 8:00-12:00" required>
                             </div>
                         </div>
                     </div>
@@ -756,12 +944,16 @@
 </div>
 
 <!-- Modal: agregar enlace de encuesta (desde columna Encuesta del listado) -->
-<div class="modal fade" id="modalEncuestaListadoCoord" tabindex="-1" aria-labelledby="modalEncuestaListadoCoordLabel" aria-hidden="true">
+<div class="modal fade" id="modalEncuestaListadoCoord" tabindex="-1" aria-labelledby="modalEncuestaListadoCoordLabel"
+    aria-hidden="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header bg-success text-white">
-                <h5 class="modal-title" id="modalEncuestaListadoCoordLabel"><i class="fas fa-clipboard-check me-2"></i><span id="modalEncuestaListadoCoordTituloTexto">Encuesta de satisfacción — agregar enlace</span></h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                <h5 class="modal-title" id="modalEncuestaListadoCoordLabel"><i
+                        class="fas fa-clipboard-check me-2"></i><span id="modalEncuestaListadoCoordTituloTexto">Encuesta
+                        de satisfacción — agregar enlace</span></h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                    aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
                 <form id="formEncuestaListadoCoord">
@@ -775,21 +967,26 @@
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Nombre de la evaluación <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="nombre_evaluacion" id="encuestaListado_nombre_evaluacion" required>
+                        <input type="text" class="form-control" name="nombre_evaluacion"
+                            id="encuestaListado_nombre_evaluacion" required>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Enlace del formulario <span class="text-danger">*</span></label>
-                        <input type="url" class="form-control" name="enlace_formulario" id="encuestaListado_enlace_formulario" placeholder="https://forms.google.com/..." required autocomplete="off">
+                        <input type="url" class="form-control" name="enlace_formulario"
+                            id="encuestaListado_enlace_formulario" placeholder="https://forms.google.com/..." required
+                            autocomplete="off">
                         <small class="text-muted">Pegue aquí la URL de Google Forms, Microsoft Forms, etc.</small>
                     </div>
                     <div class="mb-3">
                         <label class="form-label">Descripción</label>
-                        <textarea class="form-control" name="descripcion" id="encuestaListado_descripcion" rows="2" placeholder="Opcional"></textarea>
+                        <textarea class="form-control" name="descripcion" id="encuestaListado_descripcion" rows="2"
+                            placeholder="Opcional"></textarea>
                     </div>
                     <div class="row">
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Fecha de vencimiento <span class="text-danger">*</span></label>
-                            <input type="date" class="form-control" name="fecha_vencimiento" id="encuestaListado_fecha_vencimiento" required>
+                            <input type="date" class="form-control" name="fecha_vencimiento"
+                                id="encuestaListado_fecha_vencimiento" required>
                         </div>
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Estado</label>
@@ -906,7 +1103,9 @@
             <div class="modal-body">
 
                 <!-- Calendario -->
-                <div id="calendario" style="background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);"></div>
+                <div id="calendario"
+                    style="background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
@@ -1133,7 +1332,7 @@
                     right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
                 },
                 events: eventosUnicos,
-                eventContent: function(arg) {
+                eventContent: function (arg) {
                     if (arg.view.type !== 'dayGridMonth') {
                         return;
                     }
@@ -1149,7 +1348,7 @@
                     main.appendChild(tit);
                     return { domNodes: [main] };
                 },
-                eventClick: function(info) {
+                eventClick: function (info) {
                     mostrarDetalleEvento(info.event);
                 },
                 height: 'auto',
@@ -1298,11 +1497,20 @@
             const stats = await response.json();
 
             // Actualizar las estadísticas en la interfaz
-            document.getElementById('totalActividades').textContent = stats.totalActividades || 0;
-            document.getElementById('cursosActivos').textContent = stats.cursosActivos || 0;
-            document.getElementById('talleresActivos').textContent = stats.talleresActivos || 0;
-            document.getElementById('conferenciasActivos').textContent = stats.conferenciasActivos || 0;
-            document.getElementById('capacitacionesActivos').textContent = stats.capacitacionesActivos || 0;
+            const totalActividadesEl = document.getElementById('totalActividades');
+            if (totalActividadesEl) totalActividadesEl.textContent = stats.totalActividades || 0;
+
+            const cursosActivosEl = document.getElementById('cursosActivos');
+            if (cursosActivosEl) cursosActivosEl.textContent = stats.cursosActivos || 0;
+
+            const talleresActivosEl = document.getElementById('talleresActivos');
+            if (talleresActivosEl) talleresActivosEl.textContent = stats.talleresActivos || 0;
+
+            const conferenciasActivosEl = document.getElementById('conferenciasActivos');
+            if (conferenciasActivosEl) conferenciasActivosEl.textContent = stats.conferenciasActivos || 0;
+
+            const capacitacionesActivosEl = document.getElementById('capacitacionesActivos');
+            if (capacitacionesActivosEl) capacitacionesActivosEl.textContent = stats.capacitacionesActivos || 0;
 
             estadisticas = stats;
         } catch (error) {
@@ -1382,7 +1590,7 @@
         bootstrapModal.show();
 
         // Limpiar modal cuando se cierre
-        modal.addEventListener('hidden.bs.modal', function() {
+        modal.addEventListener('hidden.bs.modal', function () {
             document.body.removeChild(modal);
         });
     }
@@ -1483,45 +1691,45 @@
     // Función de validación del formulario
     function validarFormulario() {
         const camposObligatorios = [{
-                name: 'tipo_actividad',
-                label: 'Tipo de Actividad'
-            },
-            {
-                name: 'nombre_actividad',
-                label: 'Nombre de la Actividad'
-            },
-            {
-                name: 'instructor',
-                label: 'Instructor'
-            },
-            {
-                name: 'modalidad',
-                label: 'Modalidad'
-            },
-            {
-                name: 'descripcion',
-                label: 'Descripción'
-            },
-            {
-                name: 'objetivos',
-                label: 'Objetivos'
-            },
-            {
-                name: 'duracion_horas',
-                label: 'Duración (horas)'
-            },
-            {
-                name: 'fecha_inicio',
-                label: 'Fecha de Inicio'
-            },
-            {
-                name: 'fecha_fin',
-                label: 'Fecha de Fin'
-            },
-            {
-                name: 'horario',
-                label: 'Horario'
-            }
+            name: 'tipo_actividad',
+            label: 'Tipo de Actividad'
+        },
+        {
+            name: 'nombre_actividad',
+            label: 'Nombre de la Actividad'
+        },
+        {
+            name: 'instructor',
+            label: 'Instructor'
+        },
+        {
+            name: 'modalidad',
+            label: 'Modalidad'
+        },
+        {
+            name: 'descripcion',
+            label: 'Descripción'
+        },
+        {
+            name: 'objetivos',
+            label: 'Objetivos'
+        },
+        {
+            name: 'duracion_horas',
+            label: 'Duración (horas)'
+        },
+        {
+            name: 'fecha_inicio',
+            label: 'Fecha de Inicio'
+        },
+        {
+            name: 'fecha_fin',
+            label: 'Fecha de Fin'
+        },
+        {
+            name: 'horario',
+            label: 'Horario'
+        }
         ];
 
         let errores = [];
@@ -1637,7 +1845,7 @@
     }
 
     // Initialize on page load
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         const today = new Date().toISOString().split('T')[0];
         const fechaInicioInput = document.querySelector('#formNuevaActividad input[name="fecha_inicio"]');
         if (fechaInicioInput) {
@@ -1657,7 +1865,7 @@
         // Redirigir a instructores cuando el usuario elige "agregar instructor" en el select
         const selectInstructor = document.getElementById('selectInstructor');
         if (selectInstructor) {
-            selectInstructor.addEventListener('change', function() {
+            selectInstructor.addEventListener('change', function () {
                 if (this.value === '__agregar_instructor__') {
                     window.location.href = '<?= base_url('coord/instructores') ?>?crear=1';
                 }
@@ -1670,14 +1878,14 @@
         // Agregar eventos para limpiar validaciones
         const camposFormulario = document.querySelectorAll('#formNuevaActividad input, #formNuevaActividad select, #formNuevaActividad textarea');
         camposFormulario.forEach(campo => {
-            campo.addEventListener('input', function() {
+            campo.addEventListener('input', function () {
                 this.classList.remove('is-invalid');
             });
         });
 
         // Encuesta: modal desde la columna (nuevo = agregar, editar = actualizar)
-        document.querySelectorAll('.js-abrir-modal-encuesta-listado').forEach(function(btn) {
-            btn.addEventListener('click', function() {
+        document.querySelectorAll('.js-abrir-modal-encuesta-listado').forEach(function (btn) {
+            btn.addEventListener('click', function () {
                 const modo = this.getAttribute('data-encuesta-modo') || 'nuevo';
                 const idAct = this.getAttribute('data-actividad-id') || '';
                 const nombre = this.getAttribute('data-actividad-nombre') || '';
@@ -1729,7 +1937,7 @@
 
         const btnGuardarEncLista = document.getElementById('btnGuardarEncuestaListadoCoord');
         if (btnGuardarEncLista) {
-            btnGuardarEncLista.addEventListener('click', function() {
+            btnGuardarEncLista.addEventListener('click', function () {
                 const form = document.getElementById('formEncuestaListadoCoord');
                 if (!form || !form.checkValidity()) {
                     if (form) {
@@ -1751,16 +1959,16 @@
                     method: 'POST',
                     body: fd,
                     headers: { 'X-Requested-With': 'XMLHttpRequest' }
-                }).then(function(r) {
+                }).then(function (r) {
                     return r.json();
-                }).then(function(data) {
+                }).then(function (data) {
                     if (data.success) {
                         const inst = bootstrap.Modal.getInstance(document.getElementById('modalEncuestaListadoCoord'));
                         if (inst) {
                             inst.hide();
                         }
                         showNotification(data.message || 'Enlace guardado. Actualizando listado...', 'success');
-                        setTimeout(function() {
+                        setTimeout(function () {
                             window.location.reload();
                         }, 900);
                     } else {
@@ -1768,7 +1976,7 @@
                         btn.disabled = false;
                         btn.innerHTML = orig;
                     }
-                }).catch(function() {
+                }).catch(function () {
                     showNotification('Error de conexión al guardar', 'error');
                     btn.disabled = false;
                     btn.innerHTML = orig;

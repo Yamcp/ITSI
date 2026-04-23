@@ -12,9 +12,14 @@ use App\Models\NotificacionesModel;
 use App\Models\UsuariosModel;
 use App\Models\PracticasPreprofesionalesModel;
 use App\Models\ServiciosComunitariosModel;
+use App\Models\DocumentosPracticasModel;
+use App\Models\TiposDocumentosPracticasModel;
+use App\Models\DocumentosServicioComunitarioModel;
+use App\Models\TiposDocumentosServicioComunitarioModel;
 use App\Models\DetallesConveniosModel;
 use App\Models\DocentesTutoresModel;
 use App\Libraries\EmailNotificaciones;
+
 
 class PracticasCoordController extends BaseController
 {
@@ -27,6 +32,10 @@ class PracticasCoordController extends BaseController
     protected $usuariosModel;
     protected $practicasPreprofesionalesModel;
     protected $serviciosComunitariosModel;
+    protected $documentosPracticasModel;
+    protected $tiposDocumentosPracticasModel;
+    protected $documentosServicioComunitarioModel;
+    protected $tiposDocumentosServicioComunitarioModel;
     protected $detallesConveniosModel;
     protected $docentesTutoresModel;
     protected $emailNotificaciones;
@@ -44,6 +53,10 @@ class PracticasCoordController extends BaseController
         $this->serviciosComunitariosModel = new ServiciosComunitariosModel();
         $this->detallesConveniosModel = new DetallesConveniosModel();
         $this->docentesTutoresModel = new DocentesTutoresModel();
+        $this->documentosPracticasModel = new DocumentosPracticasModel();
+        $this->tiposDocumentosPracticasModel = new TiposDocumentosPracticasModel();
+        $this->documentosServicioComunitarioModel = new DocumentosServicioComunitarioModel();
+        $this->tiposDocumentosServicioComunitarioModel = new TiposDocumentosServicioComunitarioModel();
         $this->emailNotificaciones = new EmailNotificaciones();
     }
 
@@ -62,6 +75,49 @@ class PracticasCoordController extends BaseController
             $estadisticas = $this->obtenerEstadisticas();
             $practicasPreprofesionales = $this->practicasPreprofesionalesModel->getListaParaCoordinador();
             $serviciosComunitarios = $this->serviciosComunitariosModel->getListaParaCoordinador();
+
+            $tiposPracticasCount = count($this->tiposDocumentosPracticasModel->getAllTipos());
+            $tiposServicioCount = count($this->tiposDocumentosServicioComunitarioModel->getAllTipos());
+
+            if (!empty($practicasPreprofesionales) && $tiposPracticasCount > 0) {
+                $idsPracticas = array_map('intval', array_column($practicasPreprofesionales, 'ID_PRACTICA_PREPROFESIONAL'));
+                $docsPorPractica = $this->documentosPracticasModel
+                    ->select('ID_PRACTICA_PREPROFESIONAL, COUNT(DISTINCT ID_TIPO_DOCUMENTO) AS docs_subidos')
+                    ->whereIn('ID_PRACTICA_PREPROFESIONAL', $idsPracticas)
+                    ->groupBy('ID_PRACTICA_PREPROFESIONAL')
+                    ->findAll();
+
+                $docsMap = [];
+                foreach ($docsPorPractica as $row) {
+                    $docsMap[(int) $row['ID_PRACTICA_PREPROFESIONAL']] = (int) $row['docs_subidos'];
+                }
+
+                foreach ($practicasPreprofesionales as &$practica) {
+                    $subidos = $docsMap[(int) ($practica['ID_PRACTICA_PREPROFESIONAL'] ?? 0)] ?? 0;
+                    $practica['PROGRESO_DOCUMENTOS'] = min(100, (int) round(($subidos / $tiposPracticasCount) * 100));
+                }
+                unset($practica);
+            }
+
+            if (!empty($serviciosComunitarios) && $tiposServicioCount > 0) {
+                $idsServicios = array_map('intval', array_column($serviciosComunitarios, 'ID_SERVICIO_COMUNITARIO'));
+                $docsPorServicio = $this->documentosServicioComunitarioModel
+                    ->select('ID_SERVICIO_COMUNITARIO, COUNT(DISTINCT ID_TIPO_DOCUMENTO) AS docs_subidos')
+                    ->whereIn('ID_SERVICIO_COMUNITARIO', $idsServicios)
+                    ->groupBy('ID_SERVICIO_COMUNITARIO')
+                    ->findAll();
+
+                $docsServicioMap = [];
+                foreach ($docsPorServicio as $row) {
+                    $docsServicioMap[(int) $row['ID_SERVICIO_COMUNITARIO']] = (int) $row['docs_subidos'];
+                }
+
+                foreach ($serviciosComunitarios as &$servicio) {
+                    $subidos = $docsServicioMap[(int) ($servicio['ID_SERVICIO_COMUNITARIO'] ?? 0)] ?? 0;
+                    $servicio['PROGRESO_DOCUMENTOS'] = min(100, (int) round(($subidos / $tiposServicioCount) * 100));
+                }
+                unset($servicio);
+            }
         } catch (\Throwable $e) {
             log_message('error', 'PracticasCoordController::index - Error BD: ' . $e->getMessage());
         }

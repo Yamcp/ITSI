@@ -854,10 +854,17 @@
             const stats = await response.json();
 
             // Actualizar las estadísticas en la interfaz
-            document.getElementById('totalActividades').textContent = stats.totalActividades || 0;
-            document.getElementById('cursosActivos').textContent = stats.cursosActivos || 0;
-            document.getElementById('talleresActivos').textContent = stats.talleresActivos || 0;
-            document.getElementById('seminariosActivos').textContent = stats.seminariosActivos || 0;
+            const totalActividadesEl = document.getElementById('totalActividades');
+            if (totalActividadesEl) totalActividadesEl.textContent = stats.totalActividades || 0;
+
+            const cursosActivosEl = document.getElementById('cursosActivos');
+            if (cursosActivosEl) cursosActivosEl.textContent = stats.cursosActivos || 0;
+
+            const talleresActivosEl = document.getElementById('talleresActivos');
+            if (talleresActivosEl) talleresActivosEl.textContent = stats.talleresActivos || 0;
+
+            const seminariosActivosEl = document.getElementById('seminariosActivos');
+            if (seminariosActivosEl) seminariosActivosEl.textContent = stats.seminariosActivos || 0;
 
             estadisticas = stats;
         } catch (error) {

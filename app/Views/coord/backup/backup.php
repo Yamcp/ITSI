@@ -1,5 +1,5 @@
 <!-- app/Views/coord/backup/backup.php -->
-<?= $this->extend('coord/layouts/mainCoord') ?>
+<?= $this->extend($layout ?? 'coord/layouts/mainCoord') ?>
 
 <?php
 $exportaciones = $exportaciones ?? [];

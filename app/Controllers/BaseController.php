@@ -69,7 +69,7 @@ abstract class BaseController extends Controller
             $path = substr($path, $posIndex + strlen('index.php/'));
         }
 
-        foreach (['auth/', 'coord/', 'docente/', 'estudiante/'] as $prefijoRuta) {
+        foreach (['auth/', 'coord/', 'docente/', 'estudiante/', 'admin/'] as $prefijoRuta) {
             $posPrefijo = strpos($path, $prefijoRuta);
             if ($posPrefijo !== false) {
                 $path = substr($path, $posPrefijo);
@@ -79,6 +79,23 @@ abstract class BaseController extends Controller
 
         $path = trim($path, '/');
         $rol = (int) $session->get('rol');
+
+        if (str_starts_with($path, 'admin/') && $rol !== 4) {
+            redirect()->to('/')->with('error', 'Acceso no autorizado')->send();
+            exit;
+        }
+
+        if ($rol === 4 && str_starts_with($path, 'coord/')) {
+            if (!str_starts_with($path, 'coord/estudiantes')
+                && !str_starts_with($path, 'coord/docentes')
+                && !str_starts_with($path, 'coord/backup')
+                && $path !== 'coord/dashboard'
+                && $path !== 'coord/cuenta'
+                && $path !== 'coord/cuenta/cambiar-password') {
+                redirect()->to('/admin/dashboard')->with('error', 'Acceso no autorizado')->send();
+                exit;
+            }
+        }
 
         $rutasPermitidas = ['auth/cerrar-sesion'];
 
@@ -98,6 +115,11 @@ abstract class BaseController extends Controller
                 $rutasPermitidas[] = 'estudiante/cuenta/cambiar-password';
                 $rutaCuenta = 'estudiante/cuenta';
                 break;
+            case 4:
+                $rutasPermitidas[] = 'admin/cuenta';
+                $rutasPermitidas[] = 'admin/cuenta/cambiar-password';
+                $rutaCuenta = 'admin/cuenta';
+                break;
             default:
                 $session->destroy();
                 redirect()->to('/')->send();
@@ -110,5 +132,10 @@ abstract class BaseController extends Controller
                 ->send();
             exit;
         }
+    }
+
+    protected function getLayoutForRole(string $default = 'coord/layouts/mainCoord'): string
+    {
+        return (int) session()->get('rol') === 4 ? 'admin/layouts/mainAdmin' : $default;
     }
 }

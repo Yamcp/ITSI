@@ -391,6 +391,9 @@ class AuthController extends BaseController
                     case 3: // Estudiante
                         return redirect()->to('/estudiante/cuenta')
                             ->with('info', 'Por seguridad, por favor cambia tu contraseña inicial antes de continuar.');
+                    case 4: // Administrador
+                        return redirect()->to('/admin/cuenta')
+                            ->with('info', 'Por seguridad, por favor cambia tu contraseña inicial antes de continuar.');
                 }
             }
 
@@ -415,6 +418,8 @@ class AuthController extends BaseController
                 return redirect()->to('/docente/dashboard');
             case 3: // Estudiante
                 return redirect()->to('/estudiante/dashboard');
+            case 4: // Administrador
+                return redirect()->to('/admin/dashboard');
             default:
                 // Si el rol no está definido, cerrar sesión por seguridad
                 session()->setFlashdata('msg', 'Rol de usuario no válido');

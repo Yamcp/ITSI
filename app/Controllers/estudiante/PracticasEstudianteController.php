@@ -98,6 +98,7 @@ class PracticasEstudianteController extends BaseController
         $whatsappSupervisor = null;
         $tiposDocumentos = $this->tiposDocumentosPracticasModel->getAllTipos();
         $progresoDocumentos = [];
+        $progresoPractica = [];
         $idTipoDocumentoFinal = null;
         $alertaDocumentoFinal = ['mostrar' => false, 'fecha_limite' => null, 'dias_restantes' => null, 'superado_plazo' => false, 'mensaje' => ''];
 
@@ -107,6 +108,25 @@ class PracticasEstudianteController extends BaseController
             $serviciosComunitarios = $this->obtenerServiciosComunitarios($userId);
             $whatsappSupervisor = $this->obtenerWhatsappSupervisor($practicasPreprofesionales, $serviciosComunitarios);
             $progresoDocumentos = $this->documentosPracticasModel->getProgresoEstudiante($userId);
+            $documentosEstudiante = $this->documentosPracticasModel->getDocumentosPorEstudiante($userId);
+
+            $documentosPorPractica = [];
+            foreach ($documentosEstudiante as $doc) {
+                $idPractica = (int) ($doc['ID_PRACTICA_PREPROFESIONAL'] ?? 0);
+                $tipoDoc = (int) ($doc['ID_TIPO_DOCUMENTO'] ?? $doc['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?? 0);
+                if ($idPractica > 0 && $tipoDoc > 0) {
+                    $documentosPorPractica[$idPractica][$tipoDoc] = true;
+                }
+            }
+
+            $totalTiposDocumentos = count($tiposDocumentos);
+            $progresoPractica = [];
+            foreach ($practicasPreprofesionales as $practica) {
+                $idPractica = (int) ($practica['ID_PRACTICA_PREPROFESIONAL'] ?? 0);
+                $subidos = isset($documentosPorPractica[$idPractica]) ? count($documentosPorPractica[$idPractica]) : 0;
+                $progresoPractica[$idPractica] = $totalTiposDocumentos > 0 ? (int) round(($subidos / $totalTiposDocumentos) * 100) : 0;
+            }
+
             foreach ($tiposDocumentos as $t) {
                 $nombre = $t['NOMBRE'] ?? '';
                 if (stripos($nombre, 'documento final') !== false || stripos($nombre, 'informe final') !== false) {
@@ -136,6 +156,7 @@ class PracticasEstudianteController extends BaseController
             'checklist_rubricas' => $this->getChecklistRubricasSeguimiento(),
             'horas_requeridas_preprof' => self::HORAS_PRACTICAS_PREPROFESIONALES,
             'horas_requeridas_servicio' => self::HORAS_SERVICIO_COMUNITARIO,
+            'progreso_practica' => $progresoPractica,
             'id_tipo_documento_final' => $idTipoDocumentoFinal,
             'alerta_documento_final' => $alertaDocumentoFinal,
         ];

@@ -26,7 +26,8 @@ class BackupCoordController extends BaseController
             
             $data = [
                 'title' => 'Gestión de Backups',
-                'exportaciones' => $exportaciones
+                'exportaciones' => $exportaciones,
+                'layout' => $this->getLayoutForRole()
             ];
             
             return view('coord/backup/backup', $data);
@@ -35,7 +36,8 @@ class BackupCoordController extends BaseController
             // Si hay error en la base de datos, mostrar vista con array vacío
             $data = [
                 'title' => 'Gestión de Backups',
-                'exportaciones' => []
+                'exportaciones' => [],
+                'layout' => $this->getLayoutForRole()
             ];
             
             return view('coord/backup/backup', $data);

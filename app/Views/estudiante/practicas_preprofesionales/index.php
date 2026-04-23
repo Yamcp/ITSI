@@ -411,19 +411,21 @@
                                                 <strong>Supervisor:</strong><br>
                                                 <small class="text-muted"><?= $practica['SUPERVISOR_NOMBRE'] ?? 'No asignado' ?></small>
                                             </div>
+                                            <?php $porcentajeDocs = $progreso_practica[$practica['ID_PRACTICA_PREPROFESIONAL']] ?? 0; ?>
+                                            <?php $porcentajeDocs = min(max($porcentajeDocs, 0), 100); ?>
                                             <div class="col-md-6">
-                                                <strong>Progreso:</strong><br>
+                                                <strong>Progreso de documentación:</strong><br>
                                                 <div class="progress" style="height: 8px;">
-                                                    <div class="progress-bar bg-success" style="width: 75%"></div>
+                                                    <div class="progress-bar bg-success" style="width: <?= $porcentajeDocs ?>%"></div>
                                                 </div>
-                                                <small class="text-muted">75% completado</small>
+                                                <small class="text-muted"><?= $porcentajeDocs ?>% completado</small>
                                             </div>
                                         </div>
                                     </div>
                                     <div class="col-md-4 text-center">
                                         <div class="progreso-circular">
-                                            <canvas id="progresoPre<?= $practica['ID_PRACTICA_PREPROFESIONAL'] ?>" width="80" height="80" data-porcentaje="75"></canvas>
-                                            <div class="progreso-texto">75%</div>
+                                            <canvas id="progresoPre<?= $practica['ID_PRACTICA_PREPROFESIONAL'] ?>" width="80" height="80" data-porcentaje="<?= $porcentajeDocs ?>"></canvas>
+                                            <div class="progreso-texto"><?= $porcentajeDocs ?>%</div>
                                         </div>
                                     </div>
                                 </div>

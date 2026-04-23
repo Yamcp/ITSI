@@ -24,7 +24,8 @@ class EstudiantesCoordController extends BaseController
     {
         $data = [
             'title' => 'Gestión de Estudiantes',
-            'estudiantes' => $this->estudiantesModel->getEstudianteCompleto()
+            'estudiantes' => $this->estudiantesModel->getEstudianteCompleto(),
+            'layout' => $this->getLayoutForRole()
         ];
 
         return view('coord/estudiantes/estudiantes', $data);

@@ -183,6 +183,17 @@ $routes->group('coord', ['namespace' => 'App\Controllers\coord'], function ($rou
 });
 
 //----------------------------------------------------------------------------------------------------------------------
+//RUTAS ADMINISTRADOR
+$routes->group('admin', ['namespace' => 'App\Controllers\coord'], function ($routes) {
+    $routes->get('dashboard', 'DashboardCoordController::index');
+    $routes->get('estudiantes', 'EstudiantesCoordController::index');
+    $routes->get('docentes', 'InstructoresCoordController::docentes');
+    $routes->get('backup', 'BackupCoordController::index');
+    $routes->get('cuenta', 'CuentaCoordController::index');
+    $routes->post('cuenta/cambiar-password', 'CuentaCoordController::cambiarPassword');
+});
+
+//----------------------------------------------------------------------------------------------------------------------
 //RUTAS DOCENTE
 $routes->group('docente', ['namespace' => 'App\Controllers\docente'], function ($routes) {
      $routes->get('dashboard', 'DashboardDocenteController::index');     // Permitir GET

@@ -171,6 +171,7 @@ class DocumentosPracticasModel extends Model
         // Construir SELECT dinámicamente
         $selectFields = '
             dp.ID_DOCUMENTO_PREPROFESIONAL,
+            dp.ID_PRACTICA_PREPROFESIONAL,
             dp.NOMBRE_ARCHIVO,
             dp.TIPO_ARCHIVO,
             dp.FECHA_SUBIDA,

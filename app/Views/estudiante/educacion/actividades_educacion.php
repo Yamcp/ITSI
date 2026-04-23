@@ -1287,7 +1287,8 @@
             const stats = await response.json();
 
             // Actualizar las estadísticas en la interfaz
-            document.getElementById('totalActividades').textContent = stats.totalActividades || 0;
+            const totalActividadesEl = document.getElementById('totalActividades');
+            if (totalActividadesEl) totalActividadesEl.textContent = stats.totalActividades || 0;
 
             estadisticas = stats;
         } catch (error) {

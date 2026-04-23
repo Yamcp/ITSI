@@ -1,4 +1,4 @@
-<?= $this->extend('coord/layouts/mainCoord') ?>
+<?= $this->extend($layout ?? 'coord/layouts/mainCoord') ?>
 
 <?php
 $lista    = $docentes ?? [];

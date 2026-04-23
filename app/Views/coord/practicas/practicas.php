@@ -212,10 +212,11 @@ $carreras = $carreras ?? [];
                                                                     <span class="badge <?= $estadoClass ?>"><?= $practica['ESTADO_PRACTICA'] ?></span>
                                                                 </td>
                                                                 <td>
+                                                                    <?php $progresoDocs = (int) ($practica['PROGRESO_DOCUMENTOS'] ?? 0); ?>
                                                                     <div class="progress" style="height: 8px;">
-                                                                        <div class="progress-bar bg-success" style="width: 100%"></div>
+                                                                        <div class="progress-bar bg-success" style="width: <?= $progresoDocs ?>%"></div>
                                                                     </div>
-                                                                    <small class="text-muted">100%</small>
+                                                                    <small class="text-muted"><?= $progresoDocs ?>%</small>
                                                                 </td>
                                                                 <td>
                                                                     <div class="btn-group btn-group-sm">
@@ -312,10 +313,11 @@ $carreras = $carreras ?? [];
                                                                     <span class="badge <?= $estadoClass ?>"><?= $servicio['ESTADO_SERVICIO'] ?></span>
                                                                 </td>
                                                                 <td>
+                                                                    <?php $progresoDocs = (int) ($servicio['PROGRESO_DOCUMENTOS'] ?? 0); ?>
                                                                     <div class="progress" style="height: 8px;">
-                                                                        <div class="progress-bar bg-info" style="width: 47%"></div>
+                                                                        <div class="progress-bar bg-info" style="width: <?= $progresoDocs ?>%"></div>
                                                                     </div>
-                                                                    <small class="text-muted">47%</small>
+                                                                    <small class="text-muted"><?= $progresoDocs ?>%</small>
                                                                 </td>
                                                                 <td>
                                                                     <div class="btn-group btn-group-sm">
