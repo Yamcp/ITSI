@@ -15,7 +15,7 @@ class CuentaEstudianteController extends BaseController
         $this->usuariosModel = new UsuariosModel();
     }
 
-    public function index(): string
+    public function index(): string|RedirectResponse
     {
         // Obtener ID del usuario de la sesión
         $userId = session('id_usuario');

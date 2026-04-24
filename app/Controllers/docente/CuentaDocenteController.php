@@ -15,18 +15,18 @@ class CuentaDocenteController extends BaseController
         $this->usuariosModel = new UsuariosModel();
     }
 
-    public function index(): string
+    public function index(): string|RedirectResponse
     {
         // Obtener ID del usuario de la sesión
         $userId = session('id_usuario');
-        
+
         if (!$userId) {
             return redirect()->to('auth/login');
         }
 
         // Obtener información básica del usuario
         $usuario = $this->usuariosModel->find($userId);
-        
+
         $data = [
             'title' => 'Mi Cuenta - Cambio de Contraseña',
             'usuario' => $usuario
@@ -39,7 +39,7 @@ class CuentaDocenteController extends BaseController
     {
         // Obtener ID del usuario de la sesión
         $userId = session('id_usuario');
-        
+
         if (!$userId) {
             return redirect()->to('auth/login');
         }
@@ -80,27 +80,27 @@ class CuentaDocenteController extends BaseController
 
         // Verificar que la contraseña actual sea correcta
         $usuario = $this->usuariosModel->find($userId);
-        
+
         // Verificar contraseña (soporta tanto hash como texto plano para transición)
         $passwordValid = false;
         if ($usuario) {
             // Primero intentar verificar como hash
             if (password_verify($passwordActual, $usuario['CONTRASENA'])) {
                 $passwordValid = true;
-            } 
+            }
             // Si falla, verificar como texto plano (para usuarios existentes)
             else if ($passwordActual === $usuario['CONTRASENA']) {
                 $passwordValid = true;
             }
         }
-        
+
         if (!$passwordValid) {
             return redirect()->back()->withInput()->with('error', 'La contraseña actual es incorrecta');
         }
 
         // Actualizar la contraseña
         $passwordHash = password_hash($passwordNuevo, PASSWORD_DEFAULT);
-        
+
         $datosUsuario = [
             'CONTRASENA' => $passwordHash
         ];

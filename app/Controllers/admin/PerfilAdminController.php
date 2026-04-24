@@ -39,7 +39,7 @@ class PerfilAdminController extends BaseController
             'validation' => null
         ];
 
-        return view('admin/perfil/perfilAdmi', $data);
+        return view('admin/perfil/perfilAdmin', $data);
     }
 
     public function update()

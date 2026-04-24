@@ -9,6 +9,7 @@ use App\Models\InstitucionesConveniosModel;
 use App\Models\DetallesConveniosModel;
 use App\Models\AsignacionesPracticasModel;
 use App\Models\CarrerasModel;
+use App\Models\DocentesTutoresModel;
 use Config\Database;
 
 class DashboardAdminController extends BaseController
@@ -20,6 +21,7 @@ class DashboardAdminController extends BaseController
     protected $conveniosModel;
     protected $practicasModel;
     protected $carrerasModel;
+    protected $docentesModel;
 
     public function __construct()
     {
@@ -35,6 +37,7 @@ class DashboardAdminController extends BaseController
         $this->conveniosModel = new DetallesConveniosModel();
         $this->practicasModel = new AsignacionesPracticasModel();
         $this->carrerasModel = new CarrerasModel();
+        $this->docentesModel = new DocentesTutoresModel();
     }
     
     public function index()
@@ -54,6 +57,10 @@ class DashboardAdminController extends BaseController
         // Prácticas preprofesionales y servicio comunitario por carrera
         $practicasPorCarrera = $this->obtenerPracticasPorCarrera();
 
+        // Estudiantes por semestre y por carrera para gráficas
+        $estudiantesPorSemestre = $this->obtenerEstudiantesPorSemestre();
+        $estudiantesPorCarrera = $this->obtenerEstudiantesPorCarrera();
+
         $p              = obtener_periodo_academico_para_ui();
         $periodoNombre = $p['nombre'];
         $periodoRango  = $p['rango'];
@@ -67,6 +74,8 @@ class DashboardAdminController extends BaseController
             'actividadesRecientes' => $actividadesRecientes,
             'vencimientos' => $vencimientos,
             'practicasPorCarrera' => $practicasPorCarrera,
+            'estudiantesPorSemestre' => $estudiantesPorSemestre,
+            'estudiantesPorCarrera' => $estudiantesPorCarrera,
             'periodoAcademicoNombre' => $periodoNombre,
             'periodoAcademicoRango' => $periodoRango,
         ];
@@ -132,8 +141,20 @@ class DashboardAdminController extends BaseController
             $conveniosPorCaducar = 0;
         }
         
+        try {
+            // Total de docentes tutores activos
+            if (!$this->docentesModel) {
+                $this->docentesModel = new DocentesTutoresModel();
+            }
+            $totalDocentes = $this->docentesModel->where('ACTIVO', 1)->countAllResults();
+        } catch (\Exception $e) {
+            log_message('error', 'Error al obtener total de docentes: ' . $e->getMessage());
+            $totalDocentes = 0;
+        }
+
         return [
             'totalEstudiantes' => $totalEstudiantes,
+            'totalDocentes' => $totalDocentes,
             'totalInstructores' => $totalInstructores,
             'instructoresInternos' => $instructoresInternos ?? 0,
             'instructoresExternos' => $instructoresExternos ?? 0,
@@ -516,6 +537,49 @@ class DashboardAdminController extends BaseController
     private function obtenerDistribucionCarreras(): array
     {
         return [];
+    }
+
+    /**
+     * Estudiantes agrupados por semestre actual.
+     * @return array [ ['semestre' => int, 'total' => int], ... ]
+     */
+    private function obtenerEstudiantesPorSemestre(): array
+    {
+        try {
+            $db = \Config\Database::connect();
+            $sql = "
+                SELECT SEMESTRE_ACTUAL as semestre, COUNT(*) as total
+                FROM TAB_ESTUDIANTES
+                GROUP BY SEMESTRE_ACTUAL
+                ORDER BY SEMESTRE_ACTUAL ASC
+            ";
+            return $db->query($sql)->getResultArray();
+        } catch (\Exception $e) {
+            log_message('error', 'Error al obtener estudiantes por semestre: ' . $e->getMessage());
+            return [];
+        }
+    }
+
+    /**
+     * Estudiantes agrupados por carrera.
+     * @return array [ ['CARRERA' => string, 'total' => int], ... ]
+     */
+    private function obtenerEstudiantesPorCarrera(): array
+    {
+        try {
+            $db = \Config\Database::connect();
+            $sql = "
+                SELECT c.NOMBRE as CARRERA, COUNT(*) as total
+                FROM TAB_ESTUDIANTES e
+                INNER JOIN TAB_CARRERAS c ON c.ID_CARRERA = e.ID_CARRERA
+                GROUP BY c.ID_CARRERA, c.NOMBRE
+                ORDER BY total DESC
+            ";
+            return $db->query($sql)->getResultArray();
+        } catch (\Exception $e) {
+            log_message('error', 'Error al obtener estudiantes por carrera: ' . $e->getMessage());
+            return [];
+        }
     }
     
     // Método para obtener estadísticas de actividades educativas (similar al controlador de actividades)
