@@ -1239,13 +1239,13 @@ INSERT INTO `TAB_ROLES` (`ID_ROL`, `ID_USUARIO`, `ID_TIPOS_ROLES`) VALUES
 (1, 1, 1),
 (2, 2, 2),
 (3, 3, 3),
-(4, 4, 2),
-(5, 5, 2),
-(6, 6, 2),
-(7, 7, 3),
-(8, 8, 3),
-(9, 9, 3),
-(10, 10, 3);
+(4, 4, 4),
+(5, 5, 4),
+(6, 6, 4),
+(7, 7, 4),
+(8, 8, 4),
+(9, 9, 4),
+(10, 10, 4);
 
 INSERT INTO `TAB_TIPOS_CONVENIOS` (`ID_TIPO_CONVENIO`, `CONVENIO`) VALUES
 (1, 'Preprofesional'),

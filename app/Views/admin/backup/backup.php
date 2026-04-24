@@ -1,5 +1,5 @@
-<!-- app/Views/coord/backup/backup.php -->
-<?= $this->extend($layout ?? 'coord/layouts/mainCoord') ?>
+<!-- app/Views/admin/backup/backup.php -->
+<?= $this->extend('admin/layouts/mainAdmin') ?>
 
 <?php
 $exportaciones = $exportaciones ?? [];
@@ -1068,7 +1068,7 @@ $estadisticas = [
         if (logsTitle) logsTitle.textContent = '#' + id;
         if (logContent) logContent.textContent = 'Cargando...';
         showModal('modalLogsBackup');
-        const url = '<?= base_url('coord/backup/logs/') ?>' + id;
+        const url = '<?= base_url('admin/backup/logs/') ?>' + id;
         fetch(url)
             .then(function(r) { return r.json(); })
             .then(function(res) {
@@ -1217,7 +1217,7 @@ $estadisticas = [
 
             /* 
             // Código real para cuando esté implementado el backend
-            fetch('<?= base_url('coord/backup/crear') ?>', {
+            fetch('<?= base_url('admin/backup/crear') ?>', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

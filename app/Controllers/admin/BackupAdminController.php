@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Controllers\coord;
+namespace App\Controllers\admin;
 
 use App\Controllers\BaseController;
 use App\Models\ExportacionesModel;
 use CodeIgniter\HTTP\ResponseInterface;
 
-class BackupCoordController extends BaseController
+class BackupAdminController extends BaseController
 {
     protected $exportacionesModel;
 
@@ -30,7 +30,7 @@ class BackupCoordController extends BaseController
                 'layout' => $this->getLayoutForRole()
             ];
             
-            return view('coord/backup/backup', $data);
+            return view('admin/backup/backup', $data);
             
         } catch (\Exception $e) {
             // Si hay error en la base de datos, mostrar vista con array vacío
@@ -40,7 +40,7 @@ class BackupCoordController extends BaseController
                 'layout' => $this->getLayoutForRole()
             ];
             
-            return view('coord/backup/backup', $data);
+            return view('admin/backup/backup', $data);
         }
     }
 
@@ -219,7 +219,7 @@ class BackupCoordController extends BaseController
                 'success' => true,
                 'message' => 'Descarga iniciada',
                 'filename' => $filename,
-                'download_url' => base_url('coord/backup/download-file/' . $id)
+                'download_url' => base_url('admin/backup/download-file/' . $id)
             ]);
 
         } catch (\Exception $e) {
@@ -311,7 +311,7 @@ class BackupCoordController extends BaseController
                 'success' => true,
                 'message' => 'Historial exportado exitosamente',
                 'filename' => $filename,
-                'download_url' => base_url('coord/backup/download-history')
+                'download_url' => base_url('admin/backup/download-history')
             ]);
 
         } catch (\Exception $e) {

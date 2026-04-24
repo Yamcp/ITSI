@@ -21,6 +21,35 @@ $routes->get('vinculacion/convenios', function() {
 });
 
 //----------------------------------------------------------------------------------------------------------------------
+//RUTAS ADMINISTRADOR
+$routes->group('admin', ['namespace' => 'App\Controllers\admin'], function ($routes) {
+    // Rutas principales del dashboard y gestión
+    $routes->get('dashboard', 'DashboardAdminController::index');                   // Dashboard del administrador
+    $routes->get('estudiantes', 'EstudiantesAdminController::index');               // Gestión de estudiantes (admin)
+    $routes->get('docentes', 'DocentesAdminController::index');                     // Gestión de docentes (admin)
+    $routes->get('perfil', 'PerfilAdminController::index');                         // Ver perfil del administrador
+    $routes->post('perfil/update', 'PerfilAdminController::update');                // Actualizar perfil del administrador
+    $routes->post('perfil/upload-image', 'PerfilAdminController::uploadImage');     // Subir imagen de perfil (admin)
+    
+    // Rutas para la cuenta del administrador
+    $routes->get('cuenta', 'CuentaAdminController::index');                         // Ver cuenta del administrador
+    $routes->post('cuenta/cambiar-password', 'CuentaAdminController::cambiarPassword'); // Cambiar contraseña (admin)
+   
+    // Rutas para la gestión de backups
+    $routes->get('backup', 'BackupAdminController::index');                         // Ver lista de backups
+    $routes->post('backup/crear', 'BackupAdminController::crear');                  // Crear nuevo backup
+    $routes->get('backup/detalle/(:num)', 'BackupAdminController::detalle/$1');     // Ver detalles de backup
+    $routes->get('backup/logs/(:num)', 'BackupAdminController::logs/$1');           // Ver logs de un backup
+    $routes->post('backup/descargar/(:num)', 'BackupAdminController::descargar/$1'); // Descargar backup
+    $routes->delete('backup/eliminar/(:num)', 'BackupAdminController::eliminar/$1'); // Eliminar backup
+    $routes->post('backup/restaurar/(:num)', 'BackupAdminController::restaurar/$1'); // Restaurar desde backup
+    $routes->get('backup/exportar-historial', 'BackupAdminController::exportarHistorial'); // Exportar historial
+    $routes->post('backup/filtrar', 'BackupAdminController::filtrar');              // Aplicar filtros
+    $routes->get('backup/estadisticas', 'BackupAdminController::estadisticas');     // Obtener estadísticas
+
+});
+
+//----------------------------------------------------------------------------------------------------------------------
 // RUTAS COORDINACIÓN / VINCULACIÓN
 $routes->group('coord', ['namespace' => 'App\Controllers\coord'], function ($routes) {
      $routes->get('dashboard', 'DashboardCoordController::index');     // Permitir GET
@@ -167,30 +196,6 @@ $routes->group('coord', ['namespace' => 'App\Controllers\coord'], function ($rou
     $routes->get('reportes-evaluaciones/excel', 'ReportesEvaluacionesCoordController::exportarExcel'); // Exportar Excel
     $routes->get('reportes-evaluaciones/csv', 'ReportesEvaluacionesCoordController::exportarCSV'); // Exportar CSV
     $routes->get('reportes-evaluaciones/graficos', 'ReportesEvaluacionesCoordController::obtenerDatosGraficos'); // Datos para gráficos
-    
-    // Rutas para la gestión de backups
-    $routes->get('backup', 'BackupCoordController::index');                         // Ver lista de backups
-    $routes->post('backup/crear', 'BackupCoordController::crear');                  // Crear nuevo backup
-    $routes->get('backup/detalle/(:num)', 'BackupCoordController::detalle/$1');     // Ver detalles de backup
-    $routes->get('backup/logs/(:num)', 'BackupCoordController::logs/$1');           // Ver logs de un backup
-    $routes->post('backup/descargar/(:num)', 'BackupCoordController::descargar/$1'); // Descargar backup
-    $routes->delete('backup/eliminar/(:num)', 'BackupCoordController::eliminar/$1'); // Eliminar backup
-    $routes->post('backup/restaurar/(:num)', 'BackupCoordController::restaurar/$1'); // Restaurar desde backup
-    $routes->get('backup/exportar-historial', 'BackupCoordController::exportarHistorial'); // Exportar historial
-    $routes->post('backup/filtrar', 'BackupCoordController::filtrar');              // Aplicar filtros
-    $routes->get('backup/estadisticas', 'BackupCoordController::estadisticas');     // Obtener estadísticas
-
-});
-
-//----------------------------------------------------------------------------------------------------------------------
-//RUTAS ADMINISTRADOR
-$routes->group('admin', ['namespace' => 'App\Controllers\coord'], function ($routes) {
-    $routes->get('dashboard', 'DashboardCoordController::index');
-    $routes->get('estudiantes', 'EstudiantesCoordController::index');
-    $routes->get('docentes', 'InstructoresCoordController::docentes');
-    $routes->get('backup', 'BackupCoordController::index');
-    $routes->get('cuenta', 'CuentaCoordController::index');
-    $routes->post('cuenta/cambiar-password', 'CuentaCoordController::cambiarPassword');
 });
 
 //----------------------------------------------------------------------------------------------------------------------
