@@ -1,12 +1,9 @@
 <?= $this->extend($layout ?? 'admin/layouts/mainAdmin') ?>
 
 <?php
-
-$p = obtener_periodo_academico_para_ui();
-$periodoNombreDashboard = $p['nombre'];
-$periodoRangoDashboard = $p['rango'];
-
+// El período se obtiene dentro del partial periodo_selector.php
 ?>
+
 
 <?= $this->section('styles') ?>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -199,26 +196,7 @@ $periodoRangoDashboard = $p['rango'];
                     <i class="fas fa-compass me-2 text-primary"></i>Panel de Control
                 </h1>
                 <p class="subtitle-dash mb-0">Bienvenido al Sistema del Departamento de Vinculación</p>
-                <div class="dashboard-period-box mt-2">
-                    <h5 class="mb-0" style="color: var(--primary); font-weight: 600;">
-                        <i class="fas fa-calendar-check me-2 text-primary"></i>
-                        Período académico actual:
-                        <?php if (!empty($periodoNombreDashboard)): ?>
-                            <span class="ms-1 fw-bold" style="color: #0f172a;">
-                                <?= esc($periodoNombreDashboard) ?>
-                            </span>
-                            <?php if (!empty($periodoRangoDashboard)): ?>
-                                <span class="text-muted fs-6 fw-normal ms-1" style="font-weight: 500;">
-                                    (<?= esc($periodoRangoDashboard) ?>)
-                                </span>
-                            <?php endif; ?>
-                        <?php else: ?>
-                            <span class="text-muted fw-normal ms-1" style="font-weight: 500;">
-                                No hay período configurado
-                            </span>
-                        <?php endif; ?>
-                    </h5>
-                </div>
+                <?= $this->include('partials/periodo_selector') ?>
             </div>
             <div class="d-flex flex-wrap align-items-center gap-2">
                 <span class="badge badge-rol">Administrador</span>

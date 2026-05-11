@@ -165,13 +165,61 @@ if (!function_exists('formatear_periodo_academico_mes_anio')) {
 
 if (!function_exists('obtener_periodo_academico_para_ui')) {
     /**
-     * Etiqueta del período para navbar/dashboard: sincroniza sesión y convierte formatos antiguos
-     * (p. ej. "mes año hasta mes año" o "MM/AAAA - MM/AAAA") a "Mes Año - Mes Año".
+     * Etiqueta del período para navbar/dashboard.
      *
-     * @return array{nombre: ?string, rango: string}
+     * En cada invocación verifica contra la BD si el período actual cambió
+     * y auto-sincroniza la sesión cuando corresponde.
+     *
+     * Si el coordinador seleccionó manualmente un período anterior
+     * (clave de sesión `periodo_academico_id_seleccionado`), se respeta esa elección.
+     *
+     * @return array{nombre: ?string, rango: string, es_historico: bool, id: ?int}
      */
     function obtener_periodo_academico_para_ui(): array
     {
+        try {
+            $db  = \Config\Database::connect();
+            $row = $db->query('SELECT * FROM V_PERIODO_ACADEMICO_ACTUAL LIMIT 1')->getRowArray();
+        } catch (\Throwable $e) {
+            log_message('error', 'obtener_periodo_academico_para_ui: ' . $e->getMessage());
+            return [
+                'nombre'       => session('periodo_academico_nombre'),
+                'rango'        => (string) (session('periodo_academico_rango') ?? ''),
+                'es_historico' => false,
+                'id'           => session('periodo_academico_id') ? (int) session('periodo_academico_id') : null,
+            ];
+        }
+
+        // ── Auto-sincronización: si el período actual en BD difiere del de sesión ──
+        $idActualBD    = $row ? (int) ($row['ID_PERIODO_ACADEMICO'] ?? 0) : 0;
+        $idEnSesion    = session('periodo_academico_id') ? (int) session('periodo_academico_id') : 0;
+        $idSeleccionado = session('periodo_academico_id_seleccionado')
+            ? (int) session('periodo_academico_id_seleccionado')
+            : 0;
+
+        // Si no hay selección manual o la selección manual era el período anterior
+        // que ahora fue reemplazado, actualizamos al nuevo período actual.
+        if ($idActualBD > 0 && $idSeleccionado === 0 && $idActualBD !== $idEnSesion) {
+            // Período nuevo detectado → actualizar sesión
+            $fmt = formatear_periodo_academico_mes_anio($row);
+            session()->set([
+                'periodo_academico_id'     => $idActualBD,
+                'periodo_academico_nombre' => $fmt ?? ($row['NOMBRE_PERIODO'] ?? null),
+                'periodo_academico_rango'  => '',
+                'periodo_academico_anio'   => $row['AÑO_ACADEMICO'] ?? $row['AÑO_INICIO'] ?? null,
+            ]);
+            log_message('info', "Período académico auto-actualizado en sesión: {$idEnSesion} → {$idActualBD}");
+        }
+
+        // ── Determinar qué mostrar ──
+        $esHistorico = false;
+
+        if ($idSeleccionado > 0 && $idSeleccionado !== $idActualBD) {
+            // Coordinador está consultando un período anterior
+            $esHistorico = true;
+        }
+
+        // Refrescar nombre si es necesario (formato antiguo)
         $periodoNombre = session('periodo_academico_nombre');
         $periodoRango  = (string) (session('periodo_academico_rango') ?? '');
 
@@ -180,24 +228,16 @@ if (!function_exists('obtener_periodo_academico_para_ui')) {
             || str_contains(strtolower((string) $periodoNombre), ' hasta ')
         );
 
-        if (!$necesitaRefresh) {
-            return ['nombre' => $periodoNombre, 'rango' => $periodoRango];
-        }
-
-        try {
-            $db  = \Config\Database::connect();
-            $row = $db->query('SELECT * FROM V_PERIODO_ACADEMICO_ACTUAL LIMIT 1')->getRowArray();
-            if ($row) {
-                $fmt = formatear_periodo_academico_mes_anio($row);
-                if ($fmt !== null) {
-                    session()->set([
-                        'periodo_academico_nombre' => $fmt,
-                        'periodo_academico_rango'    => '',
-                    ]);
-
-                    return ['nombre' => $fmt, 'rango' => ''];
-                }
-
+        if ($necesitaRefresh && $row) {
+            $fmt = formatear_periodo_academico_mes_anio($row);
+            if ($fmt !== null) {
+                session()->set([
+                    'periodo_academico_nombre' => $fmt,
+                    'periodo_academico_rango'  => '',
+                ]);
+                $periodoNombre = $fmt;
+                $periodoRango  = '';
+            } else {
                 $periodoNombre = $row['NOMBRE_PERIODO'] ?? $row['nombre_periodo'] ?? null;
                 $periodoRango  = '';
                 $fi = $row['FECHA_INICIO'] ?? $row['fecha_inicio'] ?? null;
@@ -209,13 +249,46 @@ if (!function_exists('obtener_periodo_academico_para_ui')) {
                     'periodo_academico_nombre' => $periodoNombre,
                     'periodo_academico_rango'  => $periodoRango,
                 ]);
-
-                return ['nombre' => $periodoNombre, 'rango' => $periodoRango];
             }
-        } catch (\Throwable $e) {
-            log_message('error', 'obtener_periodo_academico_para_ui: ' . $e->getMessage());
         }
 
-        return ['nombre' => $periodoNombre, 'rango' => $periodoRango];
+        return [
+            'nombre'       => $periodoNombre,
+            'rango'        => $periodoRango,
+            'es_historico'  => $esHistorico,
+            'id'           => session('periodo_academico_id') ? (int) session('periodo_academico_id') : null,
+        ];
+    }
+}
+
+if (!function_exists('obtener_todos_los_periodos')) {
+    /**
+     * Devuelve todos los períodos académicos ordenados (más reciente primero)
+     * con etiquetas legibles. Usado por el selector del coordinador.
+     *
+     * @return array<int, array{id: int, nombre: string, es_actual: bool}>
+     */
+    function obtener_todos_los_periodos(): array
+    {
+        try {
+            $db = \Config\Database::connect();
+            $periodos = $db->query('SELECT * FROM V_PERIODOS_ACADEMICOS_ORDENADOS')->getResultArray();
+            $actual   = $db->query('SELECT ID_PERIODO_ACADEMICO FROM V_PERIODO_ACADEMICO_ACTUAL LIMIT 1')->getRowArray();
+            $idActual = $actual ? (int) $actual['ID_PERIODO_ACADEMICO'] : 0;
+
+            $lista = [];
+            foreach ($periodos as $p) {
+                $etiqueta = formatear_periodo_academico_mes_anio($p);
+                $lista[] = [
+                    'id'        => (int) $p['ID_PERIODO_ACADEMICO'],
+                    'nombre'    => $etiqueta ?? ($p['NOMBRE_PERIODO'] ?? ''),
+                    'es_actual' => ((int) $p['ID_PERIODO_ACADEMICO'] === $idActual),
+                ];
+            }
+            return $lista;
+        } catch (\Throwable $e) {
+            log_message('error', 'obtener_todos_los_periodos: ' . $e->getMessage());
+            return [];
+        }
     }
 }

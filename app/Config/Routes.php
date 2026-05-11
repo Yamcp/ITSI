@@ -21,6 +21,15 @@ $routes->get('vinculacion/convenios', function() {
 });
 
 //----------------------------------------------------------------------------------------------------------------------
+// API PERIODOS ACADÉMICOS (accesible para cualquier usuario autenticado; cambios solo coordinador)
+$routes->group('api/periodos', ['namespace' => 'App\Controllers'], function ($routes) {
+    $routes->get('/', 'PeriodoAcademicoController::listarPeriodos');
+    $routes->post('cambiar', 'PeriodoAcademicoController::cambiarPeriodo');
+    $routes->post('restaurar', 'PeriodoAcademicoController::restaurarPeriodoActual');
+});
+
+
+//----------------------------------------------------------------------------------------------------------------------
 //RUTAS ADMINISTRADOR
 $routes->group('admin', ['namespace' => 'App\Controllers\admin'], function ($routes) {
     // Rutas principales del dashboard y gestión

@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Administrador - ITSI</title>
+    <title>Departamento de Vinculación</title>
     <link rel="shortcut icon" type="image/png" href="<?= base_url('sistema/assets/images/logos/logo.png') ?>" />
 
     <!-- ESTILOS -->
@@ -59,10 +59,10 @@
             window.location.href = '<?= base_url('auth/cerrar-sesion') ?>';
         }
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const btnCerrarSesion = document.getElementById('btnCerrarSesion');
             if (btnCerrarSesion) {
-                btnCerrarSesion.addEventListener('click', function(e) {
+                btnCerrarSesion.addEventListener('click', function (e) {
                     e.preventDefault();
                     cerrarSesion();
                 });
