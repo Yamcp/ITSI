@@ -442,8 +442,12 @@ $carreras = $carreras ?? [];
                         <div class="col-md-12">
                             <div class="mb-3">
                                 <label class="form-label">Horas Totales <span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" name="horas_total" id="horas_total_nueva" min="1" max="1000" value="" readonly required>
-                                <div class="form-text">Prácticas preprofesionales: 240 h (una sola vez en la carrera). Servicio comunitario: 60 h (una sola vez por estudiante).</div>
+                                <select class="form-select" name="horas_total" id="horas_total_nueva" required>
+                                    <option value="">Seleccionar según tipo de práctica...</option>
+                                    <option value="240">240 horas — Prácticas Preprofesionales</option>
+                                    <option value="60">60 horas — Servicio Comunitario</option>
+                                </select>
+                                <div class="form-text">Se selecciona automáticamente según el tipo de práctica elegido.</div>
                                 <div class="invalid-feedback">
                                     Seleccione el tipo de práctica para asignar las horas correspondientes.
                                 </div>
@@ -933,6 +937,32 @@ $carreras = $carreras ?? [];
             });
     }
 
+    function verificarDocumentacionEstudianteModal(idEstudiante) {
+        const selectTipo = document.querySelector('#formNuevaPractica select[name="tipo_practica"]');
+        const tipoPractica = selectTipo ? selectTipo.value : '';
+        if (!tipoPractica) {
+            alert('Seleccione primero el tipo de práctica para verificar la documentación del estudiante.');
+            return;
+        }
+        const url = baseUrlPracticas + 'verificarDocumentacionEstudiante'
+            + '?estudiante=' + encodeURIComponent(idEstudiante)
+            + '&tipo_practica=' + encodeURIComponent(tipoPractica);
+        fetch(url)
+            .then(function(r) { return r.json(); })
+            .then(function(res) {
+                if (!res.success) {
+                    alert(res.message || 'No se pudo verificar la documentación del estudiante.');
+                    return;
+                }
+                if (res.data && res.data.completa === false && res.data.mensaje) {
+                    alert(res.data.mensaje);
+                }
+            })
+            .catch(function() {
+                alert('No se pudo verificar la documentación del estudiante. Intente de nuevo.');
+            });
+    }
+
     function buscarEstudiantesModal() {
         const q = document.getElementById('buscar_estudiante_nombre').value.trim();
         const cont = document.getElementById('resultados_busqueda_estudiantes');
@@ -966,6 +996,7 @@ $carreras = $carreras ?? [];
                             cont.style.display = 'none';
                             document.getElementById('estudiante_id').classList.remove('is-invalid');
                             actualizarInstitucionesPorCarrera(this.dataset.carreraId);
+                            verificarDocumentacionEstudianteModal(this.dataset.id);
                         });
                         cont.appendChild(item);
                     });
@@ -982,22 +1013,22 @@ $carreras = $carreras ?? [];
     }
 
     function configurarHorasPorTipoPractica() {
-        const HORAS_PREPROFESIONALES = 240;
-        const HORAS_SERVICIO = 60;
-        function setHorasPorTipo(tipoVal, inputHoras) {
-            if (!inputHoras) return;
+        const HORAS_PREPROFESIONALES = '240';
+        const HORAS_SERVICIO = '60';
+        function setHorasPorTipo(tipoVal, selectHoras) {
+            if (!selectHoras) return;
             const v = parseInt(tipoVal, 10);
-            if (v === 2) inputHoras.value = HORAS_PREPROFESIONALES;
-            else if (v === 1) inputHoras.value = HORAS_SERVICIO;
-            else inputHoras.value = '';
+            if (v === 2) selectHoras.value = HORAS_PREPROFESIONALES;
+            else if (v === 1) selectHoras.value = HORAS_SERVICIO;
+            else selectHoras.value = '';
         }
         const selectTipo = document.querySelector('select[name="tipo_practica"]');
-        const inputHorasNueva = document.getElementById('horas_total_nueva');
-        if (selectTipo && inputHorasNueva) {
+        const selectHorasNueva = document.getElementById('horas_total_nueva');
+        if (selectTipo && selectHorasNueva) {
             selectTipo.removeEventListener('change', selectTipo._horasHandler);
-            selectTipo._horasHandler = function() { setHorasPorTipo(selectTipo.value, inputHorasNueva); };
+            selectTipo._horasHandler = function() { setHorasPorTipo(selectTipo.value, selectHorasNueva); };
             selectTipo.addEventListener('change', selectTipo._horasHandler);
-            setHorasPorTipo(selectTipo.value, inputHorasNueva);
+            setHorasPorTipo(selectTipo.value, selectHorasNueva);
         }
     }
 

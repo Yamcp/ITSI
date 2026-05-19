@@ -69,7 +69,7 @@
             <div class="col-md-3 col-sm-6 mb-2">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="#" onclick="showModal('modalNuevaInstitucion')" style="text-decoration: none; color: inherit;">
+                        <a href="#" onclick="abrirModalNuevaInstitucion(false); return false;" style="text-decoration: none; color: inherit;">
                             <i class="fas fa-building fa-2x mb-2" style="color: #007bff; text-shadow: 0 2px 4px rgba(0, 123, 255, 0.3);"></i>
                             <div class="fw-bold">Nueva Institución</div>
                         </a>
@@ -631,10 +631,10 @@
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <div class="alert alert-info mb-3" id="mensajeOrigen">
+                <div class="alert alert-info mb-3 d-none" id="mensajeOrigen">
                     <i class="fas fa-info-circle me-2"></i>
                     <strong>Creando institución desde Nuevo Convenio</strong><br>
-                    Al guardar esta institución, regresarás automáticamente al formulario de convenio donde podrás seleccionarla.
+                    Al guardar, la institución quedará disponible en el selector del formulario de convenio.
                 </div>
                 <div class="alert alert-info mb-3">
                     <i class="fas fa-info-circle me-2"></i>
@@ -754,11 +754,27 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-- Documentos Habilitantes -->
+                    <hr class="my-3">
+                    <h6 class="mb-3"><i class="fas fa-file-pdf me-1 text-danger"></i>Documentos Habilitantes</h6>
+                    <div class="mb-3">
+                        <label class="form-label" for="documentos_habilitantes">Archivos PDF</label>
+                        <input type="file"
+                               class="form-control"
+                               name="documentos_habilitantes[]"
+                               id="documentos_habilitantes"
+                               accept="application/pdf,.pdf"
+                               multiple>
+                        <small class="text-muted">Opcional. Puede adjuntar uno o más PDF (máx. 10 MB por archivo).</small>
+                        <div class="invalid-feedback" id="error_documentos_habilitantes"></div>
+                        <ul id="listaDocumentosHabilitantes" class="list-group list-group-flush mt-2 small border rounded" style="display: none;"></ul>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="volverANuevoConvenio()">
-                    <i class="fas fa-arrow-left me-1"></i>Volver
+                <button type="button" class="btn btn-secondary" onclick="cerrarModalNuevaInstitucion()">
+                    <i class="fas fa-times me-1"></i>Cancelar
                 </button>
                 <button type="button" class="btn btn-primary" onclick="guardarInstitucion()">
                     <i class="fas fa-save me-1"></i>Guardar Institución
@@ -953,6 +969,7 @@
     let instituciones = <?= json_encode($instituciones) ?>;
     let tiposConvenios = <?= json_encode($tipos_convenios) ?>;
     const baseUrlLogos = <?= json_encode(base_url('uploads/logos_instituciones/')) ?>;
+    let institucionAbiertaDesdeConvenio = false;
 
     // Funciones principales
     function showModal(modalId) {
@@ -962,10 +979,32 @@
             return;
         }
         if (modalId === 'modalNuevoConvenio') {
-            cargarInstituciones(); // Cargar instituciones cuando se abre el modal
+            cargarInstituciones();
+        }
+        if (modalId === 'modalNuevaInstitucion' && !institucionAbiertaDesdeConvenio) {
+            actualizarMensajeOrigenInstitucion();
         }
         const modal = new bootstrap.Modal(el);
         modal.show();
+    }
+
+    function actualizarMensajeOrigenInstitucion() {
+        const msg = document.getElementById('mensajeOrigen');
+        if (!msg) return;
+        if (institucionAbiertaDesdeConvenio) {
+            msg.classList.remove('d-none');
+        } else {
+            msg.classList.add('d-none');
+        }
+    }
+
+    function cerrarModalNuevaInstitucion() {
+        institucionAbiertaDesdeConvenio = false;
+        const el = document.getElementById('modalNuevaInstitucion');
+        const instancia = bootstrap.Modal.getInstance(el);
+        if (instancia) {
+            instancia.hide();
+        }
     }
 
     function convenioEstadoSlug(fechaFin) {
@@ -1288,6 +1327,25 @@
             hayErrores = true;
         }
 
+        const docsHab = document.getElementById('documentos_habilitantes');
+        if (docsHab && docsHab.files && docsHab.files.length > 0) {
+            const maxBytes = 10 * 1024 * 1024;
+            for (let i = 0; i < docsHab.files.length; i++) {
+                const f = docsHab.files[i];
+                const esPdf = f.type === 'application/pdf' || (f.name && f.name.toLowerCase().endsWith('.pdf'));
+                if (!esPdf) {
+                    mostrarErrorInstitucion('documentos_habilitantes', 'Solo se permiten archivos PDF.');
+                    hayErrores = true;
+                    break;
+                }
+                if (f.size > maxBytes) {
+                    mostrarErrorInstitucion('documentos_habilitantes', 'Cada PDF debe pesar como máximo 10 MB.');
+                    hayErrores = true;
+                    break;
+                }
+            }
+        }
+
         if (hayErrores) {
             showNotification('Por favor corrige los errores en el formulario', 'error');
             return;
@@ -1315,20 +1373,10 @@
                         previewLogo.style.display = 'none';
                     }
                     if (placeholderLogo) placeholderLogo.style.display = 'inline';
+                    limpiarListaDocumentosHabilitantes();
+                    institucionAbiertaDesdeConvenio = false;
 
-                    // Volver al modal de nuevo convenio y recargar instituciones
-                    setTimeout(() => {
-                        abrirModalNuevoConvenio();
-                        // Seleccionar automáticamente la nueva institución
-                        setTimeout(() => {
-                            const selectInstitucion = document.getElementById('selectInstitucion');
-                            if (selectInstitucion && data.institucion_id) {
-                                selectInstitucion.value = data.institucion_id;
-                                // Disparar evento change para validación
-                                selectInstitucion.dispatchEvent(new Event('change'));
-                            }
-                        }, 100);
-                    }, 500);
+                    recargarInstitucionesDesdeServidor(data.institucion_id || null);
                 } else {
                     if (data.errors) {
                         Object.keys(data.errors).forEach(campo => {
@@ -1550,47 +1598,69 @@
 
             instituciones.forEach(inst => {
                 const option = document.createElement('option');
-                option.value = inst.id;
-                option.textContent = `${inst.nombre} (${inst.tipo})`;
+                option.value = inst.ID_INSTITUCION_CONVENIO;
+                option.textContent = `${inst.NOMBRE} (${inst.TIPO_INSTITUCION || ''})`;
                 selectInstitucion.appendChild(option);
             });
         }
     }
 
-    function irANuevaInstitucion() {
-        // Cerrar modal de nuevo convenio
-        bootstrap.Modal.getInstance(document.getElementById('modalNuevoConvenio')).hide();
+    function recargarInstitucionesDesdeServidor(idSeleccionar) {
+        return fetch('<?= base_url('coord/convenios/getInstituciones') ?>')
+            .then(response => response.json())
+            .then(data => {
+                if (!data.success || !data.data) return;
+                instituciones = data.data;
+                const selectInstitucion = document.getElementById('selectInstitucion');
+                const institucionContainer = document.getElementById('institucionContainer');
+                const noInstitucionesContainer = document.getElementById('noInstitucionesContainer');
+                if (!selectInstitucion) return;
 
-        // Mostrar modal de nueva institución
-        setTimeout(() => {
-            showModal('modalNuevaInstitucion');
-        }, 300);
+                if (instituciones.length === 0) {
+                    if (institucionContainer) institucionContainer.classList.add('d-none');
+                    if (noInstitucionesContainer) noInstitucionesContainer.classList.remove('d-none');
+                    return;
+                }
+
+                if (institucionContainer) institucionContainer.classList.remove('d-none');
+                if (noInstitucionesContainer) noInstitucionesContainer.classList.add('d-none');
+
+                selectInstitucion.innerHTML = '<option value="">Seleccionar institución...</option>';
+                instituciones.forEach(inst => {
+                    const option = document.createElement('option');
+                    option.value = inst.ID_INSTITUCION_CONVENIO;
+                    option.textContent = `${inst.NOMBRE} (${inst.TIPO_INSTITUCION || ''})`;
+                    selectInstitucion.appendChild(option);
+                });
+
+                if (idSeleccionar) {
+                    selectInstitucion.value = String(idSeleccionar);
+                    selectInstitucion.dispatchEvent(new Event('change'));
+                }
+            })
+            .catch(err => console.error('Error al recargar instituciones:', err));
     }
 
-    function volverANuevoConvenio() {
-        // Cerrar modal de nueva institución
-        bootstrap.Modal.getInstance(document.getElementById('modalNuevaInstitucion')).hide();
+    function abrirModalNuevaInstitucion(desdeConvenio) {
+        institucionAbiertaDesdeConvenio = !!desdeConvenio;
+        actualizarMensajeOrigenInstitucion();
+        showModal('modalNuevaInstitucion');
+    }
 
-        // Mostrar modal de nuevo convenio
-        setTimeout(() => {
-            abrirModalNuevoConvenio();
-        }, 300);
+    function irANuevaInstitucion() {
+        const convenioModal = bootstrap.Modal.getInstance(document.getElementById('modalNuevoConvenio'));
+        if (convenioModal) {
+            convenioModal.hide();
+        }
+        setTimeout(() => abrirModalNuevaInstitucion(true), 300);
     }
 
     function agregarInstitucionDesdeConvenio() {
-        // Cerrar modal de nuevo convenio
-        bootstrap.Modal.getInstance(document.getElementById('modalNuevoConvenio')).hide();
-
-        // Mostrar modal de nueva institución
-        setTimeout(() => {
-            showModal('modalNuevaInstitucion');
-            // Actualizar badge para mostrar origen
-            const badge = document.getElementById('badgeOrigen');
-            if (badge) {
-                badge.innerHTML = '<i class="fas fa-link me-1"></i>Desde Nuevo Convenio';
-                badge.className = 'badge bg-info';
-            }
-        }, 300);
+        const convenioModal = bootstrap.Modal.getInstance(document.getElementById('modalNuevoConvenio'));
+        if (convenioModal) {
+            convenioModal.hide();
+        }
+        setTimeout(() => abrirModalNuevaInstitucion(true), 300);
     }
 
     function showNotification(message, type = 'info') {
@@ -1698,7 +1768,7 @@
     }
 
     function limpiarErroresInstitucion() {
-        const campos = ['tipo_institucion', 'nombre_institucion', 'ruc', 'ciudad', 'direccion', 'telefono', 'email', 'representante_legal', 'contacto', 'telefono_contacto', 'email_contacto'];
+        const campos = ['tipo_institucion', 'nombre_institucion', 'ruc', 'ciudad', 'direccion', 'telefono', 'email', 'representante_legal', 'contacto', 'telefono_contacto', 'email_contacto', 'documentos_habilitantes'];
         campos.forEach(campo => {
             const elemento = document.getElementById(campo);
             const errorElement = document.getElementById(`error_${campo}`);
@@ -1746,6 +1816,70 @@
         }
     }
 
+    function limpiarListaDocumentosHabilitantes() {
+        const lista = document.getElementById('listaDocumentosHabilitantes');
+        const input = document.getElementById('documentos_habilitantes');
+        if (lista) {
+            lista.innerHTML = '';
+            lista.style.display = 'none';
+        }
+        if (input) {
+            input.value = '';
+            input.classList.remove('is-invalid');
+        }
+    }
+
+    function actualizarListaDocumentosHabilitantes() {
+        const input = document.getElementById('documentos_habilitantes');
+        const lista = document.getElementById('listaDocumentosHabilitantes');
+        if (!input || !lista) return;
+
+        lista.innerHTML = '';
+        const archivos = input.files;
+        if (!archivos || archivos.length === 0) {
+            lista.style.display = 'none';
+            return;
+        }
+
+        const maxBytes = 10 * 1024 * 1024;
+        let hayError = false;
+
+        Array.from(archivos).forEach(function(file, index) {
+            const item = document.createElement('li');
+            item.className = 'list-group-item d-flex justify-content-between align-items-center py-2';
+            const esPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+            const tamOk = file.size <= maxBytes;
+            const tamMb = (file.size / (1024 * 1024)).toFixed(2);
+            let icono = '<i class="fas fa-file-pdf text-danger me-2"></i>';
+            let estado = '<span class="badge bg-light text-dark">' + tamMb + ' MB</span>';
+            if (!esPdf) {
+                icono = '<i class="fas fa-exclamation-triangle text-warning me-2"></i>';
+                estado = '<span class="badge bg-warning text-dark">No es PDF</span>';
+                hayError = true;
+            } else if (!tamOk) {
+                estado = '<span class="badge bg-danger">Supera 10 MB</span>';
+                hayError = true;
+            }
+            item.innerHTML = icono + '<span class="text-truncate me-2" title="' + file.name.replace(/"/g, '&quot;') + '">' + file.name + '</span>' + estado;
+            lista.appendChild(item);
+        });
+
+        lista.style.display = 'block';
+        if (hayError) {
+            mostrarErrorInstitucion('documentos_habilitantes', 'Revise los archivos seleccionados (solo PDF, máx. 10 MB c/u).');
+        } else {
+            input.classList.remove('is-invalid');
+            const err = document.getElementById('error_documentos_habilitantes');
+            if (err) err.textContent = '';
+        }
+    }
+
+    function initDocumentosHabilitantes() {
+        const input = document.getElementById('documentos_habilitantes');
+        if (!input) return;
+        input.addEventListener('change', actualizarListaDocumentosHabilitantes);
+    }
+
     // Vista previa del logo al seleccionar archivo (Nueva Institución)
     function initPreviewLogoEmpresa() {
         const input = document.getElementById('logo_empresa');
@@ -1773,6 +1907,15 @@
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
         initPreviewLogoEmpresa();
+        initDocumentosHabilitantes();
+
+        const modalNuevaInst = document.getElementById('modalNuevaInstitucion');
+        if (modalNuevaInst) {
+            modalNuevaInst.addEventListener('hidden.bs.modal', function() {
+                institucionAbiertaDesdeConvenio = false;
+                actualizarMensajeOrigenInstitucion();
+            });
+        }
 
         // Set default date for new convention
         const today = new Date().toISOString().split('T')[0];

@@ -303,7 +303,6 @@
     }
 
     function marcarTodasLeidas() {
-        if (confirm('¿Estás seguro de que quieres marcar todas las notificaciones como leídas?')) {
             fetch('/notificaciones/marcar-todas-leidas', {
                     method: 'POST',
                     headers: {
@@ -339,11 +338,9 @@
                     console.error('Error:', error);
                     showNotification('Error de conexión', 'error');
                 });
-        }
     }
 
     function eliminarNotificacion(idNotificacion) {
-        if (confirm('¿Estás seguro de que quieres eliminar esta notificación?')) {
             fetch(`/notificaciones/eliminar/${idNotificacion}`, {
                     method: 'POST',
                     headers: {
@@ -372,7 +369,6 @@
                     console.error('Error:', error);
                     showNotification('Error de conexión', 'error');
                 });
-        }
     }
 
     function filtrarNotificaciones(filtro) {

@@ -238,7 +238,7 @@
                             </button>
                             <a href="<?= base_url('coord/actividades-educacion/eliminar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>"
                                 class="btn btn-outline-danger btn-sm"
-                                onclick="return confirm('¿Estás seguro de que deseas eliminar esta actividad?')">
+                                >
                                 <i class="fas fa-trash me-1"></i>Eliminar Actividad
                             </a>
                         </div>

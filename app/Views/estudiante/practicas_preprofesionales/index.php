@@ -1069,7 +1069,7 @@
     }
 
     function eliminarDocumentoPractica(id) {
-        if (!confirm('¿Eliminar este documento?')) return;
+        if (true) {
         fetch(baseUrlDocumentos + '/eliminar/' + id, {
                 method: 'POST'
             })

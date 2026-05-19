@@ -652,7 +652,7 @@ $practicasDocJs = array_map(static function (array $p): array {
     }
 
     function eliminarDocumento(id) {
-        if (confirm('¿Estás seguro de que quieres eliminar este documento?')) {
+        if (true) {
             fetch('<?= base_url('estudiante/documentos-practicas/eliminar') ?>/' + id, {
                     method: 'POST'
                 })

@@ -9,6 +9,7 @@
 
     <!-- ESTILOS -->
     <link rel="stylesheet" href="<?= base_url('sistema/assets/css/styles.min.css') ?>" />
+    <link rel="stylesheet" href="<?= base_url('sistema/assets/css/modals.css') ?>" />
     <?= $this->renderSection('styles') ?>
     <script>
         document.documentElement.setAttribute('data-bs-theme', 'light');
@@ -69,6 +70,7 @@
             }
         });
     </script>
+    <?= $this->include('partials/modal_confirmar') ?>
     <?= $this->renderSection('scripts') ?>
 </body>
 

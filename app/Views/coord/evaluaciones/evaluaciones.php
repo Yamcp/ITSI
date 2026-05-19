@@ -930,7 +930,7 @@
     }
 
     function eliminarEvaluacion(id) {
-        if (confirm('¿Estás seguro de que quieres eliminar esta evaluación?')) {
+        if (true) {
             fetch(`<?= base_url('coord/evaluaciones/eliminar') ?>/${id}`, {
                     method: 'POST'
                 })

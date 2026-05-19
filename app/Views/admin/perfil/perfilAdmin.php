@@ -245,7 +245,7 @@
     }
 
     function eliminarFoto() {
-        if (!confirm('¿Eliminar la foto de perfil?')) return;
+        // Proceder directamente
         limpiarAlertaImagen();
         var btn = document.getElementById('btnEliminarFoto');
         if (btn) {

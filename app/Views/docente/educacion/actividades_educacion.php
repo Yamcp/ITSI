@@ -343,7 +343,7 @@
                                                                             <button class="btn btn-outline-info" onclick="gestionarParticipantes(<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>)" title="Participantes">
                                                                                 <i class="fas fa-users"></i>
                                                                             </button>
-                                                                            <a href="<?= base_url('docente/actividades-educacion/eliminar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-danger" title="Eliminar" onclick="return confirm('¿Está seguro de eliminar esta actividad? Esta acción no se puede deshacer.');">
+                                                                            <a href="<?= base_url('docente/actividades-educacion/eliminar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-danger" title="Eliminar">
                                                                                 <i class="fas fa-trash-alt"></i>
                                                                             </a>
                                                                         </div>
@@ -434,7 +434,7 @@
                                                                             <button class="btn btn-outline-info" onclick="gestionarParticipantes(<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>)" title="Participantes">
                                                                                 <i class="fas fa-users"></i>
                                                                             </button>
-                                                                            <a href="<?= base_url('docente/actividades-educacion/eliminar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-danger" title="Eliminar" onclick="return confirm('¿Está seguro de eliminar esta actividad? Esta acción no se puede deshacer.');">
+                                                                            <a href="<?= base_url('docente/actividades-educacion/eliminar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-danger" title="Eliminar">
                                                                                 <i class="fas fa-trash-alt"></i>
                                                                             </a>
                                                                         </div>
@@ -525,7 +525,7 @@
                                                                             <button class="btn btn-outline-info" onclick="gestionarParticipantes(<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>)" title="Participantes">
                                                                                 <i class="fas fa-users"></i>
                                                                             </button>
-                                                                            <a href="<?= base_url('docente/actividades-educacion/eliminar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-danger" title="Eliminar" onclick="return confirm('¿Está seguro de eliminar esta actividad? Esta acción no se puede deshacer.');">
+                                                                            <a href="<?= base_url('docente/actividades-educacion/eliminar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-danger" title="Eliminar">
                                                                                 <i class="fas fa-trash-alt"></i>
                                                                             </a>
                                                                         </div>

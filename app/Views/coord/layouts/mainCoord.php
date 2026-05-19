@@ -25,6 +25,7 @@ if (session()->get('logged_in') && (int) session()->get('rol') === 1) {
 
     <!-- ESTILOS -->
     <link rel="stylesheet" href="<?= base_url('sistema/assets/css/styles.min.css') ?>" />
+    <link rel="stylesheet" href="<?= base_url('sistema/assets/css/modals.css') ?>" />
     <?= $this->renderSection('styles') ?>
     <script>
         document.documentElement.setAttribute('data-bs-theme', 'light');
@@ -160,6 +161,7 @@ if (session()->get('logged_in') && (int) session()->get('rol') === 1) {
             reiniciarTimer();
         })();
     </script>
+    <?= $this->include('partials/modal_confirmar') ?>
     <?= $this->renderSection('scripts') ?>
 </body>
 

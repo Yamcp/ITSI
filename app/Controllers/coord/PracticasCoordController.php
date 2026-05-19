@@ -343,6 +343,166 @@ class PracticasCoordController extends BaseController
     }
 
     /**
+     * API: Verificar documentación enviada por el estudiante (modal nueva asignación).
+     */
+    public function verificarDocumentacionEstudiante()
+    {
+        $idEstudiante = (int) $this->request->getGet('estudiante');
+        $tipoPractica = (int) $this->request->getGet('tipo_practica');
+
+        if ($idEstudiante <= 0) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Estudiante no válido.']);
+        }
+        if (!in_array($tipoPractica, [1, 2], true)) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Seleccione un tipo de práctica válido.']);
+        }
+
+        return $this->response->setJSON([
+            'success' => true,
+            'data' => $this->evaluarDocumentacionEstudiante($idEstudiante, $tipoPractica),
+        ]);
+    }
+
+    /**
+     * Comprueba si el estudiante subió todos los tipos de documento activos del módulo indicado.
+     *
+     * @return array{completa: bool, total: int, enviados: int, faltantes: list<string>, mensaje: string}
+     */
+    private function evaluarDocumentacionEstudiante(int $idEstudiante, int $tipoPractica): array
+    {
+        $db = \Config\Database::connect();
+        $usuario = $db->table('TAB_ESTUDIANTES e')
+            ->select('u.ID_USUARIO')
+            ->join('TAB_USUARIOS u', 'u.ID_DATO_PERSONA = e.ID_DATO_PERSONA', 'left')
+            ->where('e.ID_ESTUDIANTE', $idEstudiante)
+            ->get()
+            ->getRowArray();
+
+        $idUsuario = (int) ($usuario['ID_USUARIO'] ?? 0);
+        if ($idUsuario <= 0) {
+            return $this->buildResultadoDocumentacion(
+                false,
+                0,
+                0,
+                [],
+                'prácticas',
+                'No se encontró un usuario asociado a este estudiante.'
+            );
+        }
+
+        if ($tipoPractica === 2) {
+            $labelTipo = 'prácticas preprofesionales';
+            $progreso = $this->documentosPracticasModel->getProgresoEstudiante($idUsuario);
+            $campoIdDocumento = 'ID_DOCUMENTO_PREPROFESIONAL';
+
+            if ($progreso === []) {
+                $tipos = $this->tiposDocumentosPracticasModel->getAllTipos();
+                $faltantes = $this->nombresTiposDocumento($tipos);
+
+                return $this->buildResultadoDocumentacion(
+                    $faltantes === [],
+                    count($tipos),
+                    0,
+                    $faltantes,
+                    $labelTipo
+                );
+            }
+        } else {
+            $labelTipo = 'servicio comunitario';
+            $progreso = $this->documentosServicioComunitarioModel->getProgresoEstudianteServicio($idUsuario);
+            $campoIdDocumento = 'ID_DOCUMENTO_SERVICIO';
+
+            if ($progreso === []) {
+                $tipos = $this->tiposDocumentosServicioComunitarioModel->getAllTipos();
+                $faltantes = $this->nombresTiposDocumento($tipos);
+
+                return $this->buildResultadoDocumentacion(
+                    $faltantes === [],
+                    count($tipos),
+                    0,
+                    $faltantes,
+                    $labelTipo
+                );
+            }
+        }
+
+        $total = count($progreso);
+        $enviados = 0;
+        $faltantes = [];
+
+        foreach ($progreso as $fila) {
+            if (!empty($fila[$campoIdDocumento])) {
+                $enviados++;
+                continue;
+            }
+            $codigo = trim((string) ($fila['CODIGO'] ?? ''));
+            $nombre = trim((string) ($fila['TIPO_DOCUMENTO_NOMBRE'] ?? $fila['NOMBRE'] ?? 'Documento'));
+            $faltantes[] = $codigo !== '' ? $codigo . ' - ' . $nombre : $nombre;
+        }
+
+        return $this->buildResultadoDocumentacion(
+            $total > 0 && $enviados >= $total,
+            $total,
+            $enviados,
+            $faltantes,
+            $labelTipo
+        );
+    }
+
+    /**
+     * @param list<array<string, mixed>> $tipos
+     * @return list<string>
+     */
+    private function nombresTiposDocumento(array $tipos): array
+    {
+        $nombres = [];
+        foreach ($tipos as $tipo) {
+            $codigo = trim((string) ($tipo['CODIGO'] ?? ''));
+            $nombre = trim((string) ($tipo['NOMBRE'] ?? 'Documento'));
+            $nombres[] = $codigo !== '' ? $codigo . ' - ' . $nombre : $nombre;
+        }
+
+        return $nombres;
+    }
+
+    /**
+     * @param list<string> $faltantes
+     * @return array{completa: bool, total: int, enviados: int, faltantes: list<string>, mensaje: string}
+     */
+    private function buildResultadoDocumentacion(
+        bool $completa,
+        int $total,
+        int $enviados,
+        array $faltantes,
+        string $labelTipo,
+        ?string $mensajePersonalizado = null
+    ): array {
+        $mensaje = $mensajePersonalizado ?? '';
+
+        if ($mensaje === '' && !$completa) {
+            $mensaje = 'El estudiante no ha enviado toda su documentación de ' . $labelTipo . '.';
+            if ($total > 0) {
+                $mensaje .= ' Ha enviado ' . $enviados . ' de ' . $total . ' documento(s) requerido(s).';
+            }
+            if ($faltantes !== []) {
+                $mostrar = array_slice($faltantes, 0, 6);
+                $mensaje .= "\n\nDocumentos pendientes de envío:\n• " . implode("\n• ", $mostrar);
+                if (count($faltantes) > 6) {
+                    $mensaje .= "\n• ... y " . (count($faltantes) - 6) . ' más';
+                }
+            }
+        }
+
+        return [
+            'completa' => $completa,
+            'total' => $total,
+            'enviados' => $enviados,
+            'faltantes' => $faltantes,
+            'mensaje' => $mensaje,
+        ];
+    }
+
+    /**
      * API: Instituciones con convenio vigente para una carrera (para modal nueva práctica)
      */
     public function getInstitucionesPorCarrera()

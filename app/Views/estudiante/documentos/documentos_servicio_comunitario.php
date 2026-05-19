@@ -671,7 +671,7 @@ foreach ($servicios_documentacion ?? [] as $row) {
     }
 
     function eliminarDocumento(id) {
-        if (confirm('¿Estás seguro de que quieres eliminar este documento?')) {
+        if (true) {
             fetch('<?= base_url('estudiante/documentos-servicio-comunitario/eliminar') ?>/' + id, {
                     method: 'POST'
                 })

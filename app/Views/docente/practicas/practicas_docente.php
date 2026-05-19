@@ -845,7 +845,16 @@
 
                 if (btnElim) {
                     var idE = btnElim.getAttribute('data-id');
-                    if (!idE || !confirm('¿Eliminar esta notificación?')) return;
+                    if (!idE) return;
+                    confirmarAccion({
+                        titulo: '¿Eliminar notificación?',
+                        mensaje: 'Esta notificación será eliminada permanentemente.',
+                        icono: 'fas fa-trash-alt',
+                        colorIcono: 'text-danger',
+                        bgIcono: 'bg-danger bg-opacity-10',
+                        textoAceptar: 'Eliminar',
+                        colorBoton: 'btn-danger',
+                        onAceptar: function() {
                     fetch(baseUrlNotificaciones + '/eliminar/' + idE, {
                             method: 'POST',
                             headers: {
@@ -866,16 +875,24 @@
                                 showNotification('No se pudo eliminar', 'error');
                             }
                         })
-                        .catch(function() {
-                            showNotification('Error de conexión', 'error');
                         });
+                        }
+                    });
                 }
             });
 
             var btnTodas = document.getElementById('notifPracBtnMarcarTodas');
             if (btnTodas) {
                 btnTodas.addEventListener('click', function() {
-                    if (!confirm('¿Marcar todas las notificaciones como revisadas?')) return;
+                    confirmarAccion({
+                        titulo: '¿Marcar todas como revisadas?',
+                        mensaje: 'Todas las notificaciones serán marcadas como leídas.',
+                        icono: 'fas fa-check-double',
+                        colorIcono: 'text-success',
+                        bgIcono: 'bg-success bg-opacity-10',
+                        textoAceptar: 'Marcar todas',
+                        colorBoton: 'btn-success',
+                        onAceptar: function() {
                     fetch(baseUrlNotificaciones + '/marcar-todas-leidas', {
                             method: 'POST',
                             headers: {
@@ -904,6 +921,8 @@
                         .catch(function() {
                             showNotification('Error de conexión', 'error');
                         });
+                        }
+                    });
                 });
             }
         }

@@ -4,6 +4,7 @@ namespace App\Controllers\coord;
 
 use App\Models\DetallesConveniosModel;
 use App\Models\InstitucionesConveniosModel;
+use App\Models\DocumentosHabilitantesInstitucionModel;
 use App\Models\TiposConveniosModel;
 use App\Models\CarrerasModel;
 use App\Controllers\BaseController;
@@ -12,13 +13,17 @@ class ConveniosCoordController extends BaseController
 {
     protected $conveniosModel;
     protected $institucionesModel;
+    protected $documentosHabilitantesModel;
     protected $tiposConveniosModel;
     protected $carrerasModel;
+
+    private const MAX_BYTES_DOC_HABILITANTE = 10485760; // 10 MB
 
     public function __construct()
     {
         $this->conveniosModel = new DetallesConveniosModel();
         $this->institucionesModel = new InstitucionesConveniosModel();
+        $this->documentosHabilitantesModel = new DocumentosHabilitantesInstitucionModel();
         $this->tiposConveniosModel = new TiposConveniosModel();
         $this->carrerasModel = new CarrerasModel();
     }
@@ -164,19 +169,148 @@ class ConveniosCoordController extends BaseController
             $data['LOGO'] = null;
         }
 
-        if ($this->institucionesModel->insert($data)) {
-            return $this->response->setJSON([
-                'success' => true,
-                'message' => 'Institución guardada exitosamente',
-                'institucion_id' => $this->institucionesModel->getInsertID()
-            ]);
-        } else {
+        $validacionDocs = $this->validarDocumentosHabilitantesEntrada();
+        if ($validacionDocs !== null) {
+            return $this->response->setJSON($validacionDocs);
+        }
+
+        $db = \Config\Database::connect();
+        $db->transStart();
+
+        if (!$this->institucionesModel->insert($data)) {
+            $db->transRollback();
+
             return $this->response->setJSON([
                 'success' => false,
                 'message' => 'Error al guardar la institución',
-                'errors' => $this->institucionesModel->errors()
+                'errors' => $this->institucionesModel->errors(),
             ]);
         }
+
+        $idInstitucion = (int) $this->institucionesModel->getInsertID();
+        $resultadoDocs = $this->guardarDocumentosHabilitantes($idInstitucion);
+        if ($resultadoDocs['success'] === false) {
+            $db->transRollback();
+
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => $resultadoDocs['message'],
+            ]);
+        }
+
+        $db->transComplete();
+
+        if ($db->transStatus() === false) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error al guardar la institución y sus documentos.',
+            ]);
+        }
+
+        return $this->response->setJSON([
+            'success' => true,
+            'message' => 'Institución guardada exitosamente',
+            'institucion_id' => $idInstitucion,
+            'documentos_habilitantes' => $resultadoDocs['guardados'] ?? 0,
+        ]);
+    }
+
+    /**
+     * @return array{success: bool, message?: string}|null
+     */
+    private function validarDocumentosHabilitantesEntrada(): ?array
+    {
+        $archivos = $this->request->getFileMultiple('documentos_habilitantes');
+        if ($archivos === null || $archivos === []) {
+            return null;
+        }
+
+        foreach ($archivos as $archivo) {
+            if ($archivo === null || !$archivo->isValid()) {
+                if ($archivo !== null && $archivo->getError() !== UPLOAD_ERR_NO_FILE) {
+                    return [
+                        'success' => false,
+                        'message' => 'Uno de los documentos habilitantes no se pudo cargar correctamente.',
+                    ];
+                }
+                continue;
+            }
+
+            $ext = strtolower((string) $archivo->getClientExtension());
+            $mime = strtolower((string) $archivo->getMimeType());
+            if ($ext !== 'pdf' && $mime !== 'application/pdf') {
+                return [
+                    'success' => false,
+                    'message' => 'Solo se permiten archivos PDF en Documentos Habilitantes.',
+                ];
+            }
+
+            if ($archivo->getSize() > self::MAX_BYTES_DOC_HABILITANTE) {
+                return [
+                    'success' => false,
+                    'message' => 'Cada documento habilitante debe pesar como máximo 10 MB.',
+                ];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array{success: bool, message?: string, guardados?: int}
+     */
+    private function guardarDocumentosHabilitantes(int $idInstitucion): array
+    {
+        $archivos = $this->request->getFileMultiple('documentos_habilitantes');
+        if ($archivos === null || $archivos === []) {
+            return ['success' => true, 'guardados' => 0];
+        }
+
+        $dir = FCPATH . 'uploads/documentos_habilitantes_institucion/';
+        if (!is_dir($dir)) {
+            mkdir($dir, 0755, true);
+        }
+
+        $guardados = 0;
+
+        foreach ($archivos as $archivo) {
+            if ($archivo === null || !$archivo->isValid() || $archivo->hasMoved()) {
+                continue;
+            }
+
+            $ext = strtolower((string) $archivo->getClientExtension());
+            if ($ext !== 'pdf') {
+                continue;
+            }
+
+            $nombreServidor = $archivo->getRandomName();
+            if (!$archivo->move($dir, $nombreServidor)) {
+                return [
+                    'success' => false,
+                    'message' => 'No se pudo guardar uno de los documentos habilitantes en el servidor.',
+                ];
+            }
+
+            if (!$this->documentosHabilitantesModel->insert([
+                'ID_INSTITUCION_CONVENIO' => $idInstitucion,
+                'NOMBRE_ARCHIVO' => $nombreServidor,
+                'NOMBRE_ORIGINAL' => $archivo->getClientName(),
+                'TIPO_ARCHIVO' => $archivo->getClientMimeType() ?: 'application/pdf',
+                'TAMANO_BYTES' => (int) $archivo->getSize(),
+                'FECHA_SUBIDA' => date('Y-m-d H:i:s'),
+            ])) {
+                @unlink($dir . $nombreServidor);
+
+                return [
+                    'success' => false,
+                    'message' => 'Error al registrar los documentos habilitantes en la base de datos.',
+                ];
+            }
+
+            $guardados++;
+        }
+
+        return ['success' => true, 'guardados' => $guardados];
     }
 
     public function getInstituciones()

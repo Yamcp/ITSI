@@ -322,8 +322,15 @@
     }
 
     function marcarTodasLeidas() {
-        if (confirm('¿Estás seguro de que quieres marcar todas las notificaciones como revisadas?')) {
-            fetch('/notificaciones/marcar-todas-leidas', {
+        confirmarAccion({
+            titulo: '¿Marcar todas como revisadas?',
+            mensaje: 'Todas las notificaciones serán marcadas como leídas.',
+            icono: 'fas fa-check-double',
+            colorIcono: 'text-success',
+            bgIcono: 'bg-success bg-opacity-10',
+            textoAceptar: 'Marcar todas',
+            colorBoton: 'btn-success',
+            onAceptar: function() {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -333,23 +340,17 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Actualizar todas las notificaciones no leídas
                         document.querySelectorAll('.notification-item.unread').forEach(elemento => {
                             elemento.classList.remove('unread');
                             elemento.classList.add('read');
                             elemento.setAttribute('data-leida', '1');
-
-                            // Ocultar botones de marcar como leída
                             const btnMarcar = elemento.querySelector('.notification-actions .btn-outline-success');
                             if (btnMarcar) {
                                 btnMarcar.remove();
                             }
                         });
-
-                        // Actualizar contador
                         actualizarContador();
-
-                        showNotification('Todas las notificaciones han sido marcadas como revisadas', 'success');
+                    showNotification('Todas las notificaciones han sido marcadas como revisadas', 'success');
                     } else {
                         showNotification('Error al marcar las notificaciones', 'error');
                     }
@@ -358,12 +359,20 @@
                     console.error('Error:', error);
                     showNotification('Error de conexión', 'error');
                 });
-        }
+            }
+        });
     }
 
     function eliminarNotificacion(idNotificacion) {
-        if (confirm('¿Estás seguro de que quieres eliminar esta notificación?')) {
-            fetch(`/notificaciones/eliminar/${idNotificacion}`, {
+        confirmarAccion({
+            titulo: '¿Eliminar notificación?',
+            mensaje: 'Esta notificación será eliminada permanentemente.',
+            icono: 'fas fa-trash-alt',
+            colorIcono: 'text-danger',
+            bgIcono: 'bg-danger bg-opacity-10',
+            textoAceptar: 'Eliminar',
+            colorBoton: 'btn-danger',
+            onAceptar: function() {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -373,16 +382,12 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
-                        // Remover elemento de la interfaz
                         const elemento = document.querySelector(`[data-id="${idNotificacion}"]`);
                         if (elemento) {
                             elemento.remove();
                         }
-
-                        // Actualizar contador
                         actualizarContador();
-
-                        showNotification('Notificación eliminada', 'success');
+                    showNotification('Notificación eliminada', 'success');
                     } else {
                         showNotification('Error al eliminar la notificación', 'error');
                     }
@@ -391,7 +396,8 @@
                     console.error('Error:', error);
                     showNotification('Error de conexión', 'error');
                 });
-        }
+            }
+        });
     }
 
     function filtrarNotificaciones(filtro) {

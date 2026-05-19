@@ -52,6 +52,7 @@ drop table if exists TAB_INSTRUCTORES;
 drop table if exists TAB_ESTUDIANTES;
 drop table if exists TAB_ROLES;
 drop table if exists TAB_DETALLES_CONVENIOS;
+drop table if exists TAB_DOCUMENTOS_HABILITANTES_INSTITUCION;
 drop table if exists TAB_INSTITUCION_CARRERA;
 drop table if exists TAB_INSTITUCIONES_CONVENIOS;
 drop table if exists TAB_ENTIDADES_RECEPTORAS;
@@ -301,6 +302,22 @@ create table TAB_INSTITUCIONES_CONVENIOS
    EMAIL_CONTACTO       varchar(100) not null,
    LOGO                 varchar(255) null,
    primary key (ID_INSTITUCION_CONVENIO)
+);
+
+/*==============================================================*/
+/* Table: TAB_DOCUMENTOS_HABILITANTES_INSTITUCION               */
+/*==============================================================*/
+create table TAB_DOCUMENTOS_HABILITANTES_INSTITUCION
+(
+   ID_DOCUMENTO_HABILITANTE int not null auto_increment,
+   ID_INSTITUCION_CONVENIO int not null,
+   NOMBRE_ARCHIVO         varchar(255) not null,
+   NOMBRE_ORIGINAL        varchar(255) not null,
+   TIPO_ARCHIVO           varchar(100) not null default 'application/pdf',
+   TAMANO_BYTES           int unsigned null,
+   FECHA_SUBIDA           datetime not null,
+   primary key (ID_DOCUMENTO_HABILITANTE),
+   key IDX_DOC_HAB_INST (ID_INSTITUCION_CONVENIO)
 );
 
 /*==============================================================*/
@@ -993,6 +1010,9 @@ alter table TAB_INSTITUCION_CARRERA add constraint FK_REFERENCE_39 foreign key (
 
 alter table TAB_INSTITUCION_CARRERA add constraint FK_REFERENCE_41 foreign key (ID_INSTITUCION_CONVENIO)
       references TAB_INSTITUCIONES_CONVENIOS (ID_INSTITUCION_CONVENIO) on delete restrict on update restrict;
+
+alter table TAB_DOCUMENTOS_HABILITANTES_INSTITUCION add constraint FK_DOC_HAB_INSTITUCION foreign key (ID_INSTITUCION_CONVENIO)
+      references TAB_INSTITUCIONES_CONVENIOS (ID_INSTITUCION_CONVENIO) on delete cascade on update restrict;
 
 alter table TAB_INSTRUCTORES add constraint FK_REFERENCE_25 foreign key (ID_TIPO_INSTRUCTOR)
       references TAB_TIPOS_INSTRUCTORES (ID_TIPO_INSTRUCTOR) on delete restrict on update restrict;

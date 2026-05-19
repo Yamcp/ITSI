@@ -13,7 +13,7 @@ class EvaluacionesDocenteController extends BaseController
     public function __construct()
     {
         // Verificar autenticación y rol de docente
-        if (!session()->get('logged_in') || session()->get('rol') != 2) {
+        if (!session()->get('logged_in') || session()->get('rol') != 3) {
             return redirect()->to('/');
         }
         

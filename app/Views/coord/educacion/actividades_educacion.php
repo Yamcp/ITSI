@@ -54,6 +54,24 @@
         white-space: nowrap;
         line-height: 1.2;
     }
+
+    /* Horario interactivo – botones de días */
+    .dia-btn {
+        transition: all 0.2s ease;
+        font-weight: 500;
+        min-width: 60px;
+    }
+    .dia-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 123, 255, 0.25);
+    }
+    .dia-btn.active {
+        transform: scale(1.05);
+        box-shadow: 0 3px 10px rgba(0, 123, 255, 0.35);
+    }
+    .dia-check {
+        transition: opacity 0.15s ease;
+    }
 </style>
 <?= $this->endSection() ?>
 
@@ -129,6 +147,25 @@
             </div>
         </div>
 
+        <?php
+        // Preprocesar actividades en vigentes y expiradas
+        $actividadesVigentes = [];
+        $actividadesExpiradas = [];
+        $encuestasPorActividad = $encuestasPorActividad ?? [];
+        if (!empty($actividades)) {
+            $hoy = new DateTime('today');
+            foreach ($actividades as $act) {
+                $fechaFin = new DateTime($act['FECHA_FIN']);
+                $fechaFin->setTime(0, 0, 0);
+                if ($fechaFin <= $hoy) {
+                    $actividadesExpiradas[] = $act;
+                } else {
+                    $actividadesVigentes[] = $act;
+                }
+            }
+        }
+        ?>
+
         <!-- Tabs Navigation -->
         <div class="row">
             <div class="col-12">
@@ -137,31 +174,19 @@
                         <ul class="nav nav-tabs nav-justified rounded-pill bg-light px-2 py-1" id="actividadesTabs"
                             role="tablist" style="gap: 0.5rem;">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active rounded-pill fw-semibold text-primary" id="cursos-tab"
-                                    data-bs-toggle="tab" data-bs-target="#cursos" type="button" role="tab"
+                                <button class="nav-link active rounded-pill fw-semibold text-success" id="vigentes-tab"
+                                    data-bs-toggle="tab" data-bs-target="#vigentes" type="button" role="tab"
                                     aria-selected="true">
-                                    <i class="fas fa-book me-2"></i>Cursos
+                                    <i class="fas fa-check-circle me-2"></i>Actividades Vigentes
+                                    <span class="badge bg-success ms-1"><?= count($actividadesVigentes) ?></span>
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-pill fw-semibold text-success" id="talleres-tab"
-                                    data-bs-toggle="tab" data-bs-target="#talleres" type="button" role="tab"
+                                <button class="nav-link rounded-pill fw-semibold text-secondary" id="expiradas-tab"
+                                    data-bs-toggle="tab" data-bs-target="#expiradas" type="button" role="tab"
                                     aria-selected="false">
-                                    <i class="fas fa-tools me-2"></i>Talleres
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-pill fw-semibold text-info" id="conferencias-tab"
-                                    data-bs-toggle="tab" data-bs-target="#conferencias" type="button" role="tab"
-                                    aria-selected="false">
-                                    <i class="fas fa-users me-2"></i>Conferencias
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-pill fw-semibold text-primary" id="capacitacion-tab"
-                                    data-bs-toggle="tab" data-bs-target="#capacitaciones" type="button" role="tab"
-                                    aria-selected="false">
-                                    <i class="fas fa-chalkboard-teacher me-2"></i>Capacitación
+                                    <i class="fas fa-history me-2"></i>Actividades Expiradas
+                                    <span class="badge bg-secondary ms-1"><?= count($actividadesExpiradas) ?></span>
                                 </button>
                             </li>
                         </ul>
@@ -175,548 +200,155 @@
 
                         <!-- Contenido de las pestañas -->
                         <div class="tab-content mt-3" id="actividadesTabContent">
-                            <!-- Cursos -->
-                            <div class="tab-pane fade show active" id="cursos" role="tabpanel">
-                                <div class="card shadow-sm border-0">
-                                    <div class="card-body p-0">
-                                        <div class="table-responsive">
-                                            <table class="table table-striped align-middle mb-0">
-                                                <thead class="table-light">
+                            <?php
+                            // Función helper para renderizar icono según tipo de actividad
+                            function iconoActividad($tipo) {
+                                $iconos = [
+                                    'Curso' => 'fas fa-laptop-code text-primary',
+                                    'Taller' => 'fas fa-wrench text-success',
+                                    'Conferencia' => 'fas fa-comments text-info',
+                                    'Capacitación' => 'fas fa-chalkboard-teacher text-warning',
+                                ];
+                                return $iconos[$tipo] ?? 'fas fa-book text-secondary';
+                            }
+                            function badgeTipo($tipo) {
+                                $colores = [
+                                    'Curso' => 'bg-primary',
+                                    'Taller' => 'bg-success',
+                                    'Conferencia' => 'bg-info',
+                                    'Capacitación' => 'bg-warning text-dark',
+                                ];
+                                return $colores[$tipo] ?? 'bg-secondary';
+                            }
+                            // Renderizar tabla de actividades
+                            function renderTablaActividades($listaActs, $encuestasPorAct, $tbodyId, $esVigente) {
+                            ?>
+                            <div class="card shadow-sm border-0">
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-striped align-middle mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>Actividad</th>
+                                                    <th>Tipo</th>
+                                                    <th>Instructor</th>
+                                                    <th>Modalidad</th>
+                                                    <th>Período</th>
+                                                    <th>Duración</th>
+                                                    <th>Estado</th>
+                                                    <th>Encuesta</th>
+                                                    <th>Acciones</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="<?= $tbodyId ?>">
+                                                <?php if (!empty($listaActs)): ?>
+                                                    <?php foreach ($listaActs as $actividad):
+                                                        $enc = $encuestasPorAct[$actividad['ID_ACTIVIDAD_EDUCACION']] ?? null;
+                                                        $fvList = '';
+                                                        if ($enc && !empty($enc['FECHA_VENCIMIENTO'])) {
+                                                            $fvList = substr((string) $enc['FECHA_VENCIMIENTO'], 0, 10);
+                                                        }
+                                                        $tipoAct = $actividad['ACTIVIDAD'] ?? '';
+                                                    ?>
                                                     <tr>
-                                                        <th>#</th>
-                                                        <th>Actividad</th>
-                                                        <th>Instructor</th>
-                                                        <th>Modalidad</th>
-                                                        <th>Período</th>
-                                                        <th>Duración</th>
-                                                        <th>Estado</th>
-                                                        <th>Encuesta</th>
-                                                        <th>Acciones</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="tablaCursos">
-                                                    <?php
-                                                    $encuestasPorActividad = $encuestasPorActividad ?? [];
-                                                    if (!empty($actividades)): ?>
-                                                        <?php foreach ($actividades as $actividad): ?>
-                                                            <?php if ($actividad['ACTIVIDAD'] === 'Curso'): ?>
-                                                                <?php
-                                                                $fechaFinC = new DateTime($actividad['FECHA_FIN']);
-                                                                $fechaFinC->setTime(0, 0, 0); // Comparar solo por fecha (hoy cuenta como finalizado)
-                                                                $finalizadoC = $fechaFinC <= new DateTime('today');
-                                                                $encuestaC = $encuestasPorActividad[$actividad['ID_ACTIVIDAD_EDUCACION']] ?? null;
-                                                                ?>
-                                                                <tr>
-                                                                    <td><?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?></td>
-                                                                    <td>
-                                                                        <div class="d-flex align-items-center">
-                                                                            <i
-                                                                                class="fas fa-laptop-code fa-2x me-2 text-primary"></i>
-                                                                            <div>
-                                                                                <div class="fw-semibold">
-                                                                                    <?= $actividad['NOMBRE_ACTIVIDAD'] ?></div>
-                                                                                <small
-                                                                                    class="text-muted"><?= $actividad['DESCRIPCION'] ?></small>
-                                                                            </div>
-                                                                        </div>
-                                                                    </td>
-                                                                    <td>
-                                                                        <div><?= $actividad['NOMBRE'] ?>
-                                                                            <?= $actividad['APELLIDO'] ?></div>
-                                                                        <small
-                                                                            class="text-muted"><?= $actividad['ESPECIALIDAD'] ?></small>
-                                                                    </td>
-                                                                    <td><span
-                                                                            class="badge bg-info"><?= $actividad['MODALIDAD'] ?></span>
-                                                                    </td>
-                                                                    <td>
-                                                                        <div>
-                                                                            <?= date('M Y', strtotime($actividad['FECHA_INICIO'])) ?>
-                                                                            - <?= date('M Y', strtotime($actividad['FECHA_FIN'])) ?>
-                                                                        </div>
-                                                                        <small
-                                                                            class="text-muted"><?= $actividad['DURACION_HORAS'] ?>
-                                                                            horas</small>
-                                                                    </td>
-                                                                    <td><span
-                                                                            class="badge bg-secondary"><?= $actividad['DURACION_HORAS'] ?>h</span>
-                                                                    </td>
-                                                                    <td>
-                                                                        <?php if ($finalizadoC): ?>
-                                                                            <span class="badge bg-secondary">Finalizado</span>
-                                                                        <?php else: ?>
-                                                                            <span class="badge bg-success">Activo</span>
-                                                                        <?php endif; ?>
-                                                                    </td>
-                                                                    <td>
-                                                                        <?php if ($encuestaC): ?>
-                                                                            <?php $fvListC = !empty($encuestaC['FECHA_VENCIMIENTO']) ? substr((string) $encuestaC['FECHA_VENCIMIENTO'], 0, 10) : ''; ?>
-                                                                            <div class="d-flex flex-wrap gap-1 align-items-center">
-                                                                                <button type="button"
-                                                                                    class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado"
-                                                                                    title="Agregar o cambiar enlace de encuesta"
-                                                                                    data-encuesta-modo="editar"
-                                                                                    data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>"
-                                                                                    data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>"
-                                                                                    data-evaluacion-id="<?= (int) ($encuestaC['ID_EVALUACION_ENLACE'] ?? 0) ?>"
-                                                                                    data-nombre-evaluacion="<?= esc($encuestaC['NOMBRE_EVALUACION'] ?? '', 'attr') ?>"
-                                                                                    data-enlace-formulario="<?= esc($encuestaC['ENLACE_FORMULARIO'] ?? '', 'attr') ?>"
-                                                                                    data-descripcion="<?= esc($encuestaC['DESCRIPCION'] ?? '', 'attr') ?>"
-                                                                                    data-fecha-vencimiento="<?= esc($fvListC, 'attr') ?>"
-                                                                                    data-estado="<?= esc($encuestaC['ESTADO'] ?? 'activo', 'attr') ?>"><i
-                                                                                        class="fas fa-link me-1"></i>Agregar
-                                                                                    enlace</button>
-                                                                                <a href="<?= esc($encuestaC['ENLACE_FORMULARIO'], 'attr') ?>"
-                                                                                    target="_blank" rel="noopener"
-                                                                                    class="btn btn-outline-success btn-sm"
-                                                                                    title="Abrir formulario de la encuesta"><i
-                                                                                        class="fas fa-external-link-alt me-1"></i>Abrir
-                                                                                    encuesta</a>
-                                                                            </div>
-                                                                        <?php else: ?>
-                                                                            <button type="button"
-                                                                                class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado"
-                                                                                title="Agregar enlace de encuesta de satisfacción"
-                                                                                data-encuesta-modo="nuevo"
-                                                                                data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>"
-                                                                                data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>"><i
-                                                                                    class="fas fa-link me-1"></i>Agregar enlace</button>
-                                                                        <?php endif; ?>
-                                                                    </td>
-                                                                    <td>
-                                                                        <div class="btn-group btn-group-sm">
-                                                                            <a href="<?= base_url('coord/actividades-educacion/ver/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>"
-                                                                                class="btn btn-outline-primary" title="Ver Detalle">
-                                                                                <i class="fas fa-eye"></i>
-                                                                            </a>
-                                                                            <a href="<?= base_url('coord/actividades-educacion/editar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>"
-                                                                                class="btn btn-outline-warning" title="Editar">
-                                                                                <i class="fas fa-edit"></i>
-                                                                            </a>
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
+                                                        <td><?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?></td>
+                                                        <td>
+                                                            <div class="d-flex align-items-center">
+                                                                <i class="<?= iconoActividad($tipoAct) ?> fa-2x me-2"></i>
+                                                                <div>
+                                                                    <div class="fw-semibold"><?= $actividad['NOMBRE_ACTIVIDAD'] ?></div>
+                                                                    <small class="text-muted"><?= $actividad['DESCRIPCION'] ?></small>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                        <td><span class="badge <?= badgeTipo($tipoAct) ?>"><?= $tipoAct ?></span></td>
+                                                        <td>
+                                                            <div><?= $actividad['NOMBRE'] ?> <?= $actividad['APELLIDO'] ?></div>
+                                                            <small class="text-muted"><?= $actividad['ESPECIALIDAD'] ?></small>
+                                                        </td>
+                                                        <td><span class="badge bg-info"><?= $actividad['MODALIDAD'] ?></span></td>
+                                                        <td>
+                                                            <div><?= date('M Y', strtotime($actividad['FECHA_INICIO'])) ?> - <?= date('M Y', strtotime($actividad['FECHA_FIN'])) ?></div>
+                                                            <small class="text-muted"><?= $actividad['DURACION_HORAS'] ?> horas</small>
+                                                        </td>
+                                                        <td><span class="badge bg-secondary"><?= $actividad['DURACION_HORAS'] ?>h</span></td>
+                                                        <td>
+                                                            <?php if ($esVigente): ?>
+                                                                <span class="badge bg-success">Activo</span>
+                                                            <?php else: ?>
+                                                                <span class="badge bg-secondary">Finalizado</span>
                                                             <?php endif; ?>
-                                                        <?php endforeach; ?>
-                                                    <?php else: ?>
-                                                        <tr>
-                                                            <td colspan="9" class="text-center text-muted py-4">
-                                                                <i class="fas fa-inbox fa-3x mb-3"></i>
-                                                                <p>No hay cursos registrados</p>
-                                                            </td>
-                                                        </tr>
-                                                    <?php endif; ?>
-                                                </tbody>
-                                            </table>
-                                        </div>
+                                                        </td>
+                                                        <td>
+                                                            <?php if ($enc): ?>
+                                                                <div class="d-flex flex-wrap gap-1 align-items-center">
+                                                                    <button type="button"
+                                                                        class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado"
+                                                                        title="Agregar o cambiar enlace de encuesta"
+                                                                        data-encuesta-modo="editar"
+                                                                        data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>"
+                                                                        data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>"
+                                                                        data-evaluacion-id="<?= (int) ($enc['ID_EVALUACION_ENLACE'] ?? 0) ?>"
+                                                                        data-nombre-evaluacion="<?= esc($enc['NOMBRE_EVALUACION'] ?? '', 'attr') ?>"
+                                                                        data-enlace-formulario="<?= esc($enc['ENLACE_FORMULARIO'] ?? '', 'attr') ?>"
+                                                                        data-descripcion="<?= esc($enc['DESCRIPCION'] ?? '', 'attr') ?>"
+                                                                        data-fecha-vencimiento="<?= esc($fvList, 'attr') ?>"
+                                                                        data-estado="<?= esc($enc['ESTADO'] ?? 'activo', 'attr') ?>"><i
+                                                                            class="fas fa-link me-1"></i>Agregar enlace</button>
+                                                                    <a href="<?= esc($enc['ENLACE_FORMULARIO'], 'attr') ?>"
+                                                                        target="_blank" rel="noopener"
+                                                                        class="btn btn-outline-success btn-sm"
+                                                                        title="Abrir formulario de la encuesta"><i
+                                                                            class="fas fa-external-link-alt me-1"></i>Abrir encuesta</a>
+                                                                </div>
+                                                            <?php else: ?>
+                                                                <button type="button"
+                                                                    class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado"
+                                                                    title="Agregar enlace de encuesta de satisfacción"
+                                                                    data-encuesta-modo="nuevo"
+                                                                    data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>"
+                                                                    data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>"><i
+                                                                        class="fas fa-link me-1"></i>Agregar enlace</button>
+                                                            <?php endif; ?>
+                                                        </td>
+                                                        <td>
+                                                            <div class="btn-group btn-group-sm">
+                                                                <a href="<?= base_url('coord/actividades-educacion/ver/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>"
+                                                                    class="btn btn-outline-primary" title="Ver Detalle">
+                                                                    <i class="fas fa-eye"></i>
+                                                                </a>
+                                                                <a href="<?= base_url('coord/actividades-educacion/editar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>"
+                                                                    class="btn btn-outline-warning" title="Editar">
+                                                                    <i class="fas fa-edit"></i>
+                                                                </a>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                    <?php endforeach; ?>
+                                                <?php else: ?>
+                                                    <tr>
+                                                        <td colspan="10" class="text-center text-muted py-4">
+                                                            <i class="fas fa-inbox fa-3x mb-3"></i>
+                                                            <p>No hay actividades <?= $esVigente ? 'vigentes' : 'expiradas' ?></p>
+                                                        </td>
+                                                    </tr>
+                                                <?php endif; ?>
+                                            </tbody>
+                                        </table>
                                     </div>
                                 </div>
                             </div>
+                            <?php } ?>
 
-                            <!-- Talleres -->
-                            <div class="tab-pane fade" id="talleres" role="tabpanel">
-                                <div class="card shadow-sm border-0">
-                                    <div class="card-body p-0">
-                                        <div class="table-responsive">
-                                            <table class="table table-striped align-middle mb-0">
-                                                <thead class="table-light">
-                                                    <tr>
-                                                        <th>#</th>
-                                                        <th>Actividad</th>
-                                                        <th>Instructor</th>
-                                                        <th>Modalidad</th>
-                                                        <th>Período</th>
-                                                        <th>Duración</th>
-                                                        <th>Estado</th>
-                                                        <th>Encuesta</th>
-                                                        <th>Acciones</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="tablaTalleres">
-                                                    <?php if (!empty($actividades)): ?>
-                                                        <?php foreach ($actividades as $actividad): ?>
-                                                            <?php if ($actividad['ACTIVIDAD'] === 'Taller'): ?>
-                                                                <?php
-                                                                $fechaFinT = new DateTime($actividad['FECHA_FIN']);
-                                                                $fechaFinT->setTime(0, 0, 0);
-                                                                $finalizadoT = $fechaFinT <= new DateTime('today');
-                                                                $encuestaT = $encuestasPorActividad[$actividad['ID_ACTIVIDAD_EDUCACION']] ?? null;
-                                                                ?>
-                                                                <tr>
-                                                                    <td><?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?></td>
-                                                                    <td>
-                                                                        <div class="d-flex align-items-center">
-                                                                            <i class="fas fa-wrench fa-2x me-2 text-success"></i>
-                                                                            <div>
-                                                                                <div class="fw-semibold">
-                                                                                    <?= $actividad['NOMBRE_ACTIVIDAD'] ?></div>
-                                                                                <small
-                                                                                    class="text-muted"><?= $actividad['DESCRIPCION'] ?></small>
-                                                                            </div>
-                                                                        </div>
-                                                                    </td>
-                                                                    <td>
-                                                                        <div><?= $actividad['NOMBRE'] ?>
-                                                                            <?= $actividad['APELLIDO'] ?></div>
-                                                                        <small
-                                                                            class="text-muted"><?= $actividad['ESPECIALIDAD'] ?></small>
-                                                                    </td>
-                                                                    <td><span
-                                                                            class="badge bg-warning text-dark"><?= $actividad['MODALIDAD'] ?></span>
-                                                                    </td>
-                                                                    <td>
-                                                                        <div>
-                                                                            <?= date('M Y', strtotime($actividad['FECHA_INICIO'])) ?>
-                                                                            - <?= date('M Y', strtotime($actividad['FECHA_FIN'])) ?>
-                                                                        </div>
-                                                                        <small
-                                                                            class="text-muted"><?= $actividad['DURACION_HORAS'] ?>
-                                                                            horas</small>
-                                                                    </td>
-                                                                    <td><span
-                                                                            class="badge bg-secondary"><?= $actividad['DURACION_HORAS'] ?>h</span>
-                                                                    </td>
-                                                                    <td>
-                                                                        <?php if ($finalizadoT): ?>
-                                                                            <span class="badge bg-secondary">Finalizado</span>
-                                                                        <?php else: ?>
-                                                                            <span class="badge bg-warning text-dark">Activo</span>
-                                                                        <?php endif; ?>
-                                                                    </td>
-                                                                    <td>
-                                                                        <?php if ($encuestaT): ?>
-                                                                            <?php $fvListT = !empty($encuestaT['FECHA_VENCIMIENTO']) ? substr((string) $encuestaT['FECHA_VENCIMIENTO'], 0, 10) : ''; ?>
-                                                                            <div class="d-flex flex-wrap gap-1 align-items-center">
-                                                                                <button type="button"
-                                                                                    class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado"
-                                                                                    title="Agregar o cambiar enlace de encuesta"
-                                                                                    data-encuesta-modo="editar"
-                                                                                    data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>"
-                                                                                    data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>"
-                                                                                    data-evaluacion-id="<?= (int) ($encuestaT['ID_EVALUACION_ENLACE'] ?? 0) ?>"
-                                                                                    data-nombre-evaluacion="<?= esc($encuestaT['NOMBRE_EVALUACION'] ?? '', 'attr') ?>"
-                                                                                    data-enlace-formulario="<?= esc($encuestaT['ENLACE_FORMULARIO'] ?? '', 'attr') ?>"
-                                                                                    data-descripcion="<?= esc($encuestaT['DESCRIPCION'] ?? '', 'attr') ?>"
-                                                                                    data-fecha-vencimiento="<?= esc($fvListT, 'attr') ?>"
-                                                                                    data-estado="<?= esc($encuestaT['ESTADO'] ?? 'activo', 'attr') ?>"><i
-                                                                                        class="fas fa-link me-1"></i>Agregar
-                                                                                    enlace</button>
-                                                                                <a href="<?= esc($encuestaT['ENLACE_FORMULARIO'], 'attr') ?>"
-                                                                                    target="_blank" rel="noopener"
-                                                                                    class="btn btn-outline-success btn-sm"
-                                                                                    title="Abrir formulario de la encuesta"><i
-                                                                                        class="fas fa-external-link-alt me-1"></i>Abrir
-                                                                                    encuesta</a>
-                                                                            </div>
-                                                                        <?php else: ?>
-                                                                            <button type="button"
-                                                                                class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado"
-                                                                                title="Agregar enlace de encuesta de satisfacción"
-                                                                                data-encuesta-modo="nuevo"
-                                                                                data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>"
-                                                                                data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>"><i
-                                                                                    class="fas fa-link me-1"></i>Agregar enlace</button>
-                                                                        <?php endif; ?>
-                                                                    </td>
-                                                                    <td>
-                                                                        <div class="btn-group btn-group-sm">
-                                                                            <a href="<?= base_url('coord/actividades-educacion/ver/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>"
-                                                                                class="btn btn-outline-primary" title="Ver Detalle">
-                                                                                <i class="fas fa-eye"></i>
-                                                                            </a>
-                                                                            <a href="<?= base_url('coord/actividades-educacion/editar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>"
-                                                                                class="btn btn-outline-warning" title="Editar">
-                                                                                <i class="fas fa-edit"></i>
-                                                                            </a>
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
-                                                            <?php endif; ?>
-                                                        <?php endforeach; ?>
-                                                    <?php else: ?>
-                                                        <tr>
-                                                            <td colspan="9" class="text-center text-muted py-4">
-                                                                <i class="fas fa-inbox fa-3x mb-3"></i>
-                                                                <p>No hay talleres registrados</p>
-                                                            </td>
-                                                        </tr>
-                                                    <?php endif; ?>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
+                            <!-- Vigentes -->
+                            <div class="tab-pane fade show active" id="vigentes" role="tabpanel">
+                                <?php renderTablaActividades($actividadesVigentes, $encuestasPorActividad, 'tablaVigentes', true); ?>
                             </div>
 
-                            <!-- Conferencias -->
-                            <div class="tab-pane fade" id="conferencias" role="tabpanel">
-                                <div class="card shadow-sm border-0">
-                                    <div class="card-body p-0">
-                                        <div class="table-responsive">
-                                            <table class="table table-striped align-middle mb-0">
-                                                <thead class="table-light">
-                                                    <tr>
-                                                        <th>#</th>
-                                                        <th>Actividad</th>
-                                                        <th>Instructor</th>
-                                                        <th>Modalidad</th>
-                                                        <th>Período</th>
-                                                        <th>Duración</th>
-                                                        <th>Estado</th>
-                                                        <th>Encuesta</th>
-                                                        <th>Acciones</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="tablaConferencias">
-                                                    <?php if (!empty($actividades)): ?>
-                                                        <?php foreach ($actividades as $actividad): ?>
-                                                            <?php if ($actividad['ACTIVIDAD'] === 'Conferencia'): ?>
-                                                                <?php
-                                                                $fechaFinCo = new DateTime($actividad['FECHA_FIN']);
-                                                                $fechaFinCo->setTime(0, 0, 0);
-                                                                $finalizadoCo = $fechaFinCo <= new DateTime('today');
-                                                                $encuestaCo = $encuestasPorActividad[$actividad['ID_ACTIVIDAD_EDUCACION']] ?? null;
-                                                                ?>
-                                                                <tr>
-                                                                    <td><?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?></td>
-                                                                    <td>
-                                                                        <div class="d-flex align-items-center">
-                                                                            <i class="fas fa-comments fa-2x me-2 text-info"></i>
-                                                                            <div>
-                                                                                <div class="fw-semibold">
-                                                                                    <?= $actividad['NOMBRE_ACTIVIDAD'] ?></div>
-                                                                                <small
-                                                                                    class="text-muted"><?= $actividad['DESCRIPCION'] ?></small>
-                                                                            </div>
-                                                                        </div>
-                                                                    </td>
-                                                                    <td>
-                                                                        <div><?= $actividad['NOMBRE'] ?>
-                                                                            <?= $actividad['APELLIDO'] ?></div>
-                                                                        <small
-                                                                            class="text-muted"><?= $actividad['ESPECIALIDAD'] ?></small>
-                                                                    </td>
-                                                                    <td><span
-                                                                            class="badge bg-info"><?= $actividad['MODALIDAD'] ?></span>
-                                                                    </td>
-                                                                    <td>
-                                                                        <div>
-                                                                            <?= date('M Y', strtotime($actividad['FECHA_INICIO'])) ?>
-                                                                            - <?= date('M Y', strtotime($actividad['FECHA_FIN'])) ?>
-                                                                        </div>
-                                                                        <small
-                                                                            class="text-muted"><?= $actividad['DURACION_HORAS'] ?>
-                                                                            horas</small>
-                                                                    </td>
-                                                                    <td><span
-                                                                            class="badge bg-secondary"><?= $actividad['DURACION_HORAS'] ?>h</span>
-                                                                    </td>
-                                                                    <td>
-                                                                        <?php if ($finalizadoCo): ?>
-                                                                            <span class="badge bg-secondary">Finalizado</span>
-                                                                        <?php else: ?>
-                                                                            <span class="badge bg-success">Activo</span>
-                                                                        <?php endif; ?>
-                                                                    </td>
-                                                                    <td>
-                                                                        <?php if ($encuestaCo): ?>
-                                                                            <?php $fvListCo = !empty($encuestaCo['FECHA_VENCIMIENTO']) ? substr((string) $encuestaCo['FECHA_VENCIMIENTO'], 0, 10) : ''; ?>
-                                                                            <div class="d-flex flex-wrap gap-1 align-items-center">
-                                                                                <button type="button"
-                                                                                    class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado"
-                                                                                    title="Agregar o cambiar enlace de encuesta"
-                                                                                    data-encuesta-modo="editar"
-                                                                                    data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>"
-                                                                                    data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>"
-                                                                                    data-evaluacion-id="<?= (int) ($encuestaCo['ID_EVALUACION_ENLACE'] ?? 0) ?>"
-                                                                                    data-nombre-evaluacion="<?= esc($encuestaCo['NOMBRE_EVALUACION'] ?? '', 'attr') ?>"
-                                                                                    data-enlace-formulario="<?= esc($encuestaCo['ENLACE_FORMULARIO'] ?? '', 'attr') ?>"
-                                                                                    data-descripcion="<?= esc($encuestaCo['DESCRIPCION'] ?? '', 'attr') ?>"
-                                                                                    data-fecha-vencimiento="<?= esc($fvListCo, 'attr') ?>"
-                                                                                    data-estado="<?= esc($encuestaCo['ESTADO'] ?? 'activo', 'attr') ?>"><i
-                                                                                        class="fas fa-link me-1"></i>Agregar
-                                                                                    enlace</button>
-                                                                                <a href="<?= esc($encuestaCo['ENLACE_FORMULARIO'], 'attr') ?>"
-                                                                                    target="_blank" rel="noopener"
-                                                                                    class="btn btn-outline-success btn-sm"
-                                                                                    title="Abrir formulario de la encuesta"><i
-                                                                                        class="fas fa-external-link-alt me-1"></i>Abrir
-                                                                                    encuesta</a>
-                                                                            </div>
-                                                                        <?php else: ?>
-                                                                            <button type="button"
-                                                                                class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado"
-                                                                                title="Agregar enlace de encuesta de satisfacción"
-                                                                                data-encuesta-modo="nuevo"
-                                                                                data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>"
-                                                                                data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>"><i
-                                                                                    class="fas fa-link me-1"></i>Agregar enlace</button>
-                                                                        <?php endif; ?>
-                                                                    </td>
-                                                                    <td>
-                                                                        <div class="btn-group btn-group-sm">
-                                                                            <a href="<?= base_url('coord/actividades-educacion/ver/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>"
-                                                                                class="btn btn-outline-primary" title="Ver Detalle">
-                                                                                <i class="fas fa-eye"></i>
-                                                                            </a>
-                                                                            <a href="<?= base_url('coord/actividades-educacion/editar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>"
-                                                                                class="btn btn-outline-warning" title="Editar">
-                                                                                <i class="fas fa-edit"></i>
-                                                                            </a>
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
-                                                            <?php endif; ?>
-                                                        <?php endforeach; ?>
-                                                    <?php else: ?>
-                                                        <tr>
-                                                            <td colspan="9" class="text-center text-muted py-4">
-                                                                <i class="fas fa-inbox fa-3x mb-3"></i>
-                                                                <p>No hay conferencias registradas</p>
-                                                            </td>
-                                                        </tr>
-                                                    <?php endif; ?>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Capacitación -->
-                            <div class="tab-pane fade" id="capacitaciones" role="tabpanel">
-                                <div class="card shadow-sm border-0">
-                                    <div class="card-body p-0">
-                                        <div class="table-responsive">
-                                            <table class="table table-striped align-middle mb-0">
-                                                <thead class="table-light">
-                                                    <tr>
-                                                        <th>#</th>
-                                                        <th>Actividad</th>
-                                                        <th>Instructor</th>
-                                                        <th>Modalidad</th>
-                                                        <th>Período</th>
-                                                        <th>Duración</th>
-                                                        <th>Estado</th>
-                                                        <th>Encuesta</th>
-                                                        <th>Acciones</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="tablaCapacitaciones">
-                                                    <?php if (!empty($actividades)): ?>
-                                                        <?php foreach ($actividades as $actividad): ?>
-                                                            <?php if ($actividad['ACTIVIDAD'] === 'Capacitación'): ?>
-                                                                <?php
-                                                                $fechaFinCa = new DateTime($actividad['FECHA_FIN']);
-                                                                $fechaFinCa->setTime(0, 0, 0);
-                                                                $finalizadoCa = $fechaFinCa <= new DateTime('today');
-                                                                $encuestaCa = $encuestasPorActividad[$actividad['ID_ACTIVIDAD_EDUCACION']] ?? null;
-                                                                ?>
-                                                                <tr>
-                                                                    <td><?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?></td>
-                                                                    <td>
-                                                                        <div class="d-flex align-items-center">
-                                                                            <i
-                                                                                class="fas fa-chalkboard-teacher fa-2x me-2 text-warning"></i>
-                                                                            <div>
-                                                                                <div class="fw-semibold">
-                                                                                    <?= $actividad['NOMBRE_ACTIVIDAD'] ?></div>
-                                                                                <small
-                                                                                    class="text-muted"><?= $actividad['DESCRIPCION'] ?></small>
-                                                                            </div>
-                                                                        </div>
-                                                                    </td>
-                                                                    <td>
-                                                                        <div><?= $actividad['NOMBRE'] ?>
-                                                                            <?= $actividad['APELLIDO'] ?></div>
-                                                                        <small
-                                                                            class="text-muted"><?= $actividad['ESPECIALIDAD'] ?></small>
-                                                                    </td>
-                                                                    <td><span
-                                                                            class="badge bg-warning text-dark"><?= $actividad['MODALIDAD'] ?></span>
-                                                                    </td>
-                                                                    <td>
-                                                                        <div>
-                                                                            <?= date('M Y', strtotime($actividad['FECHA_INICIO'])) ?>
-                                                                            - <?= date('M Y', strtotime($actividad['FECHA_FIN'])) ?>
-                                                                        </div>
-                                                                        <small
-                                                                            class="text-muted"><?= $actividad['DURACION_HORAS'] ?>
-                                                                            horas</small>
-                                                                    </td>
-                                                                    <td><span
-                                                                            class="badge bg-secondary"><?= $actividad['DURACION_HORAS'] ?>h</span>
-                                                                    </td>
-                                                                    <td>
-                                                                        <?php if ($finalizadoCa): ?>
-                                                                            <span class="badge bg-secondary">Finalizado</span>
-                                                                        <?php else: ?>
-                                                                            <span class="badge bg-warning text-dark">Activo</span>
-                                                                        <?php endif; ?>
-                                                                    </td>
-                                                                    <td>
-                                                                        <?php if ($encuestaCa): ?>
-                                                                            <?php $fvListCa = !empty($encuestaCa['FECHA_VENCIMIENTO']) ? substr((string) $encuestaCa['FECHA_VENCIMIENTO'], 0, 10) : ''; ?>
-                                                                            <div class="d-flex flex-wrap gap-1 align-items-center">
-                                                                                <button type="button"
-                                                                                    class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado"
-                                                                                    title="Agregar o cambiar enlace de encuesta"
-                                                                                    data-encuesta-modo="editar"
-                                                                                    data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>"
-                                                                                    data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>"
-                                                                                    data-evaluacion-id="<?= (int) ($encuestaCa['ID_EVALUACION_ENLACE'] ?? 0) ?>"
-                                                                                    data-nombre-evaluacion="<?= esc($encuestaCa['NOMBRE_EVALUACION'] ?? '', 'attr') ?>"
-                                                                                    data-enlace-formulario="<?= esc($encuestaCa['ENLACE_FORMULARIO'] ?? '', 'attr') ?>"
-                                                                                    data-descripcion="<?= esc($encuestaCa['DESCRIPCION'] ?? '', 'attr') ?>"
-                                                                                    data-fecha-vencimiento="<?= esc($fvListCa, 'attr') ?>"
-                                                                                    data-estado="<?= esc($encuestaCa['ESTADO'] ?? 'activo', 'attr') ?>"><i
-                                                                                        class="fas fa-link me-1"></i>Agregar
-                                                                                    enlace</button>
-                                                                                <a href="<?= esc($encuestaCa['ENLACE_FORMULARIO'], 'attr') ?>"
-                                                                                    target="_blank" rel="noopener"
-                                                                                    class="btn btn-outline-success btn-sm"
-                                                                                    title="Abrir formulario de la encuesta"><i
-                                                                                        class="fas fa-external-link-alt me-1"></i>Abrir
-                                                                                    encuesta</a>
-                                                                            </div>
-                                                                        <?php else: ?>
-                                                                            <button type="button"
-                                                                                class="btn btn-outline-success btn-sm js-abrir-modal-encuesta-listado"
-                                                                                title="Agregar enlace de encuesta de satisfacción"
-                                                                                data-encuesta-modo="nuevo"
-                                                                                data-actividad-id="<?= (int) $actividad['ID_ACTIVIDAD_EDUCACION'] ?>"
-                                                                                data-actividad-nombre="<?= esc($actividad['NOMBRE_ACTIVIDAD'], 'attr') ?>"><i
-                                                                                    class="fas fa-link me-1"></i>Agregar enlace</button>
-                                                                        <?php endif; ?>
-                                                                    </td>
-                                                                    <td>
-                                                                        <div class="btn-group btn-group-sm">
-                                                                            <a href="<?= base_url('coord/actividades-educacion/ver/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>"
-                                                                                class="btn btn-outline-primary" title="Ver Detalle">
-                                                                                <i class="fas fa-eye"></i>
-                                                                            </a>
-                                                                            <a href="<?= base_url('coord/actividades-educacion/editar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>"
-                                                                                class="btn btn-outline-warning" title="Editar">
-                                                                                <i class="fas fa-edit"></i>
-                                                                            </a>
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
-                                                            <?php endif; ?>
-                                                        <?php endforeach; ?>
-                                                    <?php else: ?>
-                                                        <tr>
-                                                            <td colspan="9" class="text-center text-muted py-4">
-                                                                <i class="fas fa-inbox fa-3x mb-3"></i>
-                                                                <p>No hay capacitaciones registradas</p>
-                                                            </td>
-                                                        </tr>
-                                                    <?php endif; ?>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
+                            <!-- Expiradas -->
+                            <div class="tab-pane fade" id="expiradas" role="tabpanel">
+                                <?php renderTablaActividades($actividadesExpiradas, $encuestasPorActividad, 'tablaExpiradas', false); ?>
                             </div>
                         </div>
                     </div>
@@ -725,6 +357,8 @@
         </div>
     </div>
 </div>
+
+
 
 <!-- Modal Filtros (listados por pestaña) -->
 <div class="modal fade" id="modalFiltros" tabindex="-1" aria-labelledby="modalFiltrosLabel" aria-hidden="true">
@@ -737,8 +371,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body">
-                <p class="text-muted small mb-3">Los filtros se aplican a las tablas de Cursos, Talleres, Conferencias y
-                    Capacitaciones en esta página.</p>
+                <p class="text-muted small mb-3">Los filtros se aplican a las tablas de actividades vigentes y expiradas.</p>
                 <div class="mb-3">
                     <label class="form-label" for="filtroBusqueda">Buscar</label>
                     <input type="search" class="form-control" id="filtroBusqueda"
@@ -874,19 +507,20 @@
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="form-label">Fecha Inicio<span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" name="fecha_inicio" required>
+                                <input type="date" class="form-control" name="fecha_inicio" id="fechaInicioNueva" required>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="form-label">Fecha Fin<span class="text-danger">*</span></label>
-                                <input type="date" class="form-control" name="fecha_fin" required>
+                                <input type="date" class="form-control" name="fecha_fin" id="fechaFinNueva" required>
                             </div>
                         </div>
                         <div class="col-md-4">
                             <div class="mb-3">
                                 <label class="form-label">Duración (horas)<span class="text-danger">*</span></label>
-                                <input type="number" class="form-control" name="duracion_horas" min="1" required>
+                                <input type="number" class="form-control" name="duracion_horas" id="duracionHorasNueva" min="1" required>
+                                <div id="duracionInfoNueva" class="mt-1" style="min-height:1.4em;"></div>
                             </div>
                         </div>
                     </div>
@@ -905,11 +539,60 @@
                         </div>
                     </div>
                     <div class="row">
-                        <div class="col-md-6">
+                        <div class="col-12">
                             <div class="mb-3">
                                 <label class="form-label">Horario<span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" name="horario"
-                                    placeholder="Ej: Lunes a Viernes 8:00-12:00" required>
+                                <input type="hidden" name="horario" id="horarioHiddenNueva" required>
+                                <div class="card border rounded-3 p-3" style="background: #f8f9fc;">
+                                    <!-- Días de la semana -->
+                                    <div class="mb-3">
+                                        <small class="text-muted d-block mb-2"><i class="fas fa-calendar-day me-1"></i>Selecciona los días</small>
+                                        <div class="d-flex flex-wrap gap-2" id="diasSelectorNueva">
+                                            <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3 dia-btn" data-dia="Lunes">
+                                                <i class="fas fa-check me-1 d-none dia-check"></i>Lun
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3 dia-btn" data-dia="Martes">
+                                                <i class="fas fa-check me-1 d-none dia-check"></i>Mar
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3 dia-btn" data-dia="Miércoles">
+                                                <i class="fas fa-check me-1 d-none dia-check"></i>Mié
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3 dia-btn" data-dia="Jueves">
+                                                <i class="fas fa-check me-1 d-none dia-check"></i>Jue
+                                            </button>
+                                            <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3 dia-btn" data-dia="Viernes">
+                                                <i class="fas fa-check me-1 d-none dia-check"></i>Vie
+                                            </button>
+                                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3 dia-btn" data-dia="Sábado">
+                                                <i class="fas fa-check me-1 d-none dia-check"></i>Sáb
+                                            </button>
+                                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3 dia-btn" data-dia="Domingo">
+                                                <i class="fas fa-check me-1 d-none dia-check"></i>Dom
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <!-- Horas -->
+                                    <div class="row g-2 align-items-end">
+                                        <div class="col-auto">
+                                            <small class="text-muted d-block mb-1"><i class="fas fa-clock me-1"></i>Hora inicio</small>
+                                            <input type="time" class="form-control form-control-sm" id="horaInicioNueva" value="08:00" style="width:130px;">
+                                        </div>
+                                        <div class="col-auto d-flex align-items-center pt-3">
+                                            <span class="text-muted fw-bold">—</span>
+                                        </div>
+                                        <div class="col-auto">
+                                            <small class="text-muted d-block mb-1"><i class="fas fa-clock me-1"></i>Hora fin</small>
+                                            <input type="time" class="form-control form-control-sm" id="horaFinNueva" value="12:00" style="width:130px;">
+                                        </div>
+                                    </div>
+                                    <!-- Preview -->
+                                    <div class="mt-3 pt-2 border-top">
+                                        <small class="text-muted"><i class="fas fa-eye me-1"></i>Vista previa:</small>
+                                        <div id="horarioPreviewNueva" class="fw-semibold text-primary mt-1" style="min-height:1.5em;">
+                                            <span class="text-muted fst-italic">Selecciona al menos un día</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1189,7 +872,7 @@
         const ins = (document.getElementById('filtroInstructor')?.value || '').trim();
         const mod = (document.getElementById('filtroModalidad')?.value || '').trim();
         const est = (document.getElementById('filtroEstado')?.value || '').trim();
-        const ids = ['tablaCursos', 'tablaTalleres', 'tablaConferencias', 'tablaCapacitaciones'];
+        const ids = ['tablaVigentes', 'tablaExpiradas'];
 
         ids.forEach((tbodyId) => {
             const tbody = document.getElementById(tbodyId);
@@ -1208,9 +891,9 @@
                     return;
                 }
                 const actividadText = (cells[1]?.innerText || '').toLowerCase();
-                const instructorText = (cells[2]?.innerText || '').trim();
-                const modalidadText = (cells[3]?.innerText || '').trim();
-                const estadoText = (cells[6]?.innerText || '').toLowerCase();
+                const instructorText = (cells[3]?.innerText || '').trim();
+                const modalidadText = (cells[4]?.innerText || '').trim();
+                const estadoText = (cells[7]?.innerText || '').toLowerCase();
 
                 let show = true;
                 if (q && !actividadText.includes(q) && !(tr.innerText || '').toLowerCase().includes(q)) {
@@ -1258,7 +941,7 @@
         if (e) {
             e.value = '';
         }
-        ['tablaCursos', 'tablaTalleres', 'tablaConferencias', 'tablaCapacitaciones'].forEach((tbodyId) => {
+        ['tablaVigentes', 'tablaExpiradas'].forEach((tbodyId) => {
             const tbody = document.getElementById(tbodyId);
             if (!tbody) {
                 return;
@@ -1688,6 +1371,169 @@
         }
     }
 
+    // ── Horario interactivo (selector de días + horas + sincronización fechas/duración) ──
+    function initHorarioPicker(opts) {
+        const container    = document.getElementById(opts.containerId);
+        const horaInicio   = document.getElementById(opts.horaInicioId);
+        const horaFin      = document.getElementById(opts.horaFinId);
+        const preview      = document.getElementById(opts.previewId);
+        const hidden       = document.getElementById(opts.hiddenId);
+        const fechaInicioEl = document.getElementById(opts.fechaInicioId);
+        const fechaFinEl    = document.getElementById(opts.fechaFinId);
+        const duracionEl    = document.getElementById(opts.duracionId);
+        const duracionInfo  = document.getElementById(opts.duracionInfoId);
+        if (!container) return;
+
+        const btns = container.querySelectorAll('.dia-btn');
+        // Mapa: nombre día → JS getDay() (0=Domingo)
+        const diaToJS = { 'Lunes': 1, 'Martes': 2, 'Miércoles': 3, 'Jueves': 4, 'Viernes': 5, 'Sábado': 6, 'Domingo': 0 };
+        const ordenDias = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+
+        /** Cuenta cuántos de los días seleccionados caen en el rango fecha inicio–fin */
+        function contarDiasEnRango(diasSel) {
+            if (!fechaInicioEl || !fechaFinEl) return 0;
+            const fi = fechaInicioEl.value;
+            const ff = fechaFinEl.value;
+            if (!fi || !ff) return 0;
+
+            const inicio = new Date(fi + 'T00:00:00');
+            const fin    = new Date(ff + 'T00:00:00');
+            if (isNaN(inicio) || isNaN(fin) || fin < inicio) return 0;
+
+            const jsDias = new Set(diasSel.map(d => diaToJS[d]));
+            let count = 0;
+            const cur = new Date(inicio);
+            while (cur <= fin) {
+                if (jsDias.has(cur.getDay())) count++;
+                cur.setDate(cur.getDate() + 1);
+            }
+            return count;
+        }
+
+        /** Horas diarias a partir del rango horario */
+        function horasDiarias() {
+            if (!horaInicio || !horaFin || !horaInicio.value || !horaFin.value) return 0;
+            const [h1, m1] = horaInicio.value.split(':').map(Number);
+            const [h2, m2] = horaFin.value.split(':').map(Number);
+            const diff = (h2 * 60 + m2) - (h1 * 60 + m1);
+            return diff > 0 ? +(diff / 60).toFixed(1) : 0;
+        }
+
+        function actualizarTodo() {
+            // 1. Obtener días seleccionados
+            const diasSeleccionados = [];
+            btns.forEach(btn => {
+                if (btn.classList.contains('active')) {
+                    diasSeleccionados.push(btn.getAttribute('data-dia'));
+                }
+            });
+            const hi = horaInicio ? horaInicio.value : '';
+            const hf = horaFin ? horaFin.value : '';
+
+            // 2. Generar texto horario
+            if (diasSeleccionados.length === 0) {
+                if (preview) preview.innerHTML = '<span class="text-muted fst-italic">Selecciona al menos un día</span>';
+                if (hidden) hidden.value = '';
+            } else {
+                const indices = diasSeleccionados.map(d => ordenDias.indexOf(d)).sort((a, b) => a - b);
+                let grupos = [], grupoActual = [indices[0]];
+                for (let i = 1; i < indices.length; i++) {
+                    if (indices[i] === grupoActual[grupoActual.length - 1] + 1) {
+                        grupoActual.push(indices[i]);
+                    } else {
+                        grupos.push(grupoActual);
+                        grupoActual = [indices[i]];
+                    }
+                }
+                grupos.push(grupoActual);
+                const partes = grupos.map(g => {
+                    if (g.length >= 3) return ordenDias[g[0]] + ' a ' + ordenDias[g[g.length - 1]];
+                    return g.map(i => ordenDias[i]).join(', ');
+                });
+                let texto = partes.join('; ');
+                if (hi && hf) texto += ' ' + hi + '-' + hf;
+                if (preview) preview.innerHTML = '<i class="fas fa-calendar-check me-1 text-success"></i>' + texto;
+                if (hidden) hidden.value = texto;
+            }
+
+            // 3. Calcular duración automática
+            const hd = horasDiarias();
+            const totalDias = contarDiasEnRango(diasSeleccionados);
+            const totalHoras = Math.round(hd * totalDias);
+
+            if (duracionInfo) {
+                if (totalDias > 0 && hd > 0) {
+                    duracionInfo.innerHTML =
+                        '<small class="text-info">' +
+                        '<i class="fas fa-calculator me-1"></i>' +
+                        totalDias + ' día' + (totalDias !== 1 ? 's' : '') +
+                        ' × ' + hd + 'h/día = <strong>' + totalHoras + 'h</strong>' +
+                        '</small>';
+                    // Auto-rellenar duración si el usuario no la ha editado manualmente
+                    if (duracionEl && !duracionEl.dataset.manual) {
+                        duracionEl.value = totalHoras;
+                    }
+                } else if (diasSeleccionados.length > 0 && (!fechaInicioEl?.value || !fechaFinEl?.value)) {
+                    duracionInfo.innerHTML = '<small class="text-muted fst-italic"><i class="fas fa-info-circle me-1"></i>Selecciona fechas para calcular automáticamente</small>';
+                } else {
+                    duracionInfo.innerHTML = '';
+                }
+            }
+        }
+
+        // Toggle botones de días
+        btns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                this.classList.toggle('active');
+                const check = this.querySelector('.dia-check');
+                if (this.classList.contains('active')) {
+                    this.classList.remove('btn-outline-primary', 'btn-outline-secondary');
+                    this.classList.add('btn-primary', 'text-white');
+                    if (check) check.classList.remove('d-none');
+                } else {
+                    const esFinde = ['Sábado', 'Domingo'].includes(this.getAttribute('data-dia'));
+                    this.classList.remove('btn-primary', 'text-white');
+                    this.classList.add(esFinde ? 'btn-outline-secondary' : 'btn-outline-primary');
+                    if (check) check.classList.add('d-none');
+                }
+                // Resetear flag manual al cambiar días
+                if (duracionEl) delete duracionEl.dataset.manual;
+                actualizarTodo();
+            });
+        });
+
+        // Escuchar cambios en horas
+        if (horaInicio) horaInicio.addEventListener('change', () => { if (duracionEl) delete duracionEl.dataset.manual; actualizarTodo(); });
+        if (horaFin)    horaFin.addEventListener('change',    () => { if (duracionEl) delete duracionEl.dataset.manual; actualizarTodo(); });
+
+        // Escuchar cambios en fechas
+        if (fechaInicioEl) fechaInicioEl.addEventListener('change', () => {
+            // Ajustar fecha_fin mínima
+            if (fechaFinEl && fechaInicioEl.value) {
+                fechaFinEl.min = fechaInicioEl.value;
+                if (fechaFinEl.value && fechaFinEl.value < fechaInicioEl.value) {
+                    fechaFinEl.value = fechaInicioEl.value;
+                }
+            }
+            if (duracionEl) delete duracionEl.dataset.manual;
+            actualizarTodo();
+        });
+        if (fechaFinEl) fechaFinEl.addEventListener('change', () => {
+            if (duracionEl) delete duracionEl.dataset.manual;
+            actualizarTodo();
+        });
+
+        // Marcar como manual si el usuario edita la duración directamente
+        if (duracionEl) {
+            duracionEl.addEventListener('input', function () {
+                this.dataset.manual = '1';
+            });
+        }
+
+        // Sincronizar estado inicial
+        actualizarTodo();
+    }
+
     // Función de validación del formulario
     function validarFormulario() {
         const camposObligatorios = [{
@@ -1847,7 +1693,7 @@
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function () {
         const today = new Date().toISOString().split('T')[0];
-        const fechaInicioInput = document.querySelector('#formNuevaActividad input[name="fecha_inicio"]');
+        const fechaInicioInput = document.getElementById('fechaInicioNueva');
         if (fechaInicioInput) {
             fechaInicioInput.value = today;
         }
@@ -1861,6 +1707,19 @@
             modalNueva.addEventListener('shown.bs.modal', actividadEduSincronizarLugarEnlaceNuevaActividad);
         }
         actividadEduSincronizarLugarEnlaceNuevaActividad();
+
+        // Inicializar selector interactivo de horario (sincronizado con fechas y duración)
+        initHorarioPicker({
+            containerId:   'diasSelectorNueva',
+            horaInicioId:  'horaInicioNueva',
+            horaFinId:     'horaFinNueva',
+            previewId:     'horarioPreviewNueva',
+            hiddenId:      'horarioHiddenNueva',
+            fechaInicioId: 'fechaInicioNueva',
+            fechaFinId:    'fechaFinNueva',
+            duracionId:    'duracionHorasNueva',
+            duracionInfoId:'duracionInfoNueva'
+        });
 
         // Redirigir a instructores cuando el usuario elige "agregar instructor" en el select
         const selectInstructor = document.getElementById('selectInstructor');

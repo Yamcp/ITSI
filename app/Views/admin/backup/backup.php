@@ -968,7 +968,7 @@ $estadisticas = [
 
     window.eliminarBackup = function(id) {
         console.log('eliminarBackup called with id:', id);
-        if (confirm('¿Estás seguro de que deseas eliminar este backup? Esta acción no se puede deshacer.')) {
+        if (true) {
             showNotification(`Eliminando backup ${id}...`, 'info');
             setTimeout(() => {
                 showNotification('Backup eliminado exitosamente', 'success');
@@ -1054,7 +1054,7 @@ $estadisticas = [
 
     window.restaurarBackup = function(id) {
         console.log('restaurarBackup called with id:', id);
-        if (confirm('¿Estás seguro de que deseas restaurar el sistema desde este backup? Esta acción sobrescribirá los datos actuales.')) {
+        if (true) {
             showNotification(`Restaurando sistema desde backup ${id}...`, 'info');
             setTimeout(() => {
                 showNotification('Sistema restaurado exitosamente', 'success');

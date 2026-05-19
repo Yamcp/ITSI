@@ -111,6 +111,7 @@ $routes->group('coord', ['namespace' => 'App\Controllers\coord'], function ($rou
     $routes->get('practicas', 'PracticasCoordController::index');                     // Ver la lista de prácticas
     $routes->get('practicas/getDatosModal', 'PracticasCoordController::getDatosModal'); // Obtener datos para modal
     $routes->get('practicas/buscarEstudiantes', 'PracticasCoordController::buscarEstudiantes'); // Buscar estudiantes por nombre
+    $routes->get('practicas/verificarDocumentacionEstudiante', 'PracticasCoordController::verificarDocumentacionEstudiante'); // Documentación enviada por estudiante
     $routes->get('practicas/institucionesPorCarrera', 'PracticasCoordController::getInstitucionesPorCarrera'); // Instituciones con convenio por carrera
     $routes->post('practicas/crear', 'PracticasCoordController::crearPractica');      // Crear nueva práctica
     $routes->get('practicas/detalle/(:num)/(:alpha)', 'PracticasCoordController::getDetallePractica/$1/$2'); // Obtener detalle

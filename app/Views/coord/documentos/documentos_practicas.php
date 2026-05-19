@@ -1353,7 +1353,7 @@
     });
 
     function eliminarDocFormatoPracticas(archivo) {
-        if (!archivo || !confirm('¿Eliminar este documento de formato?')) return;
+        if (!archivo) return;
         fetch('<?= base_url('coord/documentos/practicas/eliminar-formato/') ?>' + encodeURIComponent(archivo), {
                 method: 'POST',
                 headers: {

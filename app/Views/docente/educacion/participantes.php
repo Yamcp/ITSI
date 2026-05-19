@@ -180,7 +180,7 @@
             const btn = e.target.closest('.btn-quitar');
             if (!btn) return;
             const idEstudiante = btn.getAttribute('data-id-estudiante');
-            if (!confirm('¿Quitar a este participante de la actividad?')) return;
+            // Proceder directamente
             const fd = new FormData();
             fd.append('id_actividad', idActividad);
             fd.append('id_estudiante', idEstudiante);
