@@ -33,7 +33,7 @@
                         <span>
                             <i class="fa-solid fa-layer-group fs-6"></i>
                         </span>
-                        <span class="hide-menu">Mis cursos</span>
+                        <span class="hide-menu">Mis actividades</span>
                     </a>
                 </li>
                 <li class="nav-small-cap">

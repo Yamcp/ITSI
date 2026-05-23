@@ -16,7 +16,7 @@ class EstudianteAsistenciaObligatoriaFilter implements FilterInterface
     public function before(RequestInterface $request, $arguments = null)
     {
         $session = session();
-        if (!$session->get('logged_in') || (int) $session->get('rol') !== 3) {
+        if (!$session->get('logged_in') || (int) $session->get('rol') !== 4) {
             return null;
         }
 

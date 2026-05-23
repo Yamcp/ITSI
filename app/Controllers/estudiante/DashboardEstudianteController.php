@@ -25,7 +25,7 @@ class DashboardEstudianteController extends BaseController
     public function index()
     {
         // Verificar que el usuario esté logueado y sea estudiante
-        if (!session()->get('logged_in') || session()->get('rol') != 3) {
+        if (!session()->get('logged_in') || (int) session()->get('rol') !== 4) {
             return redirect()->to('/');
         }
 

@@ -21,7 +21,7 @@ class DocumentosPracticasEstudianteController extends BaseController
     {
         parent::initController($request, $response, $logger);
 
-        if (!session()->get('logged_in') || (int) session()->get('rol') !== 3) {
+        if (!session()->get('logged_in') || (int) session()->get('rol') !== 4) {
             redirect()->to('/')->send();
             exit;
         }

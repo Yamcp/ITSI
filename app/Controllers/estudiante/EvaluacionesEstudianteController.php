@@ -13,7 +13,7 @@ class EvaluacionesEstudianteController extends BaseController
     public function __construct()
     {
         // Verificar autenticación y rol de estudiante
-        if (!session()->get('logged_in') || session()->get('rol') != 3) {
+        if (!session()->get('logged_in') || (int) session()->get('rol') !== 4) {
             return redirect()->to('/');
         }
         

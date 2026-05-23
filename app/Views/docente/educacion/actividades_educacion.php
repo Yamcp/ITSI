@@ -55,87 +55,6 @@
         line-height: 1.2;
     }
 
-    /* Estilos para evaluaciones integradas */
-    .evaluation-card {
-        transition: all 0.3s ease;
-        border-left: 4px solid #007bff;
-    }
-
-    .evaluation-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-    }
-
-    .evaluation-card.satisfaccion {
-        border-left-color: #28a745;
-    }
-
-    .evaluation-card.instructores {
-        border-left-color: #ffc107;
-    }
-
-    .evaluation-card.practicas {
-        border-left-color: #17a2b8;
-    }
-
-    .evaluation-card.cursos {
-        border-left-color: #6f42c1;
-    }
-
-    .evaluation-card.comunidad {
-        border-left-color: #fd7e14;
-    }
-
-    .status-badge {
-        padding: 0.25rem 0.75rem;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        font-weight: 600;
-    }
-
-    .status-activo {
-        background-color: #d4edda;
-        color: #155724;
-    }
-
-    .status-inactivo {
-        background-color: #f8d7da;
-        color: #721c24;
-    }
-
-    .status-vencido {
-        background-color: #fff3cd;
-        color: #856404;
-    }
-
-    .btn-evaluacion {
-        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-        border: none;
-        color: white;
-        padding: 0.75rem 1.5rem;
-        border-radius: 8px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .btn-evaluacion:hover {
-        background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
-        color: white;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
-    }
-
-    .urgent-card {
-        background: linear-gradient(135deg, #fff3cd 0%, #ffeaa7 100%);
-        border: 1px solid #ffc107;
-        border-radius: 12px;
-        padding: 1.5rem;
-        margin-bottom: 1rem;
-    }
 </style>
 <?= $this->endSection() ?>
 
@@ -159,50 +78,22 @@
             <div class="col-12">
                 <h3 class="text-center my-3">
                     <i class="fas fa-graduation-cap me-2"></i>
-                    Educación Continua: Mis Cursos y Evaluaciones
+                    Educación Continua: Mis Actividades
                 </h3>
             </div>
         </div>
 
-        <!-- Estadísticas Rápidas -->
-        <div class="row mb-4">
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #007bff 80%, #0056b3 100%); color: #fff; border: none;">
-                    <div class="card-body">
+        <!-- Estadísticas y Acciones Rápidas -->
+        <div class="row mb-4 align-items-stretch">
+            <div class="col mb-3">
+                <div class="card text-center shadow-sm h-100" style="background: linear-gradient(135deg, #007bff 80%, #0056b3 100%); color: #fff; border: none;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <h2 class="card-title mb-2" id="totalActividades" style="font-size:2.5rem;">0</h2>
-                        <p class="card-text fw-bold" style="color: #e0e0e0;">Mis Actividades</p>
+                        <p class="card-text fw-bold mb-0" style="color: #e0e0e0;">Mis Actividades</p>
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #28a745 80%, #155724 100%); color: #fff; border: none;">
-                    <div class="card-body">
-                        <h2 class="card-title mb-2" id="cursosActivos" style="font-size:2.5rem;">0</h2>
-                        <p class="card-text fw-bold" style="color: #e0e0e0;">Cursos Activos</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #17a2b8 80%, #0f6674 100%); color: #fff; border: none;">
-                    <div class="card-body">
-                        <h2 class="card-title mb-2" id="talleresActivos" style="font-size:2.5rem;">0</h2>
-                        <p class="card-text fw-bold" style="color: #e0e0e0;">Talleres Activos</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-3 col-sm-6">
-                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #6f42c1 80%, #4a2c7a 100%); color: #fff; border: none;">
-                    <div class="card-body">
-                        <h2 class="card-title mb-2" id="seminariosActivos" style="font-size:2.5rem;">0</h2>
-                        <p class="card-text fw-bold" style="color: #e0e0e0;">Seminarios Activos</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Acciones Rápidas -->
-        <div class="row mb-4 justify-content-center">
-            <div class="col-md-3 col-sm-6 mb-3">
+            <div class="col mb-3">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="<?= base_url('docente/actividades-educacion/crear') ?>" style="text-decoration: none; color: inherit;">
@@ -212,7 +103,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
+            <div class="col mb-3">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="verCalendario()" style="text-decoration: none; color: inherit;">
@@ -222,7 +113,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
+            <div class="col mb-3">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="generarReporteEvaluaciones()" style="text-decoration: none; color: inherit;">
@@ -232,7 +123,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-md-3 col-sm-6 mb-3">
+            <div class="col mb-3">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="exportarMisActividades()" style="text-decoration: none; color: inherit;">
@@ -244,6 +135,23 @@
             </div>
         </div>
 
+        <?php
+        // Separar actividades en vigentes y expiradas
+        $actividadesVigentes = [];
+        $actividadesExpiradas = [];
+        $hoyRef = new DateTime();
+        if (!empty($actividades)) {
+            foreach ($actividades as $act) {
+                $fFin = new DateTime($act['FECHA_FIN']);
+                if ($fFin >= $hoyRef) {
+                    $actividadesVigentes[] = $act;
+                } else {
+                    $actividadesExpiradas[] = $act;
+                }
+            }
+        }
+        ?>
+
         <!-- Tabs Navigation -->
         <div class="row">
             <div class="col-12">
@@ -251,35 +159,29 @@
                     <div class="card-body pb-0">
                         <ul class="nav nav-tabs nav-justified rounded-pill bg-light px-2 py-1" id="actividadesTabs" role="tablist" style="gap: 0.5rem;">
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link active rounded-pill fw-semibold text-primary" id="cursos-tab" data-bs-toggle="tab" data-bs-target="#cursos" type="button" role="tab" aria-selected="true">
-                                    <i class="fas fa-book me-2"></i>Mis Cursos
+                                <button class="nav-link active rounded-pill fw-semibold text-success" id="vigentes-tab" data-bs-toggle="tab" data-bs-target="#vigentes" type="button" role="tab" aria-selected="true">
+                                    <i class="fas fa-check-circle me-2"></i>Actividades Vigentes
+                                    <span class="badge bg-success ms-1"><?= count($actividadesVigentes) ?></span>
                                 </button>
                             </li>
                             <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-pill fw-semibold text-success" id="talleres-tab" data-bs-toggle="tab" data-bs-target="#talleres" type="button" role="tab" aria-selected="false">
-                                    <i class="fas fa-tools me-2"></i>Mis Talleres
+                                <button class="nav-link rounded-pill fw-semibold text-secondary" id="expiradas-tab" data-bs-toggle="tab" data-bs-target="#expiradas" type="button" role="tab" aria-selected="false">
+                                    <i class="fas fa-history me-2"></i>Actividades Expiradas
+                                    <span class="badge bg-secondary ms-1"><?= count($actividadesExpiradas) ?></span>
                                 </button>
                             </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-pill fw-semibold text-info" id="seminarios-tab" data-bs-toggle="tab" data-bs-target="#seminarios" type="button" role="tab" aria-selected="false">
-                                    <i class="fas fa-users me-2"></i>Mis Seminarios
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link rounded-pill fw-semibold text-primary" id="evaluaciones-tab" data-bs-toggle="tab" data-bs-target="#evaluaciones" type="button" role="tab" aria-selected="false">
-                                    <i class="fas fa-clipboard-check me-2"></i>Evaluaciones
-                                </button>
-                            </li>
+
                         </ul>
                         <hr class="mt-0 mb-2" style="border-top: 2px solid #e3e6f0;">
 
                         <!-- Contenido de las pestañas -->
                         <div class="tab-content mt-3" id="actividadesTabContent">
-                            <!-- Cursos -->
-                            <div class="tab-pane fade show active" id="cursos" role="tabpanel">
+                            <!-- Actividades Vigentes -->
+                            <div class="tab-pane fade show active" id="vigentes" role="tabpanel">
                                 <div class="card shadow-sm border-0">
-                                    <div class="card-header bg-primary text-white">
-                                        <span><i class="fas fa-book me-2"></i>Mis Cursos</span>
+                                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                                        <span><i class="fas fa-check-circle me-2"></i>Actividades Vigentes</span>
+                                        <span class="badge bg-light text-success"><?= count($actividadesVigentes) ?> actividades</span>
                                     </div>
                                     <div class="card-body p-0">
                                         <div class="table-responsive">
@@ -288,74 +190,78 @@
                                                     <tr>
                                                         <th>#</th>
                                                         <th>Actividad</th>
+                                                        <th>Tipo</th>
                                                         <th>Modalidad</th>
                                                         <th>Período</th>
                                                         <th>Duración</th>
-                                                        <th>Estado</th>
                                                         <th>Participantes</th>
                                                         <th>Acciones</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody id="tablaCursos">
-                                                    <?php if (!empty($actividades)): ?>
-                                                        <?php foreach ($actividades as $actividad): ?>
-                                                            <?php if ($actividad['ACTIVIDAD'] === 'Curso'): ?>
-                                                                <tr data-actividad-id="<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>" data-fecha-fin="<?= $actividad['FECHA_FIN'] ?>">
-                                                                    <td><?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?></td>
-                                                                    <td>
-                                                                        <div class="d-flex align-items-center">
-                                                                            <i class="fas fa-laptop-code fa-2x me-2 text-primary"></i>
-                                                                            <div>
-                                                                                <div class="fw-semibold"><?= $actividad['NOMBRE_ACTIVIDAD'] ?></div>
-                                                                                <small class="text-muted"><?= $actividad['DESCRIPCION'] ?></small>
-                                                                            </div>
+                                                <tbody id="tablaVigentes">
+                                                    <?php if (!empty($actividadesVigentes)): ?>
+                                                        <?php $contadorV = 1; ?>
+                                                        <?php foreach ($actividadesVigentes as $actividad): ?>
+                                                            <?php
+                                                            $tipoActividad = $actividad['ACTIVIDAD'];
+                                                            $iconoTipo = 'fas fa-laptop-code';
+                                                            $colorTipo = 'primary';
+                                                            $bgBadgeTipo = 'bg-primary';
+                                                            if ($tipoActividad === 'Taller') {
+                                                                $iconoTipo = 'fas fa-wrench';
+                                                                $colorTipo = 'success';
+                                                                $bgBadgeTipo = 'bg-success';
+                                                            } elseif ($tipoActividad === 'Seminario') {
+                                                                $iconoTipo = 'fas fa-comments';
+                                                                $colorTipo = 'info';
+                                                                $bgBadgeTipo = 'bg-info';
+                                                            }
+                                                            ?>
+                                                            <tr data-actividad-id="<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>" data-fecha-fin="<?= $actividad['FECHA_FIN'] ?>">
+                                                                <td><?= $contadorV++ ?></td>
+                                                                <td>
+                                                                    <div class="d-flex align-items-center">
+                                                                        <i class="<?= $iconoTipo ?> fa-2x me-2 text-<?= $colorTipo ?>"></i>
+                                                                        <div>
+                                                                            <div class="fw-semibold"><?= $actividad['NOMBRE_ACTIVIDAD'] ?></div>
+                                                                            <small class="text-muted"><?= $actividad['DESCRIPCION'] ?></small>
                                                                         </div>
-                                                                    </td>
-                                                                    <td><span class="badge bg-info"><?= $actividad['MODALIDAD'] ?></span></td>
-                                                                    <td>
-                                                                        <div><?= date('M Y', strtotime($actividad['FECHA_INICIO'])) ?> - <?= date('M Y', strtotime($actividad['FECHA_FIN'])) ?></div>
-                                                                        <small class="text-muted"><?= $actividad['DURACION_HORAS'] ?> horas</small>
-                                                                    </td>
-                                                                    <td><span class="badge bg-secondary"><?= $actividad['DURACION_HORAS'] ?>h</span></td>
-                                                                    <td>
-                                                                        <?php
-                                                                        $fechaFin = new DateTime($actividad['FECHA_FIN']);
-                                                                        $hoy = new DateTime();
-                                                                        if ($fechaFin >= $hoy) {
-                                                                            echo '<span class="badge bg-success">Activo</span>';
-                                                                        } else {
-                                                                            echo '<span class="badge bg-secondary">Finalizado</span>';
-                                                                        }
-                                                                        ?>
-                                                                    </td>
-                                                                    <td>
-                                                                        <span class="badge bg-primary">15</span>
-                                                                        <small class="text-muted">inscritos</small>
-                                                                    </td>
-                                                                    <td>
-                                                                        <div class="btn-group btn-group-sm">
-                                                                            <a href="<?= base_url('docente/actividades-educacion/ver/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-primary" title="Ver Detalle">
-                                                                                <i class="fas fa-eye"></i>
-                                                                            </a>
-                                                                            <a href="<?= base_url('docente/actividades-educacion/editar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-warning" title="Editar">
-                                                                                <i class="fas fa-edit"></i>
-                                                                            </a>
-                                                                            <button class="btn btn-outline-info" onclick="gestionarParticipantes(<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>)" title="Participantes">
-                                                                                <i class="fas fa-users"></i>
-                                                                            </button>
-                                                                            <a href="<?= base_url('docente/actividades-educacion/eliminar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-danger" title="Eliminar">
-                                                                                <i class="fas fa-trash-alt"></i>
-                                                                            </a>
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
-                                                            <?php endif; ?>
+                                                                    </div>
+                                                                </td>
+                                                                <td><span class="badge <?= $bgBadgeTipo ?>"><?= $tipoActividad ?></span></td>
+                                                                <td><span class="badge bg-info"><?= $actividad['MODALIDAD'] ?></span></td>
+                                                                <td>
+                                                                    <div><?= date('d M Y', strtotime($actividad['FECHA_INICIO'])) ?></div>
+                                                                    <small class="text-muted">al <?= date('d M Y', strtotime($actividad['FECHA_FIN'])) ?></small>
+                                                                </td>
+                                                                <td><span class="badge bg-secondary"><?= $actividad['DURACION_HORAS'] ?>h</span></td>
+                                                                <td>
+                                                                    <span class="badge bg-primary"><?= (int)($conteoParticipantes[$actividad['ID_ACTIVIDAD_EDUCACION']] ?? 0) ?></span>
+                                                                    <small class="text-muted">inscritos</small>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="btn-group btn-group-sm">
+                                                                        <a href="<?= base_url('docente/actividades-educacion/ver/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-primary" title="Ver Detalle">
+                                                                            <i class="fas fa-eye"></i>
+                                                                        </a>
+                                                                        <a href="<?= base_url('docente/actividades-educacion/editar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-warning" title="Editar">
+                                                                            <i class="fas fa-edit"></i>
+                                                                        </a>
+                                                                        <button class="btn btn-outline-info" onclick="gestionarParticipantes(<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>)" title="Participantes">
+                                                                            <i class="fas fa-users"></i>
+                                                                        </button>
+                                                                        <a href="<?= base_url('docente/actividades-educacion/eliminar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-danger" title="Eliminar">
+                                                                            <i class="fas fa-trash-alt"></i>
+                                                                        </a>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
                                                         <?php endforeach; ?>
                                                     <?php else: ?>
                                                         <tr>
                                                             <td colspan="8" class="text-center text-muted py-4">
-                                                                <i class="fas fa-inbox fa-3x mb-3"></i>
-                                                                <p>No tienes cursos registrados</p>
+                                                                <i class="fas fa-check-circle fa-3x mb-3 text-success" style="opacity: 0.3;"></i>
+                                                                <p>No tienes actividades vigentes en este momento</p>
                                                             </td>
                                                         </tr>
                                                     <?php endif; ?>
@@ -366,11 +272,12 @@
                                 </div>
                             </div>
 
-                            <!-- Talleres -->
-                            <div class="tab-pane fade" id="talleres" role="tabpanel">
+                            <!-- Actividades Expiradas -->
+                            <div class="tab-pane fade" id="expiradas" role="tabpanel">
                                 <div class="card shadow-sm border-0">
-                                    <div class="card-header bg-success text-white">
-                                        <span><i class="fas fa-tools me-2"></i>Mis Talleres</span>
+                                    <div class="card-header bg-secondary text-white d-flex justify-content-between align-items-center">
+                                        <span><i class="fas fa-history me-2"></i>Actividades Expiradas</span>
+                                        <span class="badge bg-light text-secondary"><?= count($actividadesExpiradas) ?> actividades</span>
                                     </div>
                                     <div class="card-body p-0">
                                         <div class="table-responsive">
@@ -379,74 +286,78 @@
                                                     <tr>
                                                         <th>#</th>
                                                         <th>Actividad</th>
+                                                        <th>Tipo</th>
                                                         <th>Modalidad</th>
                                                         <th>Período</th>
                                                         <th>Duración</th>
-                                                        <th>Estado</th>
                                                         <th>Participantes</th>
                                                         <th>Acciones</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody id="tablaTalleres">
-                                                    <?php if (!empty($actividades)): ?>
-                                                        <?php foreach ($actividades as $actividad): ?>
-                                                            <?php if ($actividad['ACTIVIDAD'] === 'Taller'): ?>
-                                                                <tr data-actividad-id="<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>" data-fecha-fin="<?= $actividad['FECHA_FIN'] ?>">
-                                                                    <td><?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?></td>
-                                                                    <td>
-                                                                        <div class="d-flex align-items-center">
-                                                                            <i class="fas fa-wrench fa-2x me-2 text-success"></i>
-                                                                            <div>
-                                                                                <div class="fw-semibold"><?= $actividad['NOMBRE_ACTIVIDAD'] ?></div>
-                                                                                <small class="text-muted"><?= $actividad['DESCRIPCION'] ?></small>
-                                                                            </div>
+                                                <tbody id="tablaExpiradas">
+                                                    <?php if (!empty($actividadesExpiradas)): ?>
+                                                        <?php $contadorE = 1; ?>
+                                                        <?php foreach ($actividadesExpiradas as $actividad): ?>
+                                                            <?php
+                                                            $tipoActividad = $actividad['ACTIVIDAD'];
+                                                            $iconoTipo = 'fas fa-laptop-code';
+                                                            $colorTipo = 'primary';
+                                                            $bgBadgeTipo = 'bg-primary';
+                                                            if ($tipoActividad === 'Taller') {
+                                                                $iconoTipo = 'fas fa-wrench';
+                                                                $colorTipo = 'success';
+                                                                $bgBadgeTipo = 'bg-success';
+                                                            } elseif ($tipoActividad === 'Seminario') {
+                                                                $iconoTipo = 'fas fa-comments';
+                                                                $colorTipo = 'info';
+                                                                $bgBadgeTipo = 'bg-info';
+                                                            }
+                                                            ?>
+                                                            <tr data-actividad-id="<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>" data-fecha-fin="<?= $actividad['FECHA_FIN'] ?>" style="opacity: 0.85;">
+                                                                <td><?= $contadorE++ ?></td>
+                                                                <td>
+                                                                    <div class="d-flex align-items-center">
+                                                                        <i class="<?= $iconoTipo ?> fa-2x me-2 text-<?= $colorTipo ?>" style="opacity: 0.6;"></i>
+                                                                        <div>
+                                                                            <div class="fw-semibold"><?= $actividad['NOMBRE_ACTIVIDAD'] ?></div>
+                                                                            <small class="text-muted"><?= $actividad['DESCRIPCION'] ?></small>
                                                                         </div>
-                                                                    </td>
-                                                                    <td><span class="badge bg-warning text-dark"><?= $actividad['MODALIDAD'] ?></span></td>
-                                                                    <td>
-                                                                        <div><?= date('M Y', strtotime($actividad['FECHA_INICIO'])) ?> - <?= date('M Y', strtotime($actividad['FECHA_FIN'])) ?></div>
-                                                                        <small class="text-muted"><?= $actividad['DURACION_HORAS'] ?> horas</small>
-                                                                    </td>
-                                                                    <td><span class="badge bg-secondary"><?= $actividad['DURACION_HORAS'] ?>h</span></td>
-                                                                    <td>
-                                                                        <?php
-                                                                        $fechaFin = new DateTime($actividad['FECHA_FIN']);
-                                                                        $hoy = new DateTime();
-                                                                        if ($fechaFin >= $hoy) {
-                                                                            echo '<span class="badge bg-warning text-dark">Activo</span>';
-                                                                        } else {
-                                                                            echo '<span class="badge bg-secondary">Finalizado</span>';
-                                                                        }
-                                                                        ?>
-                                                                    </td>
-                                                                    <td>
-                                                                        <span class="badge bg-success"><?= (int)($conteoParticipantes[$actividad['ID_ACTIVIDAD_EDUCACION']] ?? 0) ?></span>
-                                                                        <small class="text-muted">inscritos</small>
-                                                                    </td>
-                                                                    <td>
-                                                                        <div class="btn-group btn-group-sm">
-                                                                            <a href="<?= base_url('docente/actividades-educacion/ver/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-primary" title="Ver Detalle">
-                                                                                <i class="fas fa-eye"></i>
-                                                                            </a>
-                                                                            <a href="<?= base_url('docente/actividades-educacion/editar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-warning" title="Editar">
-                                                                                <i class="fas fa-edit"></i>
-                                                                            </a>
-                                                                            <button class="btn btn-outline-info" onclick="gestionarParticipantes(<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>)" title="Participantes">
-                                                                                <i class="fas fa-users"></i>
-                                                                            </button>
-                                                                            <a href="<?= base_url('docente/actividades-educacion/eliminar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-danger" title="Eliminar">
-                                                                                <i class="fas fa-trash-alt"></i>
-                                                                            </a>
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
-                                                            <?php endif; ?>
+                                                                    </div>
+                                                                </td>
+                                                                <td><span class="badge <?= $bgBadgeTipo ?>" style="opacity: 0.7;"><?= $tipoActividad ?></span></td>
+                                                                <td><span class="badge bg-info" style="opacity: 0.7;"><?= $actividad['MODALIDAD'] ?></span></td>
+                                                                <td>
+                                                                    <div><?= date('d M Y', strtotime($actividad['FECHA_INICIO'])) ?></div>
+                                                                    <small class="text-muted">al <?= date('d M Y', strtotime($actividad['FECHA_FIN'])) ?></small>
+                                                                </td>
+                                                                <td><span class="badge bg-secondary"><?= $actividad['DURACION_HORAS'] ?>h</span></td>
+                                                                <td>
+                                                                    <span class="badge bg-secondary"><?= (int)($conteoParticipantes[$actividad['ID_ACTIVIDAD_EDUCACION']] ?? 0) ?></span>
+                                                                    <small class="text-muted">inscritos</small>
+                                                                </td>
+                                                                <td>
+                                                                    <div class="btn-group btn-group-sm">
+                                                                        <a href="<?= base_url('docente/actividades-educacion/ver/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-primary" title="Ver Detalle">
+                                                                            <i class="fas fa-eye"></i>
+                                                                        </a>
+                                                                        <a href="<?= base_url('docente/actividades-educacion/editar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-warning" title="Editar">
+                                                                            <i class="fas fa-edit"></i>
+                                                                        </a>
+                                                                        <button class="btn btn-outline-info" onclick="gestionarParticipantes(<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>)" title="Participantes">
+                                                                            <i class="fas fa-users"></i>
+                                                                        </button>
+                                                                        <a href="<?= base_url('docente/actividades-educacion/eliminar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-danger" title="Eliminar">
+                                                                            <i class="fas fa-trash-alt"></i>
+                                                                        </a>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
                                                         <?php endforeach; ?>
                                                     <?php else: ?>
                                                         <tr>
                                                             <td colspan="8" class="text-center text-muted py-4">
-                                                                <i class="fas fa-inbox fa-3x mb-3"></i>
-                                                                <p>No tienes talleres registrados</p>
+                                                                <i class="fas fa-history fa-3x mb-3" style="opacity: 0.3;"></i>
+                                                                <p>No tienes actividades expiradas</p>
                                                             </td>
                                                         </tr>
                                                     <?php endif; ?>
@@ -457,204 +368,7 @@
                                 </div>
                             </div>
 
-                            <!-- Seminarios -->
-                            <div class="tab-pane fade" id="seminarios" role="tabpanel">
-                                <div class="card shadow-sm border-0">
-                                    <div class="card-header bg-info text-white">
-                                        <span><i class="fas fa-users me-2"></i>Mis Seminarios</span>
-                                    </div>
-                                    <div class="card-body p-0">
-                                        <div class="table-responsive">
-                                            <table class="table table-striped align-middle mb-0">
-                                                <thead class="table-light">
-                                                    <tr>
-                                                        <th>#</th>
-                                                        <th>Actividad</th>
-                                                        <th>Modalidad</th>
-                                                        <th>Período</th>
-                                                        <th>Duración</th>
-                                                        <th>Estado</th>
-                                                        <th>Participantes</th>
-                                                        <th>Acciones</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="tablaSeminarios">
-                                                    <?php if (!empty($actividades)): ?>
-                                                        <?php foreach ($actividades as $actividad): ?>
-                                                            <?php if ($actividad['ACTIVIDAD'] === 'Seminario'): ?>
-                                                                <tr data-actividad-id="<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>" data-fecha-fin="<?= $actividad['FECHA_FIN'] ?>">
-                                                                    <td><?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?></td>
-                                                                    <td>
-                                                                        <div class="d-flex align-items-center">
-                                                                            <i class="fas fa-comments fa-2x me-2 text-info"></i>
-                                                                            <div>
-                                                                                <div class="fw-semibold"><?= $actividad['NOMBRE_ACTIVIDAD'] ?></div>
-                                                                                <small class="text-muted"><?= $actividad['DESCRIPCION'] ?></small>
-                                                                            </div>
-                                                                        </div>
-                                                                    </td>
-                                                                    <td><span class="badge bg-info"><?= $actividad['MODALIDAD'] ?></span></td>
-                                                                    <td>
-                                                                        <div><?= date('M Y', strtotime($actividad['FECHA_INICIO'])) ?> - <?= date('M Y', strtotime($actividad['FECHA_FIN'])) ?></div>
-                                                                        <small class="text-muted"><?= $actividad['DURACION_HORAS'] ?> horas</small>
-                                                                    </td>
-                                                                    <td><span class="badge bg-secondary"><?= $actividad['DURACION_HORAS'] ?>h</span></td>
-                                                                    <td>
-                                                                        <?php
-                                                                        $fechaFin = new DateTime($actividad['FECHA_FIN']);
-                                                                        $hoy = new DateTime();
-                                                                        if ($fechaFin >= $hoy) {
-                                                                            echo '<span class="badge bg-secondary">Programado</span>';
-                                                                        } else {
-                                                                            echo '<span class="badge bg-secondary">Finalizado</span>';
-                                                                        }
-                                                                        ?>
-                                                                    </td>
-                                                                    <td>
-                                                                        <span class="badge bg-info"><?= (int)($conteoParticipantes[$actividad['ID_ACTIVIDAD_EDUCACION']] ?? 0) ?></span>
-                                                                        <small class="text-muted">inscritos</small>
-                                                                    </td>
-                                                                    <td>
-                                                                        <div class="btn-group btn-group-sm">
-                                                                            <a href="<?= base_url('docente/actividades-educacion/ver/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-primary" title="Ver Detalle">
-                                                                                <i class="fas fa-eye"></i>
-                                                                            </a>
-                                                                            <a href="<?= base_url('docente/actividades-educacion/editar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-warning" title="Editar">
-                                                                                <i class="fas fa-edit"></i>
-                                                                            </a>
-                                                                            <button class="btn btn-outline-info" onclick="gestionarParticipantes(<?= $actividad['ID_ACTIVIDAD_EDUCACION'] ?>)" title="Participantes">
-                                                                                <i class="fas fa-users"></i>
-                                                                            </button>
-                                                                            <a href="<?= base_url('docente/actividades-educacion/eliminar/' . $actividad['ID_ACTIVIDAD_EDUCACION']) ?>" class="btn btn-outline-danger" title="Eliminar">
-                                                                                <i class="fas fa-trash-alt"></i>
-                                                                            </a>
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
-                                                            <?php endif; ?>
-                                                        <?php endforeach; ?>
-                                                    <?php else: ?>
-                                                        <tr>
-                                                            <td colspan="8" class="text-center text-muted py-4">
-                                                                <i class="fas fa-inbox fa-3x mb-3"></i>
-                                                                <p>No tienes seminarios registrados</p>
-                                                            </td>
-                                                        </tr>
-                                                    <?php endif; ?>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
 
-                            <!-- Evaluaciones -->
-                            <div class="tab-pane fade" id="evaluaciones" role="tabpanel">
-                                <div class="card shadow-sm border-0">
-                                    <div class="card-body p-4">
-                                        <div class="row mb-3">
-                                            <div class="col-12">
-                                                <h4 class="text-center mb-1">
-                                                    <i class="fas fa-clipboard-check me-2"></i> Evaluaciones
-                                                </h4>
-                                                <p class="text-center text-muted mb-0">
-                                                    Completa los formularios de evaluación relacionados con tus actividades.
-                                                </p>
-                                            </div>
-                                        </div>
-
-                                        <!-- Alerta de Evaluaciones Urgentes -->
-                                        <div class="row mb-4" id="alertaUrgentesEvaluacionesDocenteEdu" style="display: none;">
-                                            <div class="col-12">
-                                                <div class="urgent-card">
-                                                    <div class="d-flex align-items-center">
-                                                        <i class="fas fa-exclamation-triangle text-warning me-3" style="font-size: 1.5rem;"></i>
-                                                        <div>
-                                                            <h6 class="mb-1">Evaluaciones Próximas a Vencer</h6>
-                                                            <p class="mb-0 text-muted">
-                                                                Tienes formularios que vencen pronto. Te recomendamos completarlos a la brevedad.
-                                                            </p>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Estadísticas -->
-                                        <div class="row mb-4">
-                                            <div class="col-md-4 col-sm-6">
-                                                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #007bff 80%, #0056b3 100%); color: #fff; border: none;">
-                                                    <div class="card-body">
-                                                        <h2 class="card-title mb-2" id="totalEvaluacionesEduDocente" style="font-size:2.5rem;">0</h2>
-                                                        <p class="card-text fw-bold" style="color: #e0e0e0;">Evaluaciones Disponibles</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4 col-sm-6">
-                                                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #28a745 80%, #155724 100%); color: #fff; border: none;">
-                                                    <div class="card-body">
-                                                        <h2 class="card-title mb-2" id="evaluacionesActivasEduDocente" style="font-size:2.5rem;">0</h2>
-                                                        <p class="card-text fw-bold" style="color: #e0e0e0;">Activas</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-4 col-sm-6">
-                                                <div class="card text-center shadow-sm" style="background: linear-gradient(135deg, #ffc107 80%, #b38600 100%); color: #fff; border: none;">
-                                                    <div class="card-body">
-                                                        <h2 class="card-title mb-2" id="evaluacionesPendientesEduDocente" style="font-size:2.5rem;">0</h2>
-                                                        <p class="card-text fw-bold" style="color: #fffbe6;">Pendientes</p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Lista de Evaluaciones -->
-                                        <div class="row">
-                                            <div class="col-12">
-                                                <div class="card shadow-sm border-0">
-                                                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-                                                        <span>
-                                                            <i class="fas fa-clipboard-check me-2"></i>
-                                                            Formularios de Evaluación
-                                                        </span>
-                                                        <div class="d-flex gap-2">
-                                                            <button class="btn btn-light btn-sm" onclick="cambiarVistaEvaluacionesEducacionDocente('grid')">
-                                                                <i class="fas fa-th-large me-1"></i>Grid
-                                                            </button>
-                                                            <button class="btn btn-light btn-sm" onclick="cambiarVistaEvaluacionesEducacionDocente('list')">
-                                                                <i class="fas fa-list me-1"></i>Lista
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                    <div class="card-body">
-                                                        <!-- Vista Grid -->
-                                                        <div id="vistaGridEvaluacionesEduDocente" class="row g-3"></div>
-
-                                                        <!-- Vista Lista -->
-                                                        <div id="vistaListaEvaluacionesEduDocente" class="d-none">
-                                                            <div class="table-responsive">
-                                                                <table class="table table-striped align-middle">
-                                                                    <thead class="table-light">
-                                                                        <tr>
-                                                                            <th>Evaluación</th>
-                                                                            <th>Tipo</th>
-                                                                            <th>Curso</th>
-                                                                            <th>Estado</th>
-                                                                            <th>Vencimiento</th>
-                                                                            <th>Acción</th>
-                                                                        </tr>
-                                                                    </thead>
-                                                                    <tbody id="tablaEvaluacionesListaEduDocente"></tbody>
-                                                                </table>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -857,14 +571,6 @@
             const totalActividadesEl = document.getElementById('totalActividades');
             if (totalActividadesEl) totalActividadesEl.textContent = stats.totalActividades || 0;
 
-            const cursosActivosEl = document.getElementById('cursosActivos');
-            if (cursosActivosEl) cursosActivosEl.textContent = stats.cursosActivos || 0;
-
-            const talleresActivosEl = document.getElementById('talleresActivos');
-            if (talleresActivosEl) talleresActivosEl.textContent = stats.talleresActivos || 0;
-
-            const seminariosActivosEl = document.getElementById('seminariosActivos');
-            if (seminariosActivosEl) seminariosActivosEl.textContent = stats.seminariosActivos || 0;
 
             estadisticas = stats;
         } catch (error) {
@@ -936,230 +642,6 @@
         // Cargar estadísticas al cargar la página
         cargarEstadisticas();
         iniciarPollingEncuestasSatisfaccionDocente();
-    });
-</script>
-
-<script>
-    // ===== Evaluaciones integradas en Educación Continua (Docente) =====
-    let evaluacionesDocenteEdu = [];
-    let vistaEvaluacionesDocenteEdu = 'grid';
-
-    function cambiarVistaEvaluacionesEducacionDocente(tipo) {
-        vistaEvaluacionesDocenteEdu = tipo;
-
-        const grid = document.getElementById('vistaGridEvaluacionesEduDocente');
-        const lista = document.getElementById('vistaListaEvaluacionesEduDocente');
-        if (!grid || !lista) return;
-
-        if (tipo === 'grid') {
-            grid.classList.remove('d-none');
-            lista.classList.add('d-none');
-            generarVistaGridEvaluacionesEducacionDocente();
-        } else {
-            grid.classList.add('d-none');
-            lista.classList.remove('d-none');
-            generarVistaListaEvaluacionesEducacionDocente();
-        }
-    }
-
-    function generarVistaGridEvaluacionesEducacionDocente() {
-        const container = document.getElementById('vistaGridEvaluacionesEduDocente');
-        if (!container) return;
-
-        container.innerHTML = '';
-
-        if (evaluacionesDocenteEdu.length === 0) {
-            container.innerHTML = `
-                <div class="col-12 text-center py-5">
-                    <i class="fas fa-clipboard-check fa-3x text-muted mb-3"></i>
-                    <h5 class="text-muted">No hay evaluaciones disponibles</h5>
-                    <p class="text-muted mb-0">En este momento no tienes formularios pendientes.</p>
-                </div>
-            `;
-            return;
-        }
-
-        evaluacionesDocenteEdu.forEach(evalItem => {
-            const fechaVencimiento = new Date(evalItem.fecha_vencimiento);
-            const hoy = new Date();
-            const diasRestantes = Math.ceil((fechaVencimiento - hoy) / (1000 * 60 * 60 * 24));
-            const esUrgente = diasRestantes <= 7 && diasRestantes >= 0;
-            const tipoLower = (evalItem.tipo || '').toLowerCase();
-
-            const enlace = evalItem.enlace || '';
-            const enlaceDisponible = enlace.trim().length > 0;
-
-            const card = document.createElement('div');
-            card.className = 'col-md-6 col-lg-4';
-
-            card.innerHTML = `
-                <div class="card evaluation-card ${tipoLower} h-100 ${esUrgente ? 'border-warning' : ''}">
-                    <div class="card-body d-flex flex-column">
-                        <div class="d-flex justify-content-between align-items-start mb-3">
-                            <h6 class="card-title mb-0">${evalItem.nombre || ''}</h6>
-                            <span class="status-badge status-${evalItem.estado || ''}">${evalItem.estado || ''}</span>
-                        </div>
-                        <p class="card-text text-muted small mb-3 flex-grow-1">${evalItem.descripcion || ''}</p>
-
-                        <div class="mb-3">
-                            <small class="text-muted d-block">Curso:</small>
-                            <strong>${evalItem.curso || 'Sin curso asignado'}</strong>
-                        </div>
-
-                        <div class="mb-3">
-                            <small class="text-muted d-block">Vence:</small>
-                            <strong class="${esUrgente ? 'text-warning' : ''}">
-                                ${formatearFechaEvaluacionesEducacionDocente(evalItem.fecha_vencimiento)}
-                            </strong>
-                            ${esUrgente ? `<small class="text-warning d-block">(${diasRestantes} días restantes)</small>` : ''}
-                        </div>
-
-                        <div class="mt-auto">
-                            ${
-                                enlaceDisponible
-                                    ? `<a href="${enlace}" target="_blank" rel="noopener" class="btn-evaluacion w-100 text-center">
-                                        <i class="fas fa-external-link-alt"></i>
-                                        Completar Evaluación
-                                    </a>`
-                                    : `<span class="btn-evaluacion w-100 text-center" style="opacity:0.6; pointer-events:none;">
-                                        <i class="fas fa-external-link-alt"></i>
-                                        Enlace no disponible
-                                    </span>`
-                            }
-                        </div>
-                    </div>
-                </div>
-            `;
-
-            container.appendChild(card);
-        });
-    }
-
-    function generarVistaListaEvaluacionesEducacionDocente() {
-        const tbody = document.getElementById('tablaEvaluacionesListaEduDocente');
-        if (!tbody) return;
-
-        tbody.innerHTML = '';
-
-        if (evaluacionesDocenteEdu.length === 0) {
-            tbody.innerHTML = `
-                <tr>
-                    <td colspan="6" class="text-center py-4">
-                        <i class="fas fa-clipboard-check fa-2x text-muted mb-2"></i>
-                        <p class="text-muted mb-0">No hay evaluaciones disponibles</p>
-                    </td>
-                </tr>
-            `;
-            return;
-        }
-
-        evaluacionesDocenteEdu.forEach(evalItem => {
-            const fechaVencimiento = new Date(evalItem.fecha_vencimiento);
-            const hoy = new Date();
-            const diasRestantes = Math.ceil((fechaVencimiento - hoy) / (1000 * 60 * 60 * 24));
-            const esUrgente = diasRestantes <= 7 && diasRestantes >= 0;
-
-            const enlace = evalItem.enlace || '';
-            const enlaceDisponible = enlace.trim().length > 0;
-
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>
-                    <div class="fw-semibold">${evalItem.nombre || ''}</div>
-                    <small class="text-muted">${evalItem.descripcion || ''}</small>
-                    ${esUrgente ? '<small class="text-warning d-block"><i class="fas fa-clock"></i> Próxima a vencer</small>' : ''}
-                </td>
-                <td><span class="badge bg-secondary">${evalItem.tipo || ''}</span></td>
-                <td>${evalItem.curso || 'Sin curso asignado'}</td>
-                <td><span class="status-badge status-${evalItem.estado || ''}">${evalItem.estado || ''}</span></td>
-                <td class="${esUrgente ? 'text-warning' : ''}">
-                    ${formatearFechaEvaluacionesEducacionDocente(evalItem.fecha_vencimiento)}
-                    ${esUrgente ? `<br><small>(${diasRestantes} días)</small>` : ''}
-                </td>
-                <td>
-                    ${
-                        enlaceDisponible
-                            ? `<a href="${enlace}" target="_blank" rel="noopener" class="btn-evaluacion">
-                                    <i class="fas fa-external-link-alt"></i>
-                                    Completar
-                               </a>`
-                            : `<span class="btn-evaluacion" style="opacity:0.6; pointer-events:none;">
-                                    <i class="fas fa-external-link-alt"></i>
-                                    Completar
-                               </span>`
-                    }
-                </td>
-            `;
-            tbody.appendChild(row);
-        });
-    }
-
-    function formatearFechaEvaluacionesEducacionDocente(fecha) {
-        try {
-            return new Date(fecha).toLocaleDateString('es-ES');
-        } catch (e) {
-            return fecha;
-        }
-    }
-
-    function verificarEvaluacionesUrgentesDocente() {
-        const alerta = document.getElementById('alertaUrgentesEvaluacionesDocenteEdu');
-        if (!alerta) return;
-
-        const hoy = new Date();
-        const urgentes = evaluacionesDocenteEdu.filter(evalItem => {
-            const fechaVencimiento = new Date(evalItem.fecha_vencimiento);
-            const diasRestantes = Math.ceil((fechaVencimiento - hoy) / (1000 * 60 * 60 * 24));
-            return diasRestantes <= 7 && diasRestantes >= 0;
-        });
-
-        alerta.style.display = urgentes.length > 0 ? 'block' : 'none';
-    }
-
-    function cargarEvaluacionesEducacionDocente() {
-        fetch('<?= base_url('docente/evaluaciones/obtener') ?>')
-            .then(response => response.json())
-            .then(payload => {
-                if (!payload.success) {
-                    console.error('Error cargando evaluaciones:', payload.message);
-                    showNotification('Error al cargar evaluaciones: ' + payload.message, 'error');
-                    return;
-                }
-
-                evaluacionesDocenteEdu = payload.data || [];
-                verificarEvaluacionesUrgentesDocente();
-
-                if (vistaEvaluacionesDocenteEdu === 'grid') {
-                    generarVistaGridEvaluacionesEducacionDocente();
-                } else {
-                    generarVistaListaEvaluacionesEducacionDocente();
-                }
-            })
-            .catch(error => {
-                console.error('Error cargando evaluaciones:', error);
-                showNotification('Error al cargar evaluaciones desde el servidor', 'error');
-            });
-    }
-
-    function cargarEstadisticasEvaluacionesEducacionDocente() {
-        fetch('<?= base_url('docente/evaluaciones/estadisticas') ?>')
-            .then(response => response.json())
-            .then(payload => {
-                if (!payload.success) return;
-
-                document.getElementById('totalEvaluacionesEduDocente').textContent = payload.data.total || 0;
-                document.getElementById('evaluacionesActivasEduDocente').textContent = payload.data.activas || 0;
-                document.getElementById('evaluacionesPendientesEduDocente').textContent = payload.data.pendientes || 0;
-            })
-            .catch(error => {
-                console.error('Error cargando estadísticas evaluaciones (docente):', error);
-            });
-    }
-
-    // Inicialización
-    document.addEventListener('DOMContentLoaded', function() {
-        cargarEvaluacionesEducacionDocente();
-        cargarEstadisticasEvaluacionesEducacionDocente();
     });
 </script>
 

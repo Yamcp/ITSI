@@ -63,7 +63,7 @@ class InstitucionesConveniosController extends BaseController
      */
     private function obtenerIdCarreraEstudiante()
     {
-        if (!session()->get('logged_in') || (int) session()->get('rol') !== 3) {
+        if (!session()->get('logged_in') || (int) session()->get('rol') !== 4) {
             return null;
         }
         $idUsuario = session()->get('id_usuario');
