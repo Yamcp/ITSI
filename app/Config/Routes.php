@@ -260,7 +260,8 @@ $routes->group('docente', ['namespace' => 'App\Controllers\docente'], function (
     $routes->get('evaluaciones/estadisticas', 'EvaluacionesDocenteController::obtenerEstadisticas'); // Obtener estadísticas
     
     // Rutas para prácticas (tutorías)
-    $routes->get('practicas', 'PracticasDocenteController::index');              // Ver prácticas del docente
+    $routes->get('practicas', 'PracticasDocenteController::index');              // Ver prácticas preprofesionales del docente
+    $routes->get('servicio-comunitario', 'PracticasDocenteController::servicioComunitario'); // Ver servicio comunitario del docente
     $routes->get('practicas/detalle-estudiante/(:num)', 'PracticasDocenteController::detalleEstudiante/$1'); // Detalle de estudiante
     $routes->get('practicas/alertas', 'PracticasDocenteController::obtenerAlertas'); // Obtener alertas
     $routes->get('practicas/calendario', 'PracticasDocenteController::calendario'); // Calendario de prácticas

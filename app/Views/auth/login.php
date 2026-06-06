@@ -13,13 +13,12 @@
     <style>
         body {
             min-height: 100vh;
-            /* Se aplica el gradiente con transparencia para teñir la imagen de fondo */
             background: linear-gradient(135deg, rgba(33, 150, 243, 0.8), rgba(187, 222, 251, 0.85));
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
-            /* Evita barras de scroll por el desenfoque */
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
         /* Pseudo-elemento para el fondo con la imagen desenfocada */
@@ -51,10 +50,19 @@
         .login-card {
             border: none;
             border-radius: 1rem;
-            box-shadow: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.1);
+            box-shadow: 0 1rem 2.5rem rgba(15, 23, 42, 0.12);
             animation: fadeInDown 0.7s;
-            max-width: 400px;
+            max-width: 420px;
             margin: 2rem auto;
+            background: rgba(255, 255, 255, 0.98);
+            overflow: hidden;
+        }
+
+        .login-card::before {
+            content: '';
+            display: block;
+            height: 4px;
+            background: linear-gradient(90deg, #1e3a8a, #3b82f6, #60a5fa);
         }
 
         @keyframes fadeInDown {
@@ -79,8 +87,18 @@
             margin-bottom: 1rem;
         }
 
+        .form-floating>.form-control {
+            border-radius: 0.5rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .form-floating>.form-control:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2);
+        }
+
         .form-floating>.form-control:focus~label {
-            color: #0d6efd;
+            color: #2563eb;
         }
 
         .card-body {
@@ -99,28 +117,63 @@
             margin-bottom: 1.5rem;
         }
 
-        /* Estilos para el botón de mostrar/ocultar contraseña */
-        #togglePassword {
+        .toggle-password {
             color: #6c757d;
-            transition: color 0.3s ease;
+            transition: color 0.2s ease;
         }
 
-        #togglePassword:hover {
-            color: #0d6efd;
+        .toggle-password:hover {
+            color: #2563eb;
         }
 
-        #togglePassword:focus {
+        .toggle-password:focus {
             outline: none;
             box-shadow: none;
         }
 
-        #togglePasswordIcon {
+        .toggle-password-icon {
             font-size: 1.1rem;
         }
 
-        /* Ajustar el padding del input cuando tiene el botón */
         .form-floating.position-relative .form-control {
             padding-right: 3rem;
+        }
+
+        .btn-login {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn-login:hover:not(:disabled) {
+            background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.85;
+        }
+
+        .login-options {
+            gap: 0.75rem;
+        }
+
+        .forgot-password-link {
+            color: #2563eb;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .forgot-password-link:hover {
+            color: #1d4ed8;
+        }
+
+        .form-check-input:checked {
+            background-color: #2563eb;
+            border-color: #2563eb;
         }
 
         @media (max-width: 576px) {
@@ -130,7 +183,12 @@
             }
 
             .card-body {
-                padding: 1rem;
+                padding: 1.25rem;
+            }
+
+            .login-options {
+                flex-direction: column;
+                align-items: flex-start !important;
             }
         }
     </style>
@@ -171,7 +229,8 @@
                     <?= csrf_field() ?>
                     <div class="form-floating mb-3">
                         <input type="text" class="form-control" id="usuario" name="usuario" placeholder="Cédula o Correo" required autofocus
-                            data-bs-toggle="tooltip" data-bs-placement="right" title="Ingrese su usuario o cédula">
+                            value="<?= esc(old('usuario')) ?>"
+                            autocomplete="username">
                         <label for="usuario"><i class="bi bi-person-circle me-2"></i>Usuario o Cédula</label>
                         <div class="invalid-feedback">
                             Este campo es obligatorio.
@@ -179,24 +238,25 @@
                     </div>
                     <div class="form-floating mb-4 position-relative">
                         <input type="password" class="form-control" id="password" name="password" placeholder="Contraseña" required
-                            data-bs-toggle="tooltip" data-bs-placement="right" title="Ingrese su contraseña">
+                            autocomplete="current-password">
                         <label for="password"><i class="bi bi-lock-fill me-2"></i>Contraseña</label>
-                        <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y me-3"
-                            id="togglePassword" style="z-index: 10; border: none; background: none; padding: 0;">
-                            <i class="bi bi-eye" id="togglePasswordIcon"></i>
+                        <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y me-3 toggle-password"
+                            id="togglePassword" aria-label="Mostrar u ocultar contraseña"
+                            style="z-index: 10; border: none; background: none; padding: 0;">
+                            <i class="bi bi-eye toggle-password-icon" id="togglePasswordIcon"></i>
                         </button>
                         <div class="invalid-feedback">
                             La contraseña es obligatoria.
                         </div>
                     </div>
-                    <div class="d-flex justify-content-between align-items-center mb-4">
-                        <div class="form-check">
+                    <div class="d-flex justify-content-between align-items-center mb-4 login-options flex-wrap">
+                        <div class="form-check mb-0">
                             <input class="form-check-input" type="checkbox" value="1" id="rememberMe" name="rememberMe">
                             <label class="form-check-label" for="rememberMe">
                                 Recordarme
                             </label>
                         </div>
-                        <a href="<?= site_url('auth/recuperar-contrasena') ?>" class="text-decoration-none small text-muted">
+                        <a href="<?= site_url('auth/recuperar-contrasena') ?>" class="text-decoration-none small forgot-password-link">
                             <i class="bi bi-key me-1"></i>¿Olvidaste tu contraseña?
                         </a>
                     </div>
@@ -248,9 +308,9 @@
             const usuarioInput = document.getElementById('usuario');
             const rememberCheckbox = document.getElementById('rememberMe');
 
-            // Cargar usuario guardado
+            // Cargar usuario guardado solo si el campo viene vacío (evita pisar old() tras error)
             const savedUsuario = getFromLocalStorage('remembered_usuario');
-            if (savedUsuario) {
+            if (savedUsuario && !usuarioInput.value.trim()) {
                 usuarioInput.value = savedUsuario;
             }
 
@@ -321,11 +381,14 @@
             }
         });
 
-        // Inicializar tooltips
-        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
-        tooltipTriggerList.forEach(function(tooltipTriggerEl) {
-            new bootstrap.Tooltip(tooltipTriggerEl);
-        });
+        // Cerrar toast de éxito automáticamente
+        var successToast = document.querySelector('.toast.text-bg-success');
+        if (successToast) {
+            setTimeout(function() {
+                var toast = bootstrap.Toast.getOrCreateInstance(successToast, { delay: 5000 });
+                toast.hide();
+            }, 5000);
+        }
     </script>
 </body>
 

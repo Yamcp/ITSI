@@ -174,7 +174,7 @@ class UsuariosModel extends Model
     }
 
     /**
-     * Buscar usuario por correo, cédula o nombre de usuario (recuperación de contraseña).
+     * Buscar usuario por correo o nombre de usuario (recuperación de contraseña).
      * Aplica a todos los roles: coordinador, docente, estudiante.
      */
     public function buscarPorEmailOUsuario($emailOUsuario)
@@ -187,9 +187,9 @@ class UsuariosModel extends Model
             SELECT u.ID_USUARIO, u.USUARIO, dp.EMAIL, dp.NOMBRE, dp.APELLIDO
             FROM TAB_USUARIOS u
             INNER JOIN TAB_DATOS_PERSONAS dp ON u.ID_DATO_PERSONA = dp.ID_DATO_PERSONA
-            WHERE (u.USUARIO = ? OR dp.CEDULA = ? OR dp.EMAIL = ?) AND u.ESTADO = '1'
+            WHERE (u.USUARIO = ? OR dp.EMAIL = ?) AND u.ESTADO = '1'
             LIMIT 1
-        ", [$valor, $valor, $valor]);
+        ", [$valor, $valor]);
         return $query->getRowArray();
     }
 

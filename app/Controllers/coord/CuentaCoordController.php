@@ -54,7 +54,7 @@ class CuentaCoordController extends BaseController
                 ]
             ],
             'password_nuevo' => [
-                'rules' => 'required|min_length[8]|regex_match[/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/]',
+                'rules' => 'required|min_length[8]|regex_match[/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_-])[A-Za-z\d@$!%*?&_-]/]',
                 'errors' => [
                     'required' => 'La nueva contraseña es obligatoria',
                     'min_length' => 'La nueva contraseña debe tener al menos 8 caracteres',

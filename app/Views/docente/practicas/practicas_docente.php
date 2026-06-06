@@ -144,8 +144,15 @@
             <div class="col-12">
                 <h3 class="text-center my-3">
                     <i class="fas fa-user-graduate me-2"></i>
-                    Supervisión de Prácticas
+                    Supervisión de <?= esc($modoLabel ?? 'Prácticas') ?>
                 </h3>
+                <div class="d-flex justify-content-center gap-2 mb-3 flex-wrap">
+                    <a href="<?= esc($urlPracticas) ?>" class="btn btn-sm <?= ($modo ?? 'preprofesional') === 'preprofesional' ? 'btn-primary' : 'btn-outline-primary' ?>">Prácticas preprofesionales</a>
+                    <a href="<?= esc($urlServicio) ?>" class="btn btn-sm <?= ($modo ?? '') === 'servicio' ? 'btn-primary' : 'btn-outline-primary' ?>">Servicio comunitario</a>
+                </div>
+                <p class="text-center text-muted mb-4 small">
+                    Aquí se muestra únicamente información de los estudiantes a los que usted ha sido asignado como tutor en esta modalidad.
+                </p>
             </div>
         </div>
 
@@ -156,6 +163,7 @@
                     <div class="card-body d-flex flex-column justify-content-center align-items-center flex-grow-1 py-4 px-2">
                         <h2 class="card-title mb-2" style="font-size: clamp(1.75rem, 4vw, 2.5rem);"><?= $estadisticas['estudiantesAsignados'] ?? 0 ?></h2>
                         <p class="card-text fw-bold small mb-0 text-center" style="color: #e0e0e0;">Estudiantes asignados</p>
+                        <small class="text-white-50">Solo alumnos en los que usted es tutor asignado</small>
                     </div>
                 </div>
             </div>
@@ -163,7 +171,10 @@
                 <div class="card text-center shadow-sm h-100 w-100 d-flex flex-column border-0" style="background: linear-gradient(135deg, #28a745 80%, #155724 100%); color: #fff;">
                     <div class="card-body d-flex flex-column justify-content-center align-items-center flex-grow-1 py-4 px-2">
                         <h2 class="card-title mb-2" style="font-size: clamp(1.75rem, 4vw, 2.5rem);"><?= $estadisticas['practicasActivas'] ?? 0 ?></h2>
-                        <p class="card-text fw-bold small mb-0 text-center" style="color: #e0e0e0;">Prácticas activas</p>
+                        <small class="text-white-50">
+                            <?= ($modo ?? 'preprofesional') === 'servicio'
+                                ? 'Servicio comunitario activo' : 'Prácticas preprofesionales activas' ?>
+                        </small>
                     </div>
                 </div>
             </div>
@@ -191,135 +202,6 @@
 
         <?= $this->include('docente/practicas/partials/panel_notificaciones_practicas') ?>
 
-        <!-- Mis estudiantes -->
-        <div class="row">
-            <div class="col-12">
-                <div class="card border-0 shadow-sm">
-                    <div class="card-header bg-primary text-white">
-                        <span><i class="fas fa-users me-2"></i>Mis estudiantes</span>
-                    </div>
-                    <div class="card-body">
-                                        <?php if (!empty($estudiantesAsignados)): ?>
-                                            <?php foreach ($estudiantesAsignados as $idx => $estudiante): ?>
-                                                <?php
-                                                $nivelCumpl = $estudiante['CUMPLIMIENTO_NIVEL'] ?? 'secondary';
-                                                $badgeCumpl = match ($nivelCumpl) {
-                                                    'success' => 'bg-success',
-                                                    'warning' => 'bg-warning text-dark',
-                                                    'danger' => 'bg-danger',
-                                                    'info' => 'bg-info text-dark',
-                                                    default => 'bg-secondary',
-                                                };
-                                                ?>
-                                                <div class="card border shadow-sm mb-3">
-                                                    <div class="card-header bg-primary text-white py-2">
-                                                        <div class="row align-items-center">
-                                                            <div class="col-md-8">
-                                                                <div class="d-flex align-items-center">
-                                                                    <img src="https://ui-avatars.com/api/?name=<?= urlencode($estudiante['NOMBRE_COMPLETO']) ?>&background=fff&color=0d6efd&size=50" class="estudiante-avatar me-3" alt="<?= substr($estudiante['NOMBRE_COMPLETO'], 0, 2) ?>">
-                                                                    <div>
-                                                                        <h6 class="mb-0"><?= $estudiante['NOMBRE_COMPLETO'] ?></h6>
-                                                                        <small class="opacity-75"><?= esc($estudiante['CARRERA']) ?> — <?= esc($estudiante['INSTITUCION_NOMBRE']) ?></small>
-                                                                        <div class="mt-1">
-                                                                            <span class="badge bg-light text-primary me-1"><?= esc($estudiante['TIPO']) ?></span>
-                                                                            <span class="badge <?= $badgeCumpl ?>" title="<?= esc($estudiante['CUMPLIMIENTO_DESCRIPCION'] ?? '') ?>"><?= esc($estudiante['CUMPLIMIENTO_ETIQUETA'] ?? '—') ?></span>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-md-4 text-md-end">
-                                                                <?php
-                                                                $estadoClass = '';
-                                                                switch ($estudiante['ESTADO_PRACTICA']) {
-                                                                    case 'Completada':
-                                                                        $estadoClass = 'bg-success text-white';
-                                                                        break;
-                                                                    case 'En Progreso':
-                                                                        $estadoClass = 'bg-warning text-dark';
-                                                                        break;
-                                                                    case 'Pendiente':
-                                                                        $estadoClass = 'bg-info text-dark';
-                                                                        break;
-                                                                    default:
-                                                                        $estadoClass = 'bg-secondary text-white';
-                                                                }
-                                                                ?>
-                                                                <span class="estado-badge <?= $estadoClass ?>"><?= $estudiante['ESTADO_PRACTICA'] ?></span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="card-body">
-                                                        <div class="row">
-                                                            <div class="col-md-8">
-                                                                <div class="row mb-3">
-                                                                    <div class="col-md-6">
-                                                                        <strong>Período:</strong><br>
-                                                                        <small class="text-muted">
-                                                                            <?= date('d/m/Y', strtotime($estudiante['FECHA_INICIO'])) ?> - <?= date('d/m/Y', strtotime($estudiante['FECHA_FIN'])) ?>
-                                                                        </small>
-                                                                    </div>
-                                                                    <div class="col-md-6">
-                                                                        <strong>Horas:</strong><br>
-                                                                        <span class="badge bg-info"><?= $estudiante['HORAS_CUMPLIDAS'] ?>/<?= $estudiante['HORAS_TOTALES'] ?>h</span>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="row">
-                                                                    <div class="col-md-6">
-                                                                        <strong>Última actividad registrada:</strong><br>
-                                                                        <small class="text-muted"><?= esc($estudiante['ULTIMA_ACTIVIDAD'] ?? 'Sin actividades') ?></small>
-                                                                    </div>
-                                                                    <div class="col-md-6">
-                                                                        <strong>Progreso de horas:</strong><br>
-                                                                        <div class="progress" style="height: 8px;">
-                                                                            <div class="progress-bar bg-success" style="width: <?= min(100, (float) $estudiante['PORCENTAJE_PROGRESO']) ?>%"></div>
-                                                                        </div>
-                                                                        <small class="text-muted"><?= esc((string) $estudiante['PORCENTAJE_PROGRESO']) ?>% de la meta de horas</small>
-                                                                    </div>
-                                                                </div>
-                                                                <?php if (!empty($estudiante['CUMPLIMIENTO_DESCRIPCION'])): ?>
-                                                                    <div class="row mt-2">
-                                                                        <div class="col-12">
-                                                                            <div class="alert alert-light border small mb-0 py-2">
-                                                                                <strong class="text-dark"><i class="fas fa-clipboard-check me-1"></i>Cumplimiento:</strong>
-                                                                                <?= esc($estudiante['CUMPLIMIENTO_DESCRIPCION']) ?>
-                                                                            </div>
-                                                                        </div>
-                                                                    </div>
-                                                                <?php endif; ?>
-                                                            </div>
-                                                            <div class="col-md-4 text-center">
-                                                                <div class="progreso-circular">
-                                                                    <canvas class="progreso-est-canvas" id="progresoEstCanvas<?= (int) $idx ?>" width="80" height="80" data-pct="<?= esc((string) $estudiante['PORCENTAJE_PROGRESO']) ?>"></canvas>
-                                                                    <div class="progreso-texto"><?= esc((string) $estudiante['PORCENTAJE_PROGRESO']) ?>%</div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <hr>
-                                                        <div class="btn-group w-100 btn-group-sm" role="group">
-                                                            <button class="btn btn-outline-primary" onclick="verDetalleEstudiante(<?= $estudiante['ID_ESTUDIANTE'] ?>)">
-                                                                <i class="fas fa-eye me-1"></i>Ver Detalle
-                                                            </button>
-                                                            <button class="btn btn-outline-info" onclick="enviarMensaje(<?= $estudiante['ID_ESTUDIANTE'] ?>)">
-                                                                <i class="fas fa-comment me-1"></i>Mensaje
-                                                            </button>
-                                                            <button class="btn btn-outline-warning" onclick="verActividades(<?= $estudiante['ID_ESTUDIANTE'] ?>)">
-                                                                <i class="fas fa-list me-1"></i>Actividades
-                                                            </button>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            <?php endforeach; ?>
-                                        <?php else: ?>
-                                            <div class="text-center py-5">
-                                                <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
-                                                <p class="text-muted mb-0">No tienes estudiantes asignados</p>
-                                                <small class="text-muted">Contacta con el coordinador para asignaciones</small>
-                                            </div>
-                                        <?php endif; ?>
-                    </div>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
 

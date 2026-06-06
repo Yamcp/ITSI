@@ -34,6 +34,16 @@ class PracticasDocenteController extends BaseController
 
     public function index()
     {
+        return $this->renderDocenteModo('preprofesional');
+    }
+
+    public function servicioComunitario()
+    {
+        return $this->renderDocenteModo('servicio');
+    }
+
+    private function renderDocenteModo(string $modo)
+    {
         if (!session()->get('logged_in')) {
             return redirect()->to(base_url('/'));
         }
@@ -45,7 +55,15 @@ class PracticasDocenteController extends BaseController
         }
 
         $estadisticas = $this->obtenerEstadisticasDocente($idDocente);
-        $estudiantesAsignados = $this->obtenerEstudiantesAsignados($idDocente);
+        $estudiantesAsignados = $this->obtenerEstudiantesAsignadosPorModalidad($idDocente, $modo);
+
+        if ($modo === 'preprofesional') {
+            $estadisticas['estudiantesAsignados'] = $estadisticas['estudiantesPp'] ?? 0;
+            $estadisticas['practicasActivas'] = $estadisticas['practicasActivasPre'] ?? 0;
+        } else {
+            $estadisticas['estudiantesAsignados'] = $estadisticas['estudiantesSc'] ?? 0;
+            $estadisticas['practicasActivas'] = $estadisticas['serviciosActivos'] ?? 0;
+        }
 
         $notificacionesLista = [];
         $estadisticasNotificaciones = ['total' => 0, 'no_leidas' => 0, 'leidas' => 0];
@@ -57,8 +75,14 @@ class PracticasDocenteController extends BaseController
             log_message('error', 'PracticasDocente - notificaciones: ' . $e->getMessage());
         }
 
+        $modoLabel = $modo === 'servicio' ? 'Servicio Comunitario' : 'Prácticas Preprofesionales';
+
         $data = [
-            'title' => 'Supervisión de Prácticas - ITSI',
+            'title' => 'Supervisión de ' . $modoLabel . ' - ITSI',
+            'modo' => $modo,
+            'modoLabel' => $modoLabel,
+            'urlPracticas' => base_url('docente/practicas'),
+            'urlServicio' => base_url('docente/servicio-comunitario'),
             'estadisticas' => $estadisticas,
             'estudiantesAsignados' => $estudiantesAsignados,
             'notificaciones_lista' => $notificacionesLista,
@@ -345,7 +369,7 @@ class PracticasDocenteController extends BaseController
         try {
             $estudiantesPp = 0;
             $estudiantesSc = 0;
-            $practicasActivas = 0;
+            $practicasActivasPre = 0;
             $serviciosActivos = 0;
             if ($idDocente > 0) {
                 $estudiantesPp = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
@@ -354,7 +378,7 @@ class PracticasDocenteController extends BaseController
                 $estudiantesSc = $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
                     ->where('sc.ID_DOCENTE_TUTOR', $idDocente)
                     ->countAllResults();
-                $practicasActivas = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
+                $practicasActivasPre = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
                     ->where('pp.ID_DOCENTE_TUTOR', $idDocente)
                     ->where('pp.ESTADO_PRACTICA', 'En Progreso')
                     ->countAllResults();
@@ -365,7 +389,9 @@ class PracticasDocenteController extends BaseController
             }
             return [
                 'estudiantesAsignados' => $estudiantesPp + $estudiantesSc,
-                'practicasActivas' => $practicasActivas + $serviciosActivos,
+                'practicasActivas' => $practicasActivasPre + $serviciosActivos,
+                'practicasActivasPre' => $practicasActivasPre,
+                'serviciosActivos' => $serviciosActivos,
                 'alertas' => $idDocente > 0 ? $this->contarAlertas($idDocente) : 0
             ];
         } catch (\Exception $e) {
@@ -378,12 +404,55 @@ class PracticasDocenteController extends BaseController
         }
     }
 
-    private function obtenerEstudiantesAsignados($idDocente)
+    private function obtenerEstudiantesAsignadosPorModalidad($idDocente, $modo)
     {
         if ($idDocente <= 0) {
             return [];
         }
         try {
+            if ($modo === 'servicio') {
+                $serviciosSc = $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
+                    ->select('sc.*, CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as ESTUDIANTE_NOMBRE, c.NOMBRE as CARRERA, ic.NOMBRE as INSTITUCION_NOMBRE')
+                    ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE')
+                    ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
+                    ->join('TAB_CARRERAS c', 'c.ID_CARRERA = e.ID_CARRERA')
+                    ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = sc.ID_INSTITUCION_CONVENIO')
+                    ->where('sc.ID_DOCENTE_TUTOR', $idDocente)
+                    ->get()
+                    ->getResultArray();
+
+                $estudiantes = [];
+                foreach ($serviciosSc as $s) {
+                    $horasCum = $this->calcularHorasCumplidasPractica($s['ID_SERVICIO_COMUNITARIO'], 'servicio');
+                    $horasTot = (float) ($s['HORAS_SERVICIO'] ?? 0);
+                    $cumpl = $this->evaluarRitmoCumplimiento(
+                        $s['FECHA_INICIO'] ?? null,
+                        $s['FECHA_FIN'] ?? null,
+                        $horasTot,
+                        $horasCum,
+                        $s['ESTADO_SERVICIO'] ?? null
+                    );
+                    $estudiantes[] = [
+                        'ID_ESTUDIANTE' => $s['ID_ESTUDIANTE'],
+                        'NOMBRE_COMPLETO' => $s['ESTUDIANTE_NOMBRE'],
+                        'CARRERA' => $s['CARRERA'],
+                        'INSTITUCION_NOMBRE' => $s['INSTITUCION_NOMBRE'],
+                        'FECHA_INICIO' => $s['FECHA_INICIO'],
+                        'FECHA_FIN' => $s['FECHA_FIN'],
+                        'HORAS_TOTALES' => $horasTot,
+                        'ESTADO_PRACTICA' => $s['ESTADO_SERVICIO'],
+                        'TIPO' => 'Servicio Comunitario',
+                        'HORAS_CUMPLIDAS' => $horasCum,
+                        'PORCENTAJE_PROGRESO' => $this->calcularProgresoPractica($s['ID_SERVICIO_COMUNITARIO'], $horasTot, 'servicio'),
+                        'ULTIMA_ACTIVIDAD' => $this->obtenerUltimaActividadPractica($s['ID_SERVICIO_COMUNITARIO'], 'servicio'),
+                        'CUMPLIMIENTO_ETIQUETA' => $cumpl['etiqueta'],
+                        'CUMPLIMIENTO_NIVEL' => $cumpl['nivel'],
+                        'CUMPLIMIENTO_DESCRIPCION' => $cumpl['descripcion'],
+                    ];
+                }
+                return $estudiantes;
+            }
+
             $practicasPp = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
                 ->select('pp.*, CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as ESTUDIANTE_NOMBRE, c.NOMBRE as CARRERA, ic.NOMBRE as INSTITUCION_NOMBRE')
                 ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = pp.ID_ESTUDIANTE')
@@ -391,16 +460,6 @@ class PracticasDocenteController extends BaseController
                 ->join('TAB_CARRERAS c', 'c.ID_CARRERA = e.ID_CARRERA')
                 ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = pp.ID_INSTITUCION_CONVENIO')
                 ->where('pp.ID_DOCENTE_TUTOR', $idDocente)
-                ->get()
-                ->getResultArray();
-
-            $serviciosSc = $this->db->table('TAB_SERVICIO_COMUNITARIO sc')
-                ->select('sc.*, CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as ESTUDIANTE_NOMBRE, c.NOMBRE as CARRERA, ic.NOMBRE as INSTITUCION_NOMBRE')
-                ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = sc.ID_ESTUDIANTE')
-                ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
-                ->join('TAB_CARRERAS c', 'c.ID_CARRERA = e.ID_CARRERA')
-                ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = sc.ID_INSTITUCION_CONVENIO')
-                ->where('sc.ID_DOCENTE_TUTOR', $idDocente)
                 ->get()
                 ->getResultArray();
 
@@ -433,39 +492,23 @@ class PracticasDocenteController extends BaseController
                     'CUMPLIMIENTO_DESCRIPCION' => $cumpl['descripcion'],
                 ];
             }
-            foreach ($serviciosSc as $s) {
-                $horasCum = $this->calcularHorasCumplidasPractica($s['ID_SERVICIO_COMUNITARIO'], 'servicio');
-                $horasTot = (float) ($s['HORAS_SERVICIO'] ?? 0);
-                $cumpl = $this->evaluarRitmoCumplimiento(
-                    $s['FECHA_INICIO'] ?? null,
-                    $s['FECHA_FIN'] ?? null,
-                    $horasTot,
-                    $horasCum,
-                    $s['ESTADO_SERVICIO'] ?? null
-                );
-                $estudiantes[] = [
-                    'ID_ESTUDIANTE' => $s['ID_ESTUDIANTE'],
-                    'NOMBRE_COMPLETO' => $s['ESTUDIANTE_NOMBRE'],
-                    'CARRERA' => $s['CARRERA'],
-                    'INSTITUCION_NOMBRE' => $s['INSTITUCION_NOMBRE'],
-                    'FECHA_INICIO' => $s['FECHA_INICIO'],
-                    'FECHA_FIN' => $s['FECHA_FIN'],
-                    'HORAS_TOTALES' => $horasTot,
-                    'ESTADO_PRACTICA' => $s['ESTADO_SERVICIO'],
-                    'TIPO' => 'Servicio Comunitario',
-                    'HORAS_CUMPLIDAS' => $horasCum,
-                    'PORCENTAJE_PROGRESO' => $this->calcularProgresoPractica($s['ID_SERVICIO_COMUNITARIO'], $horasTot, 'servicio'),
-                    'ULTIMA_ACTIVIDAD' => $this->obtenerUltimaActividadPractica($s['ID_SERVICIO_COMUNITARIO'], 'servicio'),
-                    'CUMPLIMIENTO_ETIQUETA' => $cumpl['etiqueta'],
-                    'CUMPLIMIENTO_NIVEL' => $cumpl['nivel'],
-                    'CUMPLIMIENTO_DESCRIPCION' => $cumpl['descripcion'],
-                ];
-            }
             return $estudiantes;
         } catch (\Exception $e) {
             log_message('error', 'Error al obtener estudiantes asignados: ' . $e->getMessage());
             return [];
         }
+    }
+
+    private function obtenerEstudiantesAsignados($idDocente)
+    {
+        if ($idDocente <= 0) {
+            return [];
+        }
+
+        $practicas = $this->obtenerEstudiantesAsignadosPorModalidad($idDocente, 'preprofesional');
+        $servicios = $this->obtenerEstudiantesAsignadosPorModalidad($idDocente, 'servicio');
+
+        return array_merge($practicas, $servicios);
     }
 
     private function obtenerEstudianteAsignado($estudianteId, $idInstructor)

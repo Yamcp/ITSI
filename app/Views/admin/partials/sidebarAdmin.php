@@ -4,7 +4,7 @@
         <div class="brand-logo d-flex align-items-center justify-content-between">
             <a href="<?= base_url('admin/dashboard') ?>" class="text-nowrap logo-img">
                 <img src="<?= base_url('sistema/assets/images/logos/logo.png') ?>" alt="Logo" style="width: 30px; height: auto;" />
-                <span class="ms-2 fw-bold" style="font-size: 1.3rem; color: #000;">Administrador</span>
+                <span class="ms-2 fw-bold" style="font-size: 1.3rem; color: #000;">Dep. Vinculación</span>
             </a>
             <div class="close-btn d-xl-none d-block sidebartoggler cursor-pointer" id="sidebarCollapse">
                 <i class="fa-solid fa-xmark fs-8"></i>

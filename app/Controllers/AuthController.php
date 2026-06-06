@@ -250,6 +250,14 @@ class AuthController extends BaseController
             return redirect()->to('auth/restablecer-contrasena?token=' . urlencode($token))->withInput();
         }
 
+        if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&_-])[A-Za-z\d@$!%*?&_-]/', $password)) {
+            $session->setFlashdata(
+                'error',
+                'La nueva contraseña debe contener al menos una mayúscula, una minúscula, un número y un carácter especial.'
+            );
+            return redirect()->to('auth/restablecer-contrasena?token=' . urlencode($token))->withInput();
+        }
+
         if ($password !== $passwordConfirmar) {
             $session->setFlashdata('error', 'Las contraseñas no coinciden.');
             return redirect()->to('auth/restablecer-contrasena?token=' . urlencode($token))->withInput();

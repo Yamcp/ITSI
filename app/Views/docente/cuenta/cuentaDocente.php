@@ -348,7 +348,7 @@
             uppercase: /[A-Z]/.test(password),
             lowercase: /[a-z]/.test(password),
             number: /\d/.test(password),
-            special: /[@$!%*?&]/.test(password)
+            special: /[@$!%*?&_-]/.test(password)
         };
 
         // Actualizar iconos de requisitos

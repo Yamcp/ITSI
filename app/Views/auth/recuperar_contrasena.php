@@ -20,7 +20,8 @@ $tituloPagina = $esRestablecer ? 'Nueva contraseña' : 'Recuperar contraseña';
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
 
         body::before {
@@ -31,7 +32,7 @@ $tituloPagina = $esRestablecer ? 'Nueva contraseña' : 'Recuperar contraseña';
             width: 100%;
             height: 100%;
             z-index: -1;
-            background-image: url('<?= base_url('login/assets/img/fondo_login.jpg') ?>');
+            background-image: url('<?= base_url(config('Auth')->loginBackgroundImage) ?>');
             background-size: cover;
             background-position: center;
             filter: blur(8px);
@@ -41,10 +42,19 @@ $tituloPagina = $esRestablecer ? 'Nueva contraseña' : 'Recuperar contraseña';
         .login-card {
             border: none;
             border-radius: 1rem;
-            box-shadow: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.1);
+            box-shadow: 0 1rem 2.5rem rgba(15, 23, 42, 0.12);
             animation: fadeInDown 0.7s;
-            max-width: 400px;
+            max-width: 420px;
             margin: 2rem auto;
+            background: rgba(255, 255, 255, 0.98);
+            overflow: hidden;
+        }
+
+        .login-card::before {
+            content: '';
+            display: block;
+            height: 4px;
+            background: linear-gradient(90deg, #1e3a8a, #3b82f6, #60a5fa);
         }
 
         @keyframes fadeInDown {
@@ -64,8 +74,18 @@ $tituloPagina = $esRestablecer ? 'Nueva contraseña' : 'Recuperar contraseña';
             margin-bottom: 1rem;
         }
 
+        .form-floating>.form-control {
+            border-radius: 0.5rem;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .form-floating>.form-control:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.2);
+        }
+
         .form-floating>.form-control:focus~label {
-            color: #0d6efd;
+            color: #2563eb;
         }
 
         .card-body {
@@ -84,6 +104,108 @@ $tituloPagina = $esRestablecer ? 'Nueva contraseña' : 'Recuperar contraseña';
             margin-bottom: 1.5rem;
         }
 
+        .login-card--restablecer {
+            max-width: 720px;
+        }
+
+        .restablecer-form-col {
+            padding-right: 0.5rem;
+        }
+
+        .restablecer-requisitos-col {
+            padding-left: 0.5rem;
+        }
+
+        .password-requirements {
+            border: none;
+            box-shadow: none;
+            height: 100%;
+        }
+
+        .password-requirements .card-header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            border: none;
+            border-radius: 0.375rem 0.375rem 0 0;
+        }
+
+        .password-requirements .progress {
+            border-radius: 0.375rem;
+            background-color: #e9ecef;
+        }
+
+        .password-requirements .progress-bar {
+            border-radius: 0.375rem;
+            transition: width 0.3s ease;
+        }
+
+        .toggle-password {
+            color: #6c757d;
+            transition: color 0.3s ease;
+        }
+
+        .toggle-password:hover {
+            color: #2563eb;
+        }
+
+        .toggle-password:focus {
+            outline: none;
+            box-shadow: none;
+        }
+
+        .toggle-password-icon {
+            font-size: 1.1rem;
+        }
+
+        .form-floating.position-relative .form-control {
+            padding-right: 3rem;
+        }
+
+        .btn-auth {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn-auth:hover:not(:disabled) {
+            background: linear-gradient(135deg, #1e40af 0%, #2563eb 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.35);
+        }
+
+        .btn-auth:disabled {
+            opacity: 0.85;
+        }
+
+        .back-link {
+            color: #2563eb;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .back-link:hover {
+            color: #1d4ed8;
+        }
+
+        .auth-hint {
+            font-size: 0.875rem;
+            color: #6c757d;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 767px) {
+            .login-card--restablecer {
+                max-width: 95vw;
+            }
+
+            .restablecer-form-col,
+            .restablecer-requisitos-col {
+                padding-left: 0;
+                padding-right: 0;
+            }
+        }
+
         @media (max-width: 576px) {
             .login-card {
                 max-width: 95vw;
@@ -91,7 +213,7 @@ $tituloPagina = $esRestablecer ? 'Nueva contraseña' : 'Recuperar contraseña';
             }
 
             .card-body {
-                padding: 1rem;
+                padding: 1.25rem;
             }
         }
     </style>
@@ -113,16 +235,16 @@ $tituloPagina = $esRestablecer ? 'Nueva contraseña' : 'Recuperar contraseña';
     </div>
 
     <div class="container d-flex align-items-center justify-content-center min-vh-100">
-        <div class="login-card card w-100">
+        <div class="login-card card w-100<?= $esRestablecer ? ' login-card--restablecer' : '' ?>">
             <div class="card-body">
                 <div class="text-center mb-3">
                     <img src="<?= base_url('login/assets/img/logo_instituto.png') ?>" alt="Logo Instituto" class="instituto-logo mb-2">
                     <h1 class="login-title"><?= $tituloPagina ?></h1>
                     <div class="login-subtitle">
                         <?php if ($esRestablecer) : ?>
-                            Ingresa tu nueva contraseña (mínimo 8 caracteres)
+                            Ingresa tu nueva contraseña cumpliendo los requisitos de seguridad
                         <?php else : ?>
-                            Ingresa tu correo electrónico, cédula o usuario. Disponible para coordinadores, docentes y estudiantes.
+                            Ingresa tu correo electrónico o usuario para recibir las instrucciones
                         <?php endif; ?>
                     </div>
                 </div>
@@ -139,44 +261,101 @@ $tituloPagina = $esRestablecer ? 'Nueva contraseña' : 'Recuperar contraseña';
                     <form action="<?= site_url('auth/restablecer-contrasena') ?>" method="post" id="formRestablecer" autocomplete="off" novalidate>
                         <?= csrf_field() ?>
                         <input type="hidden" name="token" value="<?= esc($token) ?>">
-                        <div class="form-floating mb-3">
-                            <input type="password" class="form-control" id="password" name="password" placeholder="Nueva contraseña" required minlength="8">
-                            <label for="password"><i class="bi bi-lock-fill me-2"></i>Nueva contraseña</label>
-                            <div class="invalid-feedback">Mínimo 8 caracteres.</div>
-                        </div>
-                        <div class="form-floating mb-4">
-                            <input type="password" class="form-control" id="password_confirmar" name="password_confirmar" placeholder="Confirmar contraseña" required minlength="8">
-                            <label for="password_confirmar"><i class="bi bi-lock-fill me-2"></i>Confirmar contraseña</label>
-                            <div class="invalid-feedback">Las contraseñas deben coincidir.</div>
-                        </div>
-                        <div class="d-grid mb-3">
-                            <button type="submit" class="btn btn-primary text-uppercase fw-bold">
-                                <i class="bi bi-check-lg me-2"></i>Guardar contraseña
-                            </button>
-                        </div>
-                        <div class="text-center">
-                            <a href="<?= site_url('/') ?>" class="text-decoration-none small"><i class="bi bi-arrow-left me-1"></i>Volver al inicio de sesión</a>
+                        <div class="row g-3 align-items-stretch">
+                            <div class="col-12 col-md-7 restablecer-form-col">
+                                <div class="form-floating mb-3 position-relative">
+                                    <input type="password" class="form-control" id="password" name="password" placeholder="Nueva contraseña" required minlength="8">
+                                    <label for="password"><i class="bi bi-lock-fill me-2"></i>Nueva contraseña</label>
+                                    <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y me-3 toggle-password"
+                                        data-target="password" aria-label="Mostrar u ocultar contraseña"
+                                        style="z-index: 10; border: none; background: none; padding: 0;">
+                                        <i class="bi bi-eye toggle-password-icon"></i>
+                                    </button>
+                                    <div class="invalid-feedback">La contraseña no cumple los requisitos de seguridad.</div>
+                                </div>
+                                <div class="form-floating mb-4 position-relative">
+                                    <input type="password" class="form-control" id="password_confirmar" name="password_confirmar" placeholder="Confirmar contraseña" required minlength="8">
+                                    <label for="password_confirmar"><i class="bi bi-lock-fill me-2"></i>Confirmar contraseña</label>
+                                    <button type="button" class="btn btn-link position-absolute end-0 top-50 translate-middle-y me-3 toggle-password"
+                                        data-target="password_confirmar" aria-label="Mostrar u ocultar confirmación de contraseña"
+                                        style="z-index: 10; border: none; background: none; padding: 0;">
+                                        <i class="bi bi-eye toggle-password-icon"></i>
+                                    </button>
+                                    <div class="invalid-feedback">Las contraseñas deben coincidir.</div>
+                                </div>
+                                <div class="d-grid mb-3">
+                                    <button type="submit" class="btn btn-primary btn-auth text-uppercase fw-bold" id="btnRestablecer">
+                                        <span id="btnRestablecerText"><i class="bi bi-check-lg me-2"></i>Guardar contraseña</span>
+                                        <span id="btnRestablecerSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                    </button>
+                                </div>
+                                <div class="text-center text-md-start">
+                                    <a href="<?= site_url('/') ?>" class="text-decoration-none small back-link"><i class="bi bi-arrow-left me-1"></i>Volver al inicio de sesión</a>
+                                </div>
+                            </div>
+
+                            <div class="col-12 col-md-5 restablecer-requisitos-col">
+                                <div class="password-requirements card bg-light h-100">
+                                    <div class="card-header py-2">
+                                        <h6 class="mb-0 text-white">
+                                            <i class="bi bi-list-check me-2"></i>Requisitos de Contraseña
+                                        </h6>
+                                    </div>
+                                    <div class="card-body py-3">
+                                        <ul class="list-unstyled mb-0 small">
+                                            <li class="mb-2">
+                                                <i class="bi bi-check-lg text-success me-2" id="req_length"></i>Mínimo 8 caracteres
+                                            </li>
+                                            <li class="mb-2">
+                                                <i class="bi bi-check-lg text-success me-2" id="req_uppercase"></i>Al menos una mayúscula
+                                            </li>
+                                            <li class="mb-2">
+                                                <i class="bi bi-check-lg text-success me-2" id="req_lowercase"></i>Al menos una minúscula
+                                            </li>
+                                            <li class="mb-2">
+                                                <i class="bi bi-check-lg text-success me-2" id="req_number"></i>Al menos un número
+                                            </li>
+                                            <li class="mb-2">
+                                                <i class="bi bi-check-lg text-success me-2" id="req_special"></i>Al menos un carácter especial (@$!%*?&_-)
+                                            </li>
+                                        </ul>
+                                        <hr class="my-2">
+                                        <div class="text-center">
+                                            <div class="progress mb-2" style="height: 8px;">
+                                                <div class="progress-bar" id="password_strength" role="progressbar" style="width: 0%"></div>
+                                            </div>
+                                            <small class="text-muted" id="strength_text">Fuerza de la contraseña</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </form>
                 <?php else : ?>
                     <!-- Formulario: Solicitar recuperación -->
                     <form action="<?= site_url('auth/solicitar-recuperacion') ?>" method="post" id="formRecuperar" autocomplete="off" novalidate>
                         <?= csrf_field() ?>
-                        <div class="form-floating mb-4">
+                        <div class="form-floating mb-3">
                             <input type="text" class="form-control" id="email_o_usuario" name="email_o_usuario"
                                 placeholder="Correo o usuario" required
                                 value="<?= esc(old('email_o_usuario')) ?>"
+                                autocomplete="username"
                                 autofocus>
-                            <label for="email_o_usuario"><i class="bi bi-person-badge me-2"></i>Correo, cédula o usuario</label>
+                            <label for="email_o_usuario"><i class="bi bi-person-badge me-2"></i>Correo o usuario</label>
                             <div class="invalid-feedback">Este campo es obligatorio.</div>
                         </div>
+                        <p class="auth-hint mb-4">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Si tu cuenta está registrada, recibirás un correo con el enlace para restablecer tu contraseña.
+                        </p>
                         <div class="d-grid mb-3">
-                            <button type="submit" class="btn btn-primary text-uppercase fw-bold py-2">
-                                <i class="bi bi-send me-2"></i>Enviar instrucciones
+                            <button type="submit" class="btn btn-primary btn-auth text-uppercase fw-bold" id="btnRecuperar">
+                                <span id="btnRecuperarText"><i class="bi bi-send me-2"></i>Enviar instrucciones</span>
+                                <span id="btnRecuperarSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
                             </button>
                         </div>
                         <div class="text-center">
-                            <a href="<?= site_url('/') ?>" class="text-decoration-none small">
+                            <a href="<?= site_url('/') ?>" class="text-decoration-none small back-link">
                                 <i class="bi bi-arrow-left me-1"></i>Volver al inicio de sesión
                             </a>
                         </div>
@@ -189,27 +368,154 @@ $tituloPagina = $esRestablecer ? 'Nueva contraseña' : 'Recuperar contraseña';
         </div>
     </div>
     <script src="<?= base_url('login/assets/js/bootstrap.bundle.min.js') ?>"></script>
+    <script>
+        (function() {
+            var successToast = document.querySelector('.toast.text-bg-success');
+            if (successToast) {
+                setTimeout(function() {
+                    var toast = bootstrap.Toast.getOrCreateInstance(successToast, { delay: 5000 });
+                    toast.hide();
+                }, 5000);
+            }
+        })();
+
+        function mostrarSpinnerEnvio(btnId, textId, spinnerId) {
+            var btn = document.getElementById(btnId);
+            var text = document.getElementById(textId);
+            var spinner = document.getElementById(spinnerId);
+            if (!btn || !text || !spinner) return;
+            btn.disabled = true;
+            text.classList.add('d-none');
+            spinner.classList.remove('d-none');
+        }
+    </script>
     <?php if ($esRestablecer) : ?>
         <script>
-            document.getElementById('formRestablecer').addEventListener('submit', function(e) {
-                var p = document.getElementById('password').value;
-                var c = document.getElementById('password_confirmar').value;
-                if (c && p !== c) {
-                    e.preventDefault();
-                    document.getElementById('password_confirmar').setCustomValidity('Las contraseñas no coinciden');
-                } else {
-                    document.getElementById('password_confirmar').setCustomValidity('');
+            (function() {
+                var passwordInput = document.getElementById('password');
+                var confirmInput = document.getElementById('password_confirmar');
+                var form = document.getElementById('formRestablecer');
+
+                document.querySelectorAll('.toggle-password').forEach(function(btn) {
+                    btn.addEventListener('click', function() {
+                        var input = document.getElementById(this.dataset.target);
+                        var icon = this.querySelector('.toggle-password-icon');
+                        if (!input || !icon) return;
+
+                        if (input.type === 'password') {
+                            input.type = 'text';
+                            icon.classList.replace('bi-eye', 'bi-eye-slash');
+                        } else {
+                            input.type = 'password';
+                            icon.classList.replace('bi-eye-slash', 'bi-eye');
+                        }
+                    });
+                });
+
+                function validatePassword(password) {
+                    var requirements = {
+                        length: password.length >= 8,
+                        uppercase: /[A-Z]/.test(password),
+                        lowercase: /[a-z]/.test(password),
+                        number: /\d/.test(password),
+                        special: /[@$!%*?&_-]/.test(password)
+                    };
+
+                    document.getElementById('req_length').className = requirements.length
+                        ? 'bi bi-check-lg text-success me-2' : 'bi bi-x-lg text-danger me-2';
+                    document.getElementById('req_uppercase').className = requirements.uppercase
+                        ? 'bi bi-check-lg text-success me-2' : 'bi bi-x-lg text-danger me-2';
+                    document.getElementById('req_lowercase').className = requirements.lowercase
+                        ? 'bi bi-check-lg text-success me-2' : 'bi bi-x-lg text-danger me-2';
+                    document.getElementById('req_number').className = requirements.number
+                        ? 'bi bi-check-lg text-success me-2' : 'bi bi-x-lg text-danger me-2';
+                    document.getElementById('req_special').className = requirements.special
+                        ? 'bi bi-check-lg text-success me-2' : 'bi bi-x-lg text-danger me-2';
+
+                    var strength = Object.values(requirements).filter(Boolean).length;
+                    var strengthBar = document.getElementById('password_strength');
+                    var strengthText = document.getElementById('strength_text');
+                    var strengthPercentage = (strength / 5) * 100;
+                    var strengthClass = '';
+                    var strengthDescription = 'Fuerza de la contraseña';
+
+                    if (strengthPercentage <= 20) {
+                        strengthClass = 'bg-danger';
+                        strengthDescription = 'Muy débil';
+                    } else if (strengthPercentage <= 40) {
+                        strengthClass = 'bg-warning';
+                        strengthDescription = 'Débil';
+                    } else if (strengthPercentage <= 60) {
+                        strengthClass = 'bg-info';
+                        strengthDescription = 'Media';
+                    } else if (strengthPercentage <= 80) {
+                        strengthClass = 'bg-primary';
+                        strengthDescription = 'Fuerte';
+                    } else {
+                        strengthClass = 'bg-success';
+                        strengthDescription = 'Muy fuerte';
+                    }
+
+                    strengthBar.style.width = strengthPercentage + '%';
+                    strengthBar.className = 'progress-bar ' + strengthClass;
+                    strengthText.textContent = strengthDescription;
+
+                    return requirements;
                 }
-                if (!this.checkValidity()) {
-                    e.preventDefault();
-                    e.stopPropagation();
+
+                function passwordIsValid(password) {
+                    var requirements = validatePassword(password);
+                    return Object.values(requirements).every(Boolean);
                 }
-                this.classList.add('was-validated');
-            });
-            document.getElementById('password_confirmar').addEventListener('input', function() {
-                if (this.value !== document.getElementById('password').value) this.setCustomValidity('Las contraseñas no coinciden');
-                else this.setCustomValidity('');
-            });
+
+                function validatePasswordConfirmation() {
+                    var password = passwordInput.value;
+                    var confirmar = confirmInput.value;
+
+                    if (confirmar && password !== confirmar) {
+                        confirmInput.setCustomValidity('Las contraseñas no coinciden');
+                    } else {
+                        confirmInput.setCustomValidity('');
+                    }
+                }
+
+                passwordInput.addEventListener('input', function() {
+                    var valid = passwordIsValid(this.value);
+                    if (!valid && this.value.length > 0) {
+                        this.setCustomValidity('La contraseña no cumple los requisitos de seguridad.');
+                    } else {
+                        this.setCustomValidity('');
+                    }
+                    validatePasswordConfirmation();
+                });
+
+                confirmInput.addEventListener('input', validatePasswordConfirmation);
+
+                form.addEventListener('submit', function(e) {
+                    var p = passwordInput.value;
+                    var c = confirmInput.value;
+
+                    if (!passwordIsValid(p)) {
+                        passwordInput.setCustomValidity('La contraseña no cumple los requisitos de seguridad.');
+                    } else {
+                        passwordInput.setCustomValidity('');
+                    }
+
+                    if (c && p !== c) {
+                        confirmInput.setCustomValidity('Las contraseñas no coinciden');
+                    } else {
+                        confirmInput.setCustomValidity('');
+                    }
+
+                    if (!this.checkValidity()) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                    } else {
+                        mostrarSpinnerEnvio('btnRestablecer', 'btnRestablecerText', 'btnRestablecerSpinner');
+                    }
+                    this.classList.add('was-validated');
+                });
+            })();
         </script>
     <?php else : ?>
         <script>
@@ -217,6 +523,8 @@ $tituloPagina = $esRestablecer ? 'Nueva contraseña' : 'Recuperar contraseña';
                 if (!this.checkValidity()) {
                     e.preventDefault();
                     e.stopPropagation();
+                } else {
+                    mostrarSpinnerEnvio('btnRecuperar', 'btnRecuperarText', 'btnRecuperarSpinner');
                 }
                 this.classList.add('was-validated');
             });
