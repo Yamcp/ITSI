@@ -10,9 +10,17 @@ class AuthController extends BaseController
 {
     public function index()
     {
-        // Si el usuario ya está logueado, redirigir según su rol
         if (session()->get('logged_in')) {
-            return $this->redirigirSegunRol(session()->get('rol'));
+            $usuarioModel = new UsuariosModel();
+            $rolData = $usuarioModel->obtenerRolActivoPorUsuarioId((int) session()->get('id_usuario'));
+            if (!$rolData) {
+                session()->setFlashdata(
+                    'error',
+                    'Su cuenta no tiene un rol asignado. Contacte al administrador o coordinador para solicitar acceso al sistema.'
+                );
+                return $this->cerrarSesion();
+            }
+            return $this->redirigirSegunRol((int) $rolData['rol']);
         }
         
         // Verificar si existe cookie de recordarme
@@ -291,10 +299,18 @@ class AuthController extends BaseController
         if ($resultado['status']) {
             $userData = $resultado['usuario'];
             $requiereCambioPassword = !empty($userData['requiere_cambio_password']);
-            
-            // Verificar que el usuario esté activo
+            $rol = (int) ($userData['rol'] ?? 0);
+
             if ($userData['estado'] != '1') {
                 $session->setFlashdata('error', 'Usuario inactivo. Contacte al coordinador');
+                return redirect()->to('/')->withInput();
+            }
+
+            if (!$this->rolEsValido($rol)) {
+                $session->setFlashdata(
+                    'error',
+                    'Su cuenta no tiene un rol válido asignado. Contacte al administrador o coordinador.'
+                );
                 return redirect()->to('/')->withInput();
             }
             
@@ -303,7 +319,7 @@ class AuthController extends BaseController
                 'usuario' => $userData['username'],
                 'nombre' => $userData['nombre'],
                 'apellido' => $userData['apellido'],
-                'rol' => (int)$userData['rol'], // Asegurar que sea entero
+                'rol' => $rol,
                 'estado' => $userData['estado'],
                 'foto_perfil' => $userData['foto_perfil'] ?? null,
                 'logged_in' => TRUE,
@@ -406,12 +422,20 @@ class AuthController extends BaseController
             }
 
             // Si no requiere cambio, redirigir según el rol del usuario
-            return $this->redirigirSegunRol((int)$userData['rol']);
+            return $this->redirigirSegunRol($rol);
             
         } else {
-            $session->setFlashdata('error', 'Usuario o contraseña incorrectos');
+            $session->setFlashdata('error', $resultado['mensaje'] ?? 'Usuario o contraseña incorrectos');
             return redirect()->to('/')->withInput();
         }
+    }
+
+    /**
+     * Roles habilitados para acceder al sistema.
+     */
+    private function rolEsValido($rol): bool
+    {
+        return in_array((int) $rol, [1, 2, 3, 4], true);
     }
 
     /**
@@ -429,8 +453,10 @@ class AuthController extends BaseController
             case 4: // Estudiante
                 return redirect()->to('/estudiante/dashboard');            
             default:
-                // Si el rol no está definido, cerrar sesión por seguridad
-                session()->setFlashdata('msg', 'Rol de usuario no válido');
+                session()->setFlashdata(
+                    'error',
+                    'Su cuenta no tiene un rol válido asignado. Contacte al administrador o coordinador.'
+                );
                 return $this->cerrarSesion();
         }
     }
@@ -438,7 +464,8 @@ class AuthController extends BaseController
     public function cerrarSesion()
     {
         $session = session();
-        
+        $mensajeError = $session->getFlashdata('error');
+
         // Log para debugging
         log_message('info', 'Iniciando proceso de cierre de sesión para usuario: ' . ($session->get('usuario') ?? 'desconocido'));
         
@@ -472,10 +499,12 @@ class AuthController extends BaseController
         $this->response->deleteCookie('ci_session');
         
         log_message('info', 'Sesión cerrada exitosamente');
-        
-        // Redirigir al login con mensaje
-        return redirect()->to('/')
-            ->with('success', 'Sesión cerrada correctamente');
+
+        if ($mensajeError) {
+            return redirect()->to('/')->with('error', $mensajeError);
+        }
+
+        return redirect()->to('/')->with('success', 'Sesión cerrada correctamente');
     }
 
     // Método para verificar si el usuario está logueado

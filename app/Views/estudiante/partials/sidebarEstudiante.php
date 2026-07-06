@@ -1,3 +1,12 @@
+<?php
+$uri = service('uri');
+$currentPath = '/' . trim($uri->getPath(), '/');
+$isActiveRoute = function (string $route) use ($currentPath): bool {
+    $route = '/' . trim($route, '/');
+    return $currentPath === $route || (str_starts_with($currentPath, $route . '/'));
+};
+$esConveniosActivo = $isActiveRoute('estudiante/convenios');
+?>
 <!-- Sidebar Start -->
 <aside class="left-sidebar">
     <div>
@@ -11,6 +20,15 @@
             </div>
         </div>
         <nav class="sidebar-nav scroll-sidebar" data-simplebar="" style="margin-top: -29px;">
+            <style>
+                .sidebar-item.active > .sidebar-link,
+                .sidebar-link.active {
+                    background: rgba(13, 110, 253, 0.12);
+                    color: #0d6efd;
+                    font-weight: 600;
+                    border-radius: 0.5rem;
+                }
+            </style>
             <ul id="sidebarnav">
                 <li class="nav-small-cap">
                     <i class="fa-solid fa-house nav-small-cap-icon fs-6"></i>
@@ -36,8 +54,8 @@
                         <span class="hide-menu">Cursos y evaluaciones</span>
                     </a>
                 </li>
-                <li class="sidebar-item">
-                    <a class="sidebar-link" href="<?= base_url('estudiante/convenios') ?>" aria-expanded="false">
+                <li class="sidebar-item<?= $esConveniosActivo ? ' active' : '' ?>">
+                    <a class="sidebar-link<?= $esConveniosActivo ? ' active' : '' ?>" href="<?= base_url('estudiante/convenios') ?>" aria-expanded="false"<?= $esConveniosActivo ? ' aria-current="page"' : '' ?>>
                         <span>
                             <i class="fa-solid fa-handshake fs-6"></i>
                         </span>

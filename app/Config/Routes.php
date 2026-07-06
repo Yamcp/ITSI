@@ -22,7 +22,7 @@ $routes->get('vinculacion/convenios', function() {
 
 //----------------------------------------------------------------------------------------------------------------------
 // API PERIODOS ACADÉMICOS (accesible para cualquier usuario autenticado; cambios solo coordinador)
-$routes->group('api/periodos', ['namespace' => 'App\Controllers'], function ($routes) {
+$routes->group('api/periodos', ['namespace' => 'App\Controllers', 'filter' => 'auth_rol'], function ($routes) {
     $routes->get('/', 'PeriodoAcademicoController::listarPeriodos');
     $routes->post('cambiar', 'PeriodoAcademicoController::cambiarPeriodo');
     $routes->post('restaurar', 'PeriodoAcademicoController::restaurarPeriodoActual');
@@ -31,7 +31,7 @@ $routes->group('api/periodos', ['namespace' => 'App\Controllers'], function ($ro
 
 //----------------------------------------------------------------------------------------------------------------------
 //RUTAS ADMINISTRADOR
-$routes->group('admin', ['namespace' => 'App\Controllers\admin'], function ($routes) {
+$routes->group('admin', ['namespace' => 'App\Controllers\admin', 'filter' => 'auth_rol'], function ($routes) {
     // Rutas principales del dashboard y gestión
     $routes->get('dashboard', 'DashboardAdminController::index');                   // Dashboard del administrador
     $routes->get('estudiantes', 'EstudiantesAdminController::index');               // Gestión de estudiantes (admin)
@@ -57,11 +57,17 @@ $routes->group('admin', ['namespace' => 'App\Controllers\admin'], function ($rou
     $routes->post('backup/filtrar', 'BackupAdminController::filtrar');              // Aplicar filtros
     $routes->get('backup/estadisticas', 'BackupAdminController::estadisticas');     // Obtener estadísticas
 
+    // Rutas para OneDrive
+    $routes->get('onedrive/connect', 'OneDriveController::connect');          // Iniciar autenticación con Microsoft
+    $routes->get('onedrive/callback', 'OneDriveController::callback');        // Callback de autenticación desde Microsoft
+    $routes->get('onedrive/disconnect', 'OneDriveController::disconnect');    // Desconectar de OneDrive
+    $routes->get('onedrive/check-connection', 'OneDriveController::checkConnection'); // Verificar estado de conexión
+
 });
 
 //----------------------------------------------------------------------------------------------------------------------
 // RUTAS COORDINACIÓN / VINCULACIÓN
-$routes->group('coord', ['namespace' => 'App\Controllers\coord'], function ($routes) {
+$routes->group('coord', ['namespace' => 'App\Controllers\coord', 'filter' => 'auth_rol'], function ($routes) {
      $routes->get('dashboard', 'DashboardCoordController::index');     // Permitir GET
     $routes->post('dashboard', 'DashboardCoordController::index');    // El dashboard del coordinador
     
@@ -211,7 +217,7 @@ $routes->group('coord', ['namespace' => 'App\Controllers\coord'], function ($rou
 
 //----------------------------------------------------------------------------------------------------------------------
 //RUTAS DOCENTE
-$routes->group('docente', ['namespace' => 'App\Controllers\docente'], function ($routes) {
+$routes->group('docente', ['namespace' => 'App\Controllers\docente', 'filter' => 'auth_rol'], function ($routes) {
      $routes->get('dashboard', 'DashboardDocenteController::index');     // Permitir GET
     $routes->post('dashboard', 'DashboardDocenteController::index');    // El dashboard del docente
     $routes->get('perfil', 'PerfilDocenteController::index');          // Ver el perfil del docente
@@ -272,7 +278,7 @@ $routes->group('docente', ['namespace' => 'App\Controllers\docente'], function (
 
 //----------------------------------------------------------------------------------------------------------------------
 //RUTAS ESTUDIANTE
-$routes->group('estudiante', ['namespace' => 'App\Controllers\estudiante', 'filter' => 'estudiante_asistencia'], function ($routes) {
+$routes->group('estudiante', ['namespace' => 'App\Controllers\estudiante', 'filter' => ['auth_rol', 'estudiante_asistencia']], function ($routes) {
      $routes->get('dashboard', 'DashboardEstudianteController::index');     // Permitir GET
     $routes->post('dashboard', 'DashboardEstudianteController::index');    // El dashboard del estudiante
     $routes->get('perfil', 'PerfilEstudianteController::index');          // Ver el perfil del estudiante

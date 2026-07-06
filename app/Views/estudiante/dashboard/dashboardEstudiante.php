@@ -49,6 +49,32 @@
         border-radius: 999px;
     }
 
+    .dashboard-header .badge-carrera {
+        background: #ede9fe;
+        color: #5b21b6;
+        font-weight: 600;
+        padding: 0.45rem 0.85rem;
+        border-radius: 999px;
+        font-size: 0.85rem;
+        max-width: 220px;
+        white-space: normal;
+        text-align: left;
+        line-height: 1.3;
+    }
+
+    .dashboard-header .badge-carrera--empty {
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    .dashboard-header .badge-carrera-label {
+        font-weight: 700;
+    }
+
+    .dashboard-header .dashboard-badges {
+        align-items: stretch;
+    }
+
     .dashboard-header .date-time-box {
         background: #fff;
         border-radius: 12px;
@@ -296,8 +322,15 @@
                 <p class="subtitle-dash mb-0">Bienvenido al Sistema del Departamento de Vinculación</p>
                 <?= $this->include('partials/periodo_selector') ?>
             </div>
-            <div class="d-flex flex-wrap align-items-center gap-2">
-                <span class="badge badge-rol">Estudiante</span>
+            <div class="d-flex flex-wrap align-items-stretch gap-2 dashboard-badges">
+                <div class="d-flex flex-column gap-2">
+                    <span class="badge badge-rol">Estudiante</span>
+                    <span class="badge badge-carrera<?= empty($carrera_nombre) ? ' badge-carrera--empty' : '' ?>">
+                        <i class="fas fa-graduation-cap me-1"></i>
+                        <span class="badge-carrera-label">Carrera:</span>
+                        <?= !empty($carrera_nombre) ? esc($carrera_nombre) : 'Sin asignar' ?>
+                    </span>
+                </div>
                 <div class="date-time-box d-flex flex-column align-items-end">
                     <span><i class="fas fa-calendar-alt me-1"></i><?= date('d/m/Y') ?></span>
                     <span><i class="fas fa-clock me-1"></i><span id="currentTime"></span></span>

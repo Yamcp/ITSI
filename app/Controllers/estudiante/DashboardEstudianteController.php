@@ -38,17 +38,22 @@ class DashboardEstudianteController extends BaseController
         if ($usuario) {
             $idDatoPersona = $usuario['ID_DATO_PERSONA'] ?? null;
             if ($idDatoPersona) {
-                $estudiante = $this->db->table('TAB_ESTUDIANTES')
-                    ->where('ID_DATO_PERSONA', $idDatoPersona)
+                $estudiante = $this->db->table('TAB_ESTUDIANTES e')
+                    ->select('e.*, c.NOMBRE as CARRERA_NOMBRE')
+                    ->join('TAB_CARRERAS c', 'c.ID_CARRERA = e.ID_CARRERA', 'left')
+                    ->where('e.ID_DATO_PERSONA', $idDatoPersona)
                     ->get()->getRowArray();
             }
         }
+
+        $carreraNombre = trim((string) ($estudiante['CARRERA_NOMBRE'] ?? ''));
 
         // Sin ID_DATO_PERSONA no podemos filtrar prácticas; dejar estadísticas en 0
         if (!$idDatoPersona) {
             $data = array_merge([
                 'title' => 'Dashboard Estudiante - Prácticas Preprofesionales y Servicio Comunitario',
                 'estudiante' => $estudiante,
+                'carrera_nombre' => $carreraNombre !== '' ? $carreraNombre : null,
                 'total_practicas' => 0,
                 'practicas_activas' => 0,
                 'total_actividades' => $this->actividadesModel->countAllResults(),
@@ -134,6 +139,7 @@ class DashboardEstudianteController extends BaseController
         $data = array_merge([
             'title' => 'Dashboard Estudiante - Prácticas Preprofesionales y Servicio Comunitario',
             'estudiante' => $estudiante,
+            'carrera_nombre' => $carreraNombre !== '' ? $carreraNombre : null,
             'total_practicas' => $totalPracticas,
             'practicas_activas' => $practicasActivas,
             'total_actividades' => $this->actividadesModel->countAllResults(),

@@ -10,11 +10,40 @@ class UsuariosModel extends Model
     protected $primaryKey = 'ID_USUARIO';
     protected $allowedFields = ['ID_DATO_PERSONA', 'USUARIO', 'CONTRASENA', 'ESTADO'];
 
+    /**
+     * Obtiene el rol habilitado del usuario directamente desde TAB_ROLES.
+     */
+    public function obtenerRolActivoPorUsuarioId(int $idUsuario): ?array
+    {
+        $query = $this->db->query("
+            SELECT tr.ID_TIPOS_ROLES as rol, tr.ROL as nombre_rol
+            FROM TAB_ROLES r
+            INNER JOIN TAB_TIPOS_ROLES tr ON r.ID_TIPOS_ROLES = tr.ID_TIPOS_ROLES
+            WHERE r.ID_USUARIO = ?
+              AND tr.ID_TIPOS_ROLES IN (1, 2, 3, 4)
+            ORDER BY r.ID_ROL ASC
+            LIMIT 1
+        ", [$idUsuario]);
+
+        $row = $query->getRowArray();
+        if (!$row) {
+            return null;
+        }
+
+        $rol = (int) ($row['rol'] ?? $row['ROL'] ?? 0);
+        if (!in_array($rol, [1, 2, 3, 4], true)) {
+            return null;
+        }
+
+        return [
+            'rol' => $rol,
+            'nombre_rol' => $row['nombre_rol'] ?? $row['NOMBRE_ROL'] ?? null,
+        ];
+    }
+
     public function verificarUsuario($usuario, $contrasena)
     {
         try {
-            // Query para obtener información completa del usuario
-            // Busca tanto por USUARIO como por CEDULA
             $query = $this->db->query("
                 SELECT 
                     u.ID_USUARIO as id,
@@ -25,66 +54,71 @@ class UsuariosModel extends Model
                     dp.APELLIDO as apellido,
                     dp.EMAIL as email,
                     dp.FOTO_URL as foto_perfil,
-                    dp.CEDULA as cedula,
-                    tr.ID_TIPOS_ROLES as rol,
-                    tr.ROL as nombre_rol
+                    dp.CEDULA as cedula
                 FROM TAB_USUARIOS u
                 INNER JOIN TAB_DATOS_PERSONAS dp ON u.ID_DATO_PERSONA = dp.ID_DATO_PERSONA
-                INNER JOIN TAB_ROLES r ON u.ID_USUARIO = r.ID_USUARIO
-                INNER JOIN TAB_TIPOS_ROLES tr ON r.ID_TIPOS_ROLES = tr.ID_TIPOS_ROLES
                 WHERE (u.USUARIO = ? OR dp.CEDULA = ?) AND u.ESTADO = '1'
                 LIMIT 1
             ", [$usuario, $usuario]);
 
             $user = $query->getRow();
 
-            // Verificar contraseña (soporta tanto hash como texto plano para transición)
+            if (!$user) {
+                return [
+                    'status' => false,
+                    'mensaje' => 'Usuario o contraseña incorrectos',
+                    'codigo' => 'credenciales',
+                ];
+            }
+
             $passwordValid = false;
             $requiereCambioPassword = false;
 
-            if ($user) {
-                // Primero intentar verificar como hash seguro
-                if (password_verify($contrasena, $user->password_hash)) {
-                    $passwordValid = true;
-                    $requiereCambioPassword = false;
-                } 
-                // Si falla, verificar como texto plano (usuarios antiguos con contraseña sin hash)
-                else if ($contrasena === $user->password_hash) {
-                    $passwordValid = true;
-                    $requiereCambioPassword = true; // Forzar cambio de contraseña en el siguiente paso
-                    // Opcional: aquí podrías actualizar a hash automáticamente
-                    // $this->actualizarPasswordHash($user->id, $contrasena);
-                }
+            if (password_verify($contrasena, $user->password_hash)) {
+                $passwordValid = true;
+            } elseif ($contrasena === $user->password_hash) {
+                $passwordValid = true;
+                $requiereCambioPassword = true;
             }
-            
-            if ($passwordValid) {
+
+            if (!$passwordValid) {
                 return [
-                    'status' => true,
-                    'usuario' => [
-                        'id' => $user->id,
-                        'username' => $user->username,
-                        'nombre' => $user->nombre,
-                        'apellido' => $user->apellido,
-                        'email' => $user->email,
-                        'foto_perfil' => $user->foto_perfil ?? null,
-                        'rol' => $user->rol,
-                        'nombre_rol' => $user->nombre_rol,
-                        'estado' => $user->estado,
-                        'requiere_cambio_password' => $requiereCambioPassword,
-                    ]
+                    'status' => false,
+                    'mensaje' => 'Usuario o contraseña incorrectos',
+                    'codigo' => 'credenciales',
+                ];
+            }
+
+            $rolData = $this->obtenerRolActivoPorUsuarioId((int) $user->id);
+            if (!$rolData) {
+                return [
+                    'status' => false,
+                    'mensaje' => 'Su cuenta no tiene un rol asignado. Contacte al administrador o coordinador para solicitar acceso al sistema.',
+                    'codigo' => 'sin_rol',
                 ];
             }
 
             return [
-                'status' => false,
-                'mensaje' => 'Credenciales incorrectas'
+                'status' => true,
+                'usuario' => [
+                    'id' => $user->id,
+                    'username' => $user->username,
+                    'nombre' => $user->nombre,
+                    'apellido' => $user->apellido,
+                    'email' => $user->email,
+                    'foto_perfil' => $user->foto_perfil ?? null,
+                    'rol' => $rolData['rol'],
+                    'nombre_rol' => $rolData['nombre_rol'],
+                    'estado' => $user->estado,
+                    'requiere_cambio_password' => $requiereCambioPassword,
+                ],
             ];
-
         } catch (\Exception $e) {
             log_message('error', 'Error en verificarUsuario: ' . $e->getMessage());
             return [
                 'status' => false,
-                'mensaje' => 'Error interno del sistema'
+                'mensaje' => 'Error interno del sistema',
+                'codigo' => 'error',
             ];
         }
     }

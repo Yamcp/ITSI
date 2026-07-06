@@ -135,7 +135,7 @@
                 <div class="stats-card">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h4 class="mb-1"><?= $estadisticas['total'] ?></h4>
+                            <h4 class="mb-1"><?= $estadisticas['total'] ?? 0 ?></h4>
                             <p class="mb-0">Total Notificaciones</p>
                         </div>
                         <i class="fas fa-bell fa-2x opacity-75"></i>
@@ -146,7 +146,7 @@
                 <div class="stats-card" style="background: linear-gradient(135deg, #fd7e14 0%, #ffc107 100%);">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h4 class="mb-1"><?= $estadisticas['no_leidas'] ?></h4>
+                            <h4 class="mb-1"><?= $estadisticas['no_leidas'] ?? 0 ?></h4>
                             <p class="mb-0">Pendientes</p>
                         </div>
                         <i class="fas fa-exclamation-circle fa-2x opacity-75"></i>
@@ -157,7 +157,7 @@
                 <div class="stats-card" style="background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h4 class="mb-1"><?= $estadisticas['leidas'] ?></h4>
+                            <h4 class="mb-1"><?= $estadisticas['leidas'] ?? 0 ?></h4>
                             <p class="mb-0">Revisadas</p>
                         </div>
                         <i class="fas fa-check-circle fa-2x opacity-75"></i>
@@ -279,7 +279,7 @@
 
 <script>
     // Variables globales
-    let notificaciones = <?= json_encode($notificaciones) ?>;
+    let notificaciones = <?= json_encode($notificaciones ?? []) ?>;
 
     // Funciones principales
     function marcarLeida(idNotificacion) {
@@ -331,6 +331,7 @@
             textoAceptar: 'Marcar todas',
             colorBoton: 'btn-success',
             onAceptar: function() {
+                fetch('/notificaciones/marcar-todas-leidas', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -350,7 +351,7 @@
                             }
                         });
                         actualizarContador();
-                    showNotification('Todas las notificaciones han sido marcadas como revisadas', 'success');
+                        showNotification('Todas las notificaciones han sido marcadas como revisadas', 'success');
                     } else {
                         showNotification('Error al marcar las notificaciones', 'error');
                     }
@@ -373,6 +374,7 @@
             textoAceptar: 'Eliminar',
             colorBoton: 'btn-danger',
             onAceptar: function() {
+                fetch(`/notificaciones/eliminar/${idNotificacion}`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -387,7 +389,7 @@
                             elemento.remove();
                         }
                         actualizarContador();
-                    showNotification('Notificación eliminada', 'success');
+                        showNotification('Notificación eliminada', 'success');
                     } else {
                         showNotification('Error al eliminar la notificación', 'error');
                     }

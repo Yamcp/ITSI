@@ -72,8 +72,6 @@
             </div>
         <?php endif; ?>
 
-        <?= $this->include('estudiante/partials/tarjeta_contacto_coordinador_whatsapp') ?>
-
         <?php if (!empty($actividades_perfil_enlaces)): ?>
             <?= $this->include('partials/actividades_enlaces_perfil', [
                 'filas' => $actividades_perfil_enlaces,

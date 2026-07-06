@@ -49,6 +49,31 @@ $estadisticas = [
         white-space: nowrap;
         border: 0;
     }
+
+    .backup-calendar {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 0.5rem;
+    }
+
+    .backup-day-btn {
+        min-height: 42px;
+        padding: 0.65rem 0.5rem;
+        border: 1px solid #ced4da;
+        border-radius: 0.5rem;
+        background: #fff;
+        color: #495057;
+    }
+
+    .backup-day-btn.active {
+        background-color: #0d6efd;
+        color: #fff;
+        border-color: #0d6efd;
+    }
+
+    .backup-day-btn:hover {
+        background: #e7f1ff;
+    }
 </style>
 <?= $this->endSection() ?>
 
@@ -103,80 +128,6 @@ $estadisticas = [
         }
     };
 
-    window.exportarHistorial = function() {
-        console.log('exportarHistorial called');
-        alert('Función exportarHistorial ejecutada');
-    };
-
-    window.generarBackup = function() {
-        console.log('generarBackup called');
-        alert('Función generarBackup ejecutada');
-    };
-
-    window.descargarBackup = function(id) {
-        console.log('descargarBackup called with id:', id);
-        alert('Función descargarBackup ejecutada para ID: ' + id);
-    };
-
-    window.verDetalleBackup = function(id) {
-        console.log('verDetalleBackup called with id:', id);
-        alert('Función verDetalleBackup ejecutada para ID: ' + id);
-    };
-
-    window.eliminarBackup = function(id) {
-        console.log('eliminarBackup called with id:', id);
-        alert('Función eliminarBackup ejecutada para ID: ' + id);
-    };
-
-    window.guardarConfiguracion = function() {
-        console.log('guardarConfiguracion called');
-        alert('Función guardarConfiguracion ejecutada');
-    };
-
-    window.seleccionarCarpeta = function() {
-        console.log('seleccionarCarpeta called');
-
-        // Crear un input de tipo file para seleccionar directorio
-        const input = document.createElement('input');
-        input.type = 'file';
-        input.webkitdirectory = true;
-        input.directory = true;
-        input.multiple = true;
-        input.style.display = 'none';
-
-        input.onchange = function(e) {
-            if (e.target.files.length > 0) {
-                // Obtener la ruta del directorio seleccionado
-                const path = e.target.files[0].webkitRelativePath;
-                const directory = path.split('/')[0];
-
-                // Actualizar el campo de ubicación
-                const ubicacionInput = document.getElementById('ubicacion_backup');
-                if (ubicacionInput) {
-                    // Mostrar la ruta completa del directorio seleccionado
-                    ubicacionInput.value = directory + '/';
-
-                    // Mostrar notificación de éxito
-                    if (typeof showNotification === 'function') {
-                        showNotification('Carpeta seleccionada: ' + directory, 'success');
-                    } else {
-                        alert('Carpeta seleccionada: ' + directory);
-                    }
-                }
-            }
-        };
-
-        // Agregar el input al DOM temporalmente
-        document.body.appendChild(input);
-        input.click();
-
-        // Limpiar después de usar
-        setTimeout(() => {
-            if (document.body.contains(input)) {
-                document.body.removeChild(input);
-            }
-        }, 100);
-    };
 
 
 
@@ -196,8 +147,140 @@ $estadisticas = [
         }
     };
 
+    window.abrirModalBackupModo = function(modo) {
+        if (modo === 'automatico') {
+            showModal('modalAutomaticoBackup');
+            return;
+        }
+
+        showModal('modalNuevoBackup');
+    };
+
+window.toggleUbicacionBackupSection = function() {
+        const tipo = document.getElementById('tipo_almacenamiento')?.value;
+        const seccion = document.getElementById('ubicacionBackupSection');
+        const localSection = document.getElementById('backupLocalSection');
+        const oneDriveSection = document.getElementById('backupOneDriveSection');
+
+        if (seccion) {
+            seccion.style.display = tipo ? 'block' : 'none';
+        }
+
+        if (localSection && oneDriveSection) {
+            if (tipo === 'local') {
+                localSection.style.display = 'block';
+                oneDriveSection.style.display = 'none';
+            } else if (tipo === 'remoto') {
+                localSection.style.display = 'none';
+                oneDriveSection.style.display = 'block';
+                window.verificarConexionOneDrive();
+            }
+        }
+    };
+
+    window.verificarConexionOneDrive = function() {
+        // Verificar en el servidor si está conectado a OneDrive
+        fetch('<?= base_url('admin/onedrive/check-connection') ?>')
+            .then(response => response.json())
+            .then(data => {
+                const btnConectar = document.getElementById('btnConectarOneDrive');
+                const btnDesconectar = document.getElementById('btnDesconectarOneDrive');
+                const labelStatus = document.getElementById('onedriveLabelStatus');
+
+                if (data.connected) {
+                    labelStatus.textContent = '✓ Conectado a OneDrive';
+                    labelStatus.className = 'text-success fw-bold';
+                    btnConectar.style.display = 'none';
+                    btnDesconectar.style.display = 'inline-block';
+                } else {
+                    labelStatus.textContent = '✗ No conectado a OneDrive';
+                    labelStatus.className = 'text-muted';
+                    btnConectar.style.display = 'inline-block';
+                    btnDesconectar.style.display = 'none';
+                }
+            })
+            .catch(error => {
+                console.error('Error verificando conexión OneDrive:', error);
+            });
+    };
+
+    window.conectarOneDrive = function(event) {
+        event.preventDefault();
+        window.location.href = '<?= base_url('admin/onedrive/connect') ?>';
+    };
+
+    window.desconectarOneDrive = function() {
+        if (confirm('¿Deseas desconectar tu cuenta de OneDrive?')) {
+            window.location.href = '<?= base_url('admin/onedrive/disconnect') ?>';
+        }
+    };
+
+    window.toggleFrecuenciaFields = function() {
+        const frecuencia = document.getElementById('frecuenciaBackup')?.value || 'Diario';
+        const semanalSection = document.getElementById('configSemanalSection');
+        const mensualSection = document.getElementById('configMensualSection');
+
+        if (semanalSection) {
+            semanalSection.style.display = frecuencia === 'Semanal' ? 'block' : 'none';
+        }
+        if (mensualSection) {
+            mensualSection.style.display = frecuencia === 'Mensual' ? 'block' : 'none';
+        }
+
+        if (frecuencia === 'Mensual') {
+            window.renderBackupCalendar();
+        }
+    };
+
+    window.renderBackupCalendar = function() {
+        const calendar = document.getElementById('backupCalendar');
+        const selectedInput = document.getElementById('diaDelMesBackup');
+        if (!calendar) {
+            return;
+        }
+
+        const selectedDay = Number(selectedInput?.value || 1);
+        calendar.innerHTML = '';
+
+        for (let day = 1; day <= 31; day++) {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'backup-day-btn';
+            button.textContent = day;
+            button.dataset.day = day;
+            if (day === selectedDay) {
+                button.classList.add('active');
+            }
+            button.addEventListener('click', function() {
+                window.selectBackupDay(day);
+            });
+            calendar.appendChild(button);
+        }
+    };
+
+    window.selectBackupDay = function(day) {
+        const selectedInput = document.getElementById('diaDelMesBackup');
+        if (selectedInput) {
+            selectedInput.value = day;
+        }
+
+        const calendar = document.getElementById('backupCalendar');
+        if (!calendar) {
+            return;
+        }
+
+        calendar.querySelectorAll('.backup-day-btn').forEach(function(button) {
+            if (Number(button.dataset.day) === day) {
+                button.classList.add('active');
+            } else {
+                button.classList.remove('active');
+            }
+        });
+    };
+
     window.verificarCarpeta = function() {
         console.log('verificarCarpeta called');
+
         const ubicacionInput = document.getElementById('ubicacion_backup');
 
         if (!ubicacionInput || ubicacionInput.value.trim() === '') {
@@ -215,12 +298,8 @@ $estadisticas = [
             showNotification('Verificando carpeta: ' + ruta, 'info');
         }
 
-        // Simular verificación de carpeta (en producción, esto sería una llamada al servidor)
         setTimeout(() => {
-            // Simular resultado de verificación
-            const existe = Math.random() > 0.3; // 70% de probabilidad de que exista
-
-            // Actualizar indicador visual
+            const existe = Math.random() > 0.3;
             const estadoCarpeta = document.getElementById('estadoCarpeta');
             const badgeEstadoCarpeta = document.getElementById('badgeEstadoCarpeta');
 
@@ -231,7 +310,6 @@ $estadisticas = [
                     alert('✓ Carpeta encontrada y accesible');
                 }
 
-                // Actualizar badge
                 if (estadoCarpeta && badgeEstadoCarpeta) {
                     estadoCarpeta.style.display = 'block';
                     badgeEstadoCarpeta.className = 'badge bg-success';
@@ -244,7 +322,6 @@ $estadisticas = [
                     alert('⚠ La carpeta no existe o no es accesible');
                 }
 
-                // Actualizar badge
                 if (estadoCarpeta && badgeEstadoCarpeta) {
                     estadoCarpeta.style.display = 'block';
                     badgeEstadoCarpeta.className = 'badge bg-warning';
@@ -294,9 +371,19 @@ $estadisticas = [
             <div class="col-md-3 col-sm-6 mb-3">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="#" onclick="showModal('modalNuevoBackup'); return false;" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-plus-circle fa-2x mb-2" style="color: #28a745; text-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);"></i>
-                            <div class="fw-bold">Generar Backup</div>
+                        <a href="#" onclick="abrirModalBackupModo('manual'); return false;" style="text-decoration: none; color: inherit;">
+                            <i class="fas fa-hdd fa-2x mb-2" style="color: #28a745; text-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);"></i>
+                            <div class="fw-bold">Backup Manual</div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3 col-sm-6 mb-3">
+                <div class="card text-center shadow-sm h-100" style="border: none;">
+                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
+                        <a href="#" onclick="abrirModalBackupModo('automatico'); return false;" style="text-decoration: none; color: inherit;">
+                            <i class="fas fa-sync-alt fa-2x mb-2" style="color: #17a2b8; text-shadow: 0 2px 4px rgba(23, 162, 184, 0.3);"></i>
+                            <div class="fw-bold">Backup Automático</div>
                         </a>
                     </div>
                 </div>
@@ -454,7 +541,7 @@ $estadisticas = [
     </div>
 </div>
 
-<!-- Modal Nuevo Backup -->
+<!-- Modal Backup Manual -->
 <div class="modal fade" id="modalNuevoBackup" tabindex="-1"
     role="dialog"
     aria-labelledby="modalNuevoBackupTitle"
@@ -464,16 +551,19 @@ $estadisticas = [
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalNuevoBackupTitle">
-                    <i class="fas fa-plus-circle me-2"></i>Generar Nuevo Backup
+                    <i class="fas fa-plus-circle me-2"></i>Backup Manual
                 </h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
             </div>
             <div class="modal-body" id="modalNuevoBackupDesc">
                 <form id="formNuevoBackup" role="form" aria-label="Formulario para generar nuevo backup">
+                    <div class="alert alert-info mb-4" role="alert">
+                        <strong>Campos obligatorios:</strong> los marcados con <span class="text-danger">*</span>.
+                    </div>
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="tipo_backup" class="form-label">Tipo de Backup</label>
+                                <label for="tipo_backup" class="form-label">Tipo de Backup <span class="text-danger">*</span></label>
                                 <select class="form-select"
                                     name="tipo_backup"
                                     id="tipo_backup"
@@ -489,7 +579,7 @@ $estadisticas = [
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label for="prioridad" class="form-label">Prioridad</label>
+                                <label for="prioridad" class="form-label">Prioridad <span class="text-danger">*</span></label>
                                 <select class="form-select"
                                     name="prioridad"
                                     id="prioridad"
@@ -506,7 +596,7 @@ $estadisticas = [
                         </div>
                     </div>
                     <div class="mb-3">
-                        <label for="descripcion" class="form-label">Descripción</label>
+                        <label for="descripcion" class="form-label">Descripción <span class="text-danger">*</span></label>
                         <textarea class="form-control"
                             name="descripcion"
                             id="descripcion"
@@ -515,113 +605,142 @@ $estadisticas = [
                             required
                             aria-describedby="descripcion_help"></textarea>
                         <div id="descripcion_help" class="form-text">Proporciona una descripción clara del propósito de este backup</div>
-                    </div>
+                    </div>                  
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnGenerarBackupManual" onclick="generarBackupManual()" aria-label="Generar backup">
+                    <i class="fas fa-play me-1"></i>Generar Backup
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Backup Automático -->
+<div class="modal fade" id="modalAutomaticoBackup" tabindex="-1" aria-labelledby="modalAutomaticoBackupTitle" aria-describedby="modalAutomaticoBackupDesc" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalAutomaticoBackupTitle">
+                    <i class="fas fa-cogs me-2"></i>Backup Automático
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body" id="modalAutomaticoBackupDesc">
+                <form id="formAutomaticoBackup" role="form" aria-label="Formulario de configuración de backup automático">
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-12">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="frecuenciaBackup" class="form-label">Frecuencia</label>
+                                    <select class="form-select" id="frecuenciaBackup" name="frecuencia" onchange="toggleFrecuenciaFields()">
+                                        <option value="Diario">Diario</option>
+                                        <option value="Semanal">Semanal</option>
+                                        <option value="Mensual">Mensual</option>
+                                    </select>
+                                    <div class="form-text">Selecciona la frecuencia de los backups automáticos.</div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="horaGeneracionBackup" class="form-label">Hora de generación</label>
+                                    <input type="time" class="form-control" id="horaGeneracionBackup" name="hora_generacion" value="02:00">
+                                    <div class="form-text">Define la hora en que se generará cada backup automático.</div>
+                                </div>
+                            </div>
+                            <div id="configSemanalSection" class="mb-3" style="display: none;">
+                                <label class="form-label">Días de la semana</label>
+                                <div class="d-flex flex-wrap gap-2">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="dia_lunes" name="dias_semana" value="Lunes">
+                                        <label class="form-check-label" for="dia_lunes">Lun</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="dia_martes" name="dias_semana" value="Martes">
+                                        <label class="form-check-label" for="dia_martes">Mar</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="dia_miercoles" name="dias_semana" value="Miércoles">
+                                        <label class="form-check-label" for="dia_miercoles">Mié</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="dia_jueves" name="dias_semana" value="Jueves">
+                                        <label class="form-check-label" for="dia_jueves">Jue</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="dia_viernes" name="dias_semana" value="Viernes">
+                                        <label class="form-check-label" for="dia_viernes">Vie</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="dia_sabado" name="dias_semana" value="Sábado">
+                                        <label class="form-check-label" for="dia_sabado">Sáb</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" id="dia_domingo" name="dias_semana" value="Domingo">
+                                        <label class="form-check-label" for="dia_domingo">Dom</label>
+                                    </div>
+                                </div>
+                                <div class="form-text">Selecciona los días de la semana para ejecutar el backup.</div>
+                            </div>
+                            <div id="configMensualSection" class="mb-3" style="display: none;">
+                                <label class="form-label">Día del mes</label>
+                                <div id="backupCalendar" class="backup-calendar"></div>
+                                <input type="hidden" id="diaDelMesBackup" name="dia_del_mes" value="1">
+                                <div class="form-text">Selecciona el día del mes para generar el backup.</div>
+                            </div>
                             <div class="mb-3">
-                                <label for="fecha_programada" class="form-label">Fecha programada</label>
-                                <input type="date"
-                                    class="form-control"
-                                    name="fecha_programada"
-                                    id="fecha_programada"
-                                    aria-describedby="fecha_programada_help">
-                                <div id="fecha_programada_help" class="form-text">Día en que se ejecutará</div>
+                                <label for="tipo_almacenamiento" class="form-label">Tipo de almacenamiento</label>
+                                <select class="form-select" id="tipo_almacenamiento" name="tipo_almacenamiento" onchange="toggleUbicacionBackupSection()">
+                                    <option value="">Seleccionar...</option>
+                                    <option value="local">Local</option>
+                                    <option value="remoto">Remoto</option>
+                                </select>
+                                <div class="form-text">Selecciona dónde se guardarán los backups automáticos.</div>
+                            </div>
+                            <div id="ubicacionBackupSection" class="mb-3" style="display: none;">
+                                <div id="backupLocalSection">
+                                    <label for="ubicacion_backup" class="form-label">Ubicación de respaldo</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="ubicacion_backup" name="ubicacion_backup" value="/backups/" placeholder="Carpeta para backups" onchange="validarCarpeta()">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="seleccionarCarpeta()" title="Explorar carpetas">
+                                            <i class="fas fa-folder-open"></i>
+                                        </button>
+                                        <button class="btn btn-outline-info" type="button" onclick="verificarCarpeta()" title="Verificar si la carpeta existe">
+                                            <i class="fas fa-check-circle"></i>
+                                        </button>
+                                    </div>
+                                    <div class="form-text">Ruta donde se guardarán los archivos de backup.</div>
+                                    <div id="estadoCarpeta" class="mt-2" style="display: none;">
+                                        <span class="badge" id="badgeEstadoCarpeta">
+                                            <i class="fas fa-info-circle me-1"></i>Estado de la carpeta
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div id="backupOneDriveSection" style="display: none;" class="p-3 bg-light rounded">
+                                    <div class="mb-3">
+                                        <h6 class="mb-3"><i class="fas fa-cloud me-2"></i>Conectar con OneDrive</h6>
+                                        <p class="mb-3">Los backups se guardarán automáticamente en tu cuenta de OneDrive.</p>
+                                        <div id="onedriveStatus" class="mb-3">
+                                            <p><span id="onedriveLabelStatus" class="text-muted">No conectado</span></p>
+                                        </div>
+                                        <a href="<?= base_url('admin/onedrive/connect') ?>" class="btn btn-primary" id="btnConectarOneDrive" onclick="conectarOneDrive(event)">
+                                            <i class="fas fa-link me-1"></i>Conectar con OneDrive
+                                        </a>
+                                        <button type="button" class="btn btn-danger" id="btnDesconectarOneDrive" onclick="desconectarOneDrive()" style="display: none;">
+                                            <i class="fas fa-unlink me-1"></i>Desconectar
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label for="hora_programada" class="form-label">Hora programada</label>
-                                <input type="time"
-                                    class="form-control"
-                                    name="hora_programada"
-                                    id="hora_programada"
-                                    value="00:00"
-                                    aria-describedby="hora_programada_help">
-                                <div id="hora_programada_help" class="form-text">Hora exacta de ejecución</div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="mb-3">
-                                <label for="retencion" class="form-label">Retención (días)</label>
-                                <input type="number"
-                                    class="form-control"
-                                    name="retencion"
-                                    id="retencion"
-                                    min="1"
-                                    max="365"
-                                    value="30"
-                                    aria-describedby="retencion_help">
-                                <div id="retencion_help" class="form-text">Número de días que se mantendrá el backup</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="alert alert-info" role="alert">
-                        <i class="fas fa-info-circle me-2" aria-hidden="true"></i>
-                        <strong>Nota:</strong> Deja fecha y hora vacías para ejecutar inmediatamente. Si defines fecha y hora, el backup se programará para ese momento.
                     </div>
                 </form>
-
-                <hr class="my-4">
-                <h6 class="mb-3"><i class="fas fa-cog me-2"></i>Configuración</h6>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label class="form-label">Backup Automático</label>
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="backupAutomatico" checked>
-                                <label class="form-check-label" for="backupAutomatico">Habilitar</label>
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Frecuencia</label>
-                            <select class="form-select" id="frecuenciaBackup">
-                                <option>Diario</option>
-                                <option>Semanal</option>
-                                <option>Mensual</option>
-                            </select>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <label for="ubicacion_backup" class="form-label">Ubicación Local</label>
-                            <div class="input-group">
-                                <input type="text"
-                                    class="form-control"
-                                    id="ubicacion_backup"
-                                    name="ubicacion_backup"
-                                    value="/backups/"
-                                    placeholder="Carpeta para backups"
-                                    onchange="validarCarpeta()">
-                                <button class="btn btn-outline-secondary"
-                                    type="button"
-                                    onclick="seleccionarCarpeta()"
-                                    title="Explorar carpetas">
-                                    <i class="fas fa-folder-open"></i>
-                                </button>
-                                <button class="btn btn-outline-info"
-                                    type="button"
-                                    onclick="verificarCarpeta()"
-                                    title="Verificar si la carpeta existe">
-                                    <i class="fas fa-check-circle"></i>
-                                </button>
-                            </div>
-                            <div class="form-text">Ruta donde se guardarán los archivos de backup</div>
-                            <div id="estadoCarpeta" class="mt-2" style="display: none;">
-                                <span class="badge" id="badgeEstadoCarpeta">
-                                    <i class="fas fa-info-circle me-1"></i>Estado de la carpeta
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
                 <button type="button" class="btn btn-outline-primary" onclick="guardarConfiguracion()">
                     <i class="fas fa-save me-1"></i>Guardar configuración
-                </button>
-                <button type="button" class="btn btn-primary" onclick="generarBackup()" aria-label="Generar backup">
-                    <i class="fas fa-play me-1"></i>Generar Backup
                 </button>
             </div>
         </div>
@@ -788,16 +907,21 @@ $estadisticas = [
 
     // Función de notificación accesible
     window.showNotification = function(message, type = 'info', duration = 5000) {
+        const bsType = type === 'error' ? 'danger' : type;
         const notification = document.createElement('div');
-        notification.className = `alert alert-${type} alert-dismissible fade show position-fixed`;
-        notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px; max-width: 500px;';
+        notification.className = `alert alert-${bsType} alert-dismissible fade show position-fixed`;
+        notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 340px; max-width: 560px; box-shadow: 0 0 18px rgba(0,0,0,0.25); border-width: 2px;';
         notification.setAttribute('role', 'alert');
-        notification.setAttribute('aria-live', 'polite');
+        notification.setAttribute('aria-live', bsType === 'danger' ? 'assertive' : 'polite');
+
+        if (bsType === 'danger') {
+            notification.style.cssText += ' background-color: #f8d7da; color: #842029; border-color: #f5c2c7;';
+        }
 
         notification.innerHTML = `
             <div class="d-flex align-items-center">
-                <i class="fas fa-${type === 'error' ? 'exclamation-triangle' : type === 'success' ? 'check-circle' : 'info-circle'} me-2" aria-hidden="true"></i>
-                <span>${message}</span>
+                <i class="fas fa-${type === 'error' ? 'exclamation-triangle' : type === 'success' ? 'check-circle' : 'info-circle'} fa-lg me-2" aria-hidden="true"></i>
+                <span class="fw-semibold">${message}</span>
                 <button type="button" class="btn-close ms-auto" aria-label="Cerrar notificación" onclick="this.parentElement.parentElement.remove()"></button>
             </div>
         `;
@@ -945,12 +1069,6 @@ $estadisticas = [
         }, 2000);
     };
 
-    window.generarBackup = function() {
-        console.log('generarBackup called');
-        showNotification('Iniciando proceso de backup...', 'info');
-        // La función real se define más abajo
-    };
-
     window.descargarBackup = function(id) {
         console.log('descargarBackup called with id:', id);
         showNotification(`Iniciando descarga del backup ${id}...`, 'info');
@@ -968,21 +1086,59 @@ $estadisticas = [
 
     window.eliminarBackup = function(id) {
         console.log('eliminarBackup called with id:', id);
-        if (true) {
-            showNotification(`Eliminando backup ${id}...`, 'info');
-            setTimeout(() => {
-                showNotification('Backup eliminado exitosamente', 'success');
-            }, 1500);
-        }
+
+        confirmarAccion({
+            titulo: 'Eliminar Backup',
+            mensaje: `¿Deseas eliminar el backup #${id}?`,
+            icono: 'fas fa-trash-alt',
+            colorIcono: 'text-danger',
+            bgIcono: 'bg-danger bg-opacity-10',
+            textoAceptar: 'Eliminar',
+            colorBoton: 'btn-danger',
+            onAceptar: function() {
+                showNotification(`Eliminando backup ${id}...`, 'info');
+
+                fetch(`<?= base_url('admin/backup/eliminar') ?>/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(async response => {
+                    const data = await response.json().catch(() => null);
+                    if (!response.ok || !data?.success) {
+                        throw new Error(data?.message || 'No se pudo eliminar el backup');
+                    }
+                    return data;
+                })
+                .then(() => {
+                    const button = document.querySelector(`button[aria-label="Eliminar backup ${id}"]`);
+                    const row = button?.closest('tr');
+                    if (row) {
+                        row.remove();
+                    }
+                    showNotification('Backup eliminado exitosamente', 'success');
+                })
+                .catch(error => {
+                    console.error('Error al eliminar backup:', error);
+                    showNotification(error.message || 'Error al eliminar el backup', 'error');
+                });
+            }
+        });
     };
 
     window.guardarConfiguracion = function() {
         console.log('guardarConfiguracion called');
 
         // Recopilar datos del formulario de configuración
+        const frecuencia = document.querySelector('select[name="frecuencia"]')?.value || 'Diario';
+        const diasSemana = Array.from(document.querySelectorAll('input[name="dias_semana"]:checked')).map(input => input.value);
         const configuracion = {
-            backupAutomatico: document.getElementById('backupAutomatico')?.checked || false,
-            frecuencia: document.querySelector('select[name="frecuencia"]')?.value || 'diario',
+            backupAutomatico: true,
+            frecuencia: frecuencia,
+            horaGeneracion: document.getElementById('horaGeneracionBackup')?.value || '02:00',
+            diasSemana: frecuencia === 'Semanal' ? diasSemana : [],
+            diaDelMes: frecuencia === 'Mensual' ? document.getElementById('diaDelMesBackup')?.value || '1' : null,
             ubicacion: document.getElementById('ubicacion_backup')?.value || '/backups/',
             tipoAlmacenamiento: document.getElementById('tipo_almacenamiento')?.value || 'local'
         };
@@ -993,7 +1149,7 @@ $estadisticas = [
         setTimeout(() => {
             console.log('Configuración a guardar:', configuracion);
             showNotification('Configuración guardada exitosamente', 'success');
-            hideModal('modalNuevoBackup');
+            hideModal('modalAutomaticoBackup');
         }, 1500);
     };
 
@@ -1133,7 +1289,7 @@ $estadisticas = [
     console.log('=== VERIFICACIÓN INMEDIATA ===');
     console.log('showModal disponible:', typeof window.showModal);
     console.log('exportarHistorial disponible:', typeof window.exportarHistorial);
-    console.log('generarBackup disponible:', typeof window.generarBackup);
+    console.log('generarBackupManual disponible:', typeof window.generarBackupManual);
     console.log('showNotification disponible:', typeof window.showNotification);
     console.log('hideModal disponible:', typeof window.hideModal);
 
@@ -1158,9 +1314,9 @@ $estadisticas = [
     };
 
 
-    // Función mejorada para generar backup
-    window.generarBackup = function() {
-        console.log('generarBackup called');
+    // Funciones separadas para generación de backups (manual y delegador)
+    window.generarBackupManual = function() {
+        console.log('generarBackupManual called');
         try {
             const form = document.getElementById('formNuevoBackup');
             if (!form) {
@@ -1169,23 +1325,24 @@ $estadisticas = [
             }
 
             const formData = new FormData(form);
-
-            // Validar campos requeridos
             const descripcion = formData.get('descripcion');
             const tipoBackup = formData.get('tipo_backup');
             const prioridad = formData.get('prioridad');
 
-            if (!descripcion || !tipoBackup || !prioridad) {
-                showNotification('Por favor completa todos los campos requeridos', 'error');
+            const missingFields = [];
+            if (!tipoBackup) missingFields.push('Tipo de Backup');
+            if (!prioridad) missingFields.push('Prioridad');
+            if (!descripcion) missingFields.push('Descripción');
+
+            if (missingFields.length > 0) {
+                showNotification('Por favor completa los campos obligatorios: ' + missingFields.join(', '), 'error');
                 return;
             }
 
-            // Combinar fecha y hora programadas en un solo valor (YYYY-MM-DDTHH:mm)
             const fechaProg = formData.get('fecha_programada');
             const horaProg = formData.get('hora_programada');
             const fechaProgramada = (fechaProg && horaProg) ? (fechaProg + 'T' + horaProg) : (fechaProg || '');
 
-            // Convertir FormData a JSON
             const data = {
                 descripcion: descripcion,
                 tipo_backup: tipoBackup,
@@ -1194,59 +1351,29 @@ $estadisticas = [
                 retencion: formData.get('retencion')
             };
 
-            // Mostrar loading
-            const btnGenerar = document.querySelector('button[onclick="generarBackup()"]');
-            const originalText = btnGenerar.innerHTML;
-            btnGenerar.innerHTML = '<span class="loading-spinner me-1"></span>Generando...';
-            btnGenerar.disabled = true;
+            const btnGenerar = document.getElementById('btnGenerarBackupManual');
+            const originalText = btnGenerar ? btnGenerar.innerHTML : 'Generando...';
+            if (btnGenerar) {
+                btnGenerar.innerHTML = '<span class="loading-spinner me-1"></span>Generando...';
+                btnGenerar.disabled = true;
+            }
 
-            showNotification('Iniciando proceso de backup...', 'info');
+            showNotification('Iniciando proceso de backup (manual)...', 'info');
 
-            // Simular proceso de backup (reemplazar con llamada real)
+            // Simular proceso (reemplazar con fetch real cuando esté disponible)
             setTimeout(() => {
                 showNotification('Backup generado exitosamente', 'success');
                 hideModal('modalNuevoBackup');
 
-                // Restaurar botón
-                btnGenerar.innerHTML = originalText;
-                btnGenerar.disabled = false;
-
-                // Limpiar formulario
-                form.reset();
-            }, 3000);
-
-            /* 
-            // Código real para cuando esté implementado el backend
-            fetch('<?= base_url('admin/backup/crear') ?>', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: JSON.stringify(data)
-            })
-            .then(response => response.json())
-            .then(result => {
-                if (result.success) {
-                    showNotification('Backup generado exitosamente', 'success');
-                    hideModal('modalNuevoBackup');
-                    location.reload();
-                } else {
-                    showNotification('Error: ' + result.message, 'error');
+                if (btnGenerar) {
+                    btnGenerar.innerHTML = originalText;
+                    btnGenerar.disabled = false;
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('Error al generar backup: ' + error.message, 'error');
-            })
-            .finally(() => {
-                btnGenerar.innerHTML = originalText;
-                btnGenerar.disabled = false;
-            });
-            */
 
+                form.reset();
+            }, 2500);
         } catch (error) {
-            console.error('Error al generar backup:', error);
+            console.error('Error al generar backup manual:', error);
             showNotification('Error al generar backup: ' + error.message, 'error');
         }
     };
@@ -1255,7 +1382,7 @@ $estadisticas = [
     console.log('=== VERIFICACIÓN INMEDIATA ===');
     console.log('showModal disponible:', typeof window.showModal);
     console.log('exportarHistorial disponible:', typeof window.exportarHistorial);
-    console.log('generarBackup disponible:', typeof window.generarBackup);
+    console.log('generarBackupManual disponible:', typeof window.generarBackupManual);
 
     // Initialize on page load
     document.addEventListener('DOMContentLoaded', function() {
@@ -1304,6 +1431,16 @@ $estadisticas = [
                     const now = new Date();
                     horaInput.value = now.toTimeString().slice(0, 5);
                     console.log('✅ Hora por defecto establecida');
+                }
+
+                if (typeof window.toggleUbicacionBackupSection === 'function') {
+                    window.toggleUbicacionBackupSection();
+                    console.log('✅ Visibilidad de ubicación de backup inicializada');
+                }
+
+                if (typeof window.toggleFrecuenciaFields === 'function') {
+                    window.toggleFrecuenciaFields();
+                    console.log('✅ Campos de frecuencia inicializados');
                 }
 
                 // Verificar que los modales existan y mejorar su accesibilidad
@@ -1357,7 +1494,7 @@ $estadisticas = [
         console.log('=== VERIFICACIÓN FINAL ===');
         console.log('showModal disponible:', typeof window.showModal);
         console.log('exportarHistorial disponible:', typeof window.exportarHistorial);
-        console.log('generarBackup disponible:', typeof window.generarBackup);
+        console.log('generarBackupManual disponible:', typeof window.generarBackupManual);
         console.log('showNotification disponible:', typeof window.showNotification);
         console.log('hideModal disponible:', typeof window.hideModal);
         console.log('==========================');

@@ -35,6 +35,7 @@ class Filters extends BaseFilters
         'pagecache'     => PageCache::class,
         'performance'   => PerformanceMetrics::class,
         'estudiante_asistencia' => \App\Filters\EstudianteAsistenciaObligatoriaFilter::class,
+        'auth_rol'              => \App\Filters\AuthRolFilter::class,
     ];
 
     /**
