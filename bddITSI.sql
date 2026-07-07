@@ -1198,7 +1198,6 @@ INSERT INTO `migrations` (`id`, `version`, `class`, `group`, `namespace`, `time`
 (2, '2026-03-10-000001', 'App\\Database\\Migrations\\CreateTabInscripcionesActividades', 'default', 'App', 1773177893, 2),
 (3, '2026-03-15-000001', 'App\\Database\\Migrations\\AddLogoTabInstitucionesConvenios', 'default', 'App', 1773629842, 3);
 
--- Todas las personas (un solo INSERT por tabla)
 INSERT INTO `TAB_DATOS_PERSONAS` (`ID_DATO_PERSONA`, `NOMBRE`, `APELLIDO`, `CEDULA`, `CELULAR`, `DIRECCION`, `EMAIL`, `GENERO`, `ESTADO_CIVIL`, `NACIONALIDAD`, `FECHA_INGRESO`, `ACTIVO`, `FOTO_URL`) VALUES
 (1, 'Yamilex Marisol', 'Campues Angamarca', '1004191845', '0992432078', 'Ibarra', 'yamilex.campues2023@itsi.edu.ec', 'Femenino', 'Soltero/a', 'Ecuatoriana', '2025-06-05', 1, 'perfil_1_1773953875.jpg'),
 (2, 'Ana ', 'Yandun', '1724143290', '0981377492', 'Ibarra', 'ana.yandun2023@itsi.edu.ec', 'Femenino', 'Casada', 'Ecuatoriana', '2025-06-10', 1, ''),
@@ -1299,15 +1298,17 @@ INSERT INTO `TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES` (`CODIGO`, `NOMBRE`, `DESCRI
 ('PPR-001', 'Oficio de Asignación de Tutor', 'Documento oficial emitido por la coordinación de la carrera que designa al docente responsable de la tutoría y seguimiento de las prácticas de servicio comunitario del estudiante.', 1, true),
 ('PPR-002', 'Oficio a Entidad Receptora', 'Carta formal enviada por el estudiante a la institución "Instituto Tecnológico Superior Ibarra", con el propósito de solicitar la oportunidad de realizar sus prácticas de servicio comunitario.', 2, true),
 ('PPR-003', 'Carta de Aceptación', 'Carta oficial de la entidad receptora "Instituto Tecnológico Superior Ibarra" que confirma la aceptación del o los estudiantes para realizar las prácticas de servicio comunitario en sus instalaciones.', 3, true),
-('PPR-004', 'Solicitud Institucional Valorada', 'Documento de solicitud formal dirigido al Sr. Rector, Dr. Mario Montenegro, pidiendo la aprobación institucional para la realización de las prácticas de servicio comunitario.', 4, true),
-('PPR-005', 'Certificado de Culminación de Horas', 'Certificado emitido por la entidad receptora "Instituto Tecnológico Superior Ibarra" que acredita que el estudiante ha completado las 60 horas requeridas de prácticas de servicio comunitario.', 5, true),
-('PPR-006', 'Hojas de Asistencia', 'Registro físico de la asistencia del estudiante en la entidad receptora. Incluye las firmas y sellos para validar las horas de trabajo.', 6, true),
-('PPR-007', 'Ficha de Registro de Actividades', 'Documento detallado en el que el estudiante registra las actividades específicas realizadas durante sus prácticas, incluyendo fechas y descripciones.', 7, true),
-('PPR-008', 'Rúbrica de Evaluación de Entidad', 'Formulario de evaluación del desempeño del estudiante, llenado y sellado por la entidad receptora. Valora aspectos como la responsabilidad, la proactividad y la calidad del trabajo.', 8, true),
-('PPR-009', 'Ficha de Control y Seguimiento Docente', 'Documento utilizado por el tutor docente para registrar el seguimiento académico del estudiante durante las prácticas. Incluye visitas o revisiones periódicas.', 9, true),
-('PPR-010', 'Rúbrica de Evaluación Docente', 'Rúbrica de evaluación llenada y firmada por el tutor docente. Califica el desempeño del estudiante en base a los criterios académicos del programa.', 10, true),
-('PPR-011', 'Rúbrica de Evaluación de Resultados', 'Evaluación final realizada por el Departamento de Vinculación con la Sociedad, que valora los resultados y el impacto del proyecto de servicio comunitario en su conjunto.', 11, true),
-('PPR-012', 'Evidencia Fotográfica y Digital', 'Material de apoyo visual y digital, como fotos, capturas, videos o impresiones, que documenta y comprueba la realización de las actividades y trabajos del proyecto.', 12, true);
+('PPR-004', 'Planificación de Actividades', 'Documento que detalla las actividades específicas que el estudiante realizará durante sus prácticas, incluyendo objetivos, cronograma y recursos necesarios.', 4, true),
+('PPR-005', 'Solicitud Institucional Valorada', 'Documento de solicitud formal dirigido al Sr. Rector, Dr. Mario Montenegro, pidiendo la aprobación institucional para la realización de las prácticas de servicio comunitario.', 4, true),
+('PPR-006', 'Certificado de Culminación de Horas', 'Certificado emitido por la entidad receptora "Instituto Tecnológico Superior Ibarra" que acredita que el estudiante ha completado las 60 horas requeridas de prácticas de servicio comunitario.', 5, true),
+('PPR-007', 'Rúbrica de Evaluación de Entidad', 'Formulario de evaluación del desempeño del estudiante, llenado y sellado por la entidad receptora. Valora aspectos como la responsabilidad, la proactividad y la calidad del trabajo.', 8, true),
+('PPR-008', 'Hojas de Asistencia', 'Registro físico de la asistencia del estudiante en la entidad receptora. Incluye las firmas y sellos para validar las horas de trabajo.', 6, true),
+('PPR-009', 'Ficha de Registro de Actividades', 'Documento detallado en el que el estudiante registra las actividades específicas realizadas durante sus prácticas, incluyendo fechas y descripciones.', 7, true),
+('PPR-010', 'Ficha de Control y Seguimiento Docente', 'Documento utilizado por el tutor docente para registrar el seguimiento académico del estudiante durante las prácticas. Incluye visitas o revisiones periódicas.', 9, true),
+('PPR-011', 'Rúbrica de Evaluación Docente', 'Rúbrica de evaluación llenada y firmada por el tutor docente. Califica el desempeño del estudiante en base a los criterios académicos del programa.', 10, true),
+('PPR-012', 'Rúbrica de Evaluación de Resultados', 'Evaluación final realizada por el Departamento de Vinculación con la Sociedad, que valora los resultados y el impacto del proyecto de servicio comunitario en su conjunto.', 11, true),
+('PPR-013', 'Evidencia Fotográfica y Digital', 'Material de apoyo visual y digital, como fotos, capturas, videos o impresiones, que documenta y comprueba la realización de las actividades y trabajos del proyecto.', 12, true),
+('PPR-014', 'Informe Final de Prácticas Preprofesionales', 'Documento que resume todas las actividades realizadas durante las prácticas preprofesionales, incluyendo resultados, aprendizajes y recomendaciones.', 13, true);
 
 INSERT INTO `TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO` (`CODIGO`, `NOMBRE`, `DESCRIPCION`, `ORDEN`, `OBLIGATORIO`, `ACTIVO`) VALUES
 ('PSC-001', 'Oficio de Asignación de Tutor', 'Documento oficial emitido por la coordinación de la carrera que designa al docente responsable de la tutoría y seguimiento de las prácticas de servicio comunitario del estudiante.', 1, 1, 1),
@@ -1321,7 +1322,8 @@ INSERT INTO `TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO` (`CODIGO`, `NOMBRE`, `DE
 ('PSC-009', 'Ficha de Control y Seguimiento Docente', 'Documento utilizado por el tutor docente para registrar el seguimiento académico del estudiante durante las prácticas. Incluye visitas o revisiones periódicas.', 9, 1, 1),
 ('PSC-010', 'Rúbrica de Evaluación Docente', 'Rúbrica de evaluación llenada y firmada por el tutor docente. Califica el desempeño del estudiante en base a los criterios académicos del programa.', 10, 1, 1),
 ('PSC-011', 'Rúbrica de Evaluación de Resultados', 'Evaluación final realizada por el Departamento de Vinculación con la Sociedad, que valora los resultados y el impacto del proyecto de servicio comunitario en su conjunto.', 11, 1, 1),
-('PSC-012', 'Evidencia Fotográfica y Digital', 'Material de apoyo visual y digital, como fotos, capturas, videos o impresiones, que documenta y comprueba la realización de las actividades y trabajos del proyecto.', 12, 1, 1);
+('PSC-012', 'Evidencia Fotográfica y Digital', 'Material de apoyo visual y digital, como fotos, capturas, videos o impresiones, que documenta y comprueba la realización de las actividades y trabajos del proyecto.', 12, 1, 1),
+('PSC-013', 'Informe Final de Prácticas de Servicio Comunitario', 'Documento que resume todas las actividades realizadas durante las prácticas de servicio comunitario, incluyendo resultados, aprendizajes y recomendaciones.', 13, 1, 1);
 
 INSERT INTO TAB_ESTADOS_REVISIONES (ID_ESTADO_REVISION, ESTADO, DESCRIPCION, COLOR, ORDEN) VALUES
 (1, 'Pendiente', 'Documento pendiente de revisión', '#ffc107', 1),
@@ -1344,7 +1346,7 @@ INSERT INTO `TAB_ESTADOS_SERVICIO_COMUNITARIO` (`ID_ESTADO_SERVICIO`, `ESTADO`, 
 (3, 'Pausado', 'Servicio temporalmente pausado', '#6c757d'),
 (4, 'Completado', 'Servicio finalizado exitosamente', '#28a745'),
 (5, 'Cancelado', 'Servicio cancelado', '#dc3545'),
-(6, 'Evaluado', 'Servicio evaluado y aprobado', '#20c997');
+(6, 'Evaluada', 'Servicio evaluado y aprobado', '#20c997');
 
 INSERT INTO `TAB_TIPOS_MODALIDADES` (`ID_TIPO_MODALIDAD`, `MODALIDAD`) VALUES
 (1, 'Presencial'),
@@ -1361,14 +1363,11 @@ INSERT INTO `TAB_INSTRUCTORES` (`ID_INSTRUCTOR`, `ID_TIPO_INSTRUCTOR`, `ID_DATO_
 (3, 2, 6, 'Inteligencia Artificial', 'Doctora en Ciencias de la Computación');
 
 INSERT INTO `TAB_PERIODOS_ACADEMICOS` (`ID_PERIODO_ACADEMICO`, `MES_INICIO`, `AÑO_INICIO`, `MES_FIN`, `AÑO_FIN`) VALUES
-(1, 1, 2024, 6, 2024),
-(2, 7, 2024, 12, 2024),
-(3, 1, 2025, 6, 2025),
-(4, 7, 2025, 12, 2025),
-(5, 1, 2026, 6, 2026),
-(6, 7, 2026, 12, 2026),
-(7, 12, 2025, 1, 2026),
-(8, 6, 2025, 7, 2025);
+(1, 4, 2024, 9, 2024),
+(2, 10, 2024, 3, 2025),
+(3, 4, 2025, 9, 2025),
+(4, 10, 2025, 3, 2026),
+(5, 4, 2026, 9, 2026),
 
 INSERT INTO `TAB_ACTIVIDADES_EDUCACION` (`ID_ACTIVIDAD_EDUCACION`, `ID_INSTRUCTOR`, `ID_TIPO_MODALIDAD`, `ID_TIPO_ACTIVIDAD`, `ID_USUARIO`, `ID_PERIODO_ACADEMICO`, `NOMBRE_ACTIVIDAD`, `DESCRIPCION`, `OBJETIVOS`, `DURACION_HORAS`, `FECHA_INICIO`, `FECHA_FIN`, `LUGAR`, `HORARIO`, `INCLUYE_CERTIFICADO`, `PROGRAMA_DETALLADO`) VALUES
 (1, 1, 1, 1, 1, 4, 'Desarrollo Web Full Stack', 'Curso completo de desarrollo web con tecnologías modernas como React, Node.js, MongoDB y más.', 'Formar desarrolladores full stack competentes en tecnologías web modernas', 4, '2025-08-18', '2025-08-19', 'Laboratorio de Programación', 'Lunes a Martess 16:00-18:00', 1, 'Módulo 1: HTML/CSS/JavaScript\r\nMódulo 2: React.js\r\nMódulo 3: Node.js\r\nMódulo 4: Base de datos\r\nMódulo 5: Proyecto final'),
@@ -1386,11 +1385,11 @@ INSERT INTO `TAB_ACTIVIDADES_EDUCACION` (`ID_ACTIVIDAD_EDUCACION`, `ID_INSTRUCTO
 (13, 1, 2, 4, 1, 4, 'Capacitación: Ética y Datos', 'Capacitación para comprender ética, privacidad y manejo de datos.', 'Aplicar principios de ética y privacidad en proyectos de datos', 14, '2025-12-15', '2026-01-25', 'Plataforma Virtual', 'Lunes y Miércoles 19:00-20:30', 1, 'Módulo 1: Marco ético\r\nMódulo 2: Privacidad\r\nMódulo 3: Buenas prácticas\r\nMódulo 4: Casos');
 
 INSERT INTO `TAB_ESTUDIANTES` (`ID_ESTUDIANTE`, `ID_TIPO_ESTADO`, `ID_DATO_PERSONA`, `ID_CARRERA`, `SEMESTRE_ACTUAL`) VALUES
-(1, 1, 7, 1, 3),  -- Juan Carlos - Desarrollo de Software - 3er semestre
-(2, 1, 8, 2, 2),  -- María Elena - Diseño Gráfico - 2do semestre
-(3, 1, 9, 3, 4),  -- Carlos Alberto - Redes y Telecomunicaciones - 4to semestre
-(4, 1, 10, 1, 1), -- Ana Lucía - Desarrollo de Software - 1er semestre
-(5, 1, 3, 4, 2); -- Pedro Aguirre - Administración - 2do semestre
+(1, 1, 7, 1, 3),
+(2, 1, 8, 2, 2),
+(3, 1, 9, 3, 4),
+(4, 1, 10, 1, 1),
+(5, 1, 3, 4, 2);
 
 INSERT INTO `TAB_DOCENTES_TUTORES` (`ID_USUARIO`, `ID_DATO_PERSONA`, `ESPECIALIDAD`, `TITULO_PROFESIONAL`, `AREA_ESPECIALIZACION`, `AÑOS_EXPERIENCIA`) VALUES
 (4, 4, 'Desarrollo de Software', 'Ingeniero en Sistemas', 'Tecnologías de la Información', 10),

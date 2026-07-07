@@ -68,7 +68,47 @@
                     cerrarSesion();
                 });
             }
+
+            const btnCerrarSesionSidebar = document.getElementById('btnCerrarSesionSidebar');
+            if (btnCerrarSesionSidebar) {
+                btnCerrarSesionSidebar.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    cerrarSesion();
+                });
+            }
+
+            const enlacesCerrarSesion = document.querySelectorAll('a[href*="cerrar-sesion"]:not(#btnCerrarSesion):not(#btnCerrarSesionSidebar)');
+            enlacesCerrarSesion.forEach(function (enlace) {
+                enlace.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    cerrarSesion();
+                });
+            });
         });
+
+        window.cerrarSesion = cerrarSesion;
+
+        (function () {
+            const INACTIVIDAD_MS = 10 * 60 * 1000;
+            const urlCerrarSesion = '<?= base_url('auth/cerrar-sesion') ?>';
+            let timerInactividad;
+
+            function redirigirALogin() {
+                window.location.href = urlCerrarSesion;
+            }
+
+            function reiniciarTimer() {
+                clearTimeout(timerInactividad);
+                timerInactividad = setTimeout(redirigirALogin, INACTIVIDAD_MS);
+            }
+
+            const eventos = ['mousedown', 'mousemove', 'keydown', 'scroll', 'touchstart', 'click'];
+            eventos.forEach(function (ev) {
+                document.addEventListener(ev, reiniciarTimer);
+            });
+
+            reiniciarTimer();
+        })();
     </script>
     <?= $this->include('partials/modal_confirmar') ?>
     <?= $this->renderSection('scripts') ?>
