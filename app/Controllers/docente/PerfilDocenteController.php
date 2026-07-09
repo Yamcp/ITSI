@@ -34,29 +34,10 @@ class PerfilDocenteController extends BaseController
             return redirect()->to(base_url('docente/perfil'))->with('error', 'No se pudo cargar la información del perfil');
         }
 
-        $tutorCountPre = 0;
-        $tutorCountSc = 0;
         $actividadesPerfilEnlaces = [];
-        $docenteTutor = null;
         try {
             $usuarioRow = $this->db->table('TAB_USUARIOS')->where('ID_USUARIO', $userId)->get()->getRowArray();
             if ($usuarioRow) {
-                // Tutorías de prácticas: TAB_DOCENTES_TUTORES + ID_DOCENTE_TUTOR
-                $docenteTutor = $this->db->table('TAB_DOCENTES_TUTORES')
-                    ->where('ID_USUARIO', $userId)
-                    ->where('ACTIVO', 1)
-                    ->get()
-                    ->getRowArray();
-                if ($docenteTutor) {
-                    $idDocenteTutor = (int) $docenteTutor['ID_DOCENTE_TUTOR'];
-                    $tutorCountPre = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES')
-                        ->where('ID_DOCENTE_TUTOR', $idDocenteTutor)
-                        ->countAllResults();
-                    $tutorCountSc = $this->db->table('TAB_SERVICIO_COMUNITARIO')
-                        ->where('ID_DOCENTE_TUTOR', $idDocenteTutor)
-                        ->countAllResults();
-                }
-
                 // Actividades de educación continua: TAB_INSTRUCTORES
                 $instructor = $this->db->table('TAB_INSTRUCTORES')
                     ->where('ID_DATO_PERSONA', $usuarioRow['ID_DATO_PERSONA'])
@@ -70,17 +51,13 @@ class PerfilDocenteController extends BaseController
                 }
             }
         } catch (\Throwable $e) {
-            log_message('error', 'PerfilDocente - tutor prácticas / actividades: ' . $e->getMessage());
+            log_message('error', 'PerfilDocente - actividades: ' . $e->getMessage());
         }
 
-        $esTutorRegistrado = !empty($docenteTutor);
         $data = [
             'title' => 'Mi Perfil | ITSI',
             'usuario' => $usuario,
             'validation' => null,
-            'es_tutor_practicas' => $esTutorRegistrado || ($tutorCountPre + $tutorCountSc) > 0,
-            'tutor_count_pre' => $tutorCountPre,
-            'tutor_count_sc' => $tutorCountSc,
             'actividades_perfil_enlaces' => $actividadesPerfilEnlaces,
         ];
 
@@ -133,14 +110,26 @@ class PerfilDocenteController extends BaseController
             return redirect()->back()->with('error', 'Usuario no encontrado');
         }
 
-        // Preparar datos personales para actualizar (solo campos editables)
+        // Preparar datos personales (evitar NULL en columnas NOT NULL de la BD)
         $datosPersona = [
-            'CELULAR' => $this->request->getPost('celular') ?: null,
-            'DIRECCION' => $this->request->getPost('direccion') ?: null,
-            'EMAIL' => $this->request->getPost('email') ?: null,
-            'GENERO' => $this->request->getPost('genero') ?: null,
-            'ESTADO_CIVIL' => $this->request->getPost('estado_civil') ?: null,
-            'NACIONALIDAD' => $this->request->getPost('nacionalidad') ?: null
+            'CELULAR' => trim((string) $this->request->getPost('celular')) !== ''
+                ? trim((string) $this->request->getPost('celular'))
+                : (string) ($usuario['CELULAR'] ?? ''),
+            'DIRECCION' => trim((string) $this->request->getPost('direccion')) !== ''
+                ? trim((string) $this->request->getPost('direccion'))
+                : (string) ($usuario['DIRECCION'] ?? ''),
+            'EMAIL' => trim((string) $this->request->getPost('email')) !== ''
+                ? trim((string) $this->request->getPost('email'))
+                : (string) ($usuario['EMAIL'] ?? ''),
+            'GENERO' => trim((string) $this->request->getPost('genero')) !== ''
+                ? trim((string) $this->request->getPost('genero'))
+                : (string) ($usuario['GENERO'] ?? ''),
+            'ESTADO_CIVIL' => trim((string) $this->request->getPost('estado_civil')) !== ''
+                ? trim((string) $this->request->getPost('estado_civil'))
+                : (string) ($usuario['ESTADO_CIVIL'] ?? ''),
+            'NACIONALIDAD' => trim((string) $this->request->getPost('nacionalidad')) !== ''
+                ? trim((string) $this->request->getPost('nacionalidad'))
+                : (string) ($usuario['NACIONALIDAD'] ?? ''),
         ];
         
         // Log de datos para depuración

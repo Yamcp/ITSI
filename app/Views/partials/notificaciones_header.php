@@ -24,7 +24,15 @@
         </div>
         <li><hr class="dropdown-divider"></li>
         <li class="dropdown-item text-center">
-            <a href="<?= base_url(session()->get('rol') == 2 ? 'docente' : 'estudiante') ?>/notificaciones" class="btn btn-outline-primary btn-sm">
+            <?php
+            $rolNotif = (int) (session()->get('rol') ?? 0);
+            $urlVerNotif = match ($rolNotif) {
+                3 => 'docente/notificaciones',
+                4 => 'estudiante/notificaciones',
+                default => 'estudiante/notificaciones',
+            };
+            ?>
+            <a href="<?= base_url($urlVerNotif) ?>" class="btn btn-outline-primary btn-sm">
                 <i class="fas fa-eye me-1"></i>Ver Todas
             </a>
         </li>

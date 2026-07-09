@@ -325,7 +325,12 @@ class UsuariosModel extends Model
             $this->db->table('TAB_DATOS_PERSONAS')
                      ->where('ID_DATO_PERSONA', $usuario['ID_DATO_PERSONA'])
                      ->update($datosPersona);
-            
+
+            // Mantener alineado el ID_DATO_PERSONA del tutor con el del usuario (perfil)
+            $this->db->table('TAB_DOCENTES_TUTORES')
+                     ->where('ID_USUARIO', $idUsuario)
+                     ->update(['ID_DATO_PERSONA' => $usuario['ID_DATO_PERSONA']]);
+
             // Actualizar datos de usuario si se proporcionan
             if (!empty($datosUsuario)) {
                 $this->update($idUsuario, $datosUsuario);

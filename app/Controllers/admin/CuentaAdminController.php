@@ -21,7 +21,7 @@ class CuentaAdminController extends BaseController
         $userId = session('id_usuario');
 
         if (!$userId) {
-            return redirect()->to('auth/login');
+            return redirect()->to('/');
         }
 
         // Obtener información básica del usuario
@@ -41,7 +41,7 @@ class CuentaAdminController extends BaseController
         $userId = session('id_usuario');
 
         if (!$userId) {
-            return redirect()->to('auth/login');
+            return redirect()->to('/');
         }
 
         // Validar datos del formulario

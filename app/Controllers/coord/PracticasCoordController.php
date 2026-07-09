@@ -231,7 +231,8 @@ class PracticasCoordController extends BaseController
             ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = pp.ID_INSTITUCION_CONVENIO')
             ->join('TAB_TIPOS_INSTITUCION ti', 'ti.ID_TIPO_INSTITUCION = ic.ID_TIPO_INSTITUCION')
             ->join('TAB_DOCENTES_TUTORES dt', 'dt.ID_DOCENTE_TUTOR = pp.ID_DOCENTE_TUTOR', 'left')
-            ->join('TAB_DATOS_PERSONAS dpdt', 'dpdt.ID_DATO_PERSONA = dt.ID_DATO_PERSONA', 'left')
+            ->join('TAB_USUARIOS ut', 'ut.ID_USUARIO = dt.ID_USUARIO', 'left')
+            ->join('TAB_DATOS_PERSONAS dpdt', 'dpdt.ID_DATO_PERSONA = COALESCE(ut.ID_DATO_PERSONA, dt.ID_DATO_PERSONA)', 'left')
             ->orderBy('pp.ID_PRACTICA_PREPROFESIONAL', 'DESC');
 
         return $builder->get()->getResultArray();
@@ -260,7 +261,8 @@ class PracticasCoordController extends BaseController
             ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = sc.ID_INSTITUCION_CONVENIO')
             ->join('TAB_TIPOS_INSTITUCION ti', 'ti.ID_TIPO_INSTITUCION = ic.ID_TIPO_INSTITUCION')
             ->join('TAB_DOCENTES_TUTORES dt', 'dt.ID_DOCENTE_TUTOR = sc.ID_DOCENTE_TUTOR', 'left')
-            ->join('TAB_DATOS_PERSONAS dpdt', 'dpdt.ID_DATO_PERSONA = dt.ID_DATO_PERSONA', 'left')
+            ->join('TAB_USUARIOS ut', 'ut.ID_USUARIO = dt.ID_USUARIO', 'left')
+            ->join('TAB_DATOS_PERSONAS dpdt', 'dpdt.ID_DATO_PERSONA = COALESCE(ut.ID_DATO_PERSONA, dt.ID_DATO_PERSONA)', 'left')
             ->orderBy('sc.ID_SERVICIO_COMUNITARIO', 'DESC');
 
         return $builder->get()->getResultArray();
@@ -613,6 +615,9 @@ class PracticasCoordController extends BaseController
 
             $asignacionId = $this->asignacionesModel->insert($asignacionData);
 
+            // ID real de la práctica/servicio (para notificaciones y referencias)
+            $idPracticaOServicio = 0;
+
             if ($tipoPractica == 2) { // Prácticas Preprofesionales
                 $practicaData = [
                     'ID_ASIGNACION_PRACTICA' => $asignacionId,
@@ -627,6 +632,7 @@ class PracticasCoordController extends BaseController
                 ];
 
                 $db->table('TAB_PRACTICAS_PREPROFESIONALES')->insert($practicaData);
+                $idPracticaOServicio = (int) $db->insertID();
             } else { // Servicio Comunitario
                 $servicioData = [
                     'ID_ASIGNACION_PRACTICA' => $asignacionId,
@@ -641,6 +647,7 @@ class PracticasCoordController extends BaseController
                 ];
 
                 $db->table('TAB_SERVICIO_COMUNITARIO')->insert($servicioData);
+                $idPracticaOServicio = (int) $db->insertID();
             }
 
             $db->transComplete();
@@ -652,8 +659,18 @@ class PracticasCoordController extends BaseController
                 ]);
             }
 
-            // Enviar notificaciones después de crear la práctica exitosamente
-            $this->enviarNotificacionesPractica($estudiante, $institucion, $tipoPractica, $asignacionId, $fechaInicio, $fechaFin, $horasTotal, $descripcion, $idDocenteTutor);
+            // Notificar con el ID de la práctica/servicio (no el de la asignación)
+            $this->enviarNotificacionesPractica(
+                $estudiante,
+                $institucion,
+                $tipoPractica,
+                $idPracticaOServicio > 0 ? $idPracticaOServicio : $asignacionId,
+                $fechaInicio,
+                $fechaFin,
+                $horasTotal,
+                $descripcion,
+                $idDocenteTutor
+            );
 
             return $this->response->setJSON([
                 'success' => true,
@@ -689,7 +706,8 @@ class PracticasCoordController extends BaseController
                 ->join('TAB_CARRERAS c', 'c.ID_CARRERA = e.ID_CARRERA')
                 ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = pp.ID_INSTITUCION_CONVENIO')
                 ->join('TAB_DOCENTES_TUTORES dt', 'dt.ID_DOCENTE_TUTOR = pp.ID_DOCENTE_TUTOR', 'left')
-                ->join('TAB_DATOS_PERSONAS dpdt', 'dpdt.ID_DATO_PERSONA = dt.ID_DATO_PERSONA', 'left')
+                ->join('TAB_USUARIOS ut', 'ut.ID_USUARIO = dt.ID_USUARIO', 'left')
+                ->join('TAB_DATOS_PERSONAS dpdt', 'dpdt.ID_DATO_PERSONA = COALESCE(ut.ID_DATO_PERSONA, dt.ID_DATO_PERSONA)', 'left')
                 ->where('pp.ID_PRACTICA_PREPROFESIONAL', $id);
         } else {
             $builder = $db->table('TAB_SERVICIO_COMUNITARIO sc')
@@ -705,7 +723,8 @@ class PracticasCoordController extends BaseController
                 ->join('TAB_CARRERAS c', 'c.ID_CARRERA = e.ID_CARRERA')
                 ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = sc.ID_INSTITUCION_CONVENIO')
                 ->join('TAB_DOCENTES_TUTORES dt', 'dt.ID_DOCENTE_TUTOR = sc.ID_DOCENTE_TUTOR', 'left')
-                ->join('TAB_DATOS_PERSONAS dpdt', 'dpdt.ID_DATO_PERSONA = dt.ID_DATO_PERSONA', 'left')
+                ->join('TAB_USUARIOS ut', 'ut.ID_USUARIO = dt.ID_USUARIO', 'left')
+                ->join('TAB_DATOS_PERSONAS dpdt', 'dpdt.ID_DATO_PERSONA = COALESCE(ut.ID_DATO_PERSONA, dt.ID_DATO_PERSONA)', 'left')
                 ->where('sc.ID_SERVICIO_COMUNITARIO', $id);
         }
 
@@ -1484,13 +1503,15 @@ class PracticasCoordController extends BaseController
         $db = \Config\Database::connect();
 
         // Los tutores de prácticas viven en TAB_DOCENTES_TUTORES (no en TAB_INSTRUCTORES)
+        // Priorizar datos personales del usuario (perfil) para que coincidan con Mi Perfil
         $builder = $db->table('TAB_DOCENTES_TUTORES dt')
             ->select('
                 dt.ID_DOCENTE_TUTOR,
                 CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as nombre_completo,
                 dp.EMAIL
             ')
-            ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = dt.ID_DATO_PERSONA')
+            ->join('TAB_USUARIOS u', 'u.ID_USUARIO = dt.ID_USUARIO', 'left')
+            ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = COALESCE(u.ID_DATO_PERSONA, dt.ID_DATO_PERSONA)')
             ->where('dt.ID_DOCENTE_TUTOR', $idDocenteTutor);
 
         return $builder->get()->getRowArray();

@@ -17,7 +17,7 @@ if ($idUsuarioNav) {
 
 <header class="app-header" style="padding: 0;">
     <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #00367c;">
-        <a class="navbar-brand d-flex align-items-center" href="<?= base_url('docente/inicio') ?>"></a>
+        <a class="navbar-brand d-flex align-items-center" href="<?= base_url('docente/dashboard') ?>"></a>
         <ul class="navbar-nav">
             <li class="nav-item d-block d-xl-none">
                 <a class="nav-link sidebartoggler nav-icon-hover" id="headerCollapse" href="javascript:void(0)">

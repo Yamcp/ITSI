@@ -23,16 +23,28 @@ class DocentesTutoresModel extends Model
     protected $updatedField = 'FECHA_ACTUALIZACION';
 
     /**
+     * Datos personales del tutor: prioriza la persona del usuario (perfil),
+     * para que coincida con lo editado en Mi Perfil.
+     */
+    private function builderConDatosPersonales()
+    {
+        return $this->db->table('TAB_DOCENTES_TUTORES dt')
+            ->join('TAB_USUARIOS u', 'u.ID_USUARIO = dt.ID_USUARIO', 'left')
+            ->join(
+                'TAB_DATOS_PERSONAS dp',
+                'dp.ID_DATO_PERSONA = COALESCE(u.ID_DATO_PERSONA, dt.ID_DATO_PERSONA)'
+            );
+    }
+
+    /**
      * Obtener todos los docentes activos con datos personales.
      */
     public function getDocentesConDatos(): array
     {
-        return $this->db->table('TAB_DOCENTES_TUTORES dt')
+        return $this->builderConDatosPersonales()
             ->select('dt.*, dp.NOMBRE, dp.APELLIDO, dp.CEDULA, dp.EMAIL, dp.CELULAR,
                       dp.DIRECCION, dp.GENERO, dp.ESTADO_CIVIL, dp.NACIONALIDAD, dp.FOTO_URL,
                       u.USUARIO, u.ESTADO as ESTADO_USUARIO')
-            ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = dt.ID_DATO_PERSONA')
-            ->join('TAB_USUARIOS u', 'u.ID_USUARIO = dt.ID_USUARIO', 'left')
             ->where('dt.ACTIVO', 1)
             ->orderBy('dp.APELLIDO', 'ASC')
             ->orderBy('dp.NOMBRE', 'ASC')
@@ -45,12 +57,10 @@ class DocentesTutoresModel extends Model
      */
     public function getDocenteCompleto(int $id): ?array
     {
-        $row = $this->db->table('TAB_DOCENTES_TUTORES dt')
+        $row = $this->builderConDatosPersonales()
             ->select('dt.*, dp.NOMBRE, dp.APELLIDO, dp.CEDULA, dp.EMAIL, dp.CELULAR,
                       dp.DIRECCION, dp.GENERO, dp.ESTADO_CIVIL, dp.NACIONALIDAD, dp.FOTO_URL,
                       u.USUARIO, u.ESTADO as ESTADO_USUARIO')
-            ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = dt.ID_DATO_PERSONA')
-            ->join('TAB_USUARIOS u', 'u.ID_USUARIO = dt.ID_USUARIO', 'left')
             ->where('dt.ID_DOCENTE_TUTOR', $id)
             ->get()
             ->getRowArray();
@@ -63,10 +73,9 @@ class DocentesTutoresModel extends Model
      */
     public function getDocentePorUsuario(int $idUsuario): ?array
     {
-        $row = $this->db->table('TAB_DOCENTES_TUTORES dt')
+        $row = $this->builderConDatosPersonales()
             ->select('dt.*, dp.NOMBRE, dp.APELLIDO, dp.CEDULA, dp.EMAIL, dp.CELULAR,
                       dp.DIRECCION, dp.GENERO, dp.ESTADO_CIVIL, dp.NACIONALIDAD, dp.FOTO_URL')
-            ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = dt.ID_DATO_PERSONA')
             ->where('dt.ID_USUARIO', $idUsuario)
             ->where('dt.ACTIVO', 1)
             ->get()
@@ -80,9 +89,8 @@ class DocentesTutoresModel extends Model
      */
     public function getDocentesParaSelect(): array
     {
-        return $this->db->table('TAB_DOCENTES_TUTORES dt')
+        return $this->builderConDatosPersonales()
             ->select('dt.ID_DOCENTE_TUTOR, CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as NOMBRE_COMPLETO')
-            ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = dt.ID_DATO_PERSONA')
             ->where('dt.ACTIVO', 1)
             ->orderBy('dp.APELLIDO', 'ASC')
             ->orderBy('dp.NOMBRE', 'ASC')
@@ -95,8 +103,7 @@ class DocentesTutoresModel extends Model
      */
     public function existeCedula(string $cedula, ?int $excluirId = null): bool
     {
-        $builder = $this->db->table('TAB_DOCENTES_TUTORES dt')
-            ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = dt.ID_DATO_PERSONA')
+        $builder = $this->builderConDatosPersonales()
             ->where('dp.CEDULA', $cedula);
 
         if ($excluirId !== null) {

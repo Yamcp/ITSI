@@ -88,14 +88,26 @@ class PerfilCoordController extends BaseController
             return redirect()->back()->with('error', 'Usuario no encontrado');
         }
 
-        // Preparar datos personales para actualizar (solo campos editables)
+        // Preparar datos personales (evitar NULL en columnas NOT NULL de la BD)
         $datosPersona = [
-            'CELULAR' => $this->request->getPost('celular') ?: null,
-            'DIRECCION' => $this->request->getPost('direccion') ?: null,
-            'EMAIL' => $this->request->getPost('email') ?: null,
-            'GENERO' => $this->request->getPost('genero') ?: null,
-            'ESTADO_CIVIL' => $this->request->getPost('estado_civil') ?: null,
-            'NACIONALIDAD' => $this->request->getPost('nacionalidad') ?: null
+            'CELULAR' => trim((string) $this->request->getPost('celular')) !== ''
+                ? trim((string) $this->request->getPost('celular'))
+                : (string) ($usuario['CELULAR'] ?? ''),
+            'DIRECCION' => trim((string) $this->request->getPost('direccion')) !== ''
+                ? trim((string) $this->request->getPost('direccion'))
+                : (string) ($usuario['DIRECCION'] ?? ''),
+            'EMAIL' => trim((string) $this->request->getPost('email')) !== ''
+                ? trim((string) $this->request->getPost('email'))
+                : (string) ($usuario['EMAIL'] ?? ''),
+            'GENERO' => trim((string) $this->request->getPost('genero')) !== ''
+                ? trim((string) $this->request->getPost('genero'))
+                : (string) ($usuario['GENERO'] ?? ''),
+            'ESTADO_CIVIL' => trim((string) $this->request->getPost('estado_civil')) !== ''
+                ? trim((string) $this->request->getPost('estado_civil'))
+                : (string) ($usuario['ESTADO_CIVIL'] ?? ''),
+            'NACIONALIDAD' => trim((string) $this->request->getPost('nacionalidad')) !== ''
+                ? trim((string) $this->request->getPost('nacionalidad'))
+                : (string) ($usuario['NACIONALIDAD'] ?? ''),
         ];
         
         // Log de datos para depuración

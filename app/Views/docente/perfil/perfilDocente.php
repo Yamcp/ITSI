@@ -69,42 +69,10 @@
             </div>
         <?php endif; ?>
 
-        <?php
-        $esTutorPracticas = !empty($es_tutor_practicas);
-        $tutorPre = (int) ($tutor_count_pre ?? 0);
-        $tutorSc = (int) ($tutor_count_sc ?? 0);
-        ?>
-        <?php if ($esTutorPracticas): ?>
-            <div class="card border-success mb-4 shadow-sm">
-                <div class="card-body py-3">
-                    <div class="d-flex flex-wrap align-items-center gap-3">
-                        <div class="rounded-circle bg-success bg-opacity-10 p-3 text-success">
-                            <i class="fas fa-user-graduate fa-2x"></i>
-                        </div>
-                        <div class="flex-grow-1">
-                            <h5 class="card-title mb-1">Docente tutor de prácticas</h5>
-                            <p class="text-muted small mb-2 mb-md-0">
-                                Estás asignado como tutor en el sistema:
-                                <?php if ($tutorPre > 0): ?>
-                                    <span class="badge bg-info text-dark"><?= (int) $tutorPre ?> práctica(s) preprofesional(es)</span>
-                                <?php endif; ?>
-                                <?php if ($tutorSc > 0): ?>
-                                    <span class="badge bg-secondary"><?= (int) $tutorSc ?> servicio(s) comunitario(s)</span>
-                                <?php endif; ?>
-                            </p>
-                        </div>
-                        <a href="<?= base_url('docente/practicas') ?>" class="btn btn-success btn-sm">
-                            <i class="fas fa-briefcase me-1"></i>Ir a prácticas
-                        </a>
-                    </div>
-                </div>
-            </div>
-        <?php endif; ?>
-
         <?php if (!empty($actividades_perfil_enlaces)): ?>
             <?= $this->include('partials/actividades_enlaces_perfil', [
                 'filas' => $actividades_perfil_enlaces,
-                'urlDetalleBase' => base_url('docente/actividades-educacion/ver'),
+                'urlDetalleBase' => '',
             ]) ?>
         <?php endif; ?>
 

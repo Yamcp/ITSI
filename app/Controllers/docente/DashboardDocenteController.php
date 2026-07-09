@@ -45,21 +45,13 @@ class DashboardDocenteController extends BaseController
         $instructor = null;
         if ($docente) {
             $idDocente = (int) $docente['ID_DOCENTE_TUTOR'];
-            $idsPp = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES')
-                ->select('ID_ESTUDIANTE')
+            // Contar registros de asignación (mismo criterio que el módulo de prácticas)
+            $estudiantesPp = (int) $this->db->table('TAB_PRACTICAS_PREPROFESIONALES')
                 ->where('ID_DOCENTE_TUTOR', $idDocente)
-                ->get()
-                ->getResultArray();
-            $idsSc = $this->db->table('TAB_SERVICIO_COMUNITARIO')
-                ->select('ID_ESTUDIANTE')
+                ->countAllResults();
+            $estudiantesSc = (int) $this->db->table('TAB_SERVICIO_COMUNITARIO')
                 ->where('ID_DOCENTE_TUTOR', $idDocente)
-                ->get()
-                ->getResultArray();
-            $colPp = array_column($idsPp, 'ID_ESTUDIANTE');
-            $colSc = array_column($idsSc, 'ID_ESTUDIANTE');
-            $estudiantesPp = count(array_unique(array_filter($colPp)));
-            $estudiantesSc = count(array_unique(array_filter($colSc)));
-            // Total = suma de asignaciones PP + SC (un estudiante en ambas modalidades cuenta en ambas)
+                ->countAllResults();
             $estudiantesAsignados = $estudiantesPp + $estudiantesSc;
 
             // Para actividades de educación, buscar si el docente también está en TAB_INSTRUCTORES
