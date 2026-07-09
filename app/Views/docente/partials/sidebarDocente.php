@@ -56,6 +56,14 @@
                         <span class="hide-menu">Servicio comunitario</span>
                     </a>
                 </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link" href="<?= base_url('docente/notificaciones') ?>" aria-expanded="false">
+                        <span>
+                            <i class="fa-solid fa-bell fs-6"></i>
+                        </span>
+                        <span class="hide-menu">Notificaciones</span>
+                    </a>
+                </li>
             </ul>
         </nav>
     </div>

@@ -1,142 +1,223 @@
 <?= $this->extend('docente/layouts/mainDocente') ?>
 
 <?= $this->section('styles') ?>
-<!-- CSS personalizado para notificaciones -->
 <style>
-    .notification-item {
-        transition: all 0.3s ease;
+    .notif-item {
+        transition: background 0.2s ease;
         border-left: 4px solid transparent;
     }
 
-    .notification-item:hover {
-        transform: translateX(5px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    .notification-item.unread {
+    .notif-item.unread {
         border-left-color: #28a745;
         background-color: #f8fff8;
     }
 
-    .notification-item.read {
-        border-left-color: #6c757d;
+    .notif-item.read {
+        border-left-color: #dee2e6;
         background-color: #f8f9fa;
     }
 
-    .notification-priority {
+    .notif-priority {
         position: absolute;
-        top: 10px;
-        right: 10px;
+        top: 12px;
+        right: 12px;
         width: 8px;
         height: 8px;
         border-radius: 50%;
     }
 
-    .priority-alta {
-        background-color: #dc3545;
-    }
+    .notif-priority-alta { background-color: #dc3545; }
+    .notif-priority-media { background-color: #ffc107; }
+    .notif-priority-baja { background-color: #28a745; }
 
-    .priority-media {
-        background-color: #ffc107;
-    }
-
-    .priority-baja {
-        background-color: #28a745;
-    }
-
-    .notification-type {
-        font-size: 0.8rem;
-        padding: 2px 8px;
+    .stats-card {
         border-radius: 12px;
+        padding: 1.25rem;
+        color: #fff;
+    }
+
+    #modalEstudianteNotif .modal-content {
+        border-radius: 14px;
+        overflow: hidden;
+    }
+
+    #modalEstudianteNotif .modal-header {
+        background: linear-gradient(135deg, #00367c 0%, #0056b3 100%);
+        border-bottom: none;
+        padding: 1.1rem 1.35rem;
+        color: #ffffff !important;
+    }
+
+    #modalEstudianteNotif .modal-header .modal-title,
+    #modalEstudianteNotif .modal-header .modal-title i {
+        color: #ffffff !important;
+    }
+
+    #modalEstudianteNotif .modal-body {
+        padding: 1.5rem 1.35rem 1.25rem;
+        background: #f7f9fc;
+    }
+
+    #modalEstudianteNotif .modal-footer {
+        border-top: none;
+        background: #fff;
+        padding: 0.85rem 1.35rem 1.15rem;
+    }
+
+    #modalEstudianteNotif .est-hero {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: #fff;
+        border: 1px solid #e8eef5;
+        border-radius: 12px;
+        padding: 1rem 1.1rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 1px 2px rgba(0, 54, 124, 0.04);
+    }
+
+    #modalEstudianteNotif .est-avatar {
+        width: 56px;
+        height: 56px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #00367c, #20c997);
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.15rem;
+        flex-shrink: 0;
+        letter-spacing: 0.5px;
+    }
+
+    #modalEstudianteNotif .est-hero-nombre {
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #1a2b4a;
+        margin: 0 0 0.2rem;
+        line-height: 1.3;
+    }
+
+    #modalEstudianteNotif .est-hero-sub {
+        font-size: 0.85rem;
+        color: #6c757d;
+        margin: 0;
+    }
+
+    #modalEstudianteNotif .est-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.75rem;
+    }
+
+    #modalEstudianteNotif .est-dato {
+        background: #fff;
+        border: 1px solid #e8eef5;
+        border-radius: 10px;
+        padding: 0.85rem 1rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        box-shadow: 0 1px 2px rgba(0, 54, 124, 0.04);
+    }
+
+    #modalEstudianteNotif .est-dato-icon {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        font-size: 0.95rem;
+    }
+
+    #modalEstudianteNotif .est-dato-icon.carrera {
+        background: #e8f1ff;
+        color: #00367c;
+    }
+
+    #modalEstudianteNotif .est-dato-icon.semestre {
+        background: #e8f8f0;
+        color: #198754;
+    }
+
+    #modalEstudianteNotif .est-dato-icon.modalidad {
+        background: #fff3e6;
+        color: #d97706;
+    }
+
+    #modalEstudianteNotif .est-dato.full {
+        grid-column: 1 / -1;
+    }
+
+    #modalEstudianteNotif .dato-label {
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: #8a94a6;
+        margin-bottom: 0.2rem;
+        font-weight: 600;
+    }
+
+    #modalEstudianteNotif .dato-valor {
+        font-weight: 600;
+        color: #1a2b4a;
+        font-size: 0.95rem;
+        line-height: 1.35;
+        word-break: break-word;
+    }
+
+    #modalEstudianteNotif .btn-cerrar-modal {
+        background: #00367c;
+        border-color: #00367c;
+        color: #fff;
+        border-radius: 8px;
+        padding: 0.45rem 1.25rem;
         font-weight: 500;
     }
 
-    .type-asignacion_practica {
-        background-color: #e3f2fd;
-        color: #1976d2;
+    #modalEstudianteNotif .btn-cerrar-modal:hover {
+        background: #002a61;
+        border-color: #002a61;
+        color: #fff;
     }
 
-    .type-tutoria_asignada {
-        background-color: #f3e5f5;
-        color: #7b1fa2;
-    }
-
-    .type-recordatorio {
-        background-color: #fff3e0;
-        color: #f57c00;
-    }
-
-    .type-general {
-        background-color: #e8f5e8;
-        color: #388e3c;
-    }
-
-    .notification-actions {
-        opacity: 0;
-        transition: opacity 0.3s ease;
-    }
-
-    .notification-item:hover .notification-actions {
-        opacity: 1;
-    }
-
-    .stats-card {
-        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-        color: white;
-        border-radius: 15px;
-        padding: 20px;
-        margin-bottom: 20px;
-    }
-
-    .filter-buttons .btn {
-        margin-right: 10px;
-        margin-bottom: 10px;
-    }
-
-    .empty-state {
-        text-align: center;
-        padding: 60px 20px;
-        color: #6c757d;
-    }
-
-    .empty-state i {
-        font-size: 4rem;
-        margin-bottom: 20px;
-        opacity: 0.5;
-    }
-
-    .tutoria-badge {
-        background: linear-gradient(45deg, #28a745, #20c997);
-        color: white;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: 600;
+    @media (max-width: 575.98px) {
+        #modalEstudianteNotif .est-grid {
+            grid-template-columns: 1fr;
+        }
     }
 </style>
 <?= $this->endSection() ?>
 
 <?= $this->section('content') ?>
+<?php
+$estadisticas = $estadisticas ?? ['total' => 0, 'no_leidas' => 0, 'leidas' => 0];
+$notificaciones = $notificaciones ?? [];
+$baseNotif = rtrim(base_url('notificaciones'), '/');
+?>
 <div class="body-wrapper">
     <div class="container-fluid">
-        <!-- Header -->
-        <div class="row">
+        <div class="row mb-3">
             <div class="col-12">
-                <h3 class="text-center my-3">
-                    <i class="fas fa-chalkboard-teacher me-2"></i>
-                    Mis Notificaciones de Tutoría
+                <h3 class="mb-1 text-primary">
+                    <i class="fas fa-chalkboard-teacher me-2"></i>Asignaciones de tutoría
                 </h3>
+                <p class="text-muted mb-0">
+                    Aquí se te notifica cuando coordinación te asigna como tutor de un estudiante.
+                </p>
             </div>
         </div>
 
-        <!-- Estadísticas -->
-        <div class="row mb-4">
+        <div class="row mb-4 g-3">
             <div class="col-md-4">
-                <div class="stats-card">
+                <div class="stats-card" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h4 class="mb-1"><?= $estadisticas['total'] ?? 0 ?></h4>
-                            <p class="mb-0">Total Notificaciones</p>
+                            <h4 class="mb-1" id="statTotal"><?= (int) ($estadisticas['total'] ?? 0) ?></h4>
+                            <p class="mb-0">Total</p>
                         </div>
                         <i class="fas fa-bell fa-2x opacity-75"></i>
                     </div>
@@ -146,7 +227,7 @@
                 <div class="stats-card" style="background: linear-gradient(135deg, #fd7e14 0%, #ffc107 100%);">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h4 class="mb-1"><?= $estadisticas['no_leidas'] ?? 0 ?></h4>
+                            <h4 class="mb-1" id="statPendientes"><?= (int) ($estadisticas['no_leidas'] ?? 0) ?></h4>
                             <p class="mb-0">Pendientes</p>
                         </div>
                         <i class="fas fa-exclamation-circle fa-2x opacity-75"></i>
@@ -157,7 +238,7 @@
                 <div class="stats-card" style="background: linear-gradient(135deg, #17a2b8 0%, #6f42c1 100%);">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <h4 class="mb-1"><?= $estadisticas['leidas'] ?? 0 ?></h4>
+                            <h4 class="mb-1" id="statRevisadas"><?= (int) ($estadisticas['leidas'] ?? 0) ?></h4>
                             <p class="mb-0">Revisadas</p>
                         </div>
                         <i class="fas fa-check-circle fa-2x opacity-75"></i>
@@ -166,328 +247,261 @@
             </div>
         </div>
 
-        <!-- Filtros y Acciones -->
-        <div class="row mb-4">
-            <div class="col-md-8">
-                <div class="filter-buttons">
-                    <button class="btn btn-outline-success active" data-filter="todas">
-                        <i class="fas fa-list me-1"></i>Todas
-                    </button>
-                    <button class="btn btn-outline-warning" data-filter="no_leidas">
-                        <i class="fas fa-exclamation-circle me-1"></i>Pendientes
-                    </button>
-                    <button class="btn btn-outline-primary" data-filter="tutoria_asignada">
-                        <i class="fas fa-chalkboard-teacher me-1"></i>Tutorías
-                    </button>
-                    <button class="btn btn-outline-info" data-filter="asignacion_practica">
-                        <i class="fas fa-briefcase me-1"></i>Prácticas
-                    </button>
-                    <button class="btn btn-outline-secondary" data-filter="recordatorio">
-                        <i class="fas fa-clock me-1"></i>Recordatorios
-                    </button>
-                </div>
-            </div>
-            <div class="col-md-4 text-end">
-                <button class="btn btn-success" onclick="marcarTodasLeidas()">
-                    <i class="fas fa-check-double me-1"></i>Marcar Todas Revisadas
-                </button>
-            </div>
+        <div class="d-flex justify-content-end mb-3">
+            <button type="button" class="btn btn-success" id="btnMarcarTodas">
+                <i class="fas fa-check-double me-1"></i>Marcar todas revisadas
+            </button>
         </div>
 
-        <!-- Lista de Notificaciones -->
-        <div class="row">
-            <div class="col-12">
-                <div class="card shadow-sm">
-                    <div class="card-body p-0">
-                        <?php if (!empty($notificaciones)): ?>
-                            <div id="notificacionesLista">
-                                <?php foreach ($notificaciones as $notificacion): ?>
-                                    <div class="notification-item p-3 border-bottom position-relative <?= $notificacion['LEIDA'] ? 'read' : 'unread' ?>"
-                                        data-id="<?= $notificacion['ID_NOTIFICACION'] ?>"
-                                        data-tipo="<?= $notificacion['TIPO_NOTIFICACION'] ?>"
-                                        data-leida="<?= $notificacion['LEIDA'] ?>">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-0">
+                <?php if (!empty($notificaciones)): ?>
+                    <div id="listaNotificaciones">
+                        <?php foreach ($notificaciones as $notificacion): ?>
+                            <?php
+                            $leida = !empty($notificacion['LEIDA']);
+                            $leidaAttr = $leida ? '1' : '0';
+                            $nombreEst = trim((string) ($notificacion['ESTUDIANTE_NOMBRE'] ?? ''));
+                            $carreraEst = trim((string) ($notificacion['ESTUDIANTE_CARRERA'] ?? ''));
+                            $semestreEst = $notificacion['ESTUDIANTE_SEMESTRE'] ?? '';
+                            $modalidadEst = ($notificacion['MODALIDAD'] ?? '') === 'servicio'
+                                ? 'Servicio comunitario'
+                                : 'Prácticas preprofesionales';
+                            ?>
+                            <div class="notif-item p-3 border-bottom position-relative <?= $leida ? 'read' : 'unread' ?>"
+                                data-id="<?= (int) $notificacion['ID_NOTIFICACION'] ?>"
+                                data-leida="<?= $leidaAttr ?>"
+                                data-nombre="<?= esc($nombreEst !== '' ? $nombreEst : '—', 'attr') ?>"
+                                data-carrera="<?= esc($carreraEst !== '' ? $carreraEst : '—', 'attr') ?>"
+                                data-semestre="<?= esc($semestreEst !== '' && $semestreEst !== null ? (string) $semestreEst : '—', 'attr') ?>"
+                                data-modalidad="<?= esc($modalidadEst, 'attr') ?>">
 
-                                        <!-- Indicador de prioridad -->
-                                        <div class="notification-priority priority-<?= $notificacion['PRIORIDAD'] ?>"></div>
+                                <div class="notif-priority notif-priority-<?= esc($notificacion['PRIORIDAD'] ?? 'alta', 'attr') ?>"></div>
 
-                                        <div class="row">
-                                            <div class="col-md-1">
-                                                <div class="text-center">
-                                                    <?php if ($notificacion['TIPO_NOTIFICACION'] == 'tutoria_asignada'): ?>
-                                                        <i class="fas fa-chalkboard-teacher fa-2x text-success"></i>
-                                                    <?php elseif ($notificacion['TIPO_NOTIFICACION'] == 'asignacion_practica'): ?>
-                                                        <i class="fas fa-briefcase fa-2x text-primary"></i>
-                                                    <?php elseif ($notificacion['TIPO_NOTIFICACION'] == 'recordatorio'): ?>
-                                                        <i class="fas fa-clock fa-2x text-warning"></i>
-                                                    <?php else: ?>
-                                                        <i class="fas fa-info-circle fa-2x text-info"></i>
-                                                    <?php endif; ?>
-                                                </div>
-                                            </div>
-                                            <div class="col-md-9">
-                                                <div class="d-flex justify-content-between align-items-start mb-2">
-                                                    <h6 class="mb-1 fw-bold"><?= $notificacion['TITULO'] ?></h6>
-                                                    <div class="d-flex align-items-center gap-2">
-                                                        <?php if ($notificacion['TIPO_NOTIFICACION'] == 'tutoria_asignada'): ?>
-                                                            <span class="tutoria-badge">
-                                                                <i class="fas fa-graduation-cap me-1"></i>Nueva Tutoria
-                                                            </span>
-                                                        <?php endif; ?>
-                                                        <div class="notification-type type-<?= $notificacion['TIPO_NOTIFICACION'] ?>">
-                                                            <?= ucfirst(str_replace('_', ' ', $notificacion['TIPO_NOTIFICACION'])) ?>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <p class="mb-2 text-muted"><?= nl2br($notificacion['MENSAJE']) ?></p>
-                                                <small class="text-muted">
-                                                    <i class="fas fa-calendar-alt me-1"></i>
-                                                    <?= date('d/m/Y H:i', strtotime($notificacion['FECHA_CREACION'])) ?>
-                                                    <?php if ($notificacion['LEIDA'] && $notificacion['FECHA_LEIDA']): ?>
-                                                        | <i class="fas fa-check me-1"></i>Revisada: <?= date('d/m/Y H:i', strtotime($notificacion['FECHA_LEIDA'])) ?>
-                                                    <?php endif; ?>
-                                                </small>
-                                            </div>
-                                            <div class="col-md-2">
-                                                <div class="notification-actions text-end">
-                                                    <?php if (!$notificacion['LEIDA']): ?>
-                                                        <button class="btn btn-sm btn-outline-success" onclick="marcarLeida(<?= $notificacion['ID_NOTIFICACION'] ?>)">
-                                                            <i class="fas fa-check"></i>
-                                                        </button>
-                                                    <?php endif; ?>
-                                                    <button class="btn btn-sm btn-outline-danger" onclick="eliminarNotificacion(<?= $notificacion['ID_NOTIFICACION'] ?>)">
-                                                        <i class="fas fa-trash"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
+                                <div class="row align-items-start">
+                                    <div class="col-auto pe-0">
+                                        <i class="fas fa-user-graduate fa-2x text-success"></i>
+                                    </div>
+                                    <div class="col">
+                                        <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
+                                            <h6 class="mb-0 fw-bold"><?= esc($notificacion['TITULO'] ?? 'Nueva tutoría asignada') ?></h6>
+                                            <?php if (!$leida): ?>
+                                                <span class="badge rounded-pill" style="background: linear-gradient(45deg, #28a745, #20c997);">Nueva</span>
+                                            <?php else: ?>
+                                                <span class="badge bg-light text-muted border">Revisada</span>
+                                            <?php endif; ?>
+                                        </div>
+                                        <p class="mb-2 text-body"><?= nl2br(esc($notificacion['MENSAJE'] ?? '')) ?></p>
+                                        <small class="text-muted">
+                                            <i class="fas fa-calendar-alt me-1"></i>
+                                            <?= !empty($notificacion['FECHA_CREACION']) ? date('d/m/Y H:i', strtotime($notificacion['FECHA_CREACION'])) : '—' ?>
+                                        </small>
+                                    </div>
+                                    <div class="col-12 col-md-auto text-md-end mt-2 mt-md-0">
+                                        <div class="d-inline-flex gap-1">
+                                            <button type="button" class="btn btn-sm btn-outline-primary btn-ver-estudiante"
+                                                title="Ver información del estudiante">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <?php if (!$leida): ?>
+                                                <button type="button" class="btn btn-sm btn-outline-success btn-marcar-leida"
+                                                    data-id="<?= (int) $notificacion['ID_NOTIFICACION'] ?>"
+                                                    title="Marcar como revisada">
+                                                    <i class="fas fa-check"></i>
+                                                </button>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
-                                <?php endforeach; ?>
+                                </div>
                             </div>
-                        <?php else: ?>
-                            <div class="empty-state">
-                                <i class="fas fa-chalkboard-teacher"></i>
-                                <h4>No tienes notificaciones de tutoría</h4>
-                                <p>Cuando seas asignado como tutor de una práctica, recibirás notificaciones aquí.</p>
-                            </div>
-                        <?php endif; ?>
+                        <?php endforeach; ?>
                     </div>
-                </div>
+                <?php else: ?>
+                    <div class="text-center py-5 text-muted">
+                        <i class="fas fa-chalkboard-teacher fa-3x mb-3 opacity-50"></i>
+                        <h5 class="fw-normal">Sin asignaciones nuevas</h5>
+                        <p class="small mb-0">Cuando coordinación te asigne como tutor de un estudiante, el aviso aparecerá aquí.</p>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
 </div>
 
-<script>
-    // Variables globales
-    let notificaciones = <?= json_encode($notificaciones ?? []) ?>;
+<!-- Modal información del estudiante -->
+<div class="modal fade" id="modalEstudianteNotif" tabindex="-1" aria-labelledby="modalEstudianteNotifLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header text-white">
+                <h5 class="modal-title" id="modalEstudianteNotifLabel">
+                    <i class="fas fa-user-graduate me-2"></i>Información del estudiante
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+                <div class="est-hero">
+                    <div class="est-avatar" id="notifEstAvatar">—</div>
+                    <div>
+                        <p class="est-hero-nombre" id="notifEstNombre">—</p>
+                        <p class="est-hero-sub">Estudiante asignado a tu tutoría</p>
+                    </div>
+                </div>
+                <div class="est-grid">
+                    <div class="est-dato full">
+                        <div class="est-dato-icon carrera"><i class="fas fa-graduation-cap"></i></div>
+                        <div>
+                            <div class="dato-label">Carrera</div>
+                            <div class="dato-valor" id="notifEstCarrera">—</div>
+                        </div>
+                    </div>
+                    <div class="est-dato">
+                        <div class="est-dato-icon semestre"><i class="fas fa-layer-group"></i></div>
+                        <div>
+                            <div class="dato-label">Semestre</div>
+                            <div class="dato-valor" id="notifEstSemestre">—</div>
+                        </div>
+                    </div>
+                    <div class="est-dato">
+                        <div class="est-dato-icon modalidad"><i class="fas fa-briefcase"></i></div>
+                        <div>
+                            <div class="dato-label">Modalidad</div>
+                            <div class="dato-valor" id="notifEstModalidad">—</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cerrar-modal" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+<?= $this->endSection() ?>
 
-    // Funciones principales
-    function marcarLeida(idNotificacion) {
-        fetch(`/notificaciones/marcar-leida/${idNotificacion}`, {
+<?= $this->section('scripts') ?>
+<script>
+(function() {
+    var baseUrl = <?= json_encode($baseNotif) ?>;
+    var lista = document.getElementById('listaNotificaciones');
+    var modalEl = document.getElementById('modalEstudianteNotif');
+    var modalInst = null;
+
+    function actualizarStats() {
+        var items = document.querySelectorAll('.notif-item');
+        var total = items.length;
+        var pendientes = 0;
+        items.forEach(function(el) {
+            if (el.getAttribute('data-leida') === '0') pendientes++;
+        });
+        var elT = document.getElementById('statTotal');
+        var elP = document.getElementById('statPendientes');
+        var elR = document.getElementById('statRevisadas');
+        if (elT) elT.textContent = total;
+        if (elP) elP.textContent = pendientes;
+        if (elR) elR.textContent = Math.max(0, total - pendientes);
+    }
+
+    function marcarItemRevisado(elemento) {
+        if (!elemento) return;
+        elemento.classList.remove('unread');
+        elemento.classList.add('read');
+        elemento.setAttribute('data-leida', '1');
+        var btn = elemento.querySelector('.btn-marcar-leida');
+        if (btn) btn.remove();
+        var badge = elemento.querySelector('.badge');
+        if (badge) {
+            badge.className = 'badge bg-light text-muted border';
+            badge.textContent = 'Revisada';
+        }
+    }
+
+    function inicialesNombre(nombre) {
+        var partes = String(nombre || '').trim().split(/\s+/).filter(Boolean);
+        if (!partes.length || nombre === '—') return '?';
+        var ini = partes[0].charAt(0);
+        if (partes.length > 1) ini += partes[partes.length - 1].charAt(0);
+        return ini.toUpperCase();
+    }
+
+    function abrirDetalleEstudiante(item) {
+        if (!item || !modalEl) return;
+        var nombre = item.getAttribute('data-nombre') || '—';
+        var semestre = item.getAttribute('data-semestre') || '—';
+        document.getElementById('notifEstNombre').textContent = nombre;
+        document.getElementById('notifEstCarrera').textContent = item.getAttribute('data-carrera') || '—';
+        document.getElementById('notifEstSemestre').textContent =
+            semestre !== '—' ? ('Semestre ' + semestre) : '—';
+        document.getElementById('notifEstModalidad').textContent = item.getAttribute('data-modalidad') || '—';
+        document.getElementById('notifEstAvatar').textContent = inicialesNombre(nombre);
+
+        if (!modalInst) {
+            modalInst = new bootstrap.Modal(modalEl);
+        }
+        modalInst.show();
+    }
+
+    if (lista) {
+        lista.addEventListener('click', function(e) {
+            var btnVer = e.target.closest && e.target.closest('.btn-ver-estudiante');
+            if (btnVer) {
+                var item = btnVer.closest('.notif-item');
+                abrirDetalleEstudiante(item);
+                return;
+            }
+
+            var btn = e.target.closest && e.target.closest('.btn-marcar-leida');
+            if (!btn) return;
+            var id = btn.getAttribute('data-id');
+            if (!id) return;
+
+            fetch(baseUrl + '/marcar-leida/' + id, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-Requested-With': 'XMLHttpRequest'
                 }
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Actualizar la interfaz
-                    const elemento = document.querySelector(`[data-id="${idNotificacion}"]`);
-                    if (elemento) {
-                        elemento.classList.remove('unread');
-                        elemento.classList.add('read');
-                        elemento.setAttribute('data-leida', '1');
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (!data.success) {
+                    if (typeof showNotification === 'function') showNotification('No se pudo marcar la notificación', 'error');
+                    return;
+                }
+                marcarItemRevisado(document.querySelector('.notif-item[data-id="' + id + '"]'));
+                actualizarStats();
+                if (typeof showNotification === 'function') showNotification('Asignación marcada como revisada', 'success');
+            })
+            .catch(function() {
+                if (typeof showNotification === 'function') showNotification('Error de conexión', 'error');
+            });
+        });
+    }
 
-                        // Ocultar botón de marcar como leída
-                        const btnMarcar = elemento.querySelector('.notification-actions .btn-outline-success');
-                        if (btnMarcar) {
-                            btnMarcar.remove();
-                        }
-
-                        // Actualizar contador
-                        actualizarContador();
-                    }
-
-                    showNotification('Notificación marcada como revisada', 'success');
-                } else {
-                    showNotification('Error al marcar la notificación', 'error');
+    var btnTodas = document.getElementById('btnMarcarTodas');
+    if (btnTodas) {
+        btnTodas.addEventListener('click', function() {
+            fetch(baseUrl + '/marcar-todas-leidas', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
                 }
             })
-            .catch(error => {
-                console.error('Error:', error);
-                showNotification('Error de conexión', 'error');
-            });
-    }
-
-    function marcarTodasLeidas() {
-        confirmarAccion({
-            titulo: '¿Marcar todas como revisadas?',
-            mensaje: 'Todas las notificaciones serán marcadas como leídas.',
-            icono: 'fas fa-check-double',
-            colorIcono: 'text-success',
-            bgIcono: 'bg-success bg-opacity-10',
-            textoAceptar: 'Marcar todas',
-            colorBoton: 'btn-success',
-            onAceptar: function() {
-                fetch('/notificaciones/marcar-todas-leidas', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        document.querySelectorAll('.notification-item.unread').forEach(elemento => {
-                            elemento.classList.remove('unread');
-                            elemento.classList.add('read');
-                            elemento.setAttribute('data-leida', '1');
-                            const btnMarcar = elemento.querySelector('.notification-actions .btn-outline-success');
-                            if (btnMarcar) {
-                                btnMarcar.remove();
-                            }
-                        });
-                        actualizarContador();
-                        showNotification('Todas las notificaciones han sido marcadas como revisadas', 'success');
-                    } else {
-                        showNotification('Error al marcar las notificaciones', 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showNotification('Error de conexión', 'error');
-                });
-            }
-        });
-    }
-
-    function eliminarNotificacion(idNotificacion) {
-        confirmarAccion({
-            titulo: '¿Eliminar notificación?',
-            mensaje: 'Esta notificación será eliminada permanentemente.',
-            icono: 'fas fa-trash-alt',
-            colorIcono: 'text-danger',
-            bgIcono: 'bg-danger bg-opacity-10',
-            textoAceptar: 'Eliminar',
-            colorBoton: 'btn-danger',
-            onAceptar: function() {
-                fetch(`/notificaciones/eliminar/${idNotificacion}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        const elemento = document.querySelector(`[data-id="${idNotificacion}"]`);
-                        if (elemento) {
-                            elemento.remove();
-                        }
-                        actualizarContador();
-                        showNotification('Notificación eliminada', 'success');
-                    } else {
-                        showNotification('Error al eliminar la notificación', 'error');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    showNotification('Error de conexión', 'error');
-                });
-            }
-        });
-    }
-
-    function filtrarNotificaciones(filtro) {
-        const elementos = document.querySelectorAll('.notification-item');
-
-        elementos.forEach(elemento => {
-            let mostrar = true;
-
-            switch (filtro) {
-                case 'no_leidas':
-                    mostrar = elemento.getAttribute('data-leida') === '0';
-                    break;
-                case 'tutoria_asignada':
-                case 'asignacion_practica':
-                case 'recordatorio':
-                case 'general':
-                    mostrar = elemento.getAttribute('data-tipo') === filtro;
-                    break;
-                case 'todas':
-                default:
-                    mostrar = true;
-                    break;
-            }
-
-            elemento.style.display = mostrar ? 'block' : 'none';
-        });
-
-        // Actualizar botones de filtro
-        document.querySelectorAll('.filter-buttons .btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        document.querySelector(`[data-filter="${filtro}"]`).classList.add('active');
-    }
-
-    function actualizarContador() {
-        const noLeidas = document.querySelectorAll('.notification-item[data-leida="0"]').length;
-        const total = document.querySelectorAll('.notification-item').length;
-
-        // Actualizar estadísticas en la página
-        const statsNoLeidas = document.querySelector('.stats-card:nth-child(2) h4');
-        const statsLeidas = document.querySelector('.stats-card:nth-child(3) h4');
-        const statsTotal = document.querySelector('.stats-card:nth-child(1) h4');
-
-        if (statsNoLeidas) statsNoLeidas.textContent = noLeidas;
-        if (statsLeidas) statsLeidas.textContent = total - noLeidas;
-        if (statsTotal) statsTotal.textContent = total;
-    }
-
-    function showNotification(message, type = 'info') {
-        const colors = {
-            success: '#27ae60',
-            error: '#e74c3c',
-            warning: '#f39c12',
-            info: '#3498db'
-        };
-
-        const notification = document.createElement('div');
-        notification.className = 'position-fixed top-0 end-0 m-3';
-        notification.style.zIndex = '9999';
-        notification.innerHTML = `
-        <div class="alert alert-${type} alert-dismissible fade show" role="alert" style="background: ${colors[type]}; color: white; border: none; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2);">
-            <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
-            ${message}
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
-        </div>
-    `;
-
-        document.body.appendChild(notification);
-
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.remove();
-            }
-        }, 5000);
-    }
-
-    // Event listeners
-    document.addEventListener('DOMContentLoaded', function() {
-        // Filtros
-        document.querySelectorAll('.filter-buttons .btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const filtro = this.getAttribute('data-filter');
-                filtrarNotificaciones(filtro);
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (!data.success) {
+                    if (typeof showNotification === 'function') showNotification('No se pudieron marcar las notificaciones', 'error');
+                    return;
+                }
+                document.querySelectorAll('.notif-item').forEach(marcarItemRevisado);
+                actualizarStats();
+                if (typeof showNotification === 'function') showNotification('Todas las asignaciones fueron marcadas como revisadas', 'success');
+            })
+            .catch(function() {
+                if (typeof showNotification === 'function') showNotification('Error de conexión', 'error');
             });
         });
-
-        // Auto-actualizar contador cada 30 segundos
-        setInterval(actualizarContador, 30000);
-    });
+    }
+})();
 </script>
 <?= $this->endSection() ?>

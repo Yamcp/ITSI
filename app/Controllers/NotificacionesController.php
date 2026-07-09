@@ -184,9 +184,9 @@ class NotificacionesController extends BaseController
     public function vistaEstudiante()
     {
         $idUsuario = session()->get('id_usuario');
-        
+
         if (!$idUsuario) {
-            return redirect()->to('/login');
+            return redirect()->to('/');
         }
 
         $notificaciones = $this->notificacionesModel->obtenerNotificacionesUsuario($idUsuario, 50);
@@ -202,23 +202,28 @@ class NotificacionesController extends BaseController
     }
 
     /**
-     * Vista de notificaciones para docentes
+     * Vista de notificaciones para docentes (solo asignaciones de tutoría).
      */
     public function vistaDocente()
     {
         $idUsuario = session()->get('id_usuario');
-        
+
         if (!$idUsuario) {
-            return redirect()->to('/login');
+            return redirect()->to('/');
         }
 
-        $notificaciones = $this->notificacionesModel->obtenerNotificacionesUsuario($idUsuario, 50);
-        $estadisticas = $this->notificacionesModel->obtenerEstadisticas($idUsuario);
+        // Rol 3 = Docente (1 admin, 2 coord, 3 docente, 4 estudiante)
+        if ((int) (session()->get('rol') ?? 0) !== 3) {
+            return redirect()->to('/');
+        }
+
+        $notificaciones = $this->notificacionesModel->obtenerNotificacionesTutoriaDocente((int) $idUsuario, 50);
+        $estadisticas = $this->notificacionesModel->obtenerEstadisticasTutoria((int) $idUsuario);
 
         $data = [
-            'title' => 'Mis Notificaciones',
+            'title' => 'Asignaciones de tutoría - ITSI',
             'notificaciones' => $notificaciones,
-            'estadisticas' => $estadisticas
+            'estadisticas' => $estadisticas,
         ];
 
         return view('docente/notificaciones/notificaciones', $data);

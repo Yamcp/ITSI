@@ -88,7 +88,7 @@ class NotificacionesModel extends Model
         $notificacionDocente = [
             'ID_USUARIO_DESTINATARIO' => $idDocente,
             'ID_USUARIO_REMITENTE' => session()->get('id_usuario') ?? 1, // Coordinador que asigna
-            'TITULO' => 'Nueva Tutoria Asignada',
+            'TITULO' => 'Nueva tutoría asignada',
             'MENSAJE' => $this->generarMensajeDocente($datosPractica),
             'TIPO_NOTIFICACION' => 'tutoria_asignada',
             'ID_REFERENCIA' => $datosPractica['id_practica'],
@@ -139,15 +139,80 @@ class NotificacionesModel extends Model
      */
     private function generarMensajeDocente($datosPractica)
     {
-        $tipoPractica = $datosPractica['tipo'] == 'preprofesional' ? 'Práctica Preprofesional' : 'Servicio Comunitario';
-        
-        return "Has sido asignado como tutor de una nueva {$tipoPractica}:\n\n" .
-               "👨‍🎓 Estudiante: {$datosPractica['estudiante']}\n" .
-               "📋 Institución: {$datosPractica['institucion']}\n" .
-               "📅 Período: " . $this->formatoPeriodoPracticaNotificacion($datosPractica) . "\n" .
-               "⏰ Horas: {$datosPractica['horas']} horas\n" .
-               "📝 Descripción: {$datosPractica['descripcion']}\n\n" .
-               "Accede al panel de seguimiento para comenzar el acompañamiento.";
+        $tipoPractica = ($datosPractica['tipo'] ?? '') === 'preprofesional'
+            ? 'prácticas preprofesionales'
+            : 'servicio comunitario';
+        $estudiante = $datosPractica['estudiante'] ?? 'un estudiante';
+
+        return "Has sido asignado como tutor de {$estudiante} en {$tipoPractica}.";
+    }
+
+    /**
+     * Obtener notificaciones de tutoría asignada para un docente,
+     * con nombre, carrera y semestre del estudiante asignado.
+     */
+    public function obtenerNotificacionesTutoriaDocente($idUsuario, $limit = 50)
+    {
+        $db = \Config\Database::connect();
+        $limit = max(1, (int) $limit);
+
+        $sql = "
+            SELECT
+                n.*,
+                COALESCE(
+                    CONCAT(dp_pp.NOMBRE, ' ', dp_pp.APELLIDO),
+                    CONCAT(dp_sc.NOMBRE, ' ', dp_sc.APELLIDO)
+                ) AS ESTUDIANTE_NOMBRE,
+                COALESCE(c_pp.NOMBRE, c_sc.NOMBRE) AS ESTUDIANTE_CARRERA,
+                COALESCE(e_pp.SEMESTRE_ACTUAL, e_sc.SEMESTRE_ACTUAL) AS ESTUDIANTE_SEMESTRE,
+                CASE
+                    WHEN n.TABLA_REFERENCIA = 'TAB_SERVICIO_COMUNITARIO' THEN 'servicio'
+                    ELSE 'preprofesional'
+                END AS MODALIDAD
+            FROM TAB_NOTIFICACIONES n
+            LEFT JOIN TAB_PRACTICAS_PREPROFESIONALES pp
+                ON n.TABLA_REFERENCIA = 'TAB_PRACTICAS_PREPROFESIONALES'
+               AND n.ID_REFERENCIA = pp.ID_PRACTICA_PREPROFESIONAL
+            LEFT JOIN TAB_ESTUDIANTES e_pp ON e_pp.ID_ESTUDIANTE = pp.ID_ESTUDIANTE
+            LEFT JOIN TAB_DATOS_PERSONAS dp_pp ON dp_pp.ID_DATO_PERSONA = e_pp.ID_DATO_PERSONA
+            LEFT JOIN TAB_CARRERAS c_pp ON c_pp.ID_CARRERA = e_pp.ID_CARRERA
+            LEFT JOIN TAB_SERVICIO_COMUNITARIO sc
+                ON n.TABLA_REFERENCIA = 'TAB_SERVICIO_COMUNITARIO'
+               AND n.ID_REFERENCIA = sc.ID_SERVICIO_COMUNITARIO
+            LEFT JOIN TAB_ESTUDIANTES e_sc ON e_sc.ID_ESTUDIANTE = sc.ID_ESTUDIANTE
+            LEFT JOIN TAB_DATOS_PERSONAS dp_sc ON dp_sc.ID_DATO_PERSONA = e_sc.ID_DATO_PERSONA
+            LEFT JOIN TAB_CARRERAS c_sc ON c_sc.ID_CARRERA = e_sc.ID_CARRERA
+            WHERE n.ID_USUARIO_DESTINATARIO = ?
+              AND n.TIPO_NOTIFICACION = 'tutoria_asignada'
+              AND n.ACTIVA = 1
+            ORDER BY n.FECHA_CREACION DESC
+            LIMIT {$limit}
+        ";
+
+        return $db->query($sql, [(int) $idUsuario])->getResultArray();
+    }
+
+    /**
+     * Estadísticas solo de notificaciones de tutoría.
+     */
+    public function obtenerEstadisticasTutoria($idUsuario)
+    {
+        $total = $this->where('ID_USUARIO_DESTINATARIO', $idUsuario)
+            ->where('TIPO_NOTIFICACION', 'tutoria_asignada')
+            ->where('ACTIVA', 1)
+            ->countAllResults();
+
+        $noLeidas = $this->where('ID_USUARIO_DESTINATARIO', $idUsuario)
+            ->where('TIPO_NOTIFICACION', 'tutoria_asignada')
+            ->where('ACTIVA', 1)
+            ->where('LEIDA', 0)
+            ->countAllResults();
+
+        return [
+            'total' => $total,
+            'no_leidas' => $noLeidas,
+            'leidas' => max(0, $total - $noLeidas),
+        ];
     }
 
     /**

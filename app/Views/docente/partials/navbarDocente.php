@@ -7,7 +7,7 @@ $notifDocenteNoLeidas = 0;
 $idUsuarioNav = session()->get('id_usuario');
 if ($idUsuarioNav) {
     try {
-        $notifDocenteNoLeidas = (int) (new NotificacionesModel())->contarNoLeidas((int) $idUsuarioNav);
+        $notifDocenteNoLeidas = (int) (new NotificacionesModel())->contarNoLeidasPorTipo((int) $idUsuarioNav, 'tutoria_asignada');
     } catch (\Throwable $e) {
         log_message('error', 'Navbar docente - notificaciones: ' . $e->getMessage());
     }
@@ -34,7 +34,7 @@ if ($idUsuarioNav) {
                     </span>
                 </li>
                 <li class="nav-item me-2 align-self-center">
-                    <a class="nav-link nav-icon-hover position-relative d-inline-flex p-2" href="<?= base_url('docente/practicas#panel-notificaciones-practicas') ?>" title="Avisos en prácticas" aria-label="Avisos en prácticas">
+                    <a class="nav-link nav-icon-hover position-relative d-inline-flex p-2" href="<?= base_url('docente/notificaciones') ?>" title="Notificaciones de tutoría" aria-label="Notificaciones de tutoría">
                         <i class="ti ti-bell fs-5" style="color: #ffffff;"></i>
                         <?php if ($notifDocenteNoLeidas > 0): ?>
                             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.65rem; min-width: 1.1rem;">

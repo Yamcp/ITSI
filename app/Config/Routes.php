@@ -241,10 +241,8 @@ $routes->group('docente', ['namespace' => 'App\Controllers\docente', 'filter' =>
     //Rutas para la gestión de convenios
     $routes->get('convenios', 'InstitucionesConveniosController::index');        // Ver la sección de convenios
     
-    // Notificaciones del docente integradas en Prácticas; URL antigua redirige allí
-    $routes->get('notificaciones', static function () {
-        return redirect()->to('docente/practicas?ver=notificaciones');
-    });
+    // Módulo único de notificaciones del docente (asignaciones de tutoría)
+    $routes->get('notificaciones', '\App\Controllers\NotificacionesController::vistaDocente');
     
     // Rutas para evaluaciones
     $routes->get('evaluaciones', 'EvaluacionesDocenteController::index');        // Ver evaluaciones del docente

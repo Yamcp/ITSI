@@ -61,77 +61,12 @@
         background: #dee2e6;
     }
 
-    /* Panel notificaciones (integrado en prácticas) */
-    #panel-notificaciones-practicas .notif-prac-item {
-        transition: background 0.2s ease, box-shadow 0.2s ease;
-        border-left: 4px solid transparent;
+    /* El detalle del estudiante debe quedar por encima del sidebar fijo */
+    #modalDetalleEstudiante {
+        z-index: 2000;
     }
-
-    #panel-notificaciones-practicas .notif-prac-unread {
-        border-left-color: #28a745;
-        background-color: #f8fff8;
-    }
-
-    #panel-notificaciones-practicas .notif-prac-read {
-        border-left-color: #dee2e6;
-        background-color: #f8f9fa;
-    }
-
-    #panel-notificaciones-practicas .notif-prac-priority {
-        position: absolute;
-        top: 12px;
-        right: 12px;
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-    }
-
-    #panel-notificaciones-practicas .notif-prac-priority-alta {
-        background-color: #dc3545;
-    }
-
-    #panel-notificaciones-practicas .notif-prac-priority-media {
-        background-color: #ffc107;
-    }
-
-    #panel-notificaciones-practicas .notif-prac-priority-baja {
-        background-color: #28a745;
-    }
-
-    #panel-notificaciones-practicas .notif-prac-type {
-        font-size: 0.75rem;
-        padding: 0.2rem 0.5rem;
-        border-radius: 999px;
-        font-weight: 500;
-    }
-
-    #panel-notificaciones-practicas .notif-prac-type-asignacion_practica {
-        background-color: #e3f2fd;
-        color: #1976d2;
-    }
-
-    #panel-notificaciones-practicas .notif-prac-type-tutoria_asignada {
-        background-color: #f3e5f5;
-        color: #7b1fa2;
-    }
-
-    #panel-notificaciones-practicas .notif-prac-type-recordatorio {
-        background-color: #fff3e0;
-        color: #f57c00;
-    }
-
-    #panel-notificaciones-practicas .notif-prac-type-general {
-        background-color: #e8f5e9;
-        color: #388e3c;
-    }
-
-    #panel-notificaciones-practicas .notif-prac-actions {
-        opacity: 0.65;
-        transition: opacity 0.2s ease;
-    }
-
-    #panel-notificaciones-practicas .notif-prac-item:hover .notif-prac-actions {
-        opacity: 1;
+    .modal-backdrop {
+        z-index: 1990;
     }
 </style>
 <?= $this->endSection() ?>
@@ -146,14 +81,8 @@
                     <i class="fas fa-user-graduate me-2"></i>
                     Supervisión de <?= esc($modoLabel ?? 'Prácticas') ?>
                 </h3>
-                <div class="d-flex justify-content-center gap-2 mb-3 flex-wrap">
-                    <a href="<?= esc($urlPracticas) ?>" class="btn btn-sm <?= ($modo ?? 'preprofesional') === 'preprofesional' ? 'btn-primary' : 'btn-outline-primary' ?>">Prácticas preprofesionales</a>
-                    <a href="<?= esc($urlServicio) ?>" class="btn btn-sm <?= ($modo ?? '') === 'servicio' ? 'btn-primary' : 'btn-outline-primary' ?>">Servicio comunitario</a>
-                </div>
                 <p class="text-center text-muted mb-4 small">
-                    Como docente tutor puede recibir estudiantes asignados por coordinación en
-                    <strong>prácticas preprofesionales</strong> y <strong>servicio comunitario</strong>.
-                    Aquí supervisa únicamente a los alumnos bajo su tutoría.
+                    Aquí supervisa únicamente a los alumnos bajo su tutoría en esta modalidad.
                 </p>
             </div>
         </div>
@@ -293,7 +222,7 @@
                                                 <td>
                                                     <button type="button"
                                                             class="btn btn-sm btn-outline-primary"
-                                                            onclick="verDetalleEstudiante(<?= (int) ($est['ID_ESTUDIANTE'] ?? 0) ?>)"
+                                                            onclick="abrirDetalleTutor(<?= (int) ($est['ID_ESTUDIANTE'] ?? 0) ?>)"
                                                             title="Ver detalle y asistencias">
                                                         <i class="fas fa-eye"></i>
                                                     </button>
@@ -321,10 +250,75 @@
             </div>
         </div>
 
-        <?= $this->include('docente/practicas/partials/panel_notificaciones_practicas') ?>
-
     </div>
 </div>
+
+<?php
+// Datos de estudiantes para el detalle (evita atributos HTML rotos)
+$mapaEstudiantesTutor = [];
+foreach (($estudiantesAsignados ?? []) as $estMap) {
+    $idMap = (int) ($estMap['ID_ESTUDIANTE'] ?? 0);
+    if ($idMap < 1) {
+        continue;
+    }
+    $mapaEstudiantesTutor[$idMap] = [
+        'nombre' => (string) ($estMap['NOMBRE_COMPLETO'] ?? ''),
+        'carrera' => (string) ($estMap['CARRERA'] ?? ''),
+        'institucion' => (string) ($estMap['INSTITUCION_NOMBRE'] ?? ''),
+        'inicio' => (string) ($estMap['FECHA_INICIO'] ?? ''),
+        'fin' => (string) ($estMap['FECHA_FIN'] ?? ''),
+        'estado' => (string) ($estMap['ESTADO_PRACTICA'] ?? ''),
+        'progreso' => (float) ($estMap['PORCENTAJE_PROGRESO'] ?? 0),
+        'horasC' => (float) ($estMap['HORAS_CUMPLIDAS'] ?? 0),
+        'horasT' => (float) ($estMap['HORAS_TOTALES'] ?? 0),
+        'cumplimiento' => (string) ($estMap['CUMPLIMIENTO_ETIQUETA'] ?? ''),
+        'cumplDesc' => (string) ($estMap['CUMPLIMIENTO_DESCRIPCION'] ?? ''),
+    ];
+}
+?>
+<script>
+window.estudiantesTutorData = <?= json_encode($mapaEstudiantesTutor, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+window.baseUrlPracticasTutor = <?= json_encode(base_url('docente/practicas')) ?>;
+
+window.abrirDetalleTutor = function(id) {
+    id = parseInt(id, 10) || 0;
+    var datos = (window.estudiantesTutorData && window.estudiantesTutorData[id]) ? window.estudiantesTutorData[id] : null;
+    if (typeof window.verDetalleEstudiante === 'function') {
+        window.verDetalleEstudiante(id, datos);
+        return;
+    }
+    // Fallback mínimo si el script principal aún no cargó
+    var modalEl = document.getElementById('modalDetalleEstudiante');
+    if (!modalEl) {
+        alert('No se encontró el modal de detalle');
+        return;
+    }
+    if (datos) {
+        var setTxt = function(elId, val) {
+            var el = document.getElementById(elId);
+            if (el) el.textContent = val || '—';
+        };
+        setTxt('detalleNombre', datos.nombre);
+        setTxt('detalleCarrera', datos.carrera);
+        setTxt('detalleInstitucion', datos.institucion);
+        setTxt('detallePeriodo', (datos.inicio || '—') + ' → ' + (datos.fin || '—'));
+        setTxt('detalleEstado', datos.estado);
+        setTxt('detalleProgreso', (datos.progreso || 0) + '% · ' + (datos.horasC || 0) + ' h / ' + (datos.horasT || 0) + ' h');
+    }
+    try {
+        if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+            bootstrap.Modal.getOrCreateInstance(modalEl).show();
+        } else {
+            modalEl.classList.add('show');
+            modalEl.style.display = 'block';
+            modalEl.removeAttribute('aria-hidden');
+        }
+    } catch (e) {
+        modalEl.style.display = 'block';
+        modalEl.classList.add('show');
+    }
+};
+</script>
 <?= $this->endSection() ?>
 
 <?= $this->section('modal') ?>
@@ -476,8 +470,17 @@
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/locales/es.global.min.js"></script>
     <script>
-        const baseUrlPracticas = '<?= base_url('docente/practicas') ?>';
-        const baseUrlNotificaciones = '<?= rtrim(base_url('notificaciones'), '/') ?>';
+        // Mover modales al body para que no queden ocultos por overflow del layout/sidebar
+        (function() {
+            ['modalDetalleEstudiante', 'modalCalendario', 'modalGenerarReportePracticas'].forEach(function(id) {
+                var el = document.getElementById(id);
+                if (el && el.parentElement !== document.body) {
+                    document.body.appendChild(el);
+                }
+            });
+        })();
+
+        const baseUrlPracticas = window.baseUrlPracticasTutor || '<?= base_url('docente/practicas') ?>';
 
         function escHtmlModal(s) {
             if (s === null || s === undefined) return '';
@@ -526,45 +529,117 @@
             });
         }
 
-        function verDetalleEstudiante(id) {
+        function abrirModalDetalleEstudiante() {
+            var modalEl = document.getElementById('modalDetalleEstudiante');
+            if (!modalEl) {
+                alert('No se encontró el modal de detalle');
+                return null;
+            }
+            if (modalEl.parentElement !== document.body) {
+                document.body.appendChild(modalEl);
+            }
+            try {
+                if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                    bootstrap.Modal.getOrCreateInstance(modalEl).show();
+                } else if (window.jQuery) {
+                    window.jQuery(modalEl).modal('show');
+                } else {
+                    modalEl.classList.add('show');
+                    modalEl.style.display = 'block';
+                    modalEl.removeAttribute('aria-hidden');
+                    document.body.classList.add('modal-open');
+                    if (!document.getElementById('backdropDetalleTutor')) {
+                        var bd = document.createElement('div');
+                        bd.id = 'backdropDetalleTutor';
+                        bd.className = 'modal-backdrop fade show';
+                        document.body.appendChild(bd);
+                    }
+                }
+            } catch (e) {
+                console.error(e);
+                modalEl.style.display = 'block';
+                modalEl.classList.add('show');
+            }
+            return modalEl;
+        }
+
+        function pintarDetalleBasico(d) {
+            if (!d) return;
+            document.getElementById('detalleNombre').textContent = d.nombre || '—';
+            document.getElementById('detalleCarrera').textContent = d.carrera || '—';
+            document.getElementById('detalleInstitucion').textContent = d.institucion || '—';
+            document.getElementById('detallePeriodo').textContent = fmtRangoPractica(d.inicio, d.fin);
+            document.getElementById('detalleEstado').textContent = d.estado || '—';
+            var pct = parseFloat(d.progreso) || 0;
+            var hc = parseFloat(d.horasC) || 0;
+            var ht = parseFloat(d.horasT) || 0;
+            document.getElementById('detalleProgreso').textContent = pct + '% · ' + hc + ' h / ' + ht + ' h';
+
+            var panelP = document.getElementById('panelProgresosDetalle');
+            if (panelP) {
+                panelP.innerHTML =
+                    '<div class="card mb-3 border-0 shadow-sm">' +
+                    '<div class="card-header py-2"><span class="fw-semibold small">Resumen de tutoría</span></div>' +
+                    '<div class="card-body">' +
+                    '<p class="mb-1"><strong>Progreso:</strong> ' + pct + '%</p>' +
+                    '<p class="mb-1"><strong>Horas:</strong> ' + hc + ' / ' + ht + ' h</p>' +
+                    '<p class="mb-0"><strong>Cumplimiento:</strong> ' + escHtmlModal(d.cumplimiento || '—') + '</p>' +
+                    (d.cumplDesc ? '<p class="small text-muted mt-2 mb-0">' + escHtmlModal(d.cumplDesc) + '</p>' : '') +
+                    '</div></div>';
+            }
+            document.getElementById('listaAsistenciasEstudiante').innerHTML =
+                '<p class="text-muted small mb-0">Cargando asistencias...</p>';
+        }
+
+        function verDetalleEstudiante(id, datosBasicos) {
             id = parseInt(id, 10);
             if (!id) {
-                showNotification('Estudiante no válido', 'warning');
+                if (typeof showNotification === 'function') showNotification('Estudiante no válido', 'warning');
+                else alert('Estudiante no válido');
                 return;
             }
 
-            const modalEl = document.getElementById('modalDetalleEstudiante');
-            if (!modalEl || typeof bootstrap === 'undefined') {
-                showNotification('No se pudo abrir el detalle', 'error');
-                return;
+            if (!datosBasicos && window.estudiantesTutorData && window.estudiantesTutorData[id]) {
+                datosBasicos = window.estudiantesTutorData[id];
             }
 
-            bootstrap.Modal.getOrCreateInstance(modalEl).show();
-            document.getElementById('detalleNombre').textContent = 'Cargando...';
-            document.getElementById('detalleCarrera').textContent = '';
-            document.getElementById('detalleInstitucion').textContent = '';
-            document.getElementById('detallePeriodo').textContent = '';
-            document.getElementById('detalleEstado').textContent = '';
-            document.getElementById('detalleProgreso').textContent = '';
-            document.getElementById('listaAsistenciasEstudiante').innerHTML = '<p class="text-muted small mb-0">Cargando...</p>';
-            var panelP = document.getElementById('panelProgresosDetalle');
-            if (panelP) panelP.innerHTML = '<p class="text-muted small mb-0">Cargando progreso...</p>';
+            abrirModalDetalleEstudiante();
+            if (datosBasicos) {
+                pintarDetalleBasico(datosBasicos);
+            } else {
+                document.getElementById('detalleNombre').textContent = 'Cargando...';
+                document.getElementById('detalleCarrera').textContent = '';
+                document.getElementById('detalleInstitucion').textContent = '';
+                document.getElementById('detallePeriodo').textContent = '';
+                document.getElementById('detalleEstado').textContent = '';
+                document.getElementById('detalleProgreso').textContent = '';
+                document.getElementById('listaAsistenciasEstudiante').innerHTML = '<p class="text-muted small mb-0">Cargando...</p>';
+                var panelP = document.getElementById('panelProgresosDetalle');
+                if (panelP) panelP.innerHTML = '<p class="text-muted small mb-0">Cargando progreso...</p>';
+            }
 
             fetch(baseUrlPracticas + '/detalle-estudiante/' + id, {
                 headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
                 cache: 'no-store'
             })
                 .then(function(r) {
-                    if (!r.ok) throw new Error('HTTP ' + r.status);
-                    return r.json();
+                    return r.text().then(function(txt) {
+                        var data = null;
+                        try { data = JSON.parse(txt); } catch (e) { data = null; }
+                        if (!r.ok) {
+                            throw new Error((data && data.message) ? data.message : ('HTTP ' + r.status));
+                        }
+                        if (!data) throw new Error('Respuesta inválida del servidor');
+                        return data;
+                    });
                 })
                 .then(function(data) {
                     if (data.success && data.data) {
                         const e = data.data.estudiante || {};
                         const progresos = data.data.progresos || [];
                         const actividades = data.data.actividades || [];
-                        document.getElementById('detalleNombre').textContent = e.NOMBRE_COMPLETO || e.NOMBRE || '—';
-                        document.getElementById('detalleCarrera').textContent = e.CARRERA_NOMBRE || '—';
+                        document.getElementById('detalleNombre').textContent = e.NOMBRE_COMPLETO || e.NOMBRE || (datosBasicos && datosBasicos.nombre) || '—';
+                        document.getElementById('detalleCarrera').textContent = e.CARRERA_NOMBRE || (datosBasicos && datosBasicos.carrera) || '—';
 
                         if (progresos.length === 1) {
                             const p0 = progresos[0];
@@ -578,14 +653,16 @@
                             document.getElementById('detallePeriodo').textContent = 'Práctica preprofesional y servicio comunitario';
                             document.getElementById('detalleEstado').textContent = 'Ver cada bloque al lado';
                             document.getElementById('detalleProgreso').textContent = 'Resumen por modalidad →';
-                        } else {
+                        } else if (!datosBasicos) {
                             document.getElementById('detalleInstitucion').textContent = e.INSTITUCION_NOMBRE || '—';
                             document.getElementById('detallePeriodo').textContent = fmtRangoPractica(e.FECHA_INICIO, e.FECHA_FIN);
                             document.getElementById('detalleEstado').textContent = e.ESTADO_PRACTICA || e.ESTADO_SERVICIO || '—';
                             document.getElementById('detalleProgreso').textContent = (data.data.progreso || 0) + '%';
                         }
 
-                        renderPanelProgresosDetalle(progresos);
+                        if (progresos.length) {
+                            renderPanelProgresosDetalle(progresos);
+                        }
 
                         const cont = document.getElementById('listaAsistenciasEstudiante');
                         if (actividades.length === 0) {
@@ -612,18 +689,14 @@
                             }).join('');
                         }
                     } else {
-                        document.getElementById('detalleNombre').textContent = data.message || 'Error al cargar';
-                        document.getElementById('listaAsistenciasEstudiante').innerHTML = '<p class="text-muted small mb-0">No se pudieron cargar las asistencias.</p>';
-                        if (panelP) panelP.innerHTML = '<p class="text-muted small mb-0">—</p>';
-                        showNotification(data.message || 'No se pudo cargar el detalle', 'error');
+                        document.getElementById('listaAsistenciasEstudiante').innerHTML =
+                            '<p class="text-danger small mb-0">' + escHtmlModal((data && data.message) || 'No se pudieron cargar las asistencias.') + '</p>';
                     }
                 })
                 .catch(function(err) {
                     console.error('detalleEstudiante:', err);
-                    document.getElementById('detalleNombre').textContent = 'Error al cargar';
-                    document.getElementById('listaAsistenciasEstudiante').innerHTML = '<p class="text-muted small mb-0">Error al cargar.</p>';
-                    if (panelP) panelP.innerHTML = '<p class="text-muted small mb-0">—</p>';
-                    showNotification('Error de conexión al cargar el detalle', 'error');
+                    document.getElementById('listaAsistenciasEstudiante').innerHTML =
+                        '<p class="text-danger small mb-0">No se pudieron cargar asistencias: ' + escHtmlModal(err.message || 'error') + '</p>';
                 });
         }
         window.verDetalleEstudiante = verDetalleEstudiante;
@@ -787,190 +860,8 @@
             }, 5000);
         }
 
-        function initNotificacionesPracticasPanel() {
-            var panel = document.getElementById('panel-notificaciones-practicas');
-            if (!panel) return;
-
-            function actualizarStatsNotifPrac() {
-                var items = panel.querySelectorAll('.notif-prac-item');
-                var total = items.length;
-                var noLeidas = 0;
-                items.forEach(function(el) {
-                    if (el.getAttribute('data-leida') === '0') noLeidas++;
-                });
-                var elT = document.getElementById('notifPracStatTotal');
-                var elN = document.getElementById('notifPracStatNoLeidas');
-                var elL = document.getElementById('notifPracStatLeidas');
-                if (elT) elT.textContent = total;
-                if (elN) elN.textContent = noLeidas;
-                if (elL) elL.textContent = Math.max(0, total - noLeidas);
-            }
-
-            function filtrarNotifPrac(filtro) {
-                panel.querySelectorAll('.notif-prac-item').forEach(function(elemento) {
-                    var mostrar = true;
-                    if (filtro === 'no_leidas') {
-                        mostrar = elemento.getAttribute('data-leida') === '0';
-                    } else if (filtro === 'tutoria_asignada' || filtro === 'asignacion_practica' || filtro === 'recordatorio' || filtro === 'general') {
-                        mostrar = elemento.getAttribute('data-tipo') === filtro;
-                    }
-                    elemento.style.display = mostrar ? '' : 'none';
-                });
-                panel.querySelectorAll('.notif-prac-filter-btn').forEach(function(btn) {
-                    btn.classList.toggle('active', btn.getAttribute('data-filter') === filtro);
-                });
-            }
-
-            panel.addEventListener('click', function(e) {
-                var t = e.target;
-                var btnLeida = t.closest && t.closest('.notif-prac-btn-leida');
-                var btnElim = t.closest && t.closest('.notif-prac-btn-eliminar');
-                var btnFilt = t.closest && t.closest('.notif-prac-filter-btn');
-
-                if (btnFilt) {
-                    filtrarNotifPrac(btnFilt.getAttribute('data-filter') || 'todas');
-                    return;
-                }
-
-                if (btnLeida) {
-                    var id = btnLeida.getAttribute('data-id');
-                    if (!id) return;
-                    fetch(baseUrlNotificaciones + '/marcar-leida/' + id, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest'
-                            }
-                        })
-                        .then(function(r) {
-                            return r.json();
-                        })
-                        .then(function(data) {
-                            if (data.success) {
-                                var elemento = panel.querySelector('.notif-prac-item[data-id="' + id + '"]');
-                                if (elemento) {
-                                    elemento.classList.remove('notif-prac-unread');
-                                    elemento.classList.add('notif-prac-read');
-                                    elemento.setAttribute('data-leida', '1');
-                                    var b = elemento.querySelector('.notif-prac-btn-leida');
-                                    if (b) b.remove();
-                                }
-                                actualizarStatsNotifPrac();
-                                showNotification('Notificación marcada como revisada', 'success');
-                            } else {
-                                showNotification('No se pudo marcar la notificación', 'error');
-                            }
-                        })
-                        .catch(function() {
-                            showNotification('Error de conexión', 'error');
-                        });
-                    return;
-                }
-
-                if (btnElim) {
-                    var idE = btnElim.getAttribute('data-id');
-                    if (!idE) return;
-                    confirmarAccion({
-                        titulo: '¿Eliminar notificación?',
-                        mensaje: 'Esta notificación será eliminada permanentemente.',
-                        icono: 'fas fa-trash-alt',
-                        colorIcono: 'text-danger',
-                        bgIcono: 'bg-danger bg-opacity-10',
-                        textoAceptar: 'Eliminar',
-                        colorBoton: 'btn-danger',
-                        onAceptar: function() {
-                    fetch(baseUrlNotificaciones + '/eliminar/' + idE, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest'
-                            }
-                        })
-                        .then(function(r) {
-                            return r.json();
-                        })
-                        .then(function(data) {
-                            if (data.success) {
-                                var elemento = panel.querySelector('.notif-prac-item[data-id="' + idE + '"]');
-                                if (elemento) elemento.remove();
-                                actualizarStatsNotifPrac();
-                                showNotification('Notificación eliminada', 'success');
-                            } else {
-                                showNotification('No se pudo eliminar', 'error');
-                            }
-                        })
-                        });
-                        }
-                    });
-                }
-            });
-
-            var btnTodas = document.getElementById('notifPracBtnMarcarTodas');
-            if (btnTodas) {
-                btnTodas.addEventListener('click', function() {
-                    confirmarAccion({
-                        titulo: '¿Marcar todas como revisadas?',
-                        mensaje: 'Todas las notificaciones serán marcadas como leídas.',
-                        icono: 'fas fa-check-double',
-                        colorIcono: 'text-success',
-                        bgIcono: 'bg-success bg-opacity-10',
-                        textoAceptar: 'Marcar todas',
-                        colorBoton: 'btn-success',
-                        onAceptar: function() {
-                    fetch(baseUrlNotificaciones + '/marcar-todas-leidas', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-Requested-With': 'XMLHttpRequest'
-                            }
-                        })
-                        .then(function(r) {
-                            return r.json();
-                        })
-                        .then(function(data) {
-                            if (data.success) {
-                                panel.querySelectorAll('.notif-prac-item.notif-prac-unread').forEach(function(elemento) {
-                                    elemento.classList.remove('notif-prac-unread');
-                                    elemento.classList.add('notif-prac-read');
-                                    elemento.setAttribute('data-leida', '1');
-                                    var b = elemento.querySelector('.notif-prac-btn-leida');
-                                    if (b) b.remove();
-                                });
-                                actualizarStatsNotifPrac();
-                                showNotification('Listo: todas marcadas como revisadas', 'success');
-                            } else {
-                                showNotification('No se pudo completar la acción', 'error');
-                            }
-                        })
-                        .catch(function() {
-                            showNotification('Error de conexión', 'error');
-                        });
-                        }
-                    });
-                });
-            }
-        }
-
         // Inicialización
         document.addEventListener('DOMContentLoaded', function() {
-            initNotificacionesPracticasPanel();
-
-            var params = new URLSearchParams(window.location.search);
-            if (window.location.hash === '#panel-notificaciones-practicas' || params.get('ver') === 'notificaciones') {
-                var elPanel = document.getElementById('panel-notificaciones-practicas');
-                if (elPanel) {
-                    setTimeout(function() {
-                        elPanel.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
-                    }, 150);
-                }
-                if (params.get('ver') === 'notificaciones') {
-                    history.replaceState(null, '', window.location.pathname + window.location.hash);
-                }
-            }
-
             var formRep = document.getElementById('formGenerarReportePracticas');
             if (formRep) {
                 formRep.addEventListener('submit', function(e) {

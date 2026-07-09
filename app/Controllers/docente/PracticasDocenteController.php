@@ -9,7 +9,6 @@ use App\Models\ActividadesPracticasModel;
 use App\Models\UsuariosModel;
 use App\Models\EstudiantesModel;
 use App\Models\DocentesTutoresModel;
-use App\Models\NotificacionesModel;
 
 class PracticasDocenteController extends BaseController
 {
@@ -65,16 +64,6 @@ class PracticasDocenteController extends BaseController
             $estadisticas['practicasActivas'] = $estadisticas['serviciosActivos'] ?? 0;
         }
 
-        $notificacionesLista = [];
-        $estadisticasNotificaciones = ['total' => 0, 'no_leidas' => 0, 'leidas' => 0];
-        try {
-            $notifModel = new NotificacionesModel();
-            $notificacionesLista = $notifModel->obtenerNotificacionesUsuario((int) $idUsuario, 50);
-            $estadisticasNotificaciones = $notifModel->obtenerEstadisticas((int) $idUsuario);
-        } catch (\Throwable $e) {
-            log_message('error', 'PracticasDocente - notificaciones: ' . $e->getMessage());
-        }
-
         $modoLabel = $modo === 'servicio' ? 'Servicio Comunitario' : 'Prácticas Preprofesionales';
 
         $data = [
@@ -85,8 +74,6 @@ class PracticasDocenteController extends BaseController
             'urlServicio' => base_url('docente/servicio-comunitario'),
             'estadisticas' => $estadisticas,
             'estudiantesAsignados' => $estudiantesAsignados,
-            'notificaciones_lista' => $notificacionesLista,
-            'estadisticas_notificaciones' => $estadisticasNotificaciones,
         ];
 
         return view('docente/practicas/practicas_docente', $data);
@@ -192,8 +179,11 @@ class PracticasDocenteController extends BaseController
             ]);
 
         } catch (\Exception $e) {
-            log_message('error', 'Error en detalle de estudiante: ' . $e->getMessage());
-            return $this->response->setJSON(['success' => false, 'message' => 'Error interno del servidor']);
+            log_message('error', 'Error en detalle de estudiante: ' . $e->getMessage() . ' @ ' . $e->getFile() . ':' . $e->getLine());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error interno del servidor: ' . $e->getMessage(),
+            ]);
         }
     }
 
@@ -587,32 +577,45 @@ class PracticasDocenteController extends BaseController
 
     private function calcularHorasCumplidasPractica($idPractica, $tipo)
     {
+        $total = 0.0;
         try {
             if ($tipo === 'preprofesional') {
                 $asist = $this->db->table('TAB_ASISTENCIAS_PRACTICAS_PREPROFESIONALES')
-                    ->select('SUM(TIMESTAMPDIFF(HOUR, HORA_ENTRADA, HORA_SALIDA)) AS total_horas', false)
+                    ->select('SUM(TIMESTAMPDIFF(MINUTE, HORA_ENTRADA, HORA_SALIDA)) AS total_minutos', false)
                     ->where('ID_PRACTICA_PREPROFESIONAL', $idPractica)
                     ->get()
                     ->getRow();
-                $seg = $this->db->table('TAB_SEGUIMIENTO_PRACTICAS_PREPROFESIONALES')
-                    ->selectSum('HORAS_CUMPLIDAS', 'total_horas')
-                    ->where('ID_PRACTICA_PREPROFESIONAL', $idPractica)
-                    ->get()
-                    ->getRow();
+                $total += ((float) ($asist->total_minutos ?? 0)) / 60;
+                try {
+                    $seg = $this->db->table('TAB_SEGUIMIENTO_PRACTICAS_PREPROFESIONALES')
+                        ->selectSum('HORAS_CUMPLIDAS', 'total_horas')
+                        ->where('ID_PRACTICA_PREPROFESIONAL', $idPractica)
+                        ->get()
+                        ->getRow();
+                    $total += (float) ($seg->total_horas ?? 0);
+                } catch (\Throwable $e) {
+                    // Tabla de seguimiento opcional
+                }
             } else {
                 $asist = $this->db->table('TAB_ASISTENCIAS_SERVICIO_COMUNITARIO')
-                    ->select('SUM(TIMESTAMPDIFF(HOUR, HORA_ENTRADA, HORA_SALIDA)) AS total_horas', false)
+                    ->select('SUM(TIMESTAMPDIFF(MINUTE, HORA_ENTRADA, HORA_SALIDA)) AS total_minutos', false)
                     ->where('ID_SERVICIO_COMUNITARIO', $idPractica)
                     ->get()
                     ->getRow();
-                $seg = $this->db->table('TAB_SEGUIMIENTO_SERVICIO_COMUNITARIO')
-                    ->selectSum('HORAS_CUMPLIDAS', 'total_horas')
-                    ->where('ID_SERVICIO_COMUNITARIO', $idPractica)
-                    ->get()
-                    ->getRow();
+                $total += ((float) ($asist->total_minutos ?? 0)) / 60;
+                try {
+                    $seg = $this->db->table('TAB_SEGUIMIENTO_SERVICIO_COMUNITARIO')
+                        ->selectSum('HORAS_CUMPLIDAS', 'total_horas')
+                        ->where('ID_SERVICIO_COMUNITARIO', $idPractica)
+                        ->get()
+                        ->getRow();
+                    $total += (float) ($seg->total_horas ?? 0);
+                } catch (\Throwable $e) {
+                    // Tabla de seguimiento opcional
+                }
             }
 
-            return round((float) ($asist->total_horas ?? 0) + (float) ($seg->total_horas ?? 0), 1);
+            return round($total, 1);
         } catch (\Exception $e) {
             log_message('error', 'calcularHorasCumplidasPractica: ' . $e->getMessage());
 

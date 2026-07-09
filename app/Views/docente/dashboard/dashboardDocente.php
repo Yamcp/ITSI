@@ -203,7 +203,7 @@
                         <strong>Nueva asignación como tutor</strong>
                         <p class="mb-0 small">
                             Tienes <?= $notifTutorDash === 1 ? 'una notificación nueva' : esc($notifTutorDash) . ' notificaciones nuevas' ?> por tutoría de prácticas preprofesionales o servicio comunitario.
-                            Revisa el detalle en <a href="<?= base_url('docente/practicas#panel-notificaciones-practicas') ?>" class="alert-link fw-semibold">Supervisión de prácticas</a>.
+                            Revisa el detalle en <a href="<?= base_url('docente/notificaciones') ?>" class="alert-link fw-semibold">Notificaciones</a>.
                         </p>
                     </div>
                 </div>
@@ -212,7 +212,7 @@
         <?php endif; ?>
 
         <!-- Métricas -->
-        <div class="row g-3 mb-4">
+        <div class="row g-3 mb-4 justify-content-center">
             <div class="col-md-3 col-sm-6">
                 <div class="card metric-card text-white" style="background: var(--gradient-actividades);">
                     <div class="card-body">
@@ -245,7 +245,7 @@
                         </div>
                         <h3 class="mb-0"><?= $total_estudiantes ?? 0 ?></h3>
                         <p class="metric-label mb-0">Estudiantes Asignados</p>
-                        <small class="metric-sub">PP: <?= (int) ($estudiantes_pp ?? 0) ?> · SC: <?= (int) ($estudiantes_sc ?? 0) ?></small>
+                        <small class="metric-sub">Prácticas preprofesionales: <?= (int) ($estudiantes_pp ?? 0) ?> · Servicio comunitario: <?= (int) ($estudiantes_sc ?? 0) ?></small>
                     </div>
                 </div>
             </div>

@@ -59,8 +59,8 @@ class DashboardDocenteController extends BaseController
             $colSc = array_column($idsSc, 'ID_ESTUDIANTE');
             $estudiantesPp = count(array_unique(array_filter($colPp)));
             $estudiantesSc = count(array_unique(array_filter($colSc)));
-            $todosIds = array_merge($colPp, $colSc);
-            $estudiantesAsignados = count(array_unique(array_filter($todosIds)));
+            // Total = suma de asignaciones PP + SC (un estudiante en ambas modalidades cuenta en ambas)
+            $estudiantesAsignados = $estudiantesPp + $estudiantesSc;
 
             // Para actividades de educación, buscar si el docente también está en TAB_INSTRUCTORES
             $usuario = $this->db->table('TAB_USUARIOS')->where('ID_USUARIO', $idUsuario)->get()->getRowArray();
