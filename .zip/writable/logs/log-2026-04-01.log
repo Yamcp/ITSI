@@ -1,0 +1,129 @@
+DEBUG - 2026-04-01 19:06:15 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 19:06:46 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 19:07:01 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 20:25:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 20:30:42 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 21:32:20 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 21:32:41 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2026-04-01 21:32:42 --> Recuperación de contraseña: defina email.fromEmail en .env o fromEmail en app/Config/Email.php
+ERROR - 2026-04-01 21:32:42 --> No se pudo enviar el correo de recuperación a: yamilex.campues2023@itsi.edu.ec
+DEBUG - 2026-04-01 21:32:42 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 21:33:01 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 21:43:49 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 21:44:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-01 21:44:04 --> Usuario autenticado: 1004191845 con rol: 1 - requiere cambio password: no
+DEBUG - 2026-04-01 21:44:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 21:44:04 --> Estadísticas mensuales prácticas: [{"mes":"May 2025","preprofesionales":0,"servicioComunitario":0},{"mes":"Jun 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Jul 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Ago 2025","preprofesionales":0,"servicioComunitario":1},{"mes":"Sep 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Oct 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Nov 2025","preprofesionales":0,"servicioComunitario":1},{"mes":"Dic 2025","preprofesionales":0,"servicioComunitario":0},{"mes":"Ene 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"Feb 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"Mar 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"Abr 2026","preprofesionales":0,"servicioComunitario":0}]
+DEBUG - 2026-04-01 21:44:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 21:46:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-01 21:46:11 --> Usuario autenticado: ayandun con rol: 2 - requiere cambio password: no
+DEBUG - 2026-04-01 21:46:12 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 21:46:31 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-01 21:46:31 --> Iniciando proceso de cierre de sesión para usuario: ayandun
+INFO - 2026-04-01 21:46:31 --> Sesión cerrada exitosamente
+DEBUG - 2026-04-01 21:46:31 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 21:46:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-01 21:46:40 --> Usuario autenticado: paguirre con rol: 3 - requiere cambio password: no
+DEBUG - 2026-04-01 21:46:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 21:46:50 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 21:46:50 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 21:46:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 21:46:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 21:47:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-01 21:47:52 --> Iniciando proceso de cierre de sesión para usuario: ycampues
+INFO - 2026-04-01 21:47:52 --> Sesión cerrada exitosamente
+DEBUG - 2026-04-01 21:47:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:06:12 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-01 22:06:12 --> Iniciando proceso de cierre de sesión para usuario: paguirre
+INFO - 2026-04-01 22:06:12 --> Sesión cerrada exitosamente
+DEBUG - 2026-04-01 22:06:12 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:08:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-01 22:08:28 --> Usuario autenticado: 1004191845 con rol: 1 - requiere cambio password: no
+DEBUG - 2026-04-01 22:08:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:08:28 --> Estadísticas mensuales prácticas: [{"mes":"May 2025","preprofesionales":0,"servicioComunitario":0},{"mes":"Jun 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Jul 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Ago 2025","preprofesionales":0,"servicioComunitario":1},{"mes":"Sep 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Oct 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Nov 2025","preprofesionales":0,"servicioComunitario":1},{"mes":"Dic 2025","preprofesionales":0,"servicioComunitario":0},{"mes":"Ene 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"Feb 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"Mar 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"Abr 2026","preprofesionales":0,"servicioComunitario":0}]
+DEBUG - 2026-04-01 22:19:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:20:12 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:24:08 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-01 22:24:08 --> Iniciando proceso de cierre de sesión para usuario: ycampues
+INFO - 2026-04-01 22:24:08 --> Sesión cerrada exitosamente
+DEBUG - 2026-04-01 22:24:09 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:24:34 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:24:35 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:24:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:24:49 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+ERROR - 2026-04-01 22:24:50 --> Recuperación de contraseña: defina email.fromEmail en .env o fromEmail en app/Config/Email.php
+ERROR - 2026-04-01 22:24:50 --> No se pudo enviar el correo de recuperación a: yamilex.campues2023@itsi.edu.ec
+DEBUG - 2026-04-01 22:24:50 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:24:57 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:25:20 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-01 22:25:20 --> Token de recordarme creado para usuario: 1004191845
+INFO - 2026-04-01 22:25:20 --> Usuario autenticado: 1004191845 con rol: 1 - requiere cambio password: no
+DEBUG - 2026-04-01 22:25:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:25:21 --> Estadísticas mensuales prácticas: [{"mes":"May 2025","preprofesionales":0,"servicioComunitario":0},{"mes":"Jun 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Jul 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Ago 2025","preprofesionales":0,"servicioComunitario":1},{"mes":"Sep 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Oct 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Nov 2025","preprofesionales":0,"servicioComunitario":1},{"mes":"Dic 2025","preprofesionales":0,"servicioComunitario":0},{"mes":"Ene 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"Feb 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"Mar 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"Abr 2026","preprofesionales":0,"servicioComunitario":0}]
+DEBUG - 2026-04-01 22:25:32 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-01 22:25:32 --> Iniciando proceso de cierre de sesión para usuario: ycampues
+INFO - 2026-04-01 22:25:32 --> Sesión cerrada exitosamente
+DEBUG - 2026-04-01 22:25:32 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:25:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-01 22:25:40 --> Token de recordarme creado para usuario: ayandun
+INFO - 2026-04-01 22:25:40 --> Usuario autenticado: ayandun con rol: 2 - requiere cambio password: no
+DEBUG - 2026-04-01 22:25:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:25:43 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:25:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:25:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:25:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:25:44 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:25:59 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:26:14 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:26:18 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:26:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:26:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:26:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:26:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:26:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:26:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:27:09 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:27:24 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:27:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:27:42 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:28:25 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:28:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:28:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-01 22:28:52 --> Iniciando proceso de cierre de sesión para usuario: ayandun
+INFO - 2026-04-01 22:28:52 --> Sesión cerrada exitosamente
+DEBUG - 2026-04-01 22:28:52 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:29:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-01 22:29:03 --> Token de recordarme creado para usuario: paguirre
+INFO - 2026-04-01 22:29:03 --> Usuario autenticado: paguirre con rol: 3 - requiere cambio password: no
+DEBUG - 2026-04-01 22:29:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:30:37 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:30:38 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:30:42 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:30:53 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:30:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:30:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:30:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:30:55 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:32:16 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:32:24 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:32:40 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:32:54 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:33:09 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:33:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:33:24 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:33:39 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:33:51 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:34:13 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:35:59 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:36:00 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:37:37 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:38:02 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:38:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:38:06 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:38:08 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:38:18 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 22:55:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-04-01 22:55:21 --> Iniciando proceso de cierre de sesión para usuario: paguirre
+INFO - 2026-04-01 22:55:21 --> Sesión cerrada exitosamente
+DEBUG - 2026-04-01 22:55:21 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-04-01 23:25:09 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.

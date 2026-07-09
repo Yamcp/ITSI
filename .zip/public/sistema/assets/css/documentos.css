@@ -1,0 +1,788 @@
+/* CSS personalizado para el sistema de documentos de prácticas */
+
+/* Estilos generales para las tarjetas de documentos */
+.file-item {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.file-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    border-color: #007bff;
+}
+
+.file-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #007bff, #0056b3);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.file-item:hover::before {
+    opacity: 1;
+}
+
+/* Iconos de archivos */
+.file-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.file-icon.bg-primary { background: linear-gradient(135deg, #007bff, #0056b3); }
+.file-icon.bg-success { background: linear-gradient(135deg, #28a745, #155724); }
+.file-icon.bg-warning { background: linear-gradient(135deg, #ffc107, #b38600); }
+.file-icon.bg-info { background: linear-gradient(135deg, #17a2b8, #117a8b); }
+.file-icon.bg-danger { background: linear-gradient(135deg, #dc3545, #a71e2a); }
+
+/* Badges de categoría y estado */
+.category-badge {
+    display: inline-block;
+    padding: 0.4rem 0.8rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.status-badge {
+    font-size: 0.74rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+
+/* Área de subida de archivos */
+.upload-card {
+    border: 2px dashed #dee2e6;
+    border-radius: 15px;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    background: #f8f9fa;
+}
+
+.upload-card:hover {
+    border-color: #007bff;
+    background: #e3f2fd;
+    transform: translateY(-2px);
+}
+
+.upload-card.dragover {
+    border-color: #007bff;
+    background: #e3f2fd;
+    transform: scale(1.02);
+}
+
+/* Botones de acción */
+.btn-group-sm .btn {
+    border-radius: 8px;
+    margin: 0 2px;
+    transition: all 0.3s ease;
+}
+
+.btn-group-sm .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Tarjetas de estadísticas */
+.stats-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.stats-card .card-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+
+.stats-card .card-text {
+    opacity: 0.9;
+    font-weight: 500;
+}
+
+/* Progreso de documentos */
+.progress-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+}
+
+.progress {
+    height: 20px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.2);
+    overflow: hidden;
+}
+
+.progress-bar {
+    background: linear-gradient(90deg, #fff, #f8f9fa);
+    border-radius: 10px;
+    transition: width 0.6s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    color: #333;
+}
+
+/* Tarjetas de documentos con estados */
+.document-card {
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    border-radius: 15px;
+    overflow: hidden;
+    position: relative;
+}
+
+.document-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+}
+
+.document-card.subido {
+    border-color: #28a745;
+}
+
+.document-card.pendiente {
+    border-color: #ffc107;
+}
+
+.document-card.aprobado {
+    border-color: #28a745;
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+}
+
+.document-card.rechazado {
+    border-color: #dc3545;
+    background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+}
+
+.document-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #007bff, #0056b3);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.document-card:hover::before {
+    opacity: 1;
+}
+
+/* Modal personalizado */
+.modal-content {
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    color: white;
+    border-radius: 15px 15px 0 0;
+    border-bottom: none;
+}
+
+.modal-header .btn-close {
+    filter: invert(1);
+}
+
+/* Formularios */
+.form-control {
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+}
+
+.form-select {
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.form-select:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+}
+
+/* Tablas en páginas que cargan este CSS: sin gradiente ni “tarjeta” redondeada (deja actuar Bootstrap + .table-light) */
+.table:not(.table-documentos) {
+    border-radius: 0;
+    overflow: visible;
+    box-shadow: none;
+}
+
+.table:not(.table-documentos) thead th {
+    background-image: none !important;
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    border-radius: 0 !important;
+    text-transform: none;
+    letter-spacing: normal;
+    font-weight: 600;
+}
+
+.table:not(.table-documentos) tbody tr:hover {
+    transform: none;
+}
+
+/* Tablas admin documentos: como instructores — gris plano, rejilla, sin inset ni redondeos en <th> */
+.table.table-documentos {
+    border-collapse: collapse !important;
+    border-radius: 0 !important;
+    overflow: visible !important;
+    border: 1px solid #dee2e6;
+    box-shadow: none !important;
+}
+
+.table.table-documentos > :not(caption) > thead > tr > th {
+    box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    background: #e9ecef !important;
+    background-color: #e9ecef !important;
+    background-image: none !important;
+    color: #212529 !important;
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    padding: 0.65rem 0.75rem !important;
+    border: 1px solid #dee2e6 !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    vertical-align: middle !important;
+    border-radius: 0 !important;
+}
+
+.table-documentos tbody td {
+    padding: 0.65rem 0.75rem !important;
+    vertical-align: middle !important;
+    color: #495057;
+    border: 1px solid #dee2e6 !important;
+}
+
+.table-documentos tbody tr:nth-child(odd) {
+    background-color: #fff !important;
+}
+
+.table-documentos tbody tr:nth-child(even) {
+    background-color: #f8fafc !important;
+}
+
+.table-documentos tbody tr:hover {
+    background-color: #eef4fb !important;
+    transform: none !important;
+}
+
+.table-documentos tbody td:first-child {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.table-documentos .badge {
+    border-radius: 50rem;
+    padding: 0.35em 0.75em;
+    font-weight: 600;
+    font-size: 0.75rem;
+}
+
+.table-documentos .btn-group-sm {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+    overflow: hidden;
+}
+
+.table-documentos .btn-group-sm .btn {
+    border-radius: 0 !important;
+    border: none !important;
+    border-right: 1px solid #dee2e6 !important;
+    padding: 0.35rem 0.5rem;
+}
+
+.table-documentos .btn-group-sm .btn:last-child {
+    border-right: none !important;
+}
+
+/* Admin: tabla «Documentos de formato» — columna Archivo compacta (elipsis + tooltip nativo en title) */
+.table-documentos.table-admin-formatos-lista th.formatos-archivo-col,
+.table-documentos.table-admin-formatos-lista td.formatos-archivo-celda {
+    max-width: 11rem;
+    width: 11rem;
+    vertical-align: middle;
+}
+
+.table-documentos.table-admin-formatos-lista td.formatos-archivo-celda .formatos-archivo-texto {
+    display: block;
+    max-width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.8125rem;
+    line-height: 1.35;
+    cursor: default;
+}
+
+/* Notificaciones */
+.alert {
+    border-radius: 10px;
+    border: none;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    font-weight: 500;
+}
+
+.alert-success {
+    background: linear-gradient(135deg, #28a745, #155724);
+    color: white;
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, #dc3545, #a71e2a);
+    color: white;
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, #ffc107, #b38600);
+    color: white;
+}
+
+.alert-info {
+    background: linear-gradient(135deg, #17a2b8, #117a8b);
+    color: white;
+}
+
+/* Animaciones */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.pulse {
+    animation: pulse 2s infinite;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .stats-card .card-title {
+        font-size: 2rem;
+    }
+    
+    .progress-card {
+        padding: 1.5rem;
+    }
+    
+    .file-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+    }
+    
+    .category-badge {
+        font-size: 0.7rem;
+        padding: 0.3rem 0.6rem;
+    }
+}
+
+/* Estados de carga */
+.loading {
+    position: relative;
+    overflow: hidden;
+}
+
+.loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+    animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%;
+    }
+}
+
+/* Efectos de hover para botones */
+.btn {
+    transition: all 0.3s ease;
+    border-radius: 8px;
+    font-weight: 500;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    border: none;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, #28a745, #155724);
+    border: none;
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, #ffc107, #b38600);
+    border: none;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, #dc3545, #a71e2a);
+    border: none;
+}
+
+.btn-info {
+    background: linear-gradient(135deg, #17a2b8, #117a8b);
+    border: none;
+}
+
+/* Efectos de sombra */
+.shadow-sm {
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+.shadow {
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+}
+
+.shadow-lg {
+    box-shadow: 0 8px 25px rgba(0,0,0,0.1) !important;
+}
+
+/* Panel único: progreso + datos + importante (vistas documentos estudiante) */
+.documentos-resumen-panel {
+    border-radius: 12px;
+    border-color: #e2e8f0 !important;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06) !important;
+    overflow: hidden;
+}
+
+.documentos-resumen-hr {
+    margin: 0;
+    border: 0;
+    border-top: 1px solid #eef2f6;
+    opacity: 1;
+}
+
+.documentos-resumen-seccion-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: #64748b;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+}
+
+.documentos-resumen-progreso .documentos-resumen-progress {
+    height: 10px;
+    border-radius: 6px;
+    background-color: #e9ecef;
+}
+
+.documentos-resumen-progreso .documentos-resumen-progress .progress-bar {
+    background-color: #4a6fb5;
+    border-radius: 6px;
+}
+
+.documentos-resumen-stat {
+    font-size: 0.86rem;
+    line-height: 1.2;
+}
+
+.documentos-resumen-stat .documentos-resumen-stat-num {
+    font-size: 1.18rem;
+    font-weight: 700;
+    color: #334155;
+}
+
+.documentos-resumen-stat small {
+    font-size: 0.72rem;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+.documentos-aviso-integrado-lista li {
+    line-height: 1.4;
+    color: #475569;
+    font-size: 0.9rem;
+}
+
+.documentos-aviso-cards .documentos-aviso-card {
+    display: flex;
+    gap: 0.65rem;
+    align-items: flex-start;
+    padding: 0.7rem 0.8rem;
+    border: 1px solid #e2e8f0;
+    border-left: 3px solid #4a6fb5;
+    border-radius: 10px;
+    background: #fff;
+}
+
+.documentos-aviso-card-num {
+    flex-shrink: 0;
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 7px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #4a6fb5;
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.documentos-aviso-card-title {
+    display: block;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: #3d5a9c;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-bottom: 0.2rem;
+}
+
+.documentos-aviso-card-text {
+    font-size: 0.84rem;
+    line-height: 1.38;
+    color: #334155;
+}
+
+/* Aviso IMPORTANTE — layout en dos columnas (página documentos) + compacto (perfil) */
+.documentos-aviso-importante-wrap {
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid #c5d4eb;
+    background: #fff;
+    box-shadow: 0 4px 14px rgba(30, 58, 95, 0.08);
+}
+
+.documentos-aviso-aside {
+    background: linear-gradient(160deg, #3d5a9c 0%, #4a6fb5 55%, #3d5a9c 100%);
+    color: #fff;
+}
+
+.documentos-aviso-aside-inner {
+    padding: 1rem 0.95rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.documentos-aviso--pagina .documentos-aviso-aside-inner {
+    padding: 1rem 0.95rem;
+}
+
+@media (min-width: 992px) {
+    .documentos-aviso--pagina .documentos-aviso-aside-inner {
+        min-height: 100%;
+        justify-content: center;
+        padding: 1.15rem 1rem;
+    }
+}
+
+.documentos-aviso-aside-icon {
+    width: 2.2rem;
+    height: 2.2rem;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.98rem;
+    color: #2c5282;
+    background: #fde68a;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.documentos-aviso--compact .documentos-aviso-aside-icon {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.1rem;
+    margin-bottom: 0.65rem;
+}
+
+.documentos-aviso-aside-title {
+    margin: 0 0 0.5rem;
+    font-weight: 700;
+    font-size: 0.92rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    line-height: 1.2;
+    color: #fff;
+}
+
+.documentos-aviso--compact .documentos-aviso-aside-title {
+    font-size: 1rem;
+}
+
+.documentos-aviso-aside-lead {
+    font-size: 0.78rem;
+    line-height: 1.45;
+    color: rgba(255, 255, 255, 0.92);
+    max-width: 22rem;
+}
+
+.documentos-aviso-main {
+    padding: 1.15rem 1.1rem 1.25rem;
+    background: #f4f7fb;
+}
+
+.documentos-aviso--pagina .documentos-aviso-main {
+    padding: 1rem 1rem 1.1rem;
+}
+
+.documentos-aviso-main-kicker {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #64748b;
+    margin: 0 0 0.85rem;
+}
+
+.documentos-aviso-kicker-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4a6fb5;
+}
+
+.documentos-aviso-step {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    padding: 0.62rem 0.7rem;
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    border-left: 4px solid #4a6fb5;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.documentos-aviso-step-num {
+    flex-shrink: 0;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.85rem;
+    font-weight: 800;
+    color: #fff;
+    background: #4a6fb5;
+}
+
+.documentos-aviso-step-label {
+    display: block;
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: #3d5a9c;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.25rem;
+}
+
+.documentos-aviso-step-text {
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: #334155;
+}
+
+.documentos-aviso--compact .documentos-aviso-main {
+    padding: 0.85rem 0.85rem 1rem;
+}
+
+.documentos-aviso--compact .documentos-aviso-step {
+    padding: 0.65rem 0.75rem;
+}
+
+.documentos-aviso--compact .documentos-aviso-step-text {
+    font-size: 0.82rem;
+}
+
+@media (max-width: 991px) {
+    .documentos-aviso-aside-inner {
+        padding: 1.1rem 1rem 1rem;
+    }
+}

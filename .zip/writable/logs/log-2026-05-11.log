@@ -1,0 +1,65 @@
+DEBUG - 2026-05-11 12:15:03 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-05-11 12:15:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-05-11 12:15:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-05-11 12:15:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-05-11 12:15:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-05-11 12:15:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-05-11 12:15:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-05-11 12:15:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-05-11 12:15:05 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-05-11 12:15:07 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+CRITICAL - 2026-05-11 12:15:08 --> ErrorException: unlink(C:\xampp\htdocs\ITSI\writable\debugbar/debugbar_1777066788.928030.json): Permission denied
+[Method: GET, Route: /]
+in SYSTEMPATH\Debug\Toolbar\Collectors\History.php on line 82.
+ 1 [internal function]: CodeIgniter\Debug\Exceptions->errorHandler(2, 'unlink(C:\\xampp\\htdocs\\ITSI\\writable\\debugbar/debugbar_1777066788.928030.json): Permission denied', 'C:\\xampp\\htdocs\\ITSI\\vendor\\codeigniter4\\framework\\system\\Debug\\Toolbar\\Collectors\\History.php', 82)
+ 2 SYSTEMPATH\Debug\Toolbar\Collectors\History.php(82): unlink('C:\\xampp\\htdocs\\ITSI\\writable\\debugbar/debugbar_1777066788.928030.json')
+ 3 SYSTEMPATH\Debug\Toolbar.php(517): CodeIgniter\Debug\Toolbar\Collectors\History->setFiles('1778519707.587125', 20)
+ 4 SYSTEMPATH\Debug\Toolbar.php(496): CodeIgniter\Debug\Toolbar->format([...], 'html')
+ 5 APPPATH\Config\Events.php(47): CodeIgniter\Debug\Toolbar->respond()
+ 6 SYSTEMPATH\Events\Events.php(155): CodeIgniter\Events\Events::Config\{closure}()
+ 7 SYSTEMPATH\CodeIgniter.php(339): CodeIgniter\Events\Events::trigger('pre_system')
+ 8 SYSTEMPATH\Boot.php(334): CodeIgniter\CodeIgniter->run()
+ 9 SYSTEMPATH\Boot.php(67): CodeIgniter\Boot::runCodeIgniter(Object(CodeIgniter\CodeIgniter))
+10 FCPATH\index.php(59): CodeIgniter\Boot::bootWeb(Object(Config\Paths))
+DEBUG - 2026-05-11 12:15:10 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-05-11 12:15:10 --> Iniciando proceso de cierre de sesión para usuario: desconocido
+INFO - 2026-05-11 12:15:10 --> Sesión cerrada exitosamente
+DEBUG - 2026-05-11 12:15:11 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-05-11 12:15:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-05-11 12:15:22 --> Usuario autenticado: 1004191845 con rol: 1 - requiere cambio password: no
+DEBUG - 2026-05-11 12:15:22 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-05-11 12:15:22 --> Estadísticas mensuales prácticas: [{"mes":"Jun 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Jul 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Ago 2025","preprofesionales":0,"servicioComunitario":1},{"mes":"Sep 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Oct 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Nov 2025","preprofesionales":0,"servicioComunitario":1},{"mes":"Dic 2025","preprofesionales":0,"servicioComunitario":0},{"mes":"Ene 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"Feb 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"Mar 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"Abr 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"May 2026","preprofesionales":0,"servicioComunitario":0}]
+DEBUG - 2026-05-11 12:15:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-05-11 12:15:28 --> Iniciando proceso de cierre de sesión para usuario: ycampues
+INFO - 2026-05-11 12:15:28 --> Sesión cerrada exitosamente
+DEBUG - 2026-05-11 12:15:28 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-05-11 12:15:37 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-05-11 12:15:37 --> Usuario autenticado: ayandun con rol: 2 - requiere cambio password: no
+DEBUG - 2026-05-11 12:15:37 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-05-11 12:15:37 --> Estadísticas mensuales prácticas: [{"mes":"Jun 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Jul 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Ago 2025","preprofesionales":0,"servicioComunitario":1},{"mes":"Sep 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Oct 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Nov 2025","preprofesionales":0,"servicioComunitario":1},{"mes":"Dic 2025","preprofesionales":0,"servicioComunitario":0},{"mes":"Ene 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"Feb 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"Mar 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"Abr 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"May 2026","preprofesionales":0,"servicioComunitario":0}]
+DEBUG - 2026-05-11 12:30:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-05-11 12:30:27 --> Iniciando proceso de cierre de sesión para usuario: ayandun
+INFO - 2026-05-11 12:30:27 --> Sesión cerrada exitosamente
+DEBUG - 2026-05-11 12:30:27 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-05-11 12:47:45 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-05-11 12:47:45 --> Usuario autenticado: ayandun con rol: 2 - requiere cambio password: no
+DEBUG - 2026-05-11 12:47:45 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-05-11 12:47:45 --> Estadísticas mensuales prácticas: [{"mes":"Jun 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Jul 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Ago 2025","preprofesionales":0,"servicioComunitario":1},{"mes":"Sep 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Oct 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Nov 2025","preprofesionales":0,"servicioComunitario":1},{"mes":"Dic 2025","preprofesionales":0,"servicioComunitario":0},{"mes":"Ene 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"Feb 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"Mar 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"Abr 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"May 2026","preprofesionales":0,"servicioComunitario":0}]
+DEBUG - 2026-05-11 12:47:58 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-05-11 12:47:58 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-05-11 12:47:58 --> Estadísticas mensuales prácticas: [{"mes":"Jun 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Jul 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Ago 2025","preprofesionales":0,"servicioComunitario":1},{"mes":"Sep 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Oct 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Nov 2025","preprofesionales":0,"servicioComunitario":1},{"mes":"Dic 2025","preprofesionales":0,"servicioComunitario":0},{"mes":"Ene 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"Feb 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"Mar 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"Abr 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"May 2026","preprofesionales":0,"servicioComunitario":0}]
+DEBUG - 2026-05-11 12:48:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-05-11 12:48:04 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-05-11 12:48:04 --> Estadísticas mensuales prácticas: [{"mes":"Jun 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Jul 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Ago 2025","preprofesionales":0,"servicioComunitario":1},{"mes":"Sep 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Oct 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Nov 2025","preprofesionales":0,"servicioComunitario":1},{"mes":"Dic 2025","preprofesionales":0,"servicioComunitario":0},{"mes":"Ene 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"Feb 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"Mar 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"Abr 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"May 2026","preprofesionales":0,"servicioComunitario":0}]
+DEBUG - 2026-05-11 12:48:08 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-05-11 12:48:08 --> Iniciando proceso de cierre de sesión para usuario: ayandun
+INFO - 2026-05-11 12:48:08 --> Sesión cerrada exitosamente
+DEBUG - 2026-05-11 12:48:08 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-05-11 12:48:19 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-05-11 12:48:19 --> Usuario autenticado: 1004191845 con rol: 1 - requiere cambio password: no
+DEBUG - 2026-05-11 12:48:19 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+DEBUG - 2026-05-11 12:48:19 --> Estadísticas mensuales prácticas: [{"mes":"Jun 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Jul 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Ago 2025","preprofesionales":0,"servicioComunitario":1},{"mes":"Sep 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Oct 2025","preprofesionales":1,"servicioComunitario":0},{"mes":"Nov 2025","preprofesionales":0,"servicioComunitario":1},{"mes":"Dic 2025","preprofesionales":0,"servicioComunitario":0},{"mes":"Ene 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"Feb 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"Mar 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"Abr 2026","preprofesionales":0,"servicioComunitario":0},{"mes":"May 2026","preprofesionales":0,"servicioComunitario":0}]
+DEBUG - 2026-05-11 12:48:24 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.
+INFO - 2026-05-11 12:48:24 --> Iniciando proceso de cierre de sesión para usuario: ycampues
+INFO - 2026-05-11 12:48:24 --> Sesión cerrada exitosamente
+DEBUG - 2026-05-11 12:48:24 --> Session: Class initialized using 'CodeIgniter\Session\Handlers\FileHandler' driver.

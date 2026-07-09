@@ -1,0 +1,109 @@
+/* Layout principal con flexbox para que el footer siempre esté al final */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+header, .navbar, .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 10;
+    height: 60px;
+}
+
+.layout-container {
+    display: flex;
+    flex: 1 0 auto;
+    margin-top: 60px; /* altura del header */
+}
+
+.sidebar {
+    width: 220px;
+    min-width: 220px;
+    max-width: 220px;
+    background: #f1f5f9;
+    border-right: 1px solid #e5e7eb;
+    min-height: calc(100vh - 60px);
+    position: relative;
+    z-index: 2;
+}
+
+.main-content {
+    flex: 1;
+    padding: 2rem;
+    background: #f8fafc;
+    min-height: calc(100vh - 60px - 40px); /* 60px header, 40px footer */
+}
+
+footer {
+    width: 100%;
+    height: 40px; /* Ajusta según tu footer */
+    background: #f1f5f9;
+    border-top: 1px solid #e5e7eb;
+    text-align: center;
+    line-height: 40px;
+    position: static; /* <--- Cambia de fixed a static */
+    z-index: 10;
+}
+
+.card {
+    border-radius: 1rem;
+    transition: box-shadow 0.2s;
+}
+
+.card:hover {
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+    transform: translateY(-3px) scale(1.02);
+}
+
+.sidebar-logo {
+    max-width: 90px;
+    margin-bottom: 1rem;
+}
+
+.sidebar-user {
+    font-weight: 600;
+    font-size: 1.1rem;
+}
+
+.sidebar-role {
+    font-size: 0.95rem;
+    color: #6366f1;
+}
+
+.nav-link.active, .nav-link:hover {
+    background: #6366f1;
+    color: #fff !important;
+    border-radius: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .layout-container {
+        flex-direction: column;
+        margin-top: 60px;
+    }
+    .sidebar {
+        position: static !important;
+        width: 100% !important;
+        max-width: 100%;
+        min-width: 0;
+        min-height: auto !important;
+        margin-bottom: 1rem;
+        z-index: auto !important;
+        border-right: none;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    .main-content {
+        margin-left: 0 !important;
+        padding: 1rem;
+    }
+}
