@@ -1211,16 +1211,16 @@ INSERT INTO `TAB_DATOS_PERSONAS` (`ID_DATO_PERSONA`, `NOMBRE`, `APELLIDO`, `CEDU
 (10, 'Ana Lucía', 'Martínez Vega', '1004567890', '0954321098', 'Cuenca, Ecuador', 'ana.martinez2023@itsi.edu.ec', 'Femenino', 'Soltera', 'Ecuatoriana', '2025-02-01', 1, '');
 
 INSERT INTO `TAB_USUARIOS` (`ID_USUARIO`, `ID_DATO_PERSONA`, `USUARIO`, `CONTRASENA`, `ESTADO`) VALUES
-(1, 1, 'ycampues', '$2y$10$TIMV8h.jkhNV8CLSitL6gOq7fzNIRKyjrJXejA9E49Zf8.LjdZNdC', '1'),
-(2, 2, 'ayandun', '$2y$10$i2tATNDRscPHKmaElhHJfejq2SrmjJ1guv2jCOHKoUlm7NT6YvN0a', '1'),
-(3, 3, 'paguirre', '$2y$10$nLujePj1IK/t0Te3WEPNq.iGdBBAty3Oo5xJeSIUrV/s6mmVrExsK', '1'),
-(4, 4, 'cmendoza', '123', '1'),
-(5, 5, 'aruiz', '123', '1'),
-(6, 6, 'mgonzalez', '123', '1'),
-(7, 7, 'jperez', '123', '1'),
-(8, 8, 'mgarcia', '123', '1'),
-(9, 9, 'crodriguez', '123', '1'),
-(10, 10, 'amartinez', '123', '1');
+(1, 1, 'admin', '$2y$10$TIMV8h.jkhNV8CLSitL6gOq7fzNIRKyjrJXejA9E49Zf8.LjdZNdC', '1'),
+(2, 2, 'coord', '$2y$10$i2tATNDRscPHKmaElhHJfejq2SrmjJ1guv2jCOHKoUlm7NT6YvN0a', '1'),
+(3, 3, 'docente', '$2y$10$nLujePj1IK/t0Te3WEPNq.iGdBBAty3Oo5xJeSIUrV/s6mmVrExsK', '1'),
+(4, 4, 'estud1', '123', '1'),
+(5, 5, 'estud2', '123', '1'),
+(6, 6, 'estud3', '123', '1'),
+(7, 7, 'estud4', '123', '1'),
+(8, 8, 'estud5', '123', '1'),
+(9, 9, 'estud6', '123', '1'),
+(10, 10, 'estud7', '123', '1');
 
 INSERT INTO `TAB_RECUPERACION_CONTRASENA` (`ID_RECUPERACION`, `ID_USUARIO`, `TOKEN`, `EXPIRA_EN`, `USADO`, `CREADO_EN`) VALUES
 (1, 1, '6a585b02f0e38f1d9bbdd8bddbba2fa4fb47154726356a90d0a54ce64a3014c2', '2026-03-03 12:08:09', 1, '2026-03-03 11:08:09'),
@@ -1403,12 +1403,32 @@ INSERT INTO `TAB_ENTIDADES_RECEPTORAS` (`ID_ENTIDAD_RECEPTORA`, `NOMBRE`, `RUC`,
 (4, 'Municipio de Ibarra', '1760001230001', 'Plaza de la Independencia, Ibarra', 'Ibarra', '062-123456', 'info@municipioibarra.gob.ec', 'Alcalde Juan Carlos', 'Secretaria General', '0987654321', 'secretaria@municipioibarra.gob.ec', 'Pública', 1, '2025-09-04 11:59:17', '2025-09-04 11:59:17'),
 (5, 'Empresa Tecnológica XYZ', '1234567890002', 'Zona Industrial, Ibarra', 'Ibarra', '062-987654', 'info@tecnologiaxyz.com', 'Ing. Director', 'RRHH', '0912345678', 'rrhh@tecnologiaxyz.com', 'Privada', 1, '2025-09-04 11:59:17', '2025-09-04 11:59:17'),
 (6, 'Casa de la Cultura', '1234567890003', 'Calle Bolívar, Ibarra', 'Ibarra', '062-555777', 'info@casaculturaibarra.gob.ec', 'Lic. Director Cultural', 'Coordinador de Proyectos', '0987654321', 'proyectos@casaculturaibarra.gob.ec', 'Pública', 1, '2025-09-04 11:59:17', '2025-09-04 11:59:17'),
-(7, 'Fundación Telefónica', '1234567890004', 'Av. 6 de Diciembre, Quito', 'Quito', '022-333444', 'info@fundaciontelefonica.org', 'Director Ejecutivo', 'Coordinador Social', '0912345678', 'social@fundaciontelefonica.org', 'Privada', 1, '2025-09-04 11:59:17', '2025-09-04 11:59:17');
+(7, 'Fundación Telefónica', '1234567890004', 'Av. 6 de Diciembre, Quito', 'Quito', '022-333444', 'info@fundaciontelefonica.org', 'Director Ejecutivo', 'Coordinador Social', '0912345678', 'social@fundaciontelefonica.org', 'Privada', 1, '2025-09-04 11:59:17', '2025-09-04 11:59:17'),
+(8, 'GAD Provincial de Imbabura', '1060000580001', 'Av. Mariano Acosta y Circunvalación, Ibarra', 'Ibarra', '062-955118', 'info@imbabura.gob.ec', 'Ing. Prefecto Provincial', 'Lic. Coordinador de Proyectos', '0998123456', 'proyectos@imbabura.gob.ec', 'Pública', 1, '2025-09-04 11:59:17', '2025-09-04 11:59:17'),
+(9, 'CNT EP Ibarra', '1768013090001', 'Av. Pérez Guerrero y Bolívar, Ibarra', 'Ibarra', '062-951100', 'ibarra@cnt.gob.ec', 'Ing. Gerente Regional', 'Ing. Jefe de Talento Humano', '0997654321', 'talentohumano.ibarra@cnt.gob.ec', 'Pública', 1, '2025-09-04 11:59:17', '2025-09-04 11:59:17'),
+(10, 'Cruz Roja Ecuatoriana - Junta Provincial Imbabura', '1060014030001', 'Calle Oviedo y Sucre, Ibarra', 'Ibarra', '062-640666', 'imbabura@cruzroja.org.ec', 'Dr. Presidente Provincial', 'Lic. Coordinadora de Voluntariado', '0986543210', 'voluntariado.imbabura@cruzroja.org.ec', 'Privada', 1, '2025-09-04 11:59:17', '2025-09-04 11:59:17'),
+(11, 'Universidad Técnica del Norte', '1060001070001', 'Av. 17 de Julio 5-21, Ibarra', 'Ibarra', '062-997800', 'info@utn.edu.ec', 'Dr. Rector UTN', 'Ing. Director de Vinculación', '0991234567', 'vinculacion@utn.edu.ec', 'Pública', 1, '2025-09-04 11:59:17', '2025-09-04 11:59:17'),
+(12, 'Centro de Salud Tipo C Ibarra', '1768016490001', 'Calle Juan de Velasco y Av. Jaime Roldós, Ibarra', 'Ibarra', '062-612000', 'centro.salud.ibarra@msp.gob.ec', 'Dr. Director Distrital de Salud', 'Lic. Coordinadora Administrativa', '0978123456', 'admin.salud.ibarra@msp.gob.ec', 'Pública', 1, '2025-09-04 11:59:17', '2025-09-04 11:59:17'),
+(13, 'Cooperativa de Ahorro y Crédito Atuntaqui', '1090078248001', 'Calle Bolívar y García Moreno, Atuntaqui', 'Atuntaqui', '062-906247', 'info@coopatuntaqui.fin.ec', 'Ing. Gerente General', 'Lic. Jefe de Recursos Humanos', '0965432198', 'rrhh@coopatuntaqui.fin.ec', 'Privada', 1, '2025-09-04 11:59:17', '2025-09-04 11:59:17'),
+(14, 'Registro Civil de Ibarra', '1760004250001', 'Calle García Moreno y Rocafuerte, Ibarra', 'Ibarra', '062-643188', 'ibarra@registrocivil.gob.ec', 'Dr. Director Provincial', 'Ing. Coordinador de Sistemas', '0954321876', 'sistemas.ibarra@registrocivil.gob.ec', 'Pública', 1, '2025-09-04 11:59:17', '2025-09-04 11:59:17'),
+(15, 'Cámara de Comercio de Ibarra', '1060006330001', 'Calle Colón y Sucre, Ibarra', 'Ibarra', '062-958400', 'info@camaraibarra.org.ec', 'Ing. Presidente Ejecutivo', 'Lic. Secretaria Ejecutiva', '0943210987', 'secretaria@camaraibarra.org.ec', 'Privada', 1, '2025-09-04 11:59:17', '2025-09-04 11:59:17');
 
 INSERT INTO `TAB_INSTITUCIONES_CONVENIOS` (`ID_INSTITUCION_CONVENIO`, `ID_TIPO_INSTITUCION`, `ID_ENTIDAD_RECEPTORA`, `NOMBRE`, `RUC`, `DIRECCION`, `CIUDAD`, `TELEFONO`, `EMAIL`, `REPRESENTANTE_LEGAL`, `CONTACTO`, `TELEFONO_CONTACTO`, `EMAIL_CONTACTO`, `LOGO`) VALUES
 (1, 1, 1, 'Hospital San Vicente de Paúl', '1234567890001', 'Av. 17 de Julio, Ibarra', 'Ibarra', '062-123456', 'contacto@hospitalsanvicente.com', 'Dr. Juan Pérez', 'Lic. María González', '0987654321', 'maria.gonzalez@hospitalsanvicente.com', NULL),
 (2, 2, 2, 'Banco del Pacífico', '0987654321001', 'Av. Amazonas, Quito', 'Quito', '022-987654', 'info@bancodelpacifico.com', 'Sr. Carlos Mendoza', 'Ing. Ana Ruiz', '0912345678', 'ana.ruiz@bancodelpacifico.com', NULL),
-(3, 1, 3, 'Fundación Niños del Ecuador', '1122334455001', 'Calle 10 de Agosto, Guayaquil', 'Guayaquil', '042-555666', 'info@ninosdelecuador.org', 'Dra. Sofía Morales', 'Lic. Pedro Aguirre', '0999888777', 'pedro.aguirre@ninosdelecuador.org', NULL);
+(3, 1, 3, 'Fundación Niños del Ecuador', '1122334455001', 'Calle 10 de Agosto, Guayaquil', 'Guayaquil', '042-555666', 'info@ninosdelecuador.org', 'Dra. Sofía Morales', 'Lic. Pedro Aguirre', '0999888777', 'pedro.aguirre@ninosdelecuador.org', NULL),
+(4, 1, 4, 'Municipio de Ibarra', '1760001230001', 'Plaza de la Independencia, Ibarra', 'Ibarra', '062-123456', 'info@municipioibarra.gob.ec', 'Alcalde Juan Carlos', 'Secretaria General', '0987654321', 'secretaria@municipioibarra.gob.ec', NULL),
+(5, 2, 5, 'Empresa Tecnológica XYZ', '1234567890002', 'Zona Industrial, Ibarra', 'Ibarra', '062-987654', 'info@tecnologiaxyz.com', 'Ing. Director', 'RRHH', '0912345678', 'rrhh@tecnologiaxyz.com', NULL),
+(6, 1, 6, 'Casa de la Cultura', '1234567890003', 'Calle Bolívar, Ibarra', 'Ibarra', '062-555777', 'info@casaculturaibarra.gob.ec', 'Lic. Director Cultural', 'Coordinador de Proyectos', '0987654321', 'proyectos@casaculturaibarra.gob.ec', NULL),
+(7, 2, 7, 'Fundación Telefónica', '1234567890004', 'Av. 6 de Diciembre, Quito', 'Quito', '022-333444', 'info@fundaciontelefonica.org', 'Director Ejecutivo', 'Coordinador Social', '0912345678', 'social@fundaciontelefonica.org', NULL),
+(8, 1, 8, 'GAD Provincial de Imbabura', '1060000580001', 'Av. Mariano Acosta y Circunvalación, Ibarra', 'Ibarra', '062-955118', 'info@imbabura.gob.ec', 'Ing. Prefecto Provincial', 'Lic. Coordinador de Proyectos', '0998123456', 'proyectos@imbabura.gob.ec', NULL),
+(9, 1, 9, 'CNT EP Ibarra', '1768013090001', 'Av. Pérez Guerrero y Bolívar, Ibarra', 'Ibarra', '062-951100', 'ibarra@cnt.gob.ec', 'Ing. Gerente Regional', 'Ing. Jefe de Talento Humano', '0997654321', 'talentohumano.ibarra@cnt.gob.ec', NULL),
+(10, 2, 10, 'Cruz Roja Ecuatoriana - Junta Provincial Imbabura', '1060014030001', 'Calle Oviedo y Sucre, Ibarra', 'Ibarra', '062-640666', 'imbabura@cruzroja.org.ec', 'Dr. Presidente Provincial', 'Lic. Coordinadora de Voluntariado', '0986543210', 'voluntariado.imbabura@cruzroja.org.ec', NULL),
+(11, 1, 11, 'Universidad Técnica del Norte', '1060001070001', 'Av. 17 de Julio 5-21, Ibarra', 'Ibarra', '062-997800', 'info@utn.edu.ec', 'Dr. Rector UTN', 'Ing. Director de Vinculación', '0991234567', 'vinculacion@utn.edu.ec', NULL),
+(12, 1, 12, 'Centro de Salud Tipo C Ibarra', '1768016490001', 'Calle Juan de Velasco y Av. Jaime Roldós, Ibarra', 'Ibarra', '062-612000', 'centro.salud.ibarra@msp.gob.ec', 'Dr. Director Distrital de Salud', 'Lic. Coordinadora Administrativa', '0978123456', 'admin.salud.ibarra@msp.gob.ec', NULL),
+(13, 2, 13, 'Cooperativa de Ahorro y Crédito Atuntaqui', '1090078248001', 'Calle Bolívar y García Moreno, Atuntaqui', 'Atuntaqui', '062-906247', 'info@coopatuntaqui.fin.ec', 'Ing. Gerente General', 'Lic. Jefe de Recursos Humanos', '0965432198', 'rrhh@coopatuntaqui.fin.ec', NULL),
+(14, 1, 14, 'Registro Civil de Ibarra', '1760004250001', 'Calle García Moreno y Rocafuerte, Ibarra', 'Ibarra', '062-643188', 'ibarra@registrocivil.gob.ec', 'Dr. Director Provincial', 'Ing. Coordinador de Sistemas', '0954321876', 'sistemas.ibarra@registrocivil.gob.ec', NULL),
+(15, 2, 15, 'Cámara de Comercio de Ibarra', '1060006330001', 'Calle Colón y Sucre, Ibarra', 'Ibarra', '062-958400', 'info@camaraibarra.org.ec', 'Ing. Presidente Ejecutivo', 'Lic. Secretaria Ejecutiva', '0943210987', 'secretaria@camaraibarra.org.ec', NULL);
 
 INSERT INTO `TAB_ASIGNACIONES_PRACTICAS` (`ID_ASIGNACION_PRACTICA`, `ID_TIPO_PRACTICA`, `ID_USUARIO`, `ID_PERIODO_ACADEMICO`, `ID_INSTITUCION_CONVENIO`, `FECHA_INICIO`, `FECHA_FIN`, `HORA_TOTAL`, `DESCRIPCION`) VALUES
 (1, 2, 1, 4, 1, '2025-06-01', '2025-08-30', 240, 'Desarrollo e implementación de sistema de gestión hospitalaria'),
@@ -1475,17 +1495,190 @@ INSERT INTO `TAB_EMPLEADOS_INSTRUCTORES` (`ID_EMPLEADO_INSTRUCTOR`, `ID_EMPLEADO
 (3, 3, 3);
 
 INSERT INTO `TAB_DETALLES_CONVENIOS` (`ID_DETALLE_CONVENIO`, `ID_TIPO_CONVENIO`, `ID_INSTITUCION_CONVENIO`, `ID_CARRERA`, `FECHA_INICIO`, `FECHA_FIN`, `DURACION`, `OBJETIVO`, `OBSERVACIONES`, `ARCHIVO_CONVENIO`, `RENOVABLE`, `PLAZAS_DISPONIBLES`) VALUES
+-- Convenios originales
 (1, 1, 1, 1, '2025-01-01', '2025-12-31', '12 meses', 'Establecer convenio para prácticas preprofesionales en el área de salud', 'Convenio renovable anualmente', 'convenio_hospital_2025.pdf', 1, 0),
 (2, 2, 2, 2, '2025-02-01', '2026-01-31', '12 meses', 'Convenio para servicio comunitario en el sector financiero', 'Convenio para proyectos de impacto social', 'convenio_banco_2025.pdf', 1, 0),
-(3, 3, 3, 3, '2025-03-01', '2025-12-31', '10 meses', 'Convenio mixto para prácticas y servicio comunitario', 'Convenio integral para múltiples actividades', 'convenio_fundacion_2025.pdf', 1, 0);
+(3, 3, 3, 3, '2025-03-01', '2025-12-31', '10 meses', 'Convenio mixto para prácticas y servicio comunitario', 'Convenio integral para múltiples actividades', 'convenio_fundacion_2025.pdf', 1, 0),
+-- Convenios nuevos: Municipio de Ibarra (todas las carreras)
+(4, 3, 4, 1, '2025-04-01', '2026-03-31', '12 meses', 'Convenio para desarrollo de sistemas de gestión municipal', 'Convenio mixto para prácticas y servicio comunitario en el GAD Municipal', 'convenio_municipio_2025.pdf', 1, 5),
+(5, 3, 4, 2, '2025-04-01', '2026-03-31', '12 meses', 'Convenio para diseño de imagen y comunicación visual institucional', 'Convenio mixto para diseño gráfico en el municipio', 'convenio_municipio_dg_2025.pdf', 1, 4),
+(6, 3, 4, 3, '2025-04-01', '2026-03-31', '12 meses', 'Convenio para mantenimiento de infraestructura de red municipal', 'Convenio mixto para redes y telecomunicaciones', 'convenio_municipio_redes_2025.pdf', 1, 3),
+(7, 3, 4, 4, '2025-04-01', '2026-03-31', '12 meses', 'Convenio para apoyo en gestión administrativa municipal', 'Convenio mixto para prácticas administrativas', 'convenio_municipio_admin_2025.pdf', 1, 5),
+(8, 3, 4, 5, '2025-04-01', '2026-03-31', '12 meses', 'Convenio para atención integral a adultos mayores en programas sociales', 'Convenio de servicio comunitario para programas de adultos mayores', 'convenio_municipio_adultos_2025.pdf', 1, 6),
+(9, 3, 4, 6, '2025-04-01', '2026-03-31', '12 meses', 'Convenio para estrategias de marketing digital y promoción turística', 'Convenio mixto para marketing digital municipal', 'convenio_municipio_mkt_2025.pdf', 1, 4),
+-- Convenios nuevos: Empresa Tecnológica XYZ
+(10, 1, 5, 1, '2025-05-01', '2026-04-30', '12 meses', 'Convenio para desarrollo de software empresarial', 'Convenio de prácticas preprofesionales en empresa tecnológica', 'convenio_xyz_sw_2025.pdf', 1, 8),
+(11, 1, 5, 3, '2025-05-01', '2026-04-30', '12 meses', 'Convenio para administración de redes corporativas', 'Convenio de prácticas en infraestructura de TI', 'convenio_xyz_redes_2025.pdf', 1, 4),
+(12, 1, 5, 6, '2025-05-01', '2026-04-30', '12 meses', 'Convenio para marketing digital de productos tecnológicos', 'Convenio de prácticas en marketing digital', 'convenio_xyz_mkt_2025.pdf', 1, 3),
+-- Convenios nuevos: Casa de la Cultura
+(13, 2, 6, 2, '2025-06-01', '2026-05-31', '12 meses', 'Convenio para diseño gráfico cultural y exposiciones', 'Convenio de servicio comunitario en diseño cultural', 'convenio_casacultura_dg_2025.pdf', 1, 5),
+(14, 2, 6, 6, '2025-06-01', '2026-05-31', '12 meses', 'Convenio para promoción digital de eventos culturales', 'Convenio de servicio comunitario en marketing cultural', 'convenio_casacultura_mkt_2025.pdf', 1, 4),
+-- Convenios nuevos: Fundación Telefónica
+(15, 3, 7, 1, '2025-03-01', '2026-02-28', '12 meses', 'Convenio para desarrollo de plataformas educativas digitales', 'Convenio mixto para desarrollo de software educativo', 'convenio_telefonica_sw_2025.pdf', 1, 6),
+(16, 3, 7, 3, '2025-03-01', '2026-02-28', '12 meses', 'Convenio para infraestructura de conectividad educativa', 'Convenio mixto para redes en programas de conectividad', 'convenio_telefonica_redes_2025.pdf', 1, 4),
+-- Convenios nuevos: GAD Provincial de Imbabura (todas las carreras)
+(17, 3, 8, 1, '2025-05-01', '2026-04-30', '12 meses', 'Convenio para modernización tecnológica del GAD Provincial', 'Convenio mixto para desarrollo de software gubernamental', 'convenio_gadimbabura_sw_2025.pdf', 1, 5),
+(18, 3, 8, 2, '2025-05-01', '2026-04-30', '12 meses', 'Convenio para diseño de material comunicacional provincial', 'Convenio mixto para diseño gráfico institucional', 'convenio_gadimbabura_dg_2025.pdf', 1, 4),
+(19, 3, 8, 3, '2025-05-01', '2026-04-30', '12 meses', 'Convenio para modernización de red provincial de telecomunicaciones', 'Convenio mixto para infraestructura de red', 'convenio_gadimbabura_redes_2025.pdf', 1, 3),
+(20, 3, 8, 4, '2025-05-01', '2026-04-30', '12 meses', 'Convenio para gestión administrativa y procesos organizacionales', 'Convenio mixto para prácticas administrativas provinciales', 'convenio_gadimbabura_admin_2025.pdf', 1, 5),
+(21, 3, 8, 5, '2025-05-01', '2026-04-30', '12 meses', 'Convenio para programas de atención a adultos mayores en parroquias', 'Convenio de servicio comunitario en atención social', 'convenio_gadimbabura_adultos_2025.pdf', 1, 6),
+(22, 3, 8, 6, '2025-05-01', '2026-04-30', '12 meses', 'Convenio para promoción turística digital de Imbabura', 'Convenio mixto para marketing digital provincial', 'convenio_gadimbabura_mkt_2025.pdf', 1, 4),
+-- Convenios nuevos: CNT EP Ibarra (todas las carreras)
+(23, 3, 9, 1, '2025-06-01', '2026-05-31', '12 meses', 'Convenio para desarrollo de aplicaciones de telecomunicaciones', 'Convenio mixto para desarrollo de software en CNT', 'convenio_cnt_sw_2025.pdf', 1, 5),
+(24, 3, 9, 2, '2025-06-01', '2026-05-31', '12 meses', 'Convenio para diseño de material publicitario y corporativo de CNT', 'Convenio mixto para diseño gráfico en telecomunicaciones', 'convenio_cnt_dg_2025.pdf', 1, 3),
+(25, 3, 9, 3, '2025-06-01', '2026-05-31', '12 meses', 'Convenio para gestión y mantenimiento de redes de telecomunicaciones', 'Convenio mixto para infraestructura de telecomunicaciones', 'convenio_cnt_redes_2025.pdf', 1, 8),
+(26, 3, 9, 4, '2025-06-01', '2026-05-31', '12 meses', 'Convenio para gestión administrativa y atención al cliente', 'Convenio mixto para prácticas administrativas en CNT', 'convenio_cnt_admin_2025.pdf', 1, 4),
+(27, 2, 9, 5, '2025-06-01', '2026-05-31', '12 meses', 'Convenio para alfabetización digital de adultos mayores', 'Convenio de servicio comunitario para inclusión digital', 'convenio_cnt_adultos_2025.pdf', 1, 5),
+(28, 3, 9, 6, '2025-06-01', '2026-05-31', '12 meses', 'Convenio para estrategias de marketing digital y comercio electrónico', 'Convenio mixto para marketing digital en telecomunicaciones', 'convenio_cnt_mkt_2025.pdf', 1, 4),
+-- Convenios nuevos: Cruz Roja Ecuatoriana (todas las carreras)
+(29, 2, 10, 1, '2025-07-01', '2026-06-30', '12 meses', 'Convenio para desarrollo de sistemas de gestión humanitaria', 'Convenio de servicio comunitario en desarrollo de software', 'convenio_cruzroja_sw_2025.pdf', 1, 4),
+(30, 2, 10, 2, '2025-07-01', '2026-06-30', '12 meses', 'Convenio para diseño de campañas de sensibilización social', 'Convenio de servicio comunitario en diseño gráfico', 'convenio_cruzroja_dg_2025.pdf', 1, 3),
+(31, 2, 10, 3, '2025-07-01', '2026-06-30', '12 meses', 'Convenio para mantenimiento de infraestructura tecnológica humanitaria', 'Convenio de servicio comunitario en redes', 'convenio_cruzroja_redes_2025.pdf', 1, 3),
+(32, 2, 10, 4, '2025-07-01', '2026-06-30', '12 meses', 'Convenio para apoyo en gestión administrativa humanitaria', 'Convenio de servicio comunitario en administración', 'convenio_cruzroja_admin_2025.pdf', 1, 5),
+(33, 2, 10, 5, '2025-07-01', '2026-06-30', '12 meses', 'Convenio para atención integral a adultos mayores en situación de vulnerabilidad', 'Convenio de servicio comunitario en atención a adultos mayores', 'convenio_cruzroja_adultos_2025.pdf', 1, 8),
+(34, 2, 10, 6, '2025-07-01', '2026-06-30', '12 meses', 'Convenio para difusión digital de campañas humanitarias', 'Convenio de servicio comunitario en marketing digital', 'convenio_cruzroja_mkt_2025.pdf', 1, 3),
+-- Convenios nuevos: Universidad Técnica del Norte (todas las carreras)
+(35, 3, 11, 1, '2025-04-01', '2026-03-31', '12 meses', 'Convenio para desarrollo de proyectos de investigación en TI', 'Convenio mixto con la UTN para desarrollo de software', 'convenio_utn_sw_2025.pdf', 1, 6),
+(36, 3, 11, 2, '2025-04-01', '2026-03-31', '12 meses', 'Convenio para diseño gráfico en proyectos académicos y culturales', 'Convenio mixto con la UTN para diseño gráfico', 'convenio_utn_dg_2025.pdf', 1, 4),
+(37, 3, 11, 3, '2025-04-01', '2026-03-31', '12 meses', 'Convenio para investigación en redes y telecomunicaciones', 'Convenio mixto con la UTN para infraestructura de red', 'convenio_utn_redes_2025.pdf', 1, 4),
+(38, 3, 11, 4, '2025-04-01', '2026-03-31', '12 meses', 'Convenio para apoyo en procesos administrativos universitarios', 'Convenio mixto con la UTN para gestión administrativa', 'convenio_utn_admin_2025.pdf', 1, 5),
+(39, 3, 11, 5, '2025-04-01', '2026-03-31', '12 meses', 'Convenio para programas de atención a adultos mayores en comunidades', 'Convenio de servicio comunitario con la UTN', 'convenio_utn_adultos_2025.pdf', 1, 5),
+(40, 3, 11, 6, '2025-04-01', '2026-03-31', '12 meses', 'Convenio para estrategias de comunicación digital universitaria', 'Convenio mixto con la UTN para marketing digital', 'convenio_utn_mkt_2025.pdf', 1, 3),
+-- Convenios nuevos: Centro de Salud Tipo C Ibarra (todas las carreras)
+(41, 3, 12, 1, '2025-05-01', '2026-04-30', '12 meses', 'Convenio para desarrollo de sistemas de información de salud', 'Convenio mixto para digitalización de procesos de salud', 'convenio_centrosalud_sw_2025.pdf', 1, 4),
+(42, 3, 12, 2, '2025-05-01', '2026-04-30', '12 meses', 'Convenio para diseño de material educativo y preventivo de salud', 'Convenio mixto para campañas gráficas de salud', 'convenio_centrosalud_dg_2025.pdf', 1, 3),
+(43, 3, 12, 3, '2025-05-01', '2026-04-30', '12 meses', 'Convenio para mantenimiento de red informática del centro de salud', 'Convenio mixto para infraestructura tecnológica de salud', 'convenio_centrosalud_redes_2025.pdf', 1, 3),
+(44, 3, 12, 4, '2025-05-01', '2026-04-30', '12 meses', 'Convenio para apoyo en gestión administrativa de salud pública', 'Convenio mixto para prácticas administrativas en salud', 'convenio_centrosalud_admin_2025.pdf', 1, 5),
+(45, 3, 12, 5, '2025-05-01', '2026-04-30', '12 meses', 'Convenio para atención integral a adultos mayores en servicios de salud', 'Convenio de servicio comunitario en atención geriátrica', 'convenio_centrosalud_adultos_2025.pdf', 1, 8),
+(46, 3, 12, 6, '2025-05-01', '2026-04-30', '12 meses', 'Convenio para promoción digital de campañas de salud preventiva', 'Convenio mixto para marketing digital en salud pública', 'convenio_centrosalud_mkt_2025.pdf', 1, 3),
+-- Convenios nuevos: Cooperativa Atuntaqui (todas las carreras)
+(47, 3, 13, 1, '2025-06-01', '2026-05-31', '12 meses', 'Convenio para desarrollo de plataformas financieras digitales', 'Convenio mixto para desarrollo de software financiero', 'convenio_coopatuntaqui_sw_2025.pdf', 1, 4),
+(48, 3, 13, 2, '2025-06-01', '2026-05-31', '12 meses', 'Convenio para diseño de imagen corporativa y material publicitario', 'Convenio mixto para diseño gráfico financiero', 'convenio_coopatuntaqui_dg_2025.pdf', 1, 3),
+(49, 3, 13, 3, '2025-06-01', '2026-05-31', '12 meses', 'Convenio para administración de redes y seguridad informática', 'Convenio mixto para infraestructura de red financiera', 'convenio_coopatuntaqui_redes_2025.pdf', 1, 3),
+(50, 3, 13, 4, '2025-06-01', '2026-05-31', '12 meses', 'Convenio para prácticas en gestión financiera y administrativa', 'Convenio mixto para prácticas administrativas financieras', 'convenio_coopatuntaqui_admin_2025.pdf', 1, 6),
+(51, 2, 13, 5, '2025-06-01', '2026-05-31', '12 meses', 'Convenio para educación financiera a adultos mayores', 'Convenio de servicio comunitario en inclusión financiera', 'convenio_coopatuntaqui_adultos_2025.pdf', 1, 5),
+(52, 3, 13, 6, '2025-06-01', '2026-05-31', '12 meses', 'Convenio para marketing digital y comercio electrónico cooperativo', 'Convenio mixto para marketing digital financiero', 'convenio_coopatuntaqui_mkt_2025.pdf', 1, 4),
+-- Convenios nuevos: Registro Civil de Ibarra (todas las carreras)
+(53, 3, 14, 1, '2025-07-01', '2026-06-30', '12 meses', 'Convenio para desarrollo de sistemas de registro e identificación', 'Convenio mixto para modernización de sistemas de registro civil', 'convenio_regcivil_sw_2025.pdf', 1, 4),
+(54, 3, 14, 2, '2025-07-01', '2026-06-30', '12 meses', 'Convenio para diseño de imagen institucional y señalética', 'Convenio mixto para diseño gráfico institucional', 'convenio_regcivil_dg_2025.pdf', 1, 3),
+(55, 3, 14, 3, '2025-07-01', '2026-06-30', '12 meses', 'Convenio para mantenimiento de infraestructura de red y conectividad', 'Convenio mixto para infraestructura tecnológica del registro civil', 'convenio_regcivil_redes_2025.pdf', 1, 3),
+(56, 3, 14, 4, '2025-07-01', '2026-06-30', '12 meses', 'Convenio para apoyo en procesos administrativos y atención ciudadana', 'Convenio mixto para prácticas administrativas en registro civil', 'convenio_regcivil_admin_2025.pdf', 1, 5),
+(57, 2, 14, 5, '2025-07-01', '2026-06-30', '12 meses', 'Convenio para atención preferencial a adultos mayores en trámites civiles', 'Convenio de servicio comunitario en atención al adulto mayor', 'convenio_regcivil_adultos_2025.pdf', 1, 5),
+(58, 3, 14, 6, '2025-07-01', '2026-06-30', '12 meses', 'Convenio para digitalización de servicios y comunicación digital', 'Convenio mixto para marketing digital institucional', 'convenio_regcivil_mkt_2025.pdf', 1, 3),
+-- Convenios nuevos: Cámara de Comercio de Ibarra (todas las carreras)
+(59, 3, 15, 1, '2025-08-01', '2026-07-31', '12 meses', 'Convenio para desarrollo de plataforma de comercio electrónico regional', 'Convenio mixto para desarrollo de software comercial', 'convenio_camaracom_sw_2025.pdf', 1, 5),
+(60, 3, 15, 2, '2025-08-01', '2026-07-31', '12 meses', 'Convenio para diseño de marca e identidad visual para emprendedores', 'Convenio mixto para diseño gráfico empresarial', 'convenio_camaracom_dg_2025.pdf', 1, 4),
+(61, 3, 15, 3, '2025-08-01', '2026-07-31', '12 meses', 'Convenio para asesoría en infraestructura tecnológica a comerciantes', 'Convenio mixto para redes y telecomunicaciones comerciales', 'convenio_camaracom_redes_2025.pdf', 1, 3),
+(62, 3, 15, 4, '2025-08-01', '2026-07-31', '12 meses', 'Convenio para apoyo en gestión empresarial y comercial', 'Convenio mixto para prácticas administrativas comerciales', 'convenio_camaracom_admin_2025.pdf', 1, 6),
+(63, 2, 15, 5, '2025-08-01', '2026-07-31', '12 meses', 'Convenio para capacitación empresarial a adultos mayores emprendedores', 'Convenio de servicio comunitario en emprendimiento senior', 'convenio_camaracom_adultos_2025.pdf', 1, 4),
+(64, 3, 15, 6, '2025-08-01', '2026-07-31', '12 meses', 'Convenio para estrategias de marketing digital y comercio electrónico', 'Convenio mixto para marketing digital comercial', 'convenio_camaracom_mkt_2025.pdf', 1, 5);
 
 INSERT INTO `TAB_INSTITUCION_CARRERA` (`ID_INSTITUCION_CARRERA`, `ID_CARRERA`, `ID_INSTITUCION_CONVENIO`) VALUES
-(1, 1, 1), -- Desarrollo de Software - Hospital
-(2, 2, 2), -- Diseño Gráfico - Banco
-(3, 3, 3), -- Redes y Telecomunicaciones - Fundación
-(4, 4, 1), -- Administración - Hospital
-(5, 5, 3), -- Atención Integral a Adultos Mayores - Fundación
-(6, 6, 2); -- Marketing Digital - Banco
+-- Hospital San Vicente de Paúl (todas las carreras)
+(1, 1, 1),   -- Desarrollo de Software
+(2, 2, 1),   -- Diseño Gráfico
+(3, 3, 1),   -- Redes y Telecomunicaciones
+(4, 4, 1),   -- Administración
+(5, 5, 1),   -- Atención Integral a Adultos Mayores
+(6, 6, 1),   -- Marketing Digital y Comercio Electrónico
+-- Banco del Pacífico (todas las carreras)
+(7, 1, 2),
+(8, 2, 2),
+(9, 3, 2),
+(10, 4, 2),
+(11, 5, 2),
+(12, 6, 2),
+-- Fundación Niños del Ecuador (todas las carreras)
+(13, 1, 3),
+(14, 2, 3),
+(15, 3, 3),
+(16, 4, 3),
+(17, 5, 3),
+(18, 6, 3),
+-- Municipio de Ibarra (todas las carreras)
+(19, 1, 4),
+(20, 2, 4),
+(21, 3, 4),
+(22, 4, 4),
+(23, 5, 4),
+(24, 6, 4),
+-- Empresa Tecnológica XYZ (todas las carreras)
+(25, 1, 5),
+(26, 2, 5),
+(27, 3, 5),
+(28, 4, 5),
+(29, 5, 5),
+(30, 6, 5),
+-- Casa de la Cultura (todas las carreras)
+(31, 1, 6),
+(32, 2, 6),
+(33, 3, 6),
+(34, 4, 6),
+(35, 5, 6),
+(36, 6, 6),
+-- Fundación Telefónica (todas las carreras)
+(37, 1, 7),
+(38, 2, 7),
+(39, 3, 7),
+(40, 4, 7),
+(41, 5, 7),
+(42, 6, 7),
+-- GAD Provincial de Imbabura (todas las carreras)
+(43, 1, 8),
+(44, 2, 8),
+(45, 3, 8),
+(46, 4, 8),
+(47, 5, 8),
+(48, 6, 8),
+-- CNT EP Ibarra (todas las carreras)
+(49, 1, 9),
+(50, 2, 9),
+(51, 3, 9),
+(52, 4, 9),
+(53, 5, 9),
+(54, 6, 9),
+-- Cruz Roja Ecuatoriana - Imbabura (todas las carreras)
+(55, 1, 10),
+(56, 2, 10),
+(57, 3, 10),
+(58, 4, 10),
+(59, 5, 10),
+(60, 6, 10),
+-- Universidad Técnica del Norte (todas las carreras)
+(61, 1, 11),
+(62, 2, 11),
+(63, 3, 11),
+(64, 4, 11),
+(65, 5, 11),
+(66, 6, 11),
+-- Centro de Salud Tipo C Ibarra (todas las carreras)
+(67, 1, 12),
+(68, 2, 12),
+(69, 3, 12),
+(70, 4, 12),
+(71, 5, 12),
+(72, 6, 12),
+-- Cooperativa de Ahorro y Crédito Atuntaqui (todas las carreras)
+(73, 1, 13),
+(74, 2, 13),
+(75, 3, 13),
+(76, 4, 13),
+(77, 5, 13),
+(78, 6, 13),
+-- Registro Civil de Ibarra (todas las carreras)
+(79, 1, 14),
+(80, 2, 14),
+(81, 3, 14),
+(82, 4, 14),
+(83, 5, 14),
+(84, 6, 14),
+-- Cámara de Comercio de Ibarra (todas las carreras)
+(85, 1, 15),
+(86, 2, 15),
+(87, 3, 15),
+(88, 4, 15),
+(89, 5, 15),
+(90, 6, 15);
 
 INSERT INTO `TAB_DOCUMENTOS_SERVICIO_COMUNITARIO` (`ID_DOCUMENTO_SERVICIO`, `ID_SERVICIO_COMUNITARIO`, `ID_TIPO_DOCUMENTO`, `ID_ESTADO_REVISION`, `NOMBRE_ARCHIVO`, `NOMBRE_ORIGINAL`, `TIPO_ARCHIVO`, `TAMANO_ARCHIVO`, `RUTA_ARCHIVO`, `FECHA_SUBIDA`, `FECHA_REVISION`, `ID_REVISOR`, `OBSERVACIONES`, `OBSERVACIONES_REVISOR`, `VERSION`) VALUES
 (7, 1, 4, 3, 'solicitud_institucional_sc_001_20250804.pdf', 'Solicitud Institucional SC - Rector.pdf', 'application/pdf', 298496, '/uploads/documentos-servicio/', '2025-08-04 13:00:00', '2025-08-04 15:10:00', 1, 'Solicitud institucional valorada para servicio comunitario', 'Solicitud aprobada por el rector', 1),
