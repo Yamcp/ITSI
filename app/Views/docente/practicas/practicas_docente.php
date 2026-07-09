@@ -151,7 +151,9 @@
                     <a href="<?= esc($urlServicio) ?>" class="btn btn-sm <?= ($modo ?? '') === 'servicio' ? 'btn-primary' : 'btn-outline-primary' ?>">Servicio comunitario</a>
                 </div>
                 <p class="text-center text-muted mb-4 small">
-                    Aquí se muestra únicamente información de los estudiantes a los que usted ha sido asignado como tutor en esta modalidad.
+                    Como docente tutor puede recibir estudiantes asignados por coordinación en
+                    <strong>prácticas preprofesionales</strong> y <strong>servicio comunitario</strong>.
+                    Aquí supervisa únicamente a los alumnos bajo su tutoría.
                 </p>
             </div>
         </div>
@@ -200,13 +202,134 @@
             </div>
         </div>
 
+        <!-- Estudiantes asignados al docente como tutor -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <div>
+                            <h5 class="mb-0">
+                                <i class="fas fa-users me-2 text-primary"></i>
+                                Estudiantes bajo mi tutoría
+                            </h5>
+                            <small class="text-muted">
+                                <?= ($modo ?? 'preprofesional') === 'servicio'
+                                    ? 'Servicio comunitario asignado por coordinación'
+                                    : 'Prácticas preprofesionales asignadas por coordinación' ?>
+                            </small>
+                        </div>
+                        <span class="badge bg-primary"><?= count($estudiantesAsignados ?? []) ?> estudiante(s)</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Estudiante</th>
+                                        <th>Carrera</th>
+                                        <th>Institución</th>
+                                        <th>Período</th>
+                                        <th>Progreso</th>
+                                        <th>Estado</th>
+                                        <th>Cumplimiento</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php if (!empty($estudiantesAsignados)): ?>
+                                        <?php $i = 1; foreach ($estudiantesAsignados as $est): ?>
+                                            <?php
+                                            $pct = (float) ($est['PORCENTAJE_PROGRESO'] ?? 0);
+                                            $nivel = $est['CUMPLIMIENTO_NIVEL'] ?? 'secondary';
+                                            $badgeMap = [
+                                                'success' => 'bg-success',
+                                                'warning' => 'bg-warning text-dark',
+                                                'danger' => 'bg-danger',
+                                                'info' => 'bg-info text-dark',
+                                                'secondary' => 'bg-secondary',
+                                            ];
+                                            $badgeClass = $badgeMap[$nivel] ?? 'bg-secondary';
+                                            $estado = $est['ESTADO_PRACTICA'] ?? '—';
+                                            ?>
+                                            <tr>
+                                                <td><?= $i++ ?></td>
+                                                <td>
+                                                    <div class="fw-semibold"><?= esc($est['NOMBRE_COMPLETO'] ?? '—') ?></div>
+                                                    <small class="text-muted"><?= esc($est['TIPO'] ?? '') ?></small>
+                                                </td>
+                                                <td><?= esc($est['CARRERA'] ?? '—') ?></td>
+                                                <td><?= esc($est['INSTITUCION_NOMBRE'] ?? '—') ?></td>
+                                                <td>
+                                                    <div><?= !empty($est['FECHA_INICIO']) ? date('d/m/Y', strtotime($est['FECHA_INICIO'])) : '—' ?></div>
+                                                    <small class="text-muted">al <?= !empty($est['FECHA_FIN']) ? date('d/m/Y', strtotime($est['FECHA_FIN'])) : '—' ?></small>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex align-items-center gap-2">
+                                                        <div class="progress flex-grow-1" style="height: 8px; min-width: 70px;">
+                                                            <div class="progress-bar" role="progressbar" style="width: <?= min(100, max(0, $pct)) ?>%;" aria-valuenow="<?= $pct ?>" aria-valuemin="0" aria-valuemax="100"></div>
+                                                        </div>
+                                                        <small class="text-nowrap"><?= number_format($pct, 0) ?>%</small>
+                                                    </div>
+                                                    <small class="text-muted">
+                                                        <?= number_format((float) ($est['HORAS_CUMPLIDAS'] ?? 0), 1) ?> /
+                                                        <?= number_format((float) ($est['HORAS_TOTALES'] ?? 0), 0) ?> h
+                                                    </small>
+                                                </td>
+                                                <td>
+                                                    <?php if ($estado === 'En Progreso'): ?>
+                                                        <span class="badge bg-success estado-badge">En Progreso</span>
+                                                    <?php elseif ($estado === 'Finalizado' || $estado === 'Completado'): ?>
+                                                        <span class="badge bg-secondary estado-badge"><?= esc($estado) ?></span>
+                                                    <?php else: ?>
+                                                        <span class="badge bg-info estado-badge"><?= esc($estado) ?></span>
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td>
+                                                    <span class="badge <?= $badgeClass ?>" title="<?= esc($est['CUMPLIMIENTO_DESCRIPCION'] ?? '') ?>">
+                                                        <?= esc($est['CUMPLIMIENTO_ETIQUETA'] ?? '—') ?>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <button type="button"
+                                                            class="btn btn-sm btn-outline-primary"
+                                                            onclick="verDetalleEstudiante(<?= (int) ($est['ID_ESTUDIANTE'] ?? 0) ?>)"
+                                                            title="Ver detalle y asistencias">
+                                                        <i class="fas fa-eye"></i>
+                                                    </button>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <tr>
+                                            <td colspan="9" class="text-center text-muted py-5">
+                                                <i class="fas fa-user-graduate fa-3x mb-3 d-block" style="opacity: 0.3;"></i>
+                                                <p class="mb-1 fw-semibold">Aún no tiene estudiantes asignados en esta modalidad</p>
+                                                <p class="small mb-0">
+                                                    Cuando coordinación lo asigne como tutor de
+                                                    <?= ($modo ?? 'preprofesional') === 'servicio' ? 'servicio comunitario' : 'prácticas preprofesionales' ?>,
+                                                    los estudiantes aparecerán aquí automáticamente.
+                                                </p>
+                                            </td>
+                                        </tr>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <?= $this->include('docente/practicas/partials/panel_notificaciones_practicas') ?>
 
     </div>
 </div>
+<?= $this->endSection() ?>
 
+<?= $this->section('modal') ?>
     <!-- Modal Detalle de Estudiante -->
-    <div class="modal fade" id="modalDetalleEstudiante" tabindex="-1">
+    <div class="modal fade" id="modalDetalleEstudiante" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
@@ -260,17 +383,13 @@
 
                             <div class="card mt-3">
                                 <div class="card-header">
-                                    <h6 class="mb-0">Acciones Rápidas</h6>
+                                    <h6 class="mb-0">Rol del tutor</h6>
                                 </div>
                                 <div class="card-body">
-                                    <div class="d-grid gap-2">
-                                        <button class="btn btn-success" onclick="enviarMensaje()">
-                                            <i class="fas fa-comment me-1"></i>Enviar Mensaje
-                                        </button>
-                                        <button class="btn btn-info" onclick="verActividades()">
-                                            <i class="fas fa-list me-1"></i>Ver Actividades
-                                        </button>
-                                    </div>
+                                    <p class="small text-muted mb-0">
+                                        Puede consultar el progreso, asistencias y cumplimiento del estudiante.
+                                        La asignación de tutoría la realiza coordinación.
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -351,12 +470,14 @@
             </div>
         </div>
     </div>
+<?= $this->endSection() ?>
 
+<?= $this->section('scripts') ?>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/locales/es.global.min.js"></script>
     <script>
-        const baseUrlPracticas = '<?= base_url("docente/practicas") ?>';
-        const baseUrlNotificaciones = '<?= rtrim(base_url("notificaciones"), "/") ?>';
+        const baseUrlPracticas = '<?= base_url('docente/practicas') ?>';
+        const baseUrlNotificaciones = '<?= rtrim(base_url('notificaciones'), '/') ?>';
 
         function escHtmlModal(s) {
             if (s === null || s === undefined) return '';
@@ -406,9 +527,19 @@
         }
 
         function verDetalleEstudiante(id) {
+            id = parseInt(id, 10);
+            if (!id) {
+                showNotification('Estudiante no válido', 'warning');
+                return;
+            }
+
             const modalEl = document.getElementById('modalDetalleEstudiante');
-            const modal = new bootstrap.Modal(modalEl);
-            modal.show();
+            if (!modalEl || typeof bootstrap === 'undefined') {
+                showNotification('No se pudo abrir el detalle', 'error');
+                return;
+            }
+
+            bootstrap.Modal.getOrCreateInstance(modalEl).show();
             document.getElementById('detalleNombre').textContent = 'Cargando...';
             document.getElementById('detalleCarrera').textContent = '';
             document.getElementById('detalleInstitucion').textContent = '';
@@ -418,9 +549,16 @@
             document.getElementById('listaAsistenciasEstudiante').innerHTML = '<p class="text-muted small mb-0">Cargando...</p>';
             var panelP = document.getElementById('panelProgresosDetalle');
             if (panelP) panelP.innerHTML = '<p class="text-muted small mb-0">Cargando progreso...</p>';
-            fetch(baseUrlPracticas + '/detalle-estudiante/' + id)
-                .then(r => r.json())
-                .then(data => {
+
+            fetch(baseUrlPracticas + '/detalle-estudiante/' + id, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+                cache: 'no-store'
+            })
+                .then(function(r) {
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.json();
+                })
+                .then(function(data) {
                     if (data.success && data.data) {
                         const e = data.data.estudiante || {};
                         const progresos = data.data.progresos || [];
@@ -474,17 +612,21 @@
                             }).join('');
                         }
                     } else {
-                        document.getElementById('detalleNombre').textContent = 'Error al cargar';
+                        document.getElementById('detalleNombre').textContent = data.message || 'Error al cargar';
                         document.getElementById('listaAsistenciasEstudiante').innerHTML = '<p class="text-muted small mb-0">No se pudieron cargar las asistencias.</p>';
                         if (panelP) panelP.innerHTML = '<p class="text-muted small mb-0">—</p>';
+                        showNotification(data.message || 'No se pudo cargar el detalle', 'error');
                     }
                 })
-                .catch(() => {
+                .catch(function(err) {
+                    console.error('detalleEstudiante:', err);
                     document.getElementById('detalleNombre').textContent = 'Error al cargar';
                     document.getElementById('listaAsistenciasEstudiante').innerHTML = '<p class="text-muted small mb-0">Error al cargar.</p>';
                     if (panelP) panelP.innerHTML = '<p class="text-muted small mb-0">—</p>';
+                    showNotification('Error de conexión al cargar el detalle', 'error');
                 });
         }
+        window.verDetalleEstudiante = verDetalleEstudiante;
 
         function showModal(modalId) {
             const el = document.getElementById(modalId);

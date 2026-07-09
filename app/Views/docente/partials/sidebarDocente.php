@@ -33,19 +33,27 @@
                         <span>
                             <i class="fa-solid fa-layer-group fs-6"></i>
                         </span>
-                        <span class="hide-menu">Mis actividades</span>
+                        <span class="hide-menu">Educación continua</span>
                     </a>
                 </li>
                 <li class="nav-small-cap">
                     <i class="fa-solid fa-briefcase nav-small-cap-icon fs-6"></i>
-                    <span class="hide-menu">PRÁCTICAS</span>
+                    <span class="hide-menu">TUTORÍA DE PRÁCTICAS</span>
                 </li>
                 <li class="sidebar-item">
                     <a class="sidebar-link" href="<?= base_url('docente/practicas') ?>" aria-expanded="false">
                         <span>
                             <i class="fa-solid fa-user-graduate fs-6"></i>
                         </span>
-                        <span class="hide-menu">Practicas</span>
+                        <span class="hide-menu">Prácticas preprofesionales</span>
+                    </a>
+                </li>
+                <li class="sidebar-item">
+                    <a class="sidebar-link" href="<?= base_url('docente/servicio-comunitario') ?>" aria-expanded="false">
+                        <span>
+                            <i class="fa-solid fa-hands-helping fs-6"></i>
+                        </span>
+                        <span class="hide-menu">Servicio comunitario</span>
                     </a>
                 </li>
             </ul>

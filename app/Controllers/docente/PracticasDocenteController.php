@@ -94,9 +94,16 @@ class PracticasDocenteController extends BaseController
 
     public function detalleEstudiante($estudianteId)
     {
+        $this->response->setHeader('Content-Type', 'application/json');
+
         // Verificar autenticación
         if (!session()->get('logged_in')) {
             return $this->response->setJSON(['success' => false, 'message' => 'No autorizado']);
+        }
+
+        $estudianteId = (int) $estudianteId;
+        if ($estudianteId < 1) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Estudiante no válido']);
         }
 
         $idDocente = $this->obtenerIdDocentePorUsuario(session()->get('id_usuario'));
@@ -106,7 +113,10 @@ class PracticasDocenteController extends BaseController
         try {
             $estudiante = $this->obtenerEstudianteAsignado($estudianteId, $idDocente);
             if (!$estudiante) {
-                return $this->response->setJSON(['success' => false, 'message' => 'Estudiante no encontrado']);
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Estudiante no encontrado o no está bajo su tutoría',
+                ]);
             }
             // Registro de asistencias que el estudiante ha ido registrando (para control del docente/tutor)
             $actividadesRecientes = [];
@@ -389,6 +399,8 @@ class PracticasDocenteController extends BaseController
             }
             return [
                 'estudiantesAsignados' => $estudiantesPp + $estudiantesSc,
+                'estudiantesPp' => $estudiantesPp,
+                'estudiantesSc' => $estudiantesSc,
                 'practicasActivas' => $practicasActivasPre + $serviciosActivos,
                 'practicasActivasPre' => $practicasActivasPre,
                 'serviciosActivos' => $serviciosActivos,
@@ -398,7 +410,11 @@ class PracticasDocenteController extends BaseController
             log_message('error', 'Error al obtener estadísticas del docente: ' . $e->getMessage());
             return [
                 'estudiantesAsignados' => 0,
+                'estudiantesPp' => 0,
+                'estudiantesSc' => 0,
                 'practicasActivas' => 0,
+                'practicasActivasPre' => 0,
+                'serviciosActivos' => 0,
                 'alertas' => 0
             ];
         }

@@ -40,6 +40,8 @@ class DashboardDocenteController extends BaseController
 
         // Estudiantes asignados a este docente (prácticas preprofesionales + servicio comunitario)
         $estudiantesAsignados = 0;
+        $estudiantesPp = 0;
+        $estudiantesSc = 0;
         $instructor = null;
         if ($docente) {
             $idDocente = (int) $docente['ID_DOCENTE_TUTOR'];
@@ -53,10 +55,11 @@ class DashboardDocenteController extends BaseController
                 ->where('ID_DOCENTE_TUTOR', $idDocente)
                 ->get()
                 ->getResultArray();
-            $todosIds = array_merge(
-                array_column($idsPp, 'ID_ESTUDIANTE'),
-                array_column($idsSc, 'ID_ESTUDIANTE')
-            );
+            $colPp = array_column($idsPp, 'ID_ESTUDIANTE');
+            $colSc = array_column($idsSc, 'ID_ESTUDIANTE');
+            $estudiantesPp = count(array_unique(array_filter($colPp)));
+            $estudiantesSc = count(array_unique(array_filter($colSc)));
+            $todosIds = array_merge($colPp, $colSc);
             $estudiantesAsignados = count(array_unique(array_filter($todosIds)));
 
             // Para actividades de educación, buscar si el docente también está en TAB_INSTRUCTORES
@@ -87,6 +90,8 @@ class DashboardDocenteController extends BaseController
                     ->countAllResults()
                 : 0,
             'total_estudiantes' => $estudiantesAsignados,
+            'estudiantes_pp' => $estudiantesPp,
+            'estudiantes_sc' => $estudiantesSc,
             'notif_tutor_no_leidas' => $notifTutorNoLeidas,
         ];
 

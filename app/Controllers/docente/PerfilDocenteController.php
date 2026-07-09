@@ -37,34 +37,48 @@ class PerfilDocenteController extends BaseController
         $tutorCountPre = 0;
         $tutorCountSc = 0;
         $actividadesPerfilEnlaces = [];
+        $docenteTutor = null;
         try {
             $usuarioRow = $this->db->table('TAB_USUARIOS')->where('ID_USUARIO', $userId)->get()->getRowArray();
             if ($usuarioRow) {
+                // Tutorías de prácticas: TAB_DOCENTES_TUTORES + ID_DOCENTE_TUTOR
+                $docenteTutor = $this->db->table('TAB_DOCENTES_TUTORES')
+                    ->where('ID_USUARIO', $userId)
+                    ->where('ACTIVO', 1)
+                    ->get()
+                    ->getRowArray();
+                if ($docenteTutor) {
+                    $idDocenteTutor = (int) $docenteTutor['ID_DOCENTE_TUTOR'];
+                    $tutorCountPre = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES')
+                        ->where('ID_DOCENTE_TUTOR', $idDocenteTutor)
+                        ->countAllResults();
+                    $tutorCountSc = $this->db->table('TAB_SERVICIO_COMUNITARIO')
+                        ->where('ID_DOCENTE_TUTOR', $idDocenteTutor)
+                        ->countAllResults();
+                }
+
+                // Actividades de educación continua: TAB_INSTRUCTORES
                 $instructor = $this->db->table('TAB_INSTRUCTORES')
                     ->where('ID_DATO_PERSONA', $usuarioRow['ID_DATO_PERSONA'])
                     ->get()
                     ->getRowArray();
                 if ($instructor) {
-                    $idInstructor = (int) $instructor['ID_INSTRUCTOR'];
-                    $tutorCountPre = $this->db->table('TAB_PRACTICAS_PREPROFESIONALES')
-                        ->where('ID_INSTRUCTOR', $idInstructor)
-                        ->countAllResults();
-                    $tutorCountSc = $this->db->table('TAB_SERVICIO_COMUNITARIO')
-                        ->where('ID_INSTRUCTOR', $idInstructor)
-                        ->countAllResults();
                     $actividadesModel = new ActividadesEducacionModel();
-                    $actividadesPerfilEnlaces = $actividadesModel->getActividadesInstructorParaPerfil($idInstructor);
+                    $actividadesPerfilEnlaces = $actividadesModel->getActividadesInstructorParaPerfil(
+                        (int) $instructor['ID_INSTRUCTOR']
+                    );
                 }
             }
         } catch (\Throwable $e) {
             log_message('error', 'PerfilDocente - tutor prácticas / actividades: ' . $e->getMessage());
         }
 
+        $esTutorRegistrado = !empty($docenteTutor);
         $data = [
             'title' => 'Mi Perfil | ITSI',
             'usuario' => $usuario,
             'validation' => null,
-            'es_tutor_practicas' => ($tutorCountPre + $tutorCountSc) > 0,
+            'es_tutor_practicas' => $esTutorRegistrado || ($tutorCountPre + $tutorCountSc) > 0,
             'tutor_count_pre' => $tutorCountPre,
             'tutor_count_sc' => $tutorCountSc,
             'actividades_perfil_enlaces' => $actividadesPerfilEnlaces,

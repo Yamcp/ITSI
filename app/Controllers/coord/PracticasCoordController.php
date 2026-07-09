@@ -1479,18 +1479,19 @@ class PracticasCoordController extends BaseController
     /**
      * Obtener información del tutor
      */
-    private function obtenerInformacionTutor($idInstructor)
+    private function obtenerInformacionTutor($idDocenteTutor)
     {
         $db = \Config\Database::connect();
-        
-        $builder = $db->table('TAB_INSTRUCTORES i')
+
+        // Los tutores de prácticas viven en TAB_DOCENTES_TUTORES (no en TAB_INSTRUCTORES)
+        $builder = $db->table('TAB_DOCENTES_TUTORES dt')
             ->select('
-                i.ID_INSTRUCTOR,
+                dt.ID_DOCENTE_TUTOR,
                 CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as nombre_completo,
                 dp.EMAIL
             ')
-            ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = i.ID_DATO_PERSONA')
-            ->where('i.ID_INSTRUCTOR', $idInstructor);
+            ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = dt.ID_DATO_PERSONA')
+            ->where('dt.ID_DOCENTE_TUTOR', $idDocenteTutor);
 
         return $builder->get()->getRowArray();
     }
@@ -1515,18 +1516,32 @@ class PracticasCoordController extends BaseController
     /**
      * Obtener ID de usuario del tutor
      */
-    private function obtenerIdUsuarioTutor($idInstructor)
+    private function obtenerIdUsuarioTutor($idDocenteTutor)
     {
         $db = \Config\Database::connect();
-        
-        $builder = $db->table('TAB_INSTRUCTORES i')
-            ->select('u.ID_USUARIO')
-            ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = i.ID_DATO_PERSONA')
-            ->join('TAB_USUARIOS u', 'u.ID_DATO_PERSONA = dp.ID_DATO_PERSONA')
-            ->where('i.ID_INSTRUCTOR', $idInstructor);
 
-        $result = $builder->get()->getRowArray();
-        return $result ? $result['ID_USUARIO'] : null;
+        // Preferir ID_USUARIO directo del tutor; fallback por ID_DATO_PERSONA
+        $tutor = $db->table('TAB_DOCENTES_TUTORES')
+            ->select('ID_USUARIO, ID_DATO_PERSONA')
+            ->where('ID_DOCENTE_TUTOR', $idDocenteTutor)
+            ->get()
+            ->getRowArray();
+
+        if (!$tutor) {
+            return null;
+        }
+
+        if (!empty($tutor['ID_USUARIO'])) {
+            return (int) $tutor['ID_USUARIO'];
+        }
+
+        $result = $db->table('TAB_USUARIOS')
+            ->select('ID_USUARIO')
+            ->where('ID_DATO_PERSONA', $tutor['ID_DATO_PERSONA'])
+            ->get()
+            ->getRowArray();
+
+        return $result ? (int) $result['ID_USUARIO'] : null;
     }
 
     /**

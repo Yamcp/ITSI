@@ -228,29 +228,15 @@ $routes->group('docente', ['namespace' => 'App\Controllers\docente', 'filter' =>
     $routes->get('cuenta', 'CuentaDocenteController::index');          // Ver la cuenta del docente
     $routes->post('cuenta/cambiar-password', 'CuentaDocenteController::cambiarPassword'); // Cambiar contraseña
   
-    //Rutas para la educación continua
-    $routes->get('educacion', 'ActividadesEducacionDocenteController::index');    // Ver la sección de educación
-    
-    // Rutas para actividades educativas del docente
-    $routes->get('actividades-educacion', 'ActividadesEducacionDocenteController::index');    // Ver actividades educativas
-    $routes->get('actividades-educacion/crear', 'ActividadesEducacionDocenteController::create');    // Crear actividad
-    $routes->post('actividades-educacion/guardar', 'ActividadesEducacionDocenteController::store');    // Guardar actividad
-    $routes->get('actividades-educacion/ver/(:num)', 'ActividadesEducacionDocenteController::show/$1');    // Ver actividad
-    $routes->get('actividades-educacion/editar/(:num)', 'ActividadesEducacionDocenteController::edit/$1');    // Editar actividad
-    $routes->post('actividades-educacion/actualizar/(:num)', 'ActividadesEducacionDocenteController::update/$1');    // Actualizar actividad
-    $routes->get('actividades-educacion/eliminar/(:num)', 'ActividadesEducacionDocenteController::delete/$1');    // Eliminar actividad
-    $routes->get('actividades-educacion/calendario', 'ActividadesEducacionDocenteController::calendario');    // Calendario de actividades
-    $routes->get('actividades-educacion/api/actividades', 'ActividadesEducacionDocenteController::getActividades');    // API actividades
-    $routes->get('actividades-educacion/api/estadisticas', 'ActividadesEducacionDocenteController::getEstadisticas');    // API estadísticas
-    $routes->get('actividades-educacion/api/encuestas-satisfaccion', 'ActividadesEducacionDocenteController::apiEncuestasSatisfaccion');    // API enlaces satisfacción
-    $routes->get('actividades-educacion/reportes', 'ActividadesEducacionDocenteController::reportes');    // Vista de reportes
-    $routes->get('actividades-educacion/exportar/pdf', 'ActividadesEducacionDocenteController::exportarPDF');
-    $routes->get('actividades-educacion/exportar/excel', 'ActividadesEducacionDocenteController::exportarExcel');
-    $routes->get('actividades-educacion/exportar/csv', 'ActividadesEducacionDocenteController::exportarCSV');
-    $routes->get('actividades-educacion/participantes/(:num)', 'ActividadesEducacionDocenteController::participantes/$1');    // Gestionar participantes
-    $routes->post('actividades-educacion/participantes/agregar', 'ActividadesEducacionDocenteController::agregarParticipante');
-    $routes->post('actividades-educacion/participantes/quitar', 'ActividadesEducacionDocenteController::quitarParticipante');
-    $routes->get('actividades-educacion/test-insert', 'ActividadesEducacionDocenteController::testInsert');    // Prueba de inserción
+    //Rutas para la educación continua (solo consulta e inscripción; sin crear/editar cursos)
+    $routes->get('educacion', 'ActividadesEducacionDocenteController::index');
+    $routes->get('actividades-educacion', 'ActividadesEducacionDocenteController::index');
+    $routes->get('actividades-educacion/detalle/(:num)', 'ActividadesEducacionDocenteController::detalle/$1');
+    $routes->post('actividades-educacion/inscribirse', 'ActividadesEducacionDocenteController::inscribirse');
+    $routes->get('actividades-educacion/calendario', 'ActividadesEducacionDocenteController::calendario');
+    $routes->get('actividades-educacion/api/actividades', 'ActividadesEducacionDocenteController::getActividades');
+    $routes->get('actividades-educacion/api/estadisticas', 'ActividadesEducacionDocenteController::getEstadisticas');
+    $routes->get('actividades-educacion/api/encuestas-satisfaccion', 'ActividadesEducacionDocenteController::apiEncuestasSatisfaccion');
     
     //Rutas para la gestión de convenios
     $routes->get('convenios', 'InstitucionesConveniosController::index');        // Ver la sección de convenios

@@ -250,12 +250,15 @@ create table TAB_INSCRIPCIONES_ACTIVIDADES
    ID_INSCRIPCION       int not null auto_increment,
    ID_ACTIVIDAD_EDUCACION int,
    ID_ESTUDIANTE        int,
+   ID_DOCENTE_TUTOR     int,
    FECHA_INSCRIPCION    date,
    ESTADO               varchar(30) default 'Inscrito',
    primary key (ID_INSCRIPCION),
    unique key UK_INSCRIPCION_ACTIVIDAD_ESTUDIANTE (ID_ACTIVIDAD_EDUCACION, ID_ESTUDIANTE),
+   unique key UK_INSCRIPCION_ACTIVIDAD_DOCENTE (ID_ACTIVIDAD_EDUCACION, ID_DOCENTE_TUTOR),
    key IDX_INSCRIPCION_ACTIVIDAD (ID_ACTIVIDAD_EDUCACION),
-   key IDX_INSCRIPCION_ESTUDIANTE (ID_ESTUDIANTE)
+   key IDX_INSCRIPCION_ESTUDIANTE (ID_ESTUDIANTE),
+   key IDX_INSCRIPCION_DOCENTE (ID_DOCENTE_TUTOR)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 /*==============================================================*/
@@ -989,6 +992,8 @@ alter table TAB_INSCRIPCIONES_ACTIVIDADES add constraint FK_INSCRIPCIONES_ACTIVI
       references TAB_ACTIVIDADES_EDUCACION (ID_ACTIVIDAD_EDUCACION) on delete cascade on update cascade;
 alter table TAB_INSCRIPCIONES_ACTIVIDADES add constraint FK_INSCRIPCIONES_ESTUDIANTE foreign key (ID_ESTUDIANTE)
       references TAB_ESTUDIANTES (ID_ESTUDIANTE) on delete cascade on update cascade;
+alter table TAB_INSCRIPCIONES_ACTIVIDADES add constraint FK_INSCRIPCIONES_DOCENTE foreign key (ID_DOCENTE_TUTOR)
+      references TAB_DOCENTES_TUTORES (ID_DOCENTE_TUTOR) on delete cascade on update cascade;
 
 alter table TAB_EXPORTACIONES add constraint FK_REFERENCE_17 foreign key (ID_USUARIO)
       references TAB_USUARIOS (ID_USUARIO) on delete restrict on update restrict;
@@ -1208,7 +1213,14 @@ INSERT INTO `TAB_DATOS_PERSONAS` (`ID_DATO_PERSONA`, `NOMBRE`, `APELLIDO`, `CEDU
 (7, 'Juan Carlos', 'Pérez López', '1001234567', '0987654321', 'Ibarra, Ecuador', 'juan.perez2023@itsi.edu.ec', 'Masculino', 'Soltero', 'Ecuatoriana', '2025-01-15', 1, ''),
 (8, 'María Elena', 'García Torres', '1002345678', '0976543210', 'Quito, Ecuador', 'maria.garcia2023@itsi.edu.ec', 'Femenino', 'Soltera', 'Ecuatoriana', '2025-01-20', 1, ''),
 (9, 'Carlos Alberto', 'Rodríguez Silva', '1003456789', '0965432109', 'Guayaquil, Ecuador', 'carlos.rodriguez2023@itsi.edu.ec', 'Masculino', 'Soltero', 'Ecuatoriana', '2025-01-25', 1, ''),
-(10, 'Ana Lucía', 'Martínez Vega', '1004567890', '0954321098', 'Cuenca, Ecuador', 'ana.martinez2023@itsi.edu.ec', 'Femenino', 'Soltera', 'Ecuatoriana', '2025-02-01', 1, '');
+(10, 'Ana Lucía', 'Martínez Vega', '1004567890', '0954321098', 'Cuenca, Ecuador', 'ana.martinez2023@itsi.edu.ec', 'Femenino', 'Soltera', 'Ecuatoriana', '2025-02-01', 1, ''),
+(11, 'Luis Fernando', 'Torres Vaca', '1005678901', '0991112233', 'Ibarra, Ecuador', 'luis.torres@itsi.edu.ec', 'Masculino', 'Casado', 'Ecuatoriana', '2025-02-05', 1, ''),
+(12, 'Sandra Patricia', 'Chávez Ruiz', '1006789012', '0992223344', 'Otavalo, Ecuador', 'sandra.chavez@itsi.edu.ec', 'Femenino', 'Casada', 'Ecuatoriana', '2025-02-05', 1, ''),
+(13, 'Jorge Andrés', 'Flores Benítez', '1007890123', '0993334455', 'Ibarra, Ecuador', 'jorge.flores@itsi.edu.ec', 'Masculino', 'Soltero', 'Ecuatoriana', '2025-02-05', 1, ''),
+(14, 'Diana Carolina', 'Vallejo Andrade', '1008901234', '0994445566', 'Cotacachi, Ecuador', 'diana.vallejo@itsi.edu.ec', 'Femenino', 'Soltera', 'Ecuatoriana', '2025-02-05', 1, ''),
+(15, 'Kevin Andrés', 'Suárez Morales', '1009012345', '0995556677', 'Ibarra, Ecuador', 'kevin.suarez2023@itsi.edu.ec', 'Masculino', 'Soltero', 'Ecuatoriana', '2025-02-10', 1, ''),
+(16, 'Paola Nicole', 'Chamorro Reina', '1000123456', '0996667788', 'Ibarra, Ecuador', 'paola.chamorro2023@itsi.edu.ec', 'Femenino', 'Soltera', 'Ecuatoriana', '2025-02-10', 1, ''),
+(17, 'Mateo Sebastián', 'Villalba Cárdenas', '1001234568', '0997778899', 'Atuntaqui, Ecuador', 'mateo.villalba2023@itsi.edu.ec', 'Masculino', 'Soltero', 'Ecuatoriana', '2025-02-10', 1, '');
 
 INSERT INTO `TAB_USUARIOS` (`ID_USUARIO`, `ID_DATO_PERSONA`, `USUARIO`, `CONTRASENA`, `ESTADO`) VALUES
 (1, 1, 'admin', '$2y$10$TIMV8h.jkhNV8CLSitL6gOq7fzNIRKyjrJXejA9E49Zf8.LjdZNdC', '1'),
@@ -1220,7 +1232,14 @@ INSERT INTO `TAB_USUARIOS` (`ID_USUARIO`, `ID_DATO_PERSONA`, `USUARIO`, `CONTRAS
 (7, 7, 'estud4', '123', '1'),
 (8, 8, 'estud5', '123', '1'),
 (9, 9, 'estud6', '123', '1'),
-(10, 10, 'estud7', '123', '1');
+(10, 10, 'estud7', '123', '1'),
+(11, 11, 'docente2', '123', '1'),
+(12, 12, 'docente3', '123', '1'),
+(13, 13, 'docente4', '123', '1'),
+(14, 14, 'docente5', '123', '1'),
+(15, 15, 'estud8', '123', '1'),
+(16, 16, 'estud9', '123', '1'),
+(17, 17, 'estud10', '123', '1');
 
 INSERT INTO `TAB_RECUPERACION_CONTRASENA` (`ID_RECUPERACION`, `ID_USUARIO`, `TOKEN`, `EXPIRA_EN`, `USADO`, `CREADO_EN`) VALUES
 (1, 1, '6a585b02f0e38f1d9bbdd8bddbba2fa4fb47154726356a90d0a54ce64a3014c2', '2026-03-03 12:08:09', 1, '2026-03-03 11:08:09'),
@@ -1251,7 +1270,14 @@ INSERT INTO `TAB_ROLES` (`ID_ROL`, `ID_USUARIO`, `ID_TIPOS_ROLES`) VALUES
 (7, 7, 4),
 (8, 8, 4),
 (9, 9, 4),
-(10, 10, 4);
+(10, 10, 4),
+(11, 11, 3),
+(12, 12, 3),
+(13, 13, 3),
+(14, 14, 3),
+(15, 15, 4),
+(16, 16, 4),
+(17, 17, 4);
 
 INSERT INTO `TAB_TIPOS_CONVENIOS` (`ID_TIPO_CONVENIO`, `CONVENIO`) VALUES
 (1, 'Preprofesional'),
@@ -1367,7 +1393,7 @@ INSERT INTO `TAB_PERIODOS_ACADEMICOS` (`ID_PERIODO_ACADEMICO`, `MES_INICIO`, `A�
 (2, 10, 2024, 3, 2025),
 (3, 4, 2025, 9, 2025),
 (4, 10, 2025, 3, 2026),
-(5, 4, 2026, 9, 2026),
+(5, 4, 2026, 9, 2026);
 
 INSERT INTO `TAB_ACTIVIDADES_EDUCACION` (`ID_ACTIVIDAD_EDUCACION`, `ID_INSTRUCTOR`, `ID_TIPO_MODALIDAD`, `ID_TIPO_ACTIVIDAD`, `ID_USUARIO`, `ID_PERIODO_ACADEMICO`, `NOMBRE_ACTIVIDAD`, `DESCRIPCION`, `OBJETIVOS`, `DURACION_HORAS`, `FECHA_INICIO`, `FECHA_FIN`, `LUGAR`, `HORARIO`, `INCLUYE_CERTIFICADO`, `PROGRAMA_DETALLADO`) VALUES
 (1, 1, 1, 1, 1, 4, 'Desarrollo Web Full Stack', 'Curso completo de desarrollo web con tecnologías modernas como React, Node.js, MongoDB y más.', 'Formar desarrolladores full stack competentes en tecnologías web modernas', 4, '2025-08-18', '2025-08-19', 'Laboratorio de Programación', 'Lunes a Martess 16:00-18:00', 1, 'Módulo 1: HTML/CSS/JavaScript\r\nMódulo 2: React.js\r\nMódulo 3: Node.js\r\nMódulo 4: Base de datos\r\nMódulo 5: Proyecto final'),
@@ -1385,16 +1411,23 @@ INSERT INTO `TAB_ACTIVIDADES_EDUCACION` (`ID_ACTIVIDAD_EDUCACION`, `ID_INSTRUCTO
 (13, 1, 2, 4, 1, 4, 'Capacitación: Ética y Datos', 'Capacitación para comprender ética, privacidad y manejo de datos.', 'Aplicar principios de ética y privacidad en proyectos de datos', 14, '2025-12-15', '2026-01-25', 'Plataforma Virtual', 'Lunes y Miércoles 19:00-20:30', 1, 'Módulo 1: Marco ético\r\nMódulo 2: Privacidad\r\nMódulo 3: Buenas prácticas\r\nMódulo 4: Casos');
 
 INSERT INTO `TAB_ESTUDIANTES` (`ID_ESTUDIANTE`, `ID_TIPO_ESTADO`, `ID_DATO_PERSONA`, `ID_CARRERA`, `SEMESTRE_ACTUAL`) VALUES
-(1, 1, 7, 1, 3),
-(2, 1, 8, 2, 2),
-(3, 1, 9, 3, 4),
-(4, 1, 10, 1, 1),
-(5, 1, 3, 4, 2);
+(1, 1, 4, 1, 3),  -- estud1 (Carlos Mendoza) - Desarrollo de Software
+(2, 1, 5, 2, 2),  -- estud2 (Ana Ruiz) - Diseño Gráfico
+(3, 1, 6, 3, 4),  -- estud3 (María González) - Redes y Telecomunicaciones
+(4, 1, 7, 4, 3),  -- estud4 (Juan Carlos Pérez) - Administración
+(5, 1, 8, 5, 2),  -- estud5 (María Elena García) - Atención Integral a Adultos Mayores
+(6, 1, 9, 6, 4),  -- estud6 (Carlos Alberto Rodríguez) - Marketing Digital
+(7, 1, 10, 1, 1), -- estud7 (Ana Lucía Martínez) - Desarrollo de Software
+(8, 1, 15, 2, 3),  -- estud8 (Kevin Andrés Suárez) - Diseño Gráfico
+(9, 1, 16, 4, 2),  -- estud9 (Paola Nicole Chamorro) - Administración
+(10, 1, 17, 6, 1); -- estud10 (Mateo Sebastián Villalba) - Marketing Digital y Comercio Electronico
 
 INSERT INTO `TAB_DOCENTES_TUTORES` (`ID_USUARIO`, `ID_DATO_PERSONA`, `ESPECIALIDAD`, `TITULO_PROFESIONAL`, `AREA_ESPECIALIZACION`, `AÑOS_EXPERIENCIA`) VALUES
-(4, 4, 'Desarrollo de Software', 'Ingeniero en Sistemas', 'Tecnologías de la Información', 10),
-(5, 5, 'Hardware y Redes', 'Técnico en Electrónica', 'Infraestructura de TI', 8),
-(6, 6, 'Inteligencia Artificial', 'Doctora en Ciencias de la Computación', 'Investigación aplicada', 12);
+(3, 3, 'Desarrollo de Software y Redes', 'Ingeniero en Sistemas', 'Tecnologías de la Información', 10),
+(11, 11, 'Diseño Gráfico y Multimedia', 'Diseñador Gráfico', 'Comunicación Visual', 6),
+(12, 12, 'Redes y Telecomunicaciones', 'Ingeniera en Telecomunicaciones', 'Infraestructura de Redes', 8),
+(13, 13, 'Administración de Empresas', 'Ingeniero Comercial', 'Gestión Empresarial', 7),
+(14, 14, 'Marketing Digital y Comercio Electrónico', 'Máster en Marketing Digital', 'Comercio Electrónico', 5);
 
 INSERT INTO `TAB_ENTIDADES_RECEPTORAS` (`ID_ENTIDAD_RECEPTORA`, `NOMBRE`, `RUC`, `DIRECCION`, `CIUDAD`, `TELEFONO`, `EMAIL`, `REPRESENTANTE_LEGAL`, `CONTACTO_DIRECTO`, `TELEFONO_CONTACTO`, `EMAIL_CONTACTO`, `TIPO_ENTIDAD`, `ACTIVO`, `FECHA_CREACION`, `FECHA_ACTUALIZACION`) VALUES
 (1, 'Hospital San Vicente de Paúl', '1234567890001', 'Av. 17 de Julio, Ibarra', 'Ibarra', '062-123456', 'contacto@hospitalsanvicente.com', 'Dr. Juan Pérez', 'Lic. María González', '0987654321', 'maria.gonzalez@hospitalsanvicente.com', 'Pública', 1, '2025-09-04 11:59:17', '2025-09-04 11:59:17'),
@@ -1444,13 +1477,13 @@ INSERT INTO `TAB_ASIGNACIONES_PRACTICAS` (`ID_ASIGNACION_PRACTICA`, `ID_TIPO_PRA
 
 INSERT INTO `TAB_PRACTICAS_PREPROFESIONALES` (`ID_PRACTICA_PREPROFESIONAL`, `ID_PERIODO_ACADEMICO`, `ID_ASIGNACION_PRACTICA`, `ID_ESTUDIANTE`, `ID_DOCENTE_TUTOR`, `ID_INSTITUCION_CONVENIO`, `ID_ESTADO_PREPROFESIONAL`, `AREA_ESPECIALIZACION`, `PROYECTO_ESPECIFICO`, `HORAS_PRACTICAS`, `FECHA_INICIO`, `FECHA_FIN`, `ESTADO_PRACTICA`, `EVALUACION_FINAL`, `OBSERVACIONES`) VALUES
 (1, 4, 1, 1, 1, 1, 2, 'Desarrollo de Software', 'Sistema de gestión de pacientes y citas médicas', 240, '2025-06-01', '2025-08-30', 'En Progreso', NULL, 'Estudiante con buen desempeño en desarrollo web'),
-(2, 4, 2, 2, 2, 2, 2, 'Desarrollo Móvil', 'Aplicación móvil para consulta de saldos y transferencias', 240, '2025-07-01', '2025-09-30', 'En Progreso', NULL, 'Proyecto en desarrollo con tecnologías React Native'),
+(2, 4, 2, 2, 1, 2, 2, 'Desarrollo Móvil', 'Aplicación móvil para consulta de saldos y transferencias', 240, '2025-07-01', '2025-09-30', 'En Progreso', NULL, 'Proyecto en desarrollo con tecnologías React Native'),
 (3, 4, 4, 4, 1, 1, 2, 'Desarrollo de Software', 'Sistema de gestión de historias clínicas digitales', 240, '2025-09-01', '2025-11-30', 'En Progreso', NULL, 'Estudiante con excelente desempeño en desarrollo web'),
-(4, 4, 5, 5, 2, 2, 2, 'Administración', 'Apoyo en gestión de proyectos de inclusión financiera y atención al cliente', 240, '2025-10-01', '2025-12-31', 'En Progreso', NULL, 'Práctica preprofesional en entidad financiera');
+(4, 4, 5, 5, 1, 2, 2, 'Administración', 'Apoyo en gestión de proyectos de inclusión financiera y atención al cliente', 240, '2025-10-01', '2025-12-31', 'En Progreso', NULL, 'Práctica preprofesional en entidad financiera');
 
 INSERT INTO `TAB_SERVICIO_COMUNITARIO` (`ID_SERVICIO_COMUNITARIO`, `ID_PERIODO_ACADEMICO`, `ID_ASIGNACION_PRACTICA`, `ID_ESTUDIANTE`, `ID_DOCENTE_TUTOR`, `ID_INSTITUCION_CONVENIO`, `ID_ESTADO_SERVICIO`, `PROYECTO_SOCIAL`, `COMUNIDAD_BENEFICIADA`, `HORAS_SERVICIO`, `FECHA_INICIO`, `FECHA_FIN`, `ESTADO_SERVICIO`, `IMPACTO_SOCIAL`, `OBSERVACIONES`) VALUES
-(1, 4, 3, 3, 3, 3, 2, 'Plataforma Educativa Digital', 'Niños y adolescentes en situación vulnerable de Guayaquil', 96, '2025-08-01', '2025-10-30', 'En Progreso', 'Mejora en el acceso a educación digital para 200+ niños', 'Proyecto con alto impacto social positivo'),
-(2, 4, 6, 4, 3, 3, 2, 'Plataforma Educativa Digital', 'Niños y adolescentes en situación vulnerable de Guayaquil', 96, '2025-11-01', '2026-01-31', 'En Progreso', 'Mejora en el acceso a educación digital para 200+ niños', 'Proyecto con alto impacto social positivo');
+(1, 4, 3, 3, 1, 3, 2, 'Plataforma Educativa Digital', 'Niños y adolescentes en situación vulnerable de Guayaquil', 96, '2025-08-01', '2025-10-30', 'En Progreso', 'Mejora en el acceso a educación digital para 200+ niños', 'Proyecto con alto impacto social positivo'),
+(2, 4, 6, 4, 1, 3, 2, 'Plataforma Educativa Digital', 'Niños y adolescentes en situación vulnerable de Guayaquil', 96, '2025-11-01', '2026-01-31', 'En Progreso', 'Mejora en el acceso a educación digital para 200+ niños', 'Proyecto con alto impacto social positivo');
 
 INSERT INTO `TAB_ASISTENCIAS_PRACTICAS_PREPROFESIONALES` (`ID_ASISTENCIA_PREPROFESIONAL`, `ID_PRACTICA_PREPROFESIONAL`, `FECHA_ASISTENCIA`, `HORA_ENTRADA`, `HORA_SALIDA`, `ACTIVIDADES_DIA`, `COMPETENCIAS_DESARROLLADAS`, `FECHA_REGISTRO`, `OBSERVACIONES`) VALUES
 (1, 1, '2025-08-30', '08:00:00', '17:00:00', 'Desarrollo de módulo de gestión de pacientes, implementación de base de datos, pruebas unitarias', 'Programación en PHP, MySQL, JavaScript, Bootstrap', '2025-08-30 17:30:00', 'Excelente trabajo en el desarrollo del módulo'),

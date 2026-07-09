@@ -245,7 +245,7 @@
                         </div>
                         <h3 class="mb-0"><?= $total_estudiantes ?? 0 ?></h3>
                         <p class="metric-label mb-0">Estudiantes Asignados</p>
-                        <small class="metric-sub">En prácticas</small>
+                        <small class="metric-sub">PP: <?= (int) ($estudiantes_pp ?? 0) ?> · SC: <?= (int) ($estudiantes_sc ?? 0) ?></small>
                     </div>
                 </div>
             </div>

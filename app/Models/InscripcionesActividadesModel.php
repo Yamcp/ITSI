@@ -11,6 +11,7 @@ class InscripcionesActividadesModel extends Model
     protected $allowedFields = [
         'ID_ACTIVIDAD_EDUCACION',
         'ID_ESTUDIANTE',
+        'ID_DOCENTE_TUTOR',
         'FECHA_INSCRIPCION',
         'ESTADO'
     ];
@@ -51,6 +52,53 @@ class InscripcionesActividadesModel extends Model
     }
 
     /**
+     * Verificar si un docente ya está inscrito en la actividad
+     */
+    public function estaInscritoDocente($idActividad, $idDocenteTutor)
+    {
+        return $this->where('ID_ACTIVIDAD_EDUCACION', $idActividad)
+            ->where('ID_DOCENTE_TUTOR', $idDocenteTutor)
+            ->countAllResults() > 0;
+    }
+
+    /**
+     * Inscribir docente (si no está ya inscrito)
+     */
+    public function inscribirDocente($idActividad, $idDocenteTutor)
+    {
+        if ($this->estaInscritoDocente($idActividad, $idDocenteTutor)) {
+            return false;
+        }
+
+        return $this->insert([
+            'ID_ACTIVIDAD_EDUCACION' => $idActividad,
+            'ID_DOCENTE_TUTOR' => $idDocenteTutor,
+            'FECHA_INSCRIPCION' => date('Y-m-d'),
+            'ESTADO' => 'Inscrito',
+        ]);
+    }
+
+    /**
+     * Mapa ID_ACTIVIDAD_EDUCACION => true para actividades en las que el docente está inscrito.
+     *
+     * @return array<int, true>
+     */
+    public function obtenerMapaInscritasPorDocente(int $idDocenteTutor): array
+    {
+        if ($idDocenteTutor < 1) {
+            return [];
+        }
+
+        $rows = $this->where('ID_DOCENTE_TUTOR', $idDocenteTutor)->findAll();
+        $map = [];
+        foreach ($rows as $r) {
+            $map[(int) $r['ID_ACTIVIDAD_EDUCACION']] = true;
+        }
+
+        return $map;
+    }
+
+    /**
      * Inscribir estudiante (si no está ya inscrito)
      */
     public function inscribir($idActividad, $idEstudiante)
@@ -67,7 +115,7 @@ class InscripcionesActividadesModel extends Model
     }
 
     /**
-     * Dar de baja inscripción
+     * Dar de baja inscripción de estudiante
      */
     public function quitarInscripcion($idActividad, $idEstudiante)
     {
