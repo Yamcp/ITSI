@@ -292,14 +292,32 @@ class DocumentosPracticasEstudianteController extends BaseController
                     ]);
 
                     $msgDb = (string) (($dbError['message'] ?? '') !== '' ? $dbError['message'] : $insertEx->getMessage());
+                    // TEMPORAL: se muestra el detalle técnico de MySQL en pantalla porque
+                    // el hosting (InfinityFree, capa gratuita) no da acceso a writable/logs.
+                    // Quitar este sufijo una vez diagnosticado el problema en producción.
+                    $detalleTecnico = ' [Detalle técnico: código ' . ($dbError['code'] ?? '?') . ' — ' . $msgDb . ']';
+
                     if (stripos($msgDb, 'foreign key') !== false || stripos($msgDb, 'CONSTRAINT') !== false) {
+                        // Identificar la FK real en vez de asumir siempre que es la práctica:
+                        // esta tabla tiene 4 llaves foráneas (práctica, tipo, estado, revisor).
+                        preg_match('/CONSTRAINT `?([A-Za-z0-9_]+)`?/i', $msgDb, $m);
+                        $constraint = strtoupper($m[1] ?? '');
+
+                        $mensajesPorFk = [
+                            'FK_DOCS_PREPROFESIONALES_PRACTICA' => 'No se pudo vincular el archivo a tu práctica (ID ' . $idPractica . '). Verifica con vinculación que tu práctica preprofesional esté creada correctamente.',
+                            'FK_DOCS_PREPROFESIONALES_TIPO' => 'El tipo de documento seleccionado (ID ' . $idTipoDocumento . ') no existe en la base de datos de este entorno.',
+                            'FK_DOCS_PREPROFESIONALES_ESTADO' => 'El estado de revisión inicial no existe en la base de datos de este entorno.',
+                            'FK_DOCS_PREPROFESIONALES_REVISOR' => 'El revisor asignado no existe en la base de datos de este entorno.',
+                        ];
+
                         throw new \Exception(
-                            'No se pudo vincular el archivo a tu práctica (ID ' . $idPractica . '). '
-                            . 'Verifica con vinculación que tu práctica preprofesional esté creada correctamente.'
+                            ($mensajesPorFk[$constraint]
+                                ?? ('No se pudo vincular el archivo (restricción: ' . ($constraint !== '' ? $constraint : 'desconocida') . ').'))
+                            . $detalleTecnico
                         );
                     }
 
-                    throw new \Exception($msgDb !== '' ? $msgDb : 'Error al guardar en la base de datos');
+                    throw new \Exception(($msgDb !== '' ? $msgDb : 'Error al guardar en la base de datos') . $detalleTecnico);
                 }
             } else {
                 throw new \Exception('Archivo no válido o error al subir el archivo');
