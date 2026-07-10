@@ -1061,10 +1061,10 @@ window.toggleUbicacionBackupSection = function() {
 
     // Funciones de acción del backup
     window.exportarHistorial = function() {
-        showNotification('Exportando historial de backups...', 'info');
+        showNotification('Exportando historial de backups en PDF...', 'info');
         window.location.href = `<?= base_url('admin/backup/exportar-historial') ?>`;
         setTimeout(() => {
-            showNotification('Historial exportado exitosamente', 'success');
+            showNotification('Historial PDF exportado exitosamente', 'success');
         }, 1500);
     };
 

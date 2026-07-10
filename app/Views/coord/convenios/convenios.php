@@ -865,25 +865,6 @@
                                 <p class="text-muted" id="estadoDias">45 días restantes</p>
                             </div>
                         </div>
-
-                        <div class="card">
-                            <div class="card-header">
-                                <h6 class="mb-0">Documentos</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="d-grid gap-2">
-                                    <button class="btn btn-outline-primary btn-sm">
-                                        <i class="fas fa-file-pdf me-1"></i>Convenio Original
-                                    </button>
-                                    <button class="btn btn-outline-success btn-sm">
-                                        <i class="fas fa-file-word me-1"></i>Acta de Renovación
-                                    </button>
-                                    <button class="btn btn-outline-info btn-sm">
-                                        <i class="fas fa-file-excel me-1"></i>Reporte de Cumplimiento
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -949,6 +930,15 @@
                             <option value="">Todos los tipos</option>
                             <option value="1">Pública</option>
                             <option value="2">Privada</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Carrera</label>
+                        <select class="form-select" name="filtro_carrera">
+                            <option value="">Todas las carreras</option>
+                            <?php if (!empty($carreras)): foreach ($carreras as $car): ?>
+                                <option value="<?= (int) $car['ID_CARRERA'] ?>"><?= esc($car['NOMBRE']) ?></option>
+                            <?php endforeach; endif; ?>
                         </select>
                     </div>
                 </form>
@@ -1403,8 +1393,9 @@
         const fechaDesde = (fd.get('fecha_desde') || '').toString().slice(0, 10);
         const fechaHasta = (fd.get('fecha_hasta') || '').toString().slice(0, 10);
         const filtroTipoInst = (fd.get('filtro_tipo_institucion') || '').toString();
+        const filtroCarrera = (fd.get('filtro_carrera') || '').toString();
 
-        const hasFilters = Boolean(filtroTipo || filtroEstado || fechaDesde || fechaHasta || filtroTipoInst);
+        const hasFilters = Boolean(filtroTipo || filtroEstado || fechaDesde || fechaHasta || filtroTipoInst || filtroCarrera);
         const mapa = convenioMapaPorId();
 
         const tablas = [
@@ -1456,6 +1447,9 @@
                     show = false;
                 }
                 if (show && filtroTipoInst && !coincideTipoInstitucion(c, filtroTipoInst)) {
+                    show = false;
+                }
+                if (show && filtroCarrera && String(c.ID_CARRERA || '') !== filtroCarrera) {
                     show = false;
                 }
                 tr.style.display = show ? '' : 'none';

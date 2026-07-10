@@ -566,28 +566,6 @@ $carreras = $carreras ?? [];
                                 <p class="text-muted" id="progressHours">180 de 240 horas</p>
                             </div>
                         </div>
-
-                        <div class="card">
-                            <div class="card-header">
-                                <h6 class="mb-0">Documentos</h6>
-                            </div>
-                            <div class="card-body">
-                                <div class="d-grid gap-2">
-                                    <button class="btn btn-outline-primary btn-sm">
-                                        <i class="fas fa-file-pdf me-1"></i>Carta de Presentación
-                                    </button>
-                                    <button class="btn btn-outline-success btn-sm">
-                                        <i class="fas fa-file-word me-1"></i>Plan de Trabajo
-                                    </button>
-                                    <button class="btn btn-outline-info btn-sm">
-                                        <i class="fas fa-file-excel me-1"></i>Registro de Actividades
-                                    </button>
-                                    <button class="btn btn-outline-warning btn-sm">
-                                        <i class="fas fa-file-alt me-1"></i>Informe Final
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>

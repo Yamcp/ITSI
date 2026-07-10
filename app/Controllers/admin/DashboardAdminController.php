@@ -345,12 +345,14 @@ class DashboardAdminController extends BaseController
         }
         
         try {
-            // Convenios que vencen en los próximos 30 días
+            // Un convenio puede tener varios detalles (uno por carrera) con la misma fecha;
+            // se agrupa por institución + fecha para no repetir filas en el dashboard.
             $conveniosPorVencer = $this->conveniosModel
-                ->select('TAB_DETALLES_CONVENIOS.*, ic.NOMBRE as INSTITUCION')
+                ->select('TAB_DETALLES_CONVENIOS.ID_INSTITUCION_CONVENIO, TAB_DETALLES_CONVENIOS.FECHA_FIN, ic.NOMBRE as INSTITUCION, MIN(TAB_DETALLES_CONVENIOS.ID_DETALLE_CONVENIO) as ID_DETALLE_CONVENIO')
                 ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = TAB_DETALLES_CONVENIOS.ID_INSTITUCION_CONVENIO', 'left')
                 ->where('TAB_DETALLES_CONVENIOS.FECHA_FIN >=', date('Y-m-d'))
                 ->where('TAB_DETALLES_CONVENIOS.FECHA_FIN <=', date('Y-m-d', strtotime('+30 days')))
+                ->groupBy('TAB_DETALLES_CONVENIOS.ID_INSTITUCION_CONVENIO, TAB_DETALLES_CONVENIOS.FECHA_FIN, ic.NOMBRE')
                 ->orderBy('TAB_DETALLES_CONVENIOS.FECHA_FIN', 'ASC')
                 ->limit(5)
                 ->findAll();

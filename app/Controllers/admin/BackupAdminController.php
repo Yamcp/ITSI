@@ -311,46 +311,114 @@ class BackupAdminController extends BaseController
     }
 
     /**
-     * Exportar historial de backups
+     * Exportar historial de backups en PDF
      */
-    public function exportarHistorial(): ResponseInterface
+    public function exportarHistorial()
     {
         try {
             $backups = $this->exportacionesModel->getBackupsWithUser();
-            $filename = 'historial_backups_' . date('Y-m-d_H-i-s') . '.csv';
-            $filepath = $this->resolveBackupPath($filename);
+            $filename = 'historial_backups_' . date('Y-m-d_H-i-s') . '.pdf';
 
-            $fp = fopen($filepath, 'wb');
-            if ($fp === false) {
-                throw new \RuntimeException('No se pudo crear el archivo CSV');
+            $pdf = new \TCPDF('L', 'mm', 'A4', true, 'UTF-8', false);
+            $pdf->SetCreator('Sistema ITSI');
+            $pdf->SetAuthor('Administrador');
+            $pdf->SetTitle('Historial de Backups');
+            $pdf->SetSubject('Historial de backups del sistema');
+            $pdf->SetMargins(12, 18, 12);
+            $pdf->SetHeaderMargin(8);
+            $pdf->SetFooterMargin(10);
+            $pdf->SetAutoPageBreak(true, 15);
+            $pdf->SetFont('helvetica', '', 9);
+            $pdf->AddPage();
+
+            helper('PdfHelper');
+            \App\Helpers\PdfHelper::addLogoToPdf($pdf, 'Logo PDF.jpg', 12, 10, 28);
+
+            $pdf->SetFont('helvetica', 'B', 16);
+            $pdf->Cell(0, 10, 'HISTORIAL DE BACKUPS', 0, 1, 'C');
+            $pdf->SetFont('helvetica', '', 11);
+            $pdf->Cell(0, 6, 'Instituto Tecnológico Superior Ibarra', 0, 1, 'C');
+            $pdf->Cell(0, 6, 'Generado el: ' . \App\Helpers\PdfHelper::getCurrentDateTime(), 0, 1, 'C');
+            $pdf->Ln(6);
+
+            $pdf->SetFont('helvetica', 'B', 11);
+            $pdf->Cell(0, 7, 'Total de registros: ' . count($backups), 0, 1, 'L');
+            $pdf->Ln(2);
+
+            $headers = [
+                ['w' => 12, 'label' => 'ID'],
+                ['w' => 28, 'label' => 'Usuario'],
+                ['w' => 40, 'label' => 'Nombre'],
+                ['w' => 32, 'label' => 'Fecha'],
+                ['w' => 55, 'label' => 'Descripción'],
+                ['w' => 22, 'label' => 'Estado'],
+                ['w' => 55, 'label' => 'Archivo'],
+                ['w' => 22, 'label' => 'Tamaño'],
+            ];
+
+            $pdf->SetFont('helvetica', 'B', 8);
+            $pdf->SetFillColor(52, 58, 64);
+            $pdf->SetTextColor(255, 255, 255);
+            foreach ($headers as $header) {
+                $pdf->Cell($header['w'], 7, $header['label'], 1, 0, 'C', true);
+            }
+            $pdf->Ln();
+
+            $pdf->SetFont('helvetica', '', 7);
+            $pdf->SetTextColor(0, 0, 0);
+            $fill = false;
+
+            if (empty($backups)) {
+                $pdf->Cell(array_sum(array_column($headers, 'w')), 8, 'No hay backups registrados', 1, 1, 'C');
+            } else {
+                foreach ($backups as $backup) {
+                    if ($pdf->GetY() > 185) {
+                        $pdf->AddPage();
+                        $pdf->SetFont('helvetica', 'B', 8);
+                        $pdf->SetFillColor(52, 58, 64);
+                        $pdf->SetTextColor(255, 255, 255);
+                        foreach ($headers as $header) {
+                            $pdf->Cell($header['w'], 7, $header['label'], 1, 0, 'C', true);
+                        }
+                        $pdf->Ln();
+                        $pdf->SetFont('helvetica', '', 7);
+                        $pdf->SetTextColor(0, 0, 0);
+                    }
+
+                    $pdf->SetFillColor(245, 245, 245);
+                    $nombre = trim(($backup['NOMBRE'] ?? '') . ' ' . ($backup['APELLIDO'] ?? ''));
+                    $fecha = !empty($backup['FECHA_EXPORTACION'])
+                        ? date('d/m/Y H:i', strtotime($backup['FECHA_EXPORTACION']))
+                        : '';
+
+                    $row = [
+                        $backup['ID_EXPORTACION'] ?? '',
+                        $backup['USUARIO'] ?? '',
+                        $nombre,
+                        $fecha,
+                        $backup['DESCRIPCION_EXPORTACION'] ?? '',
+                        $backup['ESTADO_EXPORTACION'] ?? '',
+                        $backup['ARCHIVO_EXPORTACION'] ?? '',
+                        $backup['TAMANO_ARCHIVO'] ?? '',
+                    ];
+
+                    foreach ($headers as $i => $header) {
+                        $align = ($i === 0 || $i === 3 || $i === 5 || $i === 7) ? 'C' : 'L';
+                        $texto = mb_substr((string) $row[$i], 0, $i === 4 || $i === 6 ? 40 : 28);
+                        $pdf->Cell($header['w'], 6, $texto, 1, 0, $align, $fill);
+                    }
+                    $pdf->Ln();
+                    $fill = !$fill;
+                }
             }
 
-            fputcsv($fp, [
-                'ID',
-                'Usuario',
-                'Nombre',
-                'Fecha',
-                'Descripcion',
-                'Estado',
-                'Archivo',
-                'Tamano'
-            ]);
+            $pdf->Ln(8);
+            $pdf->SetFont('helvetica', 'I', 8);
+            $pdf->Cell(0, 5, 'Este reporte fue generado automáticamente por el Sistema de Gestión de Backups', 0, 1, 'C');
+            $pdf->Cell(0, 5, 'Instituto Tecnológico Superior Ibarra - ' . date('Y'), 0, 1, 'C');
 
-            foreach ($backups as $backup) {
-                fputcsv($fp, [
-                    $backup['ID_EXPORTACION'] ?? '',
-                    $backup['USUARIO'] ?? '',
-                    trim(($backup['NOMBRE'] ?? '') . ' ' . ($backup['APELLIDO'] ?? '')),
-                    $backup['FECHA_EXPORTACION'] ?? '',
-                    $backup['DESCRIPCION_EXPORTACION'] ?? '',
-                    $backup['ESTADO_EXPORTACION'] ?? '',
-                    $backup['ARCHIVO_EXPORTACION'] ?? '',
-                    $backup['TAMANO_ARCHIVO'] ?? ''
-                ]);
-            }
-            fclose($fp);
-
-            return $this->response->download($filepath, null)->setFileName($filename);
+            $pdf->Output($filename, 'D');
+            exit;
         } catch (\Exception $e) {
             return $this->response->setJSON([
                 'success' => false,
