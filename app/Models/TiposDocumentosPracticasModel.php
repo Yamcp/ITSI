@@ -101,29 +101,35 @@ class TiposDocumentosPracticasModel extends Model
      */
     public function getAllTipos()
     {
-        $builder = $this->builder();
-        
-        // Si la columna ACTIVO existe, filtrar por ella
-        if ($this->columnExists('ACTIVO')) {
-            $builder->where('ACTIVO', 1);
-        }
-        
-        // Si la columna ORDEN existe, ordenar por ella
-        if ($this->columnExists('ORDEN')) {
-            $builder->orderBy('ORDEN', 'ASC');
-        }
-        
-        $builder->orderBy('CODIGO', 'ASC');
+        try {
+            $builder = $this->db->table($this->table);
 
-        $rows = $builder->get()->getResultArray();
-        foreach ($rows as &$row) {
-            if (!array_key_exists('REQUERIDO', $row) && array_key_exists('OBLIGATORIO', $row)) {
-                $row['REQUERIDO'] = $row['OBLIGATORIO'];
+            if ($this->columnExists('ACTIVO')) {
+                $builder->where('ACTIVO', 1);
             }
-        }
-        unset($row);
+            if ($this->columnExists('ORDEN')) {
+                $builder->orderBy('ORDEN', 'ASC');
+            }
+            $builder->orderBy('CODIGO', 'ASC');
 
-        return $rows;
+            $query = $builder->get();
+            if ($query === false) {
+                return [];
+            }
+
+            $rows = $query->getResultArray();
+            foreach ($rows as &$row) {
+                if (!array_key_exists('REQUERIDO', $row) && array_key_exists('OBLIGATORIO', $row)) {
+                    $row['REQUERIDO'] = $row['OBLIGATORIO'];
+                }
+            }
+            unset($row);
+
+            return $rows;
+        } catch (\Throwable $e) {
+            log_message('error', 'TiposDocumentosPracticasModel::getAllTipos: ' . $e->getMessage());
+            return [];
+        }
     }
 
     /**

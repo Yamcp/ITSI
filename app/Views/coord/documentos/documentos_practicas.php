@@ -110,16 +110,6 @@
             <div class="col-12 col-sm-6 col-lg">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="#" onclick="showModal('modalSubirDocumentoPractica')" style="text-decoration: none; color: inherit;">
-                            <i class="fas fa-cloud-upload-alt fa-2x mb-2" style="color: #28a745; text-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);"></i>
-                            <div class="fw-bold small">Nuevo Documento</div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6 col-lg">
-                <div class="card text-center shadow-sm h-100" style="border: none;">
-                    <div class="card-body d-flex flex-column align-items-center justify-content-center">
                         <a href="#" onclick="generarReportePracticas()" style="text-decoration: none; color: inherit;">
                             <i class="fas fa-chart-bar fa-2x mb-2" style="color: #ffc107; text-shadow: 0 2px 4px rgba(255, 193, 7, 0.3);"></i>
                             <div class="fw-bold small">Generar Reporte</div>
@@ -130,7 +120,7 @@
             <div class="col-12 col-sm-6 col-lg">
                 <div class="card text-center shadow-sm h-100" style="border: none;">
                     <div class="card-body d-flex flex-column align-items-center justify-content-center">
-                        <a href="<?= base_url('coord/documentos/practicas/reportes') ?>" style="text-decoration: none; color: inherit;">
+                        <a href="#" onclick="showModal('modalExportarDatosPracticas'); return false;" style="text-decoration: none; color: inherit;">
                             <i class="fas fa-download fa-2x mb-2" style="color: #dc3545; text-shadow: 0 2px 4px rgba(220, 53, 69, 0.3);"></i>
                             <div class="fw-bold small">Exportar Datos</div>
                         </a>
@@ -622,6 +612,48 @@
     </div>
 </div>
 
+<!-- Modal Exportar Datos -->
+<div class="modal fade" id="modalExportarDatosPracticas" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-download me-2" style="color: #dc3545;"></i>Exportar Datos
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-file-excel fa-3x mb-3" style="color: #28a745;"></i>
+                                <h6>Excel</h6>
+                                <p class="text-muted small">Exportar a formato Excel (.xlsx)</p>
+                                <button type="button" class="btn btn-success btn-sm" onclick="exportarDocumentosPracticas('excel')">
+                                    <i class="fas fa-file-excel me-1"></i>Excel
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="card border-0 shadow-sm h-100">
+                            <div class="card-body text-center">
+                                <i class="fas fa-file-pdf fa-3x mb-3" style="color: #dc3545;"></i>
+                                <h6>PDF</h6>
+                                <p class="text-muted small">Exportar a formato PDF</p>
+                                <button type="button" class="btn btn-danger btn-sm" onclick="exportarDocumentosPracticas('pdf')">
+                                    <i class="fas fa-file-pdf me-1"></i>PDF
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     const tiposDocumentosCatalogoPracticas = <?= json_encode($tiposDocumentos ?? [], JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 
@@ -937,8 +969,17 @@
         showNotification('Filtros limpiados', 'info');
     }
 
-    function exportarDocumentosPracticas() {
-        showNotification('Exportando documentos...', 'info');
+    function exportarDocumentosPracticas(formato) {
+        const formatoValido = (formato === 'excel' || formato === 'pdf') ? formato : 'excel';
+        showNotification('Exportando documentos en ' + formatoValido.toUpperCase() + '...', 'info');
+        const modalEl = document.getElementById('modalExportarDatosPracticas');
+        if (modalEl) {
+            const inst = bootstrap.Modal.getInstance(modalEl);
+            if (inst) {
+                inst.hide();
+            }
+        }
+        window.location.href = '<?= base_url('coord/documentos/practicas/exportar') ?>/' + formatoValido;
     }
 
     function generarReportePracticas() {

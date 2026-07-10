@@ -95,9 +95,10 @@
                                     <option value="">Todos los tipos</option>
                                     <?php if (isset($tipos_documentos)): ?>
                                         <?php foreach ($tipos_documentos as $tipo): ?>
-                                            <option value="<?= $tipo['ID_TIPO_DOCUMENTO'] ?>"
-                                                <?= (isset($filtros['tipo_documento']) && $filtros['tipo_documento'] == $tipo['ID_TIPO_DOCUMENTO']) ? 'selected' : '' ?>>
-                                                <?= $tipo['CODIGO'] ?>. <?= $tipo['NOMBRE'] ?>
+                                            <?php $idTipo = $tipo['ID_TIPO_DOCUMENTO_PREPROFESIONAL'] ?? $tipo['ID_TIPO_DOCUMENTO'] ?? ''; ?>
+                                            <option value="<?= esc($idTipo) ?>"
+                                                <?= (isset($filtros['tipo_documento']) && (string) $filtros['tipo_documento'] === (string) $idTipo) ? 'selected' : '' ?>>
+                                                <?= esc($tipo['CODIGO'] ?? '') ?>. <?= esc($tipo['NOMBRE'] ?? '') ?>
                                             </option>
                                         <?php endforeach; ?>
                                     <?php endif; ?>
@@ -213,60 +214,99 @@
                                     </thead>
                                     <tbody>
                                         <?php foreach ($documentos as $documento): ?>
+                                            <?php
+                                            $idDoc = $documento['ID_DOCUMENTO_PREPROFESIONAL']
+                                                ?? $documento['ID_DOCUMENTO_PRACTICA']
+                                                ?? '';
+                                            $nombreArchivo = $documento['NOMBRE_ORIGINAL']
+                                                ?? $documento['NOMBRE_ARCHIVO']
+                                                ?? $documento['NOMBRE_DOCUMENTO']
+                                                ?? 'Sin nombre';
+                                            $descripcion = trim((string) ($documento['OBSERVACIONES']
+                                                ?? $documento['TIPO_DOCUMENTO_DESCRIPCION']
+                                                ?? $documento['DESCRIPCION']
+                                                ?? ''));
+                                            $tipo = $documento['TIPO_DOCUMENTO_NOMBRE']
+                                                ?? $documento['TIPO_DOCUMENTO']
+                                                ?? 'General';
+                                            $nombreEstudiante = trim(
+                                                ($documento['ESTUDIANTE_NOMBRE'] ?? '')
+                                                ?: trim(($documento['NOMBRE_ESTUDIANTE'] ?? '') . ' ' . ($documento['APELLIDO_ESTUDIANTE'] ?? ''))
+                                            );
+                                            if ($nombreEstudiante === '') {
+                                                $nombreEstudiante = 'N/A';
+                                            }
+                                            $cedula = $documento['CEDULA_ESTUDIANTE'] ?? '';
+                                            $entidad = $documento['ENTIDAD_RECEPTORA'] ?? 'N/A';
+                                            $docente = $documento['DOCENTE_TUTOR'] ?? 'N/A';
+                                            $estado = $documento['ESTADO_REVISION'] ?? 'Pendiente';
+                                            $fecha = $documento['FECHA_SUBIDA'] ?? null;
+                                            $prioridad = $documento['PRIORIDAD'] ?? 'media';
+
+                                            $color = 'bg-primary';
+                                            if (strpos($tipo, 'Oficio') !== false) {
+                                                $color = 'bg-success';
+                                            } elseif (strpos($tipo, 'Carta') !== false) {
+                                                $color = 'bg-warning';
+                                            } elseif (strpos($tipo, 'Certificado') !== false) {
+                                                $color = 'bg-info';
+                                            } elseif (strpos($tipo, 'Rúbrica') !== false || strpos($tipo, 'Rubrica') !== false) {
+                                                $color = 'bg-danger';
+                                            }
+
+                                            $estadoColor = 'bg-secondary';
+                                            if ($estado === 'Aprobado') {
+                                                $estadoColor = 'bg-success';
+                                            } elseif ($estado === 'En Revisión' || $estado === 'Pendiente') {
+                                                $estadoColor = 'bg-warning text-dark';
+                                            } elseif ($estado === 'Rechazado') {
+                                                $estadoColor = 'bg-danger';
+                                            } elseif ($estado === 'Requiere Corrección') {
+                                                $estadoColor = 'bg-info';
+                                            }
+
+                                            $prioridadColor = 'bg-secondary';
+                                            if ($prioridad === 'alta') {
+                                                $prioridadColor = 'bg-danger';
+                                            } elseif ($prioridad === 'media') {
+                                                $prioridadColor = 'bg-warning text-dark';
+                                            } elseif ($prioridad === 'baja') {
+                                                $prioridadColor = 'bg-success';
+                                            } elseif ($prioridad === 'urgente') {
+                                                $prioridadColor = 'bg-dark';
+                                            }
+                                            ?>
                                             <tr>
-                                                <td><?= $documento['ID_DOCUMENTO_PRACTICA'] ?? $documento['id'] ?></td>
+                                                <td><?= esc($idDoc) ?></td>
                                                 <td>
-                                                    <div class="fw-semibold"><?= $documento['NOMBRE_ARCHIVO'] ?? $documento['NOMBRE_DOCUMENTO'] ?? $documento['nombre'] ?? 'Sin nombre' ?></div>
-                                                    <small class="text-muted"><?= substr($documento['DESCRIPCION'] ?? $documento['descripcion'] ?? '', 0, 50) ?>...</small>
+                                                    <div class="fw-semibold"><?= esc($nombreArchivo) ?></div>
+                                                    <?php if ($descripcion !== ''): ?>
+                                                        <small class="text-muted"><?= esc(mb_substr($descripcion, 0, 50)) ?><?= mb_strlen($descripcion) > 50 ? '...' : '' ?></small>
+                                                    <?php endif; ?>
                                                 </td>
                                                 <td>
-                                                    <?php
-                                                    $tipo = $documento['TIPO_DOCUMENTO'] ?? $documento['tipo'] ?? 'General';
-                                                    $color = 'bg-primary';
-                                                    if (strpos($tipo, 'Oficio') !== false) $color = 'bg-success';
-                                                    elseif (strpos($tipo, 'Carta') !== false) $color = 'bg-warning';
-                                                    elseif (strpos($tipo, 'Certificado') !== false) $color = 'bg-info';
-                                                    elseif (strpos($tipo, 'Rúbrica') !== false) $color = 'bg-danger';
-                                                    ?>
-                                                    <span class="badge <?= $color ?> badge-tipo"><?= $tipo ?></span>
+                                                    <span class="badge <?= $color ?> badge-tipo"><?= esc($tipo) ?></span>
                                                 </td>
                                                 <td>
-                                                    <div><?= ($documento['NOMBRE_ESTUDIANTE'] ?? '') . ' ' . ($documento['APELLIDO_ESTUDIANTE'] ?? '') ?: ($documento['estudiante'] ?? 'N/A') ?></div>
-                                                    <small class="text-muted"><?= $documento['CEDULA_ESTUDIANTE'] ?? $documento['cedula'] ?? '' ?></small>
+                                                    <div><?= esc($nombreEstudiante) ?></div>
+                                                    <?php if ($cedula !== ''): ?>
+                                                        <small class="text-muted"><?= esc($cedula) ?></small>
+                                                    <?php endif; ?>
                                                 </td>
-                                                <td><?= $documento['ENTIDAD_RECEPTORA'] ?? $documento['entidad'] ?? 'N/A' ?></td>
-                                                <td><?= $documento['DOCENTE_TUTOR'] ?? $documento['docente'] ?? 'N/A' ?></td>
+                                                <td><?= esc($entidad) ?></td>
+                                                <td><?= esc($docente) ?></td>
                                                 <td>
-                                                    <?php
-                                                    $estado = $documento['ESTADO_REVISION'] ?? $documento['estado'] ?? 'Pendiente';
-                                                    $estadoColor = 'bg-secondary';
-                                                    if ($estado === 'Aprobado') $estadoColor = 'bg-success';
-                                                    elseif ($estado === 'En Revisión') $estadoColor = 'bg-warning text-dark';
-                                                    elseif ($estado === 'Rechazado') $estadoColor = 'bg-danger';
-                                                    elseif ($estado === 'Requiere Corrección') $estadoColor = 'bg-info';
-                                                    ?>
-                                                    <span class="badge <?= $estadoColor ?>"><?= $estado ?></span>
+                                                    <span class="badge <?= $estadoColor ?>"><?= esc($estado) ?></span>
                                                 </td>
                                                 <td>
-                                                    <?php
-                                                    $fecha = $documento['FECHA_SUBIDA'] ?? $documento['fecha_subida'] ?? null;
-                                                    if ($fecha) {
-                                                        echo date('d/m/Y H:i', strtotime($fecha));
-                                                    } else {
-                                                        echo '<span class="text-muted">No subido</span>';
-                                                    }
-                                                    ?>
+                                                    <?php if ($fecha): ?>
+                                                        <?= date('d/m/Y H:i', strtotime($fecha)) ?>
+                                                    <?php else: ?>
+                                                        <span class="text-muted">No subido</span>
+                                                    <?php endif; ?>
                                                 </td>
                                                 <td>
-                                                    <?php
-                                                    $prioridad = $documento['PRIORIDAD'] ?? $documento['prioridad'] ?? 'media';
-                                                    $prioridadColor = 'bg-secondary';
-                                                    if ($prioridad === 'alta') $prioridadColor = 'bg-danger';
-                                                    elseif ($prioridad === 'media') $prioridadColor = 'bg-warning text-dark';
-                                                    elseif ($prioridad === 'baja') $prioridadColor = 'bg-success';
-                                                    elseif ($prioridad === 'urgente') $prioridadColor = 'bg-dark';
-                                                    ?>
-                                                    <span class="badge <?= $prioridadColor ?>"><?= ucfirst($prioridad) ?></span>
+                                                    <span class="badge <?= $prioridadColor ?>"><?= esc(ucfirst((string) $prioridad)) ?></span>
                                                 </td>
                                             </tr>
                                         <?php endforeach; ?>

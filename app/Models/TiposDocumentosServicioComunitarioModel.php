@@ -76,10 +76,18 @@ class TiposDocumentosServicioComunitarioModel extends Model
      */
     public function getAllTipos()
     {
-        return $this->where('ACTIVO', 1)
-                   ->orderBy('ORDEN', 'ASC')
-                   ->orderBy('CODIGO', 'ASC')
-                   ->findAll();
+        try {
+            $query = $this->db->table($this->table)
+                ->where('ACTIVO', 1)
+                ->orderBy('ORDEN', 'ASC')
+                ->orderBy('CODIGO', 'ASC')
+                ->get();
+
+            return $query === false ? [] : $query->getResultArray();
+        } catch (\Throwable $e) {
+            log_message('error', 'TiposDocumentosServicioComunitarioModel::getAllTipos: ' . $e->getMessage());
+            return [];
+        }
     }
 
     /**

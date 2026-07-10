@@ -757,4 +757,177 @@ class DocumentosServicioComunitarioCoordController extends BaseController
             ]);
         }
     }
+
+    /**
+     * Exportar documentos de servicio comunitario (excel|pdf)
+     */
+    public function exportar($formato = 'excel')
+    {
+        try {
+            $documentos = $this->getDocumentosCompletos();
+
+            switch (strtolower((string) $formato)) {
+                case 'excel':
+                    return $this->exportarExcel(is_array($documentos) ? $documentos : []);
+                case 'pdf':
+                    return $this->exportarPDF(is_array($documentos) ? $documentos : []);
+                default:
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'Formato no soportado. Use excel o pdf.',
+                    ])->setStatusCode(400);
+            }
+        } catch (\Throwable $e) {
+            log_message('error', 'Error exportar documentos servicio: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error al exportar: ' . $e->getMessage(),
+            ])->setStatusCode(500);
+        }
+    }
+
+    private function exportarExcel($documentos)
+    {
+        try {
+            helper('ExcelHelper');
+
+            $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+            $sheet = $spreadsheet->getActiveSheet();
+            $sheet->setTitle('Documentos Servicio');
+
+            \App\Helpers\ExcelHelper::createStandardHeader(
+                $sheet,
+                'REPORTE DE DOCUMENTOS DE SERVICIO COMUNITARIO',
+                'Sistema de Gestión Académica ITSI',
+                'Logo PDF.jpg',
+                'A1',
+                'F1'
+            );
+
+            $headers = ['ID', 'Estudiante', 'Tipo Documento', 'Archivo', 'Fecha Subida', 'Estado'];
+            \App\Helpers\ExcelHelper::createColumnHeaders($sheet, $headers, 5, 'A');
+
+            $row = 6;
+            foreach ($documentos as $doc) {
+                $estudiante = trim(($doc['NOMBRE_ESTUDIANTE'] ?? '') . ' ' . ($doc['APELLIDO_ESTUDIANTE'] ?? ''));
+                $fecha = !empty($doc['FECHA_SUBIDA']) ? date('d/m/Y H:i', strtotime($doc['FECHA_SUBIDA'])) : '';
+                $sheet->setCellValue('A' . $row, $doc['ID_DOCUMENTO_SERVICIO'] ?? '');
+                $sheet->setCellValue('B' . $row, $estudiante !== '' ? $estudiante : 'N/A');
+                $sheet->setCellValue('C' . $row, $doc['TIPO_DOCUMENTO_NOMBRE'] ?? 'N/A');
+                $sheet->setCellValue('D' . $row, $doc['NOMBRE_ARCHIVO'] ?? '');
+                $sheet->setCellValue('E' . $row, $fecha);
+                $sheet->setCellValue('F' . $row, $doc['ESTADO_REVISION'] ?? '');
+                $row++;
+            }
+
+            if ($row > 6) {
+                \App\Helpers\ExcelHelper::applyDataStyle($sheet, 'A6:F' . ($row - 1));
+            }
+            \App\Helpers\ExcelHelper::autoSizeColumns($sheet, 'A', 'F');
+
+            $filename = 'documentos_servicio_' . date('Y-m-d') . '.xlsx';
+            \App\Helpers\ExcelHelper::setDownloadHeaders($filename);
+
+            $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+            $writer->save('php://output');
+            exit;
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error al exportar Excel: ' . $e->getMessage(),
+            ]);
+        }
+    }
+
+    private function exportarPDF($documentos)
+    {
+        try {
+            $pdf = new \TCPDF('L', 'mm', 'A4', true, 'UTF-8', false);
+            $pdf->SetCreator('Sistema ITSI');
+            $pdf->SetAuthor('Coordinador');
+            $pdf->SetTitle('Documentos de Servicio Comunitario');
+            $pdf->SetSubject('Reporte de documentos de servicio comunitario');
+            $pdf->SetMargins(12, 18, 12);
+            $pdf->SetAutoPageBreak(true, 15);
+            $pdf->SetFont('helvetica', '', 9);
+            $pdf->AddPage();
+
+            helper('PdfHelper');
+            \App\Helpers\PdfHelper::addLogoToPdf($pdf, 'Logo PDF.jpg', 12, 10, 28);
+
+            $pdf->SetFont('helvetica', 'B', 14);
+            $pdf->Cell(0, 8, 'REPORTE DE DOCUMENTOS DE SERVICIO COMUNITARIO', 0, 1, 'C');
+            $pdf->SetFont('helvetica', '', 10);
+            $pdf->Cell(0, 6, 'Instituto Tecnológico Superior Ibarra', 0, 1, 'C');
+            $pdf->Cell(0, 6, 'Generado el: ' . \App\Helpers\PdfHelper::getCurrentDateTime(), 0, 1, 'C');
+            $pdf->Ln(4);
+
+            $headers = [
+                ['w' => 18, 'label' => 'ID'],
+                ['w' => 55, 'label' => 'Estudiante'],
+                ['w' => 50, 'label' => 'Tipo'],
+                ['w' => 70, 'label' => 'Archivo'],
+                ['w' => 35, 'label' => 'Fecha'],
+                ['w' => 35, 'label' => 'Estado'],
+            ];
+
+            $pdf->SetFont('helvetica', 'B', 8);
+            $pdf->SetFillColor(52, 58, 64);
+            $pdf->SetTextColor(255, 255, 255);
+            foreach ($headers as $header) {
+                $pdf->Cell($header['w'], 7, $header['label'], 1, 0, 'C', true);
+            }
+            $pdf->Ln();
+
+            $pdf->SetFont('helvetica', '', 7);
+            $pdf->SetTextColor(0, 0, 0);
+            $fill = false;
+
+            if (empty($documentos)) {
+                $pdf->Cell(array_sum(array_column($headers, 'w')), 8, 'No hay documentos registrados', 1, 1, 'C');
+            } else {
+                foreach ($documentos as $doc) {
+                    if ($pdf->GetY() > 185) {
+                        $pdf->AddPage();
+                        $pdf->SetFont('helvetica', 'B', 8);
+                        $pdf->SetFillColor(52, 58, 64);
+                        $pdf->SetTextColor(255, 255, 255);
+                        foreach ($headers as $header) {
+                            $pdf->Cell($header['w'], 7, $header['label'], 1, 0, 'C', true);
+                        }
+                        $pdf->Ln();
+                        $pdf->SetFont('helvetica', '', 7);
+                        $pdf->SetTextColor(0, 0, 0);
+                    }
+
+                    $pdf->SetFillColor(245, 245, 245);
+                    $estudiante = trim(($doc['NOMBRE_ESTUDIANTE'] ?? '') . ' ' . ($doc['APELLIDO_ESTUDIANTE'] ?? ''));
+                    $fecha = !empty($doc['FECHA_SUBIDA']) ? date('d/m/Y H:i', strtotime($doc['FECHA_SUBIDA'])) : '';
+                    $row = [
+                        (string) ($doc['ID_DOCUMENTO_SERVICIO'] ?? ''),
+                        $estudiante,
+                        (string) ($doc['TIPO_DOCUMENTO_NOMBRE'] ?? ''),
+                        (string) ($doc['NOMBRE_ARCHIVO'] ?? ''),
+                        $fecha,
+                        (string) ($doc['ESTADO_REVISION'] ?? ''),
+                    ];
+
+                    foreach ($headers as $i => $header) {
+                        $pdf->Cell($header['w'], 6, mb_substr($row[$i], 0, 40), 1, 0, $i === 0 || $i === 4 ? 'C' : 'L', $fill);
+                    }
+                    $pdf->Ln();
+                    $fill = !$fill;
+                }
+            }
+
+            $filename = 'documentos_servicio_' . date('Y-m-d_H-i-s') . '.pdf';
+            $pdf->Output($filename, 'D');
+            exit;
+        } catch (\Exception $e) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error al exportar PDF: ' . $e->getMessage(),
+            ]);
+        }
+    }
 }

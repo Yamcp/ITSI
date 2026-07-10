@@ -13,9 +13,11 @@ class DocumentosServicioComunitarioModel extends Model
         'ID_TIPO_DOCUMENTO',
         'ID_ESTADO_REVISION',
         'NOMBRE_ARCHIVO',
+        'NOMBRE_ORIGINAL',
         'TIPO_ARCHIVO',
+        'TAMANO_ARCHIVO',
+        'RUTA_ARCHIVO',
         'FECHA_SUBIDA',
-        'ESTADO_REVISION',
         'OBSERVACIONES',
         'OBSERVACIONES_REVISOR',
     ];
@@ -28,7 +30,7 @@ class DocumentosServicioComunitarioModel extends Model
         'NOMBRE_ARCHIVO' => 'required|max_length[255]',
         'TIPO_ARCHIVO' => 'required|max_length[100]',
         'FECHA_SUBIDA' => 'required|valid_date',
-        'ESTADO_REVISION' => 'required|in_list[Pendiente,Aprobado,Rechazado]',
+        'ID_ESTADO_REVISION' => 'permit_empty|integer',
         'OBSERVACIONES' => 'permit_empty|max_length[500]'
     ];
 
@@ -53,10 +55,6 @@ class DocumentosServicioComunitarioModel extends Model
             'required' => 'La fecha de subida es requerida',
             'valid_date' => 'La fecha de subida debe ser una fecha válida'
         ],
-        'ESTADO_REVISION' => [
-            'required' => 'El estado de revisión es requerido',
-            'in_list' => 'El estado de revisión debe ser: Pendiente, Aprobado o Rechazado'
-        ],
         'OBSERVACIONES' => [
             'max_length' => 'Las observaciones no pueden exceder 500 caracteres'
         ]
@@ -67,16 +65,21 @@ class DocumentosServicioComunitarioModel extends Model
      */
     public function getDocumentosPorServicio($idServicio)
     {
-        return $this->select('
-            TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.*,
-            TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
-            TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO.CODIGO as CODIGO_DOCUMENTO,
-            TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO.DESCRIPCION as DESCRIPCION_DOCUMENTO
-        ')
-        ->join('TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO', 'TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.ID_TIPO_DOCUMENTO = TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO.ID_TIPO_DOCUMENTO_SERVICIO')
-        ->where('TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.ID_SERVICIO_COMUNITARIO', $idServicio)
-        ->orderBy('TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO.ORDEN', 'ASC')
-        ->findAll();
+        $query = $this->db->table('TAB_DOCUMENTOS_SERVICIO_COMUNITARIO dsc')
+            ->select('
+                dsc.*,
+                tds.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
+                tds.CODIGO as CODIGO_DOCUMENTO,
+                tds.DESCRIPCION as DESCRIPCION_DOCUMENTO,
+                er.ESTADO as ESTADO_REVISION
+            ')
+            ->join('TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO tds', 'dsc.ID_TIPO_DOCUMENTO = tds.ID_TIPO_DOCUMENTO_SERVICIO', 'left')
+            ->join('TAB_ESTADOS_REVISIONES er', 'dsc.ID_ESTADO_REVISION = er.ID_ESTADO_REVISION', 'left')
+            ->where('dsc.ID_SERVICIO_COMUNITARIO', (int) $idServicio)
+            ->orderBy('tds.ORDEN', 'ASC')
+            ->get();
+
+        return $query === false ? [] : $query->getResultArray();
     }
 
     /**
@@ -84,21 +87,30 @@ class DocumentosServicioComunitarioModel extends Model
      */
     public function getDocumentosPorEstado($estado)
     {
-        return $this->select('
-            TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.*,
-            TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
-            TAB_SERVICIO_COMUNITARIO.PROYECTO_SOCIAL,
-            TAB_DATOS_PERSONAS.NOMBRE,
-            TAB_DATOS_PERSONAS.APELLIDO
-        ')
-        ->join('TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO', 'TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.ID_TIPO_DOCUMENTO = TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO.ID_TIPO_DOCUMENTO_SERVICIO')
-        ->join('TAB_SERVICIO_COMUNITARIO', 'TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.ID_SERVICIO_COMUNITARIO = TAB_SERVICIO_COMUNITARIO.ID_SERVICIO_COMUNITARIO')
-        ->join('TAB_ASIGNACIONES_PRACTICAS', 'TAB_SERVICIO_COMUNITARIO.ID_ASIGNACION_PRACTICA = TAB_ASIGNACIONES_PRACTICAS.ID_ASIGNACION_PRACTICA')
-        ->join('TAB_USUARIOS', 'TAB_ASIGNACIONES_PRACTICAS.ID_USUARIO = TAB_USUARIOS.ID_USUARIO')
-        ->join('TAB_DATOS_PERSONAS', 'TAB_USUARIOS.ID_DATO_PERSONA = TAB_DATOS_PERSONAS.ID_DATO_PERSONA')
-        ->where('TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.ESTADO_REVISION', $estado)
-        ->orderBy('TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.FECHA_SUBIDA', 'DESC')
-        ->findAll();
+        $builder = $this->db->table('TAB_DOCUMENTOS_SERVICIO_COMUNITARIO dsc')
+            ->select('
+                dsc.*,
+                tds.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
+                sc.PROYECTO_SOCIAL,
+                dp.NOMBRE,
+                dp.APELLIDO,
+                er.ESTADO as ESTADO_REVISION
+            ')
+            ->join('TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO tds', 'dsc.ID_TIPO_DOCUMENTO = tds.ID_TIPO_DOCUMENTO_SERVICIO', 'left')
+            ->join('TAB_ESTADOS_REVISIONES er', 'dsc.ID_ESTADO_REVISION = er.ID_ESTADO_REVISION', 'left')
+            ->join('TAB_SERVICIO_COMUNITARIO sc', 'dsc.ID_SERVICIO_COMUNITARIO = sc.ID_SERVICIO_COMUNITARIO', 'left')
+            ->join('TAB_ESTUDIANTES e', 'sc.ID_ESTUDIANTE = e.ID_ESTUDIANTE', 'left')
+            ->join('TAB_DATOS_PERSONAS dp', 'e.ID_DATO_PERSONA = dp.ID_DATO_PERSONA', 'left')
+            ->orderBy('dsc.FECHA_SUBIDA', 'DESC');
+
+        if (is_numeric($estado)) {
+            $builder->where('dsc.ID_ESTADO_REVISION', (int) $estado);
+        } else {
+            $builder->where('er.ESTADO', (string) $estado);
+        }
+
+        $query = $builder->get();
+        return $query === false ? [] : $query->getResultArray();
     }
 
     /**
@@ -106,21 +118,25 @@ class DocumentosServicioComunitarioModel extends Model
      */
     public function getDocumentosRecientes($limite = 10)
     {
-        return $this->select('
-            TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.*,
-            TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
-            TAB_SERVICIO_COMUNITARIO.PROYECTO_SOCIAL,
-            TAB_DATOS_PERSONAS.NOMBRE,
-            TAB_DATOS_PERSONAS.APELLIDO
-        ')
-        ->join('TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO', 'TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.ID_TIPO_DOCUMENTO = TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO.ID_TIPO_DOCUMENTO_SERVICIO')
-        ->join('TAB_SERVICIO_COMUNITARIO', 'TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.ID_SERVICIO_COMUNITARIO = TAB_SERVICIO_COMUNITARIO.ID_SERVICIO_COMUNITARIO')
-        ->join('TAB_ASIGNACIONES_PRACTICAS', 'TAB_SERVICIO_COMUNITARIO.ID_ASIGNACION_PRACTICA = TAB_ASIGNACIONES_PRACTICAS.ID_ASIGNACION_PRACTICA')
-        ->join('TAB_USUARIOS', 'TAB_ASIGNACIONES_PRACTICAS.ID_USUARIO = TAB_USUARIOS.ID_USUARIO')
-        ->join('TAB_DATOS_PERSONAS', 'TAB_USUARIOS.ID_DATO_PERSONA = TAB_DATOS_PERSONAS.ID_DATO_PERSONA')
-        ->orderBy('TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.FECHA_SUBIDA', 'DESC')
-        ->limit($limite)
-        ->findAll();
+        $query = $this->db->table('TAB_DOCUMENTOS_SERVICIO_COMUNITARIO dsc')
+            ->select('
+                dsc.*,
+                tds.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
+                sc.PROYECTO_SOCIAL,
+                dp.NOMBRE,
+                dp.APELLIDO,
+                er.ESTADO as ESTADO_REVISION
+            ')
+            ->join('TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO tds', 'dsc.ID_TIPO_DOCUMENTO = tds.ID_TIPO_DOCUMENTO_SERVICIO', 'left')
+            ->join('TAB_ESTADOS_REVISIONES er', 'dsc.ID_ESTADO_REVISION = er.ID_ESTADO_REVISION', 'left')
+            ->join('TAB_SERVICIO_COMUNITARIO sc', 'dsc.ID_SERVICIO_COMUNITARIO = sc.ID_SERVICIO_COMUNITARIO', 'left')
+            ->join('TAB_ESTUDIANTES e', 'sc.ID_ESTUDIANTE = e.ID_ESTUDIANTE', 'left')
+            ->join('TAB_DATOS_PERSONAS dp', 'e.ID_DATO_PERSONA = dp.ID_DATO_PERSONA', 'left')
+            ->orderBy('dsc.FECHA_SUBIDA', 'DESC')
+            ->limit((int) $limite)
+            ->get();
+
+        return $query === false ? [] : $query->getResultArray();
     }
 
     /**
@@ -128,15 +144,30 @@ class DocumentosServicioComunitarioModel extends Model
      */
     public function getEstadisticasDocumentos()
     {
-        $builder = $this->db->table($this->table . ' dsc');
-        $builder->select('
-            COUNT(*) as total,
-            SUM(CASE WHEN dsc.ESTADO_REVISION = "Pendiente" THEN 1 ELSE 0 END) as pendientes,
-            SUM(CASE WHEN dsc.ESTADO_REVISION = "Aprobado" THEN 1 ELSE 0 END) as aprobados,
-            SUM(CASE WHEN dsc.ESTADO_REVISION = "Rechazado" THEN 1 ELSE 0 END) as rechazados
-        ');
-        
-        return $builder->get()->getRowArray();
+        $query = $this->db->table($this->table . ' dsc')
+            ->select('
+                COUNT(*) as total,
+                SUM(CASE WHEN dsc.ID_ESTADO_REVISION = 1 THEN 1 ELSE 0 END) as pendientes,
+                SUM(CASE WHEN dsc.ID_ESTADO_REVISION = 3 THEN 1 ELSE 0 END) as aprobados,
+                SUM(CASE WHEN dsc.ID_ESTADO_REVISION = 4 THEN 1 ELSE 0 END) as rechazados
+            ')
+            ->get();
+
+        if ($query === false) {
+            return [
+                'total' => 0,
+                'pendientes' => 0,
+                'aprobados' => 0,
+                'rechazados' => 0,
+            ];
+        }
+
+        return $query->getRowArray() ?: [
+            'total' => 0,
+            'pendientes' => 0,
+            'aprobados' => 0,
+            'rechazados' => 0,
+        ];
     }
 
     /**
@@ -145,29 +176,45 @@ class DocumentosServicioComunitarioModel extends Model
      */
     public function getDocumentosCompletos($idEstudiante = null)
     {
-        $builder = $this->select('
-            TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.*,
-            TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
-            TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO.CODIGO as CODIGO_DOCUMENTO,
-            TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO.DESCRIPCION as DESCRIPCION_DOCUMENTO,
-            TAB_SERVICIO_COMUNITARIO.PROYECTO_SOCIAL,
-            TAB_SERVICIO_COMUNITARIO.COMUNIDAD_BENEFICIADA,
-            TAB_DATOS_PERSONAS.NOMBRE as NOMBRE_ESTUDIANTE,
-            TAB_DATOS_PERSONAS.APELLIDO as APELLIDO_ESTUDIANTE,
-            TAB_DATOS_PERSONAS.CEDULA
-        ')
-        ->join('TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO', 'TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.ID_TIPO_DOCUMENTO = TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO.ID_TIPO_DOCUMENTO_SERVICIO')
-        ->join('TAB_SERVICIO_COMUNITARIO', 'TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.ID_SERVICIO_COMUNITARIO = TAB_SERVICIO_COMUNITARIO.ID_SERVICIO_COMUNITARIO')
-        ->join('TAB_ASIGNACIONES_PRACTICAS', 'TAB_SERVICIO_COMUNITARIO.ID_ASIGNACION_PRACTICA = TAB_ASIGNACIONES_PRACTICAS.ID_ASIGNACION_PRACTICA')
-        ->join('TAB_USUARIOS', 'TAB_ASIGNACIONES_PRACTICAS.ID_USUARIO = TAB_USUARIOS.ID_USUARIO')
-        ->join('TAB_DATOS_PERSONAS', 'TAB_USUARIOS.ID_DATO_PERSONA = TAB_DATOS_PERSONAS.ID_DATO_PERSONA')
-        ->orderBy('TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.FECHA_SUBIDA', 'DESC');
+        try {
+            $builder = $this->db->table('TAB_DOCUMENTOS_SERVICIO_COMUNITARIO dsc')
+                ->select('
+                    dsc.*,
+                    tds.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
+                    tds.CODIGO as CODIGO_DOCUMENTO,
+                    tds.DESCRIPCION as DESCRIPCION_DOCUMENTO,
+                    er.ESTADO as ESTADO_REVISION,
+                    sc.PROYECTO_SOCIAL,
+                    sc.COMUNIDAD_BENEFICIADA,
+                    sc.ID_ESTUDIANTE,
+                    dp.NOMBRE as NOMBRE_ESTUDIANTE,
+                    dp.APELLIDO as APELLIDO_ESTUDIANTE,
+                    dp.CEDULA,
+                    CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as ESTUDIANTE_NOMBRE
+                ')
+                ->join('TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO tds', 'dsc.ID_TIPO_DOCUMENTO = tds.ID_TIPO_DOCUMENTO_SERVICIO', 'left')
+                ->join('TAB_ESTADOS_REVISIONES er', 'dsc.ID_ESTADO_REVISION = er.ID_ESTADO_REVISION', 'left')
+                ->join('TAB_SERVICIO_COMUNITARIO sc', 'dsc.ID_SERVICIO_COMUNITARIO = sc.ID_SERVICIO_COMUNITARIO', 'left')
+                ->join('TAB_ESTUDIANTES e', 'sc.ID_ESTUDIANTE = e.ID_ESTUDIANTE', 'left')
+                ->join('TAB_DATOS_PERSONAS dp', 'e.ID_DATO_PERSONA = dp.ID_DATO_PERSONA', 'left')
+                ->orderBy('dsc.FECHA_SUBIDA', 'DESC');
 
-        if ($idEstudiante !== null && (int) $idEstudiante > 0) {
-            $builder->where('TAB_SERVICIO_COMUNITARIO.ID_ESTUDIANTE', (int) $idEstudiante);
+            if ($idEstudiante !== null && (int) $idEstudiante > 0) {
+                $builder->where('sc.ID_ESTUDIANTE', (int) $idEstudiante);
+            }
+
+            $query = $builder->get();
+            if ($query === false) {
+                $error = $this->db->error();
+                log_message('error', 'getDocumentosCompletos servicio SQL: ' . ($error['message'] ?? 'query failed'));
+                return [];
+            }
+
+            return $query->getResultArray();
+        } catch (\Throwable $e) {
+            log_message('error', 'getDocumentosCompletos servicio: ' . $e->getMessage());
+            return [];
         }
-
-        return $builder->findAll();
     }
 
     /**
@@ -278,21 +325,25 @@ class DocumentosServicioComunitarioModel extends Model
      */
     public function getDocumentosPendientes()
     {
-        return $this->select('
-            TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.*,
-            TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
-            TAB_SERVICIO_COMUNITARIO.PROYECTO_SOCIAL,
-            TAB_DATOS_PERSONAS.NOMBRE,
-            TAB_DATOS_PERSONAS.APELLIDO
-        ')
-        ->join('TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO', 'TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.ID_TIPO_DOCUMENTO = TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO.ID_TIPO_DOCUMENTO_SERVICIO')
-        ->join('TAB_SERVICIO_COMUNITARIO', 'TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.ID_SERVICIO_COMUNITARIO = TAB_SERVICIO_COMUNITARIO.ID_SERVICIO_COMUNITARIO')
-        ->join('TAB_ASIGNACIONES_PRACTICAS', 'TAB_SERVICIO_COMUNITARIO.ID_ASIGNACION_PRACTICA = TAB_ASIGNACIONES_PRACTICAS.ID_ASIGNACION_PRACTICA')
-        ->join('TAB_USUARIOS', 'TAB_ASIGNACIONES_PRACTICAS.ID_USUARIO = TAB_USUARIOS.ID_USUARIO')
-        ->join('TAB_DATOS_PERSONAS', 'TAB_USUARIOS.ID_DATO_PERSONA = TAB_DATOS_PERSONAS.ID_DATO_PERSONA')
-        ->where('TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.ESTADO_REVISION', 'Pendiente')
-        ->orderBy('TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.FECHA_SUBIDA', 'ASC')
-        ->findAll();
+        $query = $this->db->table('TAB_DOCUMENTOS_SERVICIO_COMUNITARIO dsc')
+            ->select('
+                dsc.*,
+                tds.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
+                sc.PROYECTO_SOCIAL,
+                dp.NOMBRE,
+                dp.APELLIDO,
+                er.ESTADO as ESTADO_REVISION
+            ')
+            ->join('TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO tds', 'dsc.ID_TIPO_DOCUMENTO = tds.ID_TIPO_DOCUMENTO_SERVICIO', 'left')
+            ->join('TAB_ESTADOS_REVISIONES er', 'dsc.ID_ESTADO_REVISION = er.ID_ESTADO_REVISION', 'left')
+            ->join('TAB_SERVICIO_COMUNITARIO sc', 'dsc.ID_SERVICIO_COMUNITARIO = sc.ID_SERVICIO_COMUNITARIO', 'left')
+            ->join('TAB_ESTUDIANTES e', 'sc.ID_ESTUDIANTE = e.ID_ESTUDIANTE', 'left')
+            ->join('TAB_DATOS_PERSONAS dp', 'e.ID_DATO_PERSONA = dp.ID_DATO_PERSONA', 'left')
+            ->where('dsc.ID_ESTADO_REVISION', 1)
+            ->orderBy('dsc.FECHA_SUBIDA', 'ASC')
+            ->get();
+
+        return $query === false ? [] : $query->getResultArray();
     }
 
     /**
@@ -300,22 +351,26 @@ class DocumentosServicioComunitarioModel extends Model
      */
     public function getDocumentosPorRangoFechas($fechaInicio, $fechaFin)
     {
-        return $this->select('
-            TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.*,
-            TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
-            TAB_SERVICIO_COMUNITARIO.PROYECTO_SOCIAL,
-            TAB_DATOS_PERSONAS.NOMBRE,
-            TAB_DATOS_PERSONAS.APELLIDO
-        ')
-        ->join('TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO', 'TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.ID_TIPO_DOCUMENTO = TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO.ID_TIPO_DOCUMENTO_SERVICIO')
-        ->join('TAB_SERVICIO_COMUNITARIO', 'TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.ID_SERVICIO_COMUNITARIO = TAB_SERVICIO_COMUNITARIO.ID_SERVICIO_COMUNITARIO')
-        ->join('TAB_ASIGNACIONES_PRACTICAS', 'TAB_SERVICIO_COMUNITARIO.ID_ASIGNACION_PRACTICA = TAB_ASIGNACIONES_PRACTICAS.ID_ASIGNACION_PRACTICA')
-        ->join('TAB_USUARIOS', 'TAB_ASIGNACIONES_PRACTICAS.ID_USUARIO = TAB_USUARIOS.ID_USUARIO')
-        ->join('TAB_DATOS_PERSONAS', 'TAB_USUARIOS.ID_DATO_PERSONA = TAB_DATOS_PERSONAS.ID_DATO_PERSONA')
-        ->where('DATE(TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.FECHA_SUBIDA) >=', $fechaInicio)
-        ->where('DATE(TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.FECHA_SUBIDA) <=', $fechaFin)
-        ->orderBy('TAB_DOCUMENTOS_SERVICIO_COMUNITARIO.FECHA_SUBIDA', 'DESC')
-        ->findAll();
+        $query = $this->db->table('TAB_DOCUMENTOS_SERVICIO_COMUNITARIO dsc')
+            ->select('
+                dsc.*,
+                tds.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
+                sc.PROYECTO_SOCIAL,
+                dp.NOMBRE,
+                dp.APELLIDO,
+                er.ESTADO as ESTADO_REVISION
+            ')
+            ->join('TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO tds', 'dsc.ID_TIPO_DOCUMENTO = tds.ID_TIPO_DOCUMENTO_SERVICIO', 'left')
+            ->join('TAB_ESTADOS_REVISIONES er', 'dsc.ID_ESTADO_REVISION = er.ID_ESTADO_REVISION', 'left')
+            ->join('TAB_SERVICIO_COMUNITARIO sc', 'dsc.ID_SERVICIO_COMUNITARIO = sc.ID_SERVICIO_COMUNITARIO', 'left')
+            ->join('TAB_ESTUDIANTES e', 'sc.ID_ESTUDIANTE = e.ID_ESTUDIANTE', 'left')
+            ->join('TAB_DATOS_PERSONAS dp', 'e.ID_DATO_PERSONA = dp.ID_DATO_PERSONA', 'left')
+            ->where('DATE(dsc.FECHA_SUBIDA) >=', $fechaInicio)
+            ->where('DATE(dsc.FECHA_SUBIDA) <=', $fechaFin)
+            ->orderBy('dsc.FECHA_SUBIDA', 'DESC')
+            ->get();
+
+        return $query === false ? [] : $query->getResultArray();
     }
 
     /**

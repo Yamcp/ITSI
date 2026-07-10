@@ -176,6 +176,7 @@ $routes->group('coord', ['namespace' => 'App\Controllers\coord', 'filter' => 'au
     $routes->post('documentos/practicas/eliminar/(:num)', 'DocumentosPracticasCoordController::eliminar/$1'); // Eliminar documento
     $routes->post('documentos/practicas/cambiar-estado/(:num)', 'DocumentosPracticasCoordController::cambiarEstado/$1'); // Cambiar estado
     $routes->get('documentos/practicas/reportes', 'DocumentosPracticasCoordController::reportes'); // Reportes de prácticas
+    $routes->get('documentos/practicas/exportar/(:alpha)', 'DocumentosPracticasCoordController::exportar/$1'); // Exportar Excel/PDF
     $routes->post('documentos/practicas/subir-formato', 'DocumentosPracticasCoordController::subirDocumentoFormato');
     $routes->post('documentos/practicas/actualizar-nombre-formato', 'DocumentosPracticasCoordController::actualizarNombreDocumentoFormato');
     $routes->post('documentos/practicas/eliminar-formato/(:segment)', 'DocumentosPracticasCoordController::eliminarDocumentoFormato/$1');
@@ -189,6 +190,7 @@ $routes->group('coord', ['namespace' => 'App\Controllers\coord', 'filter' => 'au
     $routes->post('documentos/servicio/eliminar/(:num)', 'DocumentosServicioComunitarioCoordController::eliminar/$1'); // Eliminar documento
     $routes->post('documentos/servicio/cambiar-estado/(:num)', 'DocumentosServicioComunitarioCoordController::cambiarEstado/$1'); // Cambiar estado
     $routes->get('documentos/servicio/reportes', 'DocumentosServicioComunitarioCoordController::reportes'); // Reportes de servicio
+    $routes->get('documentos/servicio/exportar/(:alpha)', 'DocumentosServicioComunitarioCoordController::exportar/$1'); // Exportar Excel/PDF
     $routes->post('documentos/servicio/subir-formato', 'DocumentosServicioComunitarioCoordController::subirDocumentoFormato');
     $routes->post('documentos/servicio/actualizar-nombre-formato', 'DocumentosServicioComunitarioCoordController::actualizarNombreDocumentoFormato');
     $routes->post('documentos/servicio/eliminar-formato/(:segment)', 'DocumentosServicioComunitarioCoordController::eliminarDocumentoFormato/$1');
