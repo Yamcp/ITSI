@@ -50,7 +50,8 @@ $routes->group('admin', ['namespace' => 'App\Controllers\admin', 'filter' => 'au
     $routes->post('backup/crear', 'BackupAdminController::crear');                  // Crear nuevo backup
     $routes->get('backup/detalle/(:num)', 'BackupAdminController::detalle/$1');     // Ver detalles de backup
     $routes->get('backup/logs/(:num)', 'BackupAdminController::logs/$1');           // Ver logs de un backup
-    $routes->post('backup/descargar/(:num)', 'BackupAdminController::descargar/$1'); // Descargar backup
+    $routes->get('backup/descargar/(:num)', 'BackupAdminController::descargar/$1');  // Descargar backup (archivo)
+    $routes->post('backup/descargar/(:num)', 'BackupAdminController::descargar/$1'); // Descargar backup (compat)
     $routes->delete('backup/eliminar/(:num)', 'BackupAdminController::eliminar/$1'); // Eliminar backup
     $routes->post('backup/restaurar/(:num)', 'BackupAdminController::restaurar/$1'); // Restaurar desde backup
     $routes->get('backup/exportar-historial', 'BackupAdminController::exportarHistorial'); // Exportar historial

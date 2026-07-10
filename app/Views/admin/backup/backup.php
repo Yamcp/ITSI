@@ -1061,21 +1061,33 @@ window.toggleUbicacionBackupSection = function() {
 
     // Funciones de acción del backup
     window.exportarHistorial = function() {
-        console.log('exportarHistorial called');
         showNotification('Exportando historial de backups...', 'info');
-        // Simular proceso de exportación
+        window.location.href = `<?= base_url('admin/backup/exportar-historial') ?>`;
         setTimeout(() => {
             showNotification('Historial exportado exitosamente', 'success');
-        }, 2000);
+        }, 1500);
     };
 
     window.descargarBackup = function(id) {
-        console.log('descargarBackup called with id:', id);
+        if (!id) {
+            showNotification('ID de backup no válido', 'error');
+            return;
+        }
+
         showNotification(`Iniciando descarga del backup ${id}...`, 'info');
-        // Simular descarga
+
+        // Navegación directa para forzar descarga del archivo (no JSON simulado)
+        const downloadUrl = `<?= base_url('admin/backup/descargar') ?>/${id}`;
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
         setTimeout(() => {
-            showNotification('Backup descargado exitosamente', 'success');
-        }, 1500);
+            showNotification('Descarga del backup iniciada', 'success');
+        }, 800);
     };
 
     window.verDetalleBackup = function(id) {
@@ -1360,18 +1372,37 @@ window.toggleUbicacionBackupSection = function() {
 
             showNotification('Iniciando proceso de backup (manual)...', 'info');
 
-            // Simular proceso (reemplazar con fetch real cuando esté disponible)
-            setTimeout(() => {
+            fetch(`<?= base_url('admin/backup/crear') ?>`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(async response => {
+                const result = await response.json().catch(() => null);
+                if (!response.ok || !result?.success) {
+                    throw new Error(result?.message || 'No se pudo generar el backup');
+                }
+                return result;
+            })
+            .then(() => {
                 showNotification('Backup generado exitosamente', 'success');
                 hideModal('modalNuevoBackup');
-
+                form.reset();
+                setTimeout(() => window.location.reload(), 800);
+            })
+            .catch(error => {
+                console.error('Error al generar backup manual:', error);
+                showNotification(error.message || 'Error al generar backup', 'error');
+            })
+            .finally(() => {
                 if (btnGenerar) {
                     btnGenerar.innerHTML = originalText;
                     btnGenerar.disabled = false;
                 }
-
-                form.reset();
-            }, 2500);
+            });
         } catch (error) {
             console.error('Error al generar backup manual:', error);
             showNotification('Error al generar backup: ' + error.message, 'error');

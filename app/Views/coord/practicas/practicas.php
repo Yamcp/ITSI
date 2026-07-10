@@ -941,7 +941,7 @@ $carreras = $carreras ?? [];
         const selectTipo = document.querySelector('#formNuevaPractica select[name="tipo_practica"]');
         const tipoPractica = selectTipo ? selectTipo.value : '';
         if (!tipoPractica) {
-            alert('Seleccione primero el tipo de práctica para verificar la documentación del estudiante.');
+            showNotification('Seleccione primero el tipo de práctica para verificar la documentación del estudiante.', 'warning');
             return;
         }
         const url = baseUrlPracticas + 'verificarDocumentacionEstudiante'
@@ -951,16 +951,73 @@ $carreras = $carreras ?? [];
             .then(function(r) { return r.json(); })
             .then(function(res) {
                 if (!res.success) {
-                    alert(res.message || 'No se pudo verificar la documentación del estudiante.');
+                    showNotification(res.message || 'No se pudo verificar la documentación del estudiante.', 'error');
                     return;
                 }
-                if (res.data && res.data.completa === false && res.data.mensaje) {
-                    alert(res.data.mensaje);
+                if (res.data && res.data.completa === false) {
+                    mostrarAvisoDocumentacion(res.data);
                 }
             })
             .catch(function() {
-                alert('No se pudo verificar la documentación del estudiante. Intente de nuevo.');
+                showNotification('No se pudo verificar la documentación del estudiante. Intente de nuevo.', 'error');
             });
+    }
+
+    function mostrarAvisoDocumentacion(data) {
+        const total = data.total || 0;
+        const enviados = data.enviados || 0;
+        const faltantes = Array.isArray(data.faltantes) ? data.faltantes : [];
+
+        let mensaje = (data.mensaje || 'El estudiante no ha enviado toda su documentación.').trim();
+        if (!mensaje && total > 0) {
+            mensaje = 'Ha enviado ' + enviados + ' de ' + total + ' documento(s) requerido(s).';
+            if (faltantes.length) {
+                mensaje += '\n\nDocumentos pendientes de envío:\n• ' + faltantes.join('\n• ');
+            }
+        }
+
+        if (typeof confirmarAccion === 'function') {
+            const modal = document.getElementById('modalConfirmarGlobal');
+            const dialog = modal ? modal.querySelector('.modal-dialog') : null;
+            if (dialog) {
+                dialog.classList.remove('modal-sm');
+                dialog.classList.add('modal-dialog-scrollable');
+            }
+
+            const elMensaje = document.getElementById('confirmarMensaje');
+            if (elMensaje) {
+                elMensaje.style.whiteSpace = 'pre-line';
+                elMensaje.style.textAlign = 'left';
+            }
+
+            confirmarAccion({
+                titulo: 'Documentación incompleta',
+                mensaje: mensaje,
+                icono: 'fas fa-folder-open',
+                colorIcono: 'text-warning',
+                bgIcono: 'bg-warning bg-opacity-10',
+                textoAceptar: 'Entendido',
+                textoCancelar: 'Cerrar',
+                colorBoton: 'btn-primary',
+                onAceptar: function () {}
+            });
+
+            if (modal) {
+                modal.addEventListener('hidden.bs.modal', function restaurarModalDoc() {
+                    if (dialog) {
+                        dialog.classList.add('modal-sm');
+                        dialog.classList.remove('modal-dialog-scrollable');
+                    }
+                    if (elMensaje) {
+                        elMensaje.style.whiteSpace = '';
+                        elMensaje.style.textAlign = '';
+                    }
+                    modal.removeEventListener('hidden.bs.modal', restaurarModalDoc);
+                });
+            }
+        } else {
+            showNotification(mensaje.replace(/\n/g, ' '), 'warning');
+        }
     }
 
     function buscarEstudiantesModal() {

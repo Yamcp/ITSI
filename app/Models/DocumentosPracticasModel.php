@@ -16,10 +16,15 @@ class DocumentosPracticasModel extends Model
         'ID_PRACTICA_PREPROFESIONAL',
         'ID_TIPO_DOCUMENTO',
         'NOMBRE_ARCHIVO',
+        'NOMBRE_ORIGINAL',
         'TIPO_ARCHIVO',
+        'TAMANO_ARCHIVO',
+        'RUTA_ARCHIVO',
         'FECHA_SUBIDA',
         'ID_ESTADO_REVISION',
         'OBSERVACIONES',
+        'VERSION',
+        'ACTIVO',
     ];
 
     // Dates
@@ -29,15 +34,20 @@ class DocumentosPracticasModel extends Model
     protected $updatedField = '';
     protected $deletedField = '';
 
-    // Validation
+    // Validation (reglas compatibles con StrictRules: valores enviados como string)
     protected $validationRules = [
-        'ID_PRACTICA_PREPROFESIONAL' => 'required|integer|is_natural_no_zero',
-        'ID_TIPO_DOCUMENTO' => 'required|integer|is_natural_no_zero',
+        'ID_PRACTICA_PREPROFESIONAL' => 'required|is_natural_no_zero',
+        'ID_TIPO_DOCUMENTO' => 'required|is_natural_no_zero',
         'NOMBRE_ARCHIVO' => 'required|max_length[255]',
+        'NOMBRE_ORIGINAL' => 'permit_empty|max_length[255]',
         'TIPO_ARCHIVO' => 'required|max_length[100]',
-        'FECHA_SUBIDA' => 'required|valid_date',
-        'ID_ESTADO_REVISION' => 'permit_empty|integer|in_list[1,2,3,4,5]',
-        'OBSERVACIONES' => 'permit_empty'
+        'TAMANO_ARCHIVO' => 'permit_empty|is_natural',
+        'RUTA_ARCHIVO' => 'permit_empty|max_length[500]',
+        'FECHA_SUBIDA' => 'required',
+        'ID_ESTADO_REVISION' => 'permit_empty|in_list[1,2,3,4,5]',
+        'OBSERVACIONES' => 'permit_empty',
+        'VERSION' => 'permit_empty|is_natural_no_zero',
+        'ACTIVO' => 'permit_empty|in_list[0,1]',
     ];
 
     protected $validationMessages = [

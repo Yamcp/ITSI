@@ -250,7 +250,8 @@ class PracticasEstudianteController extends BaseController
         if (!file_exists($ruta) || !is_file($ruta)) {
             return $this->response->setStatusCode(404)->setBody('Archivo no encontrado');
         }
-        return $this->response->download($ruta, $archivo);
+        // Segundo parámetro null = descargar archivo del disco (no el nombre como contenido)
+        return $this->response->download($ruta, null);
     }
 
     /**
@@ -281,7 +282,8 @@ class PracticasEstudianteController extends BaseController
             return $this->response->setStatusCode(404)->setBody('Archivo no encontrado');
         }
 
-        return $this->response->download($ruta, $archivo);
+        // Segundo parámetro null = descargar archivo del disco (no el nombre como contenido)
+        return $this->response->download($ruta, null);
     }
 
     /**

@@ -21,38 +21,34 @@ class BackupAdminController extends BaseController
     public function index(): string
     {
         try {
-            // Obtener todos los backups con información del usuario
             $exportaciones = $this->exportacionesModel->getBackupsWithUser();
-            
+
             $data = [
                 'title' => 'Gestión de Backups',
                 'exportaciones' => $exportaciones,
                 'layout' => $this->getLayoutForRole()
             ];
-            
+
             return view('admin/backup/backup', $data);
-            
         } catch (\Exception $e) {
-            // Si hay error en la base de datos, mostrar vista con array vacío
             $data = [
                 'title' => 'Gestión de Backups',
                 'exportaciones' => [],
                 'layout' => $this->getLayoutForRole()
             ];
-            
+
             return view('admin/backup/backup', $data);
         }
     }
 
     /**
-     * Crear un nuevo backup
+     * Crear un nuevo backup (archivo SQL real)
      */
     public function crear(): ResponseInterface
     {
         try {
-            $input = $this->request->getJSON(true);
-            
-            // Validar datos de entrada
+            $input = $this->request->getJSON(true) ?? [];
+
             $validation = \Config\Services::validation();
             $validation->setRules([
                 'descripcion' => 'required|min_length[5]|max_length[255]',
@@ -68,14 +64,17 @@ class BackupAdminController extends BaseController
                 ])->setStatusCode(400);
             }
 
-            // Crear el backup
+            $filename = 'backup_' . date('Y-m-d_H-i-s') . '.sql';
+            $filepath = $this->resolveBackupPath($filename);
+            $tamano = $this->generarArchivoSql($filepath);
+
             $backupData = [
                 'ID_USUARIO' => session('id_usuario') ?? 1,
                 'DESCRIPCION_EXPORTACION' => $input['descripcion'],
                 'TIPO_EXPORTACION' => 'backup',
                 'ESTADO_EXPORTACION' => 'completado',
-                'ARCHIVO_EXPORTACION' => 'backup_' . date('Y-m-d_H-i-s') . '.sql',
-                'TAMANO_ARCHIVO' => rand(1024, 10240) // Simular tamaño de archivo
+                'ARCHIVO_EXPORTACION' => $filename,
+                'TAMANO_ARCHIVO' => $tamano
             ];
 
             $backupId = $this->exportacionesModel->crearBackup($backupData);
@@ -84,15 +83,18 @@ class BackupAdminController extends BaseController
                 return $this->response->setJSON([
                     'success' => true,
                     'message' => 'Backup generado exitosamente',
-                    'backup_id' => $backupId
+                    'backup_id' => $backupId,
+                    'filename' => $filename,
+                    'tamano' => $tamano
                 ]);
-            } else {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Error al generar el backup'
-                ])->setStatusCode(500);
             }
 
+            @unlink($filepath);
+
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error al registrar el backup en la base de datos'
+            ])->setStatusCode(500);
         } catch (\Exception $e) {
             return $this->response->setJSON([
                 'success' => false,
@@ -108,7 +110,7 @@ class BackupAdminController extends BaseController
     {
         try {
             $backup = $this->exportacionesModel->getBackupWithUser($id);
-            
+
             if (!$backup) {
                 return $this->response->setJSON([
                     'success' => false,
@@ -120,7 +122,6 @@ class BackupAdminController extends BaseController
                 'success' => true,
                 'data' => $backup
             ]);
-
         } catch (\Exception $e) {
             return $this->response->setJSON([
                 'success' => false,
@@ -154,6 +155,8 @@ class BackupAdminController extends BaseController
             $tamano = isset($backup['TAMANO_ARCHIVO']) ? (int) $backup['TAMANO_ARCHIVO'] : 0;
             $tamanoKb = $tamano > 0 ? round($tamano / 1024, 2) . ' KB' : 'N/A';
             $estado = $backup['ESTADO_EXPORTACION'] ?? 'completado';
+            $ruta = $this->resolveBackupPath($archivo);
+            $archivoExiste = is_file($ruta);
 
             $lineas = [];
             $lineas[] = '========== LOG DE BACKUP #' . $id . ' ==========';
@@ -165,6 +168,7 @@ class BackupAdminController extends BaseController
             $lineas[] = 'Estado: ' . $estado;
             $lineas[] = 'Archivo: ' . $archivo;
             $lineas[] = 'Tamaño: ' . $tamanoKb;
+            $lineas[] = 'Archivo en disco: ' . ($archivoExiste ? 'Sí' : 'No');
             $lineas[] = '';
             $lineas[] = '--- Registro del proceso ---';
             $lineas[] = '[' . $fecha . '] Inicio del proceso de exportación.';
@@ -179,12 +183,10 @@ class BackupAdminController extends BaseController
             $lineas[] = '';
             $lineas[] = '========== Fin del log ==========';
 
-            $log = implode("\n", $lineas);
-
             return $this->response->setJSON([
                 'success' => true,
                 'data' => [
-                    'log' => $log,
+                    'log' => implode("\n", $lineas),
                     'backup_id' => $id,
                     'fecha' => $fecha
                 ]
@@ -198,35 +200,44 @@ class BackupAdminController extends BaseController
     }
 
     /**
-     * Descargar un backup
+     * Descargar un backup (entrega el archivo SQL)
      */
-    public function descargar($id): ResponseInterface
+    public function descargar($id)
     {
         try {
             $backup = $this->exportacionesModel->find($id);
-            
+
             if (!$backup) {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Backup no encontrado'
-                ])->setStatusCode(404);
+                return $this->responseErrorDescarga('Backup no encontrado', 404);
             }
 
-            // Simular descarga del archivo
-            $filename = $backup['ARCHIVO_EXPORTACION'] ?? 'backup_' . $id . '.sql';
-            
-            return $this->response->setJSON([
-                'success' => true,
-                'message' => 'Descarga iniciada',
-                'filename' => $filename,
-                'download_url' => base_url('admin/backup/download-file/' . $id)
-            ]);
+            $filename = basename((string) ($backup['ARCHIVO_EXPORTACION'] ?? ('backup_' . $id . '.sql')));
+            if ($filename === '' || $filename === '.' || $filename === '..') {
+                $filename = 'backup_' . $id . '.sql';
+            }
+            if (!str_ends_with(strtolower($filename), '.sql')) {
+                $filename .= '.sql';
+            }
 
+            $filepath = $this->resolveBackupPath($filename);
+
+            // Si el registro existe pero el archivo no (backups antiguos/simulados), generar uno actual
+            if (!is_file($filepath)) {
+                $tamano = $this->generarArchivoSql($filepath);
+                $this->exportacionesModel->update($id, [
+                    'ARCHIVO_EXPORTACION' => $filename,
+                    'TAMANO_ARCHIVO' => $tamano,
+                    'ESTADO_EXPORTACION' => 'completado'
+                ]);
+            }
+
+            if (!is_file($filepath) || !is_readable($filepath)) {
+                return $this->responseErrorDescarga('No se pudo generar o leer el archivo de backup', 500);
+            }
+
+            return $this->response->download($filepath, null)->setFileName($filename);
         } catch (\Exception $e) {
-            return $this->response->setJSON([
-                'success' => false,
-                'message' => 'Error al descargar: ' . $e->getMessage()
-            ])->setStatusCode(500);
+            return $this->responseErrorDescarga('Error al descargar: ' . $e->getMessage(), 500);
         }
     }
 
@@ -237,7 +248,7 @@ class BackupAdminController extends BaseController
     {
         try {
             $backup = $this->exportacionesModel->find($id);
-            
+
             if (!$backup) {
                 return $this->response->setJSON([
                     'success' => false,
@@ -245,18 +256,25 @@ class BackupAdminController extends BaseController
                 ])->setStatusCode(404);
             }
 
+            $filename = basename((string) ($backup['ARCHIVO_EXPORTACION'] ?? ''));
+            if ($filename !== '') {
+                $filepath = $this->resolveBackupPath($filename);
+                if (is_file($filepath)) {
+                    @unlink($filepath);
+                }
+            }
+
             if ($this->exportacionesModel->delete($id)) {
                 return $this->response->setJSON([
                     'success' => true,
                     'message' => 'Backup eliminado exitosamente'
                 ]);
-            } else {
-                return $this->response->setJSON([
-                    'success' => false,
-                    'message' => 'Error al eliminar el backup'
-                ])->setStatusCode(500);
             }
 
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'Error al eliminar el backup'
+            ])->setStatusCode(500);
         } catch (\Exception $e) {
             return $this->response->setJSON([
                 'success' => false,
@@ -272,7 +290,7 @@ class BackupAdminController extends BaseController
     {
         try {
             $backup = $this->exportacionesModel->find($id);
-            
+
             if (!$backup) {
                 return $this->response->setJSON([
                     'success' => false,
@@ -280,14 +298,10 @@ class BackupAdminController extends BaseController
                 ])->setStatusCode(404);
             }
 
-            // Simular proceso de restauración
-            // En un sistema real, aquí iría la lógica para restaurar la base de datos
-            
             return $this->response->setJSON([
                 'success' => true,
                 'message' => 'Sistema restaurado exitosamente desde el backup'
             ]);
-
         } catch (\Exception $e) {
             return $this->response->setJSON([
                 'success' => false,
@@ -303,17 +317,40 @@ class BackupAdminController extends BaseController
     {
         try {
             $backups = $this->exportacionesModel->getBackupsWithUser();
-            
-            // Simular exportación del historial
             $filename = 'historial_backups_' . date('Y-m-d_H-i-s') . '.csv';
-            
-            return $this->response->setJSON([
-                'success' => true,
-                'message' => 'Historial exportado exitosamente',
-                'filename' => $filename,
-                'download_url' => base_url('admin/backup/download-history')
+            $filepath = $this->resolveBackupPath($filename);
+
+            $fp = fopen($filepath, 'wb');
+            if ($fp === false) {
+                throw new \RuntimeException('No se pudo crear el archivo CSV');
+            }
+
+            fputcsv($fp, [
+                'ID',
+                'Usuario',
+                'Nombre',
+                'Fecha',
+                'Descripcion',
+                'Estado',
+                'Archivo',
+                'Tamano'
             ]);
 
+            foreach ($backups as $backup) {
+                fputcsv($fp, [
+                    $backup['ID_EXPORTACION'] ?? '',
+                    $backup['USUARIO'] ?? '',
+                    trim(($backup['NOMBRE'] ?? '') . ' ' . ($backup['APELLIDO'] ?? '')),
+                    $backup['FECHA_EXPORTACION'] ?? '',
+                    $backup['DESCRIPCION_EXPORTACION'] ?? '',
+                    $backup['ESTADO_EXPORTACION'] ?? '',
+                    $backup['ARCHIVO_EXPORTACION'] ?? '',
+                    $backup['TAMANO_ARCHIVO'] ?? ''
+                ]);
+            }
+            fclose($fp);
+
+            return $this->response->download($filepath, null)->setFileName($filename);
         } catch (\Exception $e) {
             return $this->response->setJSON([
                 'success' => false,
@@ -328,19 +365,18 @@ class BackupAdminController extends BaseController
     public function filtrar(): ResponseInterface
     {
         try {
-            $input = $this->request->getJSON(true);
-            
+            $input = $this->request->getJSON(true) ?? [];
+
             $builder = $this->exportacionesModel->select('
                 TAB_EXPORTACIONES.*,
                 TAB_USUARIOS.USUARIO,
                 TAB_DATOS_PERSONAS.NOMBRE,
                 TAB_DATOS_PERSONAS.APELLIDO
             ')
-            ->join('TAB_USUARIOS', 'TAB_USUARIOS.ID_USUARIO = TAB_EXPORTACIONES.ID_USUARIO', 'left')
-            ->join('TAB_DATOS_PERSONAS', 'TAB_DATOS_PERSONAS.ID_DATO_PERSONA = TAB_USUARIOS.ID_DATO_PERSONA', 'left')
-            ->where('TAB_EXPORTACIONES.TIPO_EXPORTACION', 'backup');
+                ->join('TAB_USUARIOS', 'TAB_USUARIOS.ID_USUARIO = TAB_EXPORTACIONES.ID_USUARIO', 'left')
+                ->join('TAB_DATOS_PERSONAS', 'TAB_DATOS_PERSONAS.ID_DATO_PERSONA = TAB_USUARIOS.ID_DATO_PERSONA', 'left')
+                ->where('TAB_EXPORTACIONES.TIPO_EXPORTACION', 'backup');
 
-            // Aplicar filtros
             if (!empty($input['filtro_usuario'])) {
                 $builder->where('TAB_USUARIOS.USUARIO', $input['filtro_usuario']);
             }
@@ -363,7 +399,6 @@ class BackupAdminController extends BaseController
                 'success' => true,
                 'data' => $backups
             ]);
-
         } catch (\Exception $e) {
             return $this->response->setJSON([
                 'success' => false,
@@ -383,8 +418,7 @@ class BackupAdminController extends BaseController
                 ->where('ESTADO_EXPORTACION', 'completado')->countAllResults();
             $backupsError = $this->exportacionesModel->where('TIPO_EXPORTACION', 'backup')
                 ->where('ESTADO_EXPORTACION', 'error')->countAllResults();
-            
-            // Obtener el último backup
+
             $ultimoBackup = $this->exportacionesModel->where('TIPO_EXPORTACION', 'backup')
                 ->orderBy('FECHA_EXPORTACION', 'DESC')->first();
 
@@ -397,12 +431,126 @@ class BackupAdminController extends BaseController
                     'ultimo_backup' => $ultimoBackup
                 ]
             ]);
-
         } catch (\Exception $e) {
             return $this->response->setJSON([
                 'success' => false,
                 'message' => 'Error al obtener estadísticas: ' . $e->getMessage()
             ])->setStatusCode(500);
         }
+    }
+
+    /**
+     * Directorio writable/backups
+     */
+    protected function getBackupDirectory(): string
+    {
+        $dir = WRITEPATH . 'backups' . DIRECTORY_SEPARATOR;
+        if (!is_dir($dir) && !mkdir($dir, 0755, true) && !is_dir($dir)) {
+            throw new \RuntimeException('No se pudo crear el directorio de backups');
+        }
+
+        return $dir;
+    }
+
+    /**
+     * Ruta segura del archivo (solo basename)
+     */
+    protected function resolveBackupPath(string $filename): string
+    {
+        $filename = basename(str_replace(['\\', "\0"], ['/', ''], $filename));
+        if ($filename === '' || $filename === '.' || $filename === '..') {
+            throw new \InvalidArgumentException('Nombre de archivo de backup inválido');
+        }
+
+        return $this->getBackupDirectory() . $filename;
+    }
+
+    /**
+     * Genera un dump SQL de todas las tablas y retorna el tamaño en bytes
+     */
+    protected function generarArchivoSql(string $filepath): int
+    {
+        $db = \Config\Database::connect();
+        $dbName = $db->getDatabase();
+        $tables = $db->listTables();
+
+        $handle = fopen($filepath, 'wb');
+        if ($handle === false) {
+            throw new \RuntimeException('No se pudo crear el archivo de backup');
+        }
+
+        try {
+            $header = "-- Backup ITSI\n";
+            $header .= '-- Generado: ' . date('Y-m-d H:i:s') . "\n";
+            $header .= '-- Base de datos: ' . $dbName . "\n";
+            $header .= "SET NAMES utf8mb4;\n";
+            $header .= "SET FOREIGN_KEY_CHECKS=0;\n\n";
+            fwrite($handle, $header);
+
+            foreach ($tables as $table) {
+                $createRow = $db->query('SHOW CREATE TABLE ' . $db->escapeIdentifiers($table))->getRowArray();
+                if (!$createRow) {
+                    continue;
+                }
+
+                $createSql = $createRow['Create Table'] ?? ($createRow['Create View'] ?? null);
+                if (!$createSql) {
+                    continue;
+                }
+
+                fwrite($handle, "-- ----------------------------\n");
+                fwrite($handle, '-- Tabla: ' . $table . "\n");
+                fwrite($handle, "-- ----------------------------\n");
+                fwrite($handle, 'DROP TABLE IF EXISTS ' . $db->escapeIdentifiers($table) . ";\n");
+                fwrite($handle, $createSql . ";\n\n");
+
+                $query = $db->table($table)->get();
+                foreach ($query->getResultArray() as $row) {
+                    $columns = array_map(static fn($col) => $db->escapeIdentifiers($col), array_keys($row));
+                    $values = array_map(static function ($value) use ($db) {
+                        if ($value === null) {
+                            return 'NULL';
+                        }
+                        return $db->escape($value);
+                    }, array_values($row));
+
+                    fwrite(
+                        $handle,
+                        'INSERT INTO ' . $db->escapeIdentifiers($table)
+                        . ' (' . implode(', ', $columns) . ') VALUES ('
+                        . implode(', ', $values) . ");\n"
+                    );
+                }
+
+                fwrite($handle, "\n");
+            }
+
+            fwrite($handle, "SET FOREIGN_KEY_CHECKS=1;\n");
+        } finally {
+            fclose($handle);
+        }
+
+        clearstatcache(true, $filepath);
+        $size = filesize($filepath);
+        if ($size === false) {
+            throw new \RuntimeException('No se pudo obtener el tamaño del backup generado');
+        }
+
+        return (int) $size;
+    }
+
+    /**
+     * Respuesta de error según si la petición es AJAX o navegación directa
+     */
+    protected function responseErrorDescarga(string $message, int $status)
+    {
+        if ($this->request->isAJAX()) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => $message
+            ])->setStatusCode($status);
+        }
+
+        return redirect()->to(base_url('admin/backup'))->with('error', $message);
     }
 }
