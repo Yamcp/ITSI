@@ -626,7 +626,7 @@ foreach ($servicios_documentacion ?? [] as $row) {
             showNotification('Selecciona el servicio comunitario al que corresponde el archivo.', 'error');
             return;
         }
-        formData.append('id_servicio', String(idServicio));
+        formData.set('id_servicio', String(idServicio));
 
         // Mostrar loading
         const btnSubir = document.querySelector('#modalSubirDocumento .btn-primary');

@@ -173,30 +173,53 @@ class DocumentosPracticasEstudianteController extends BaseController
             }
 
             if ($archivo->isValid() && !$archivo->hasMoved()) {
-                $idPractica = (int) ($this->request->getPost('id_practica') ?? 0);
-                if ($idPractica <= 0) {
-                    $idPractica = (int) ($this->documentosModel->getIdPrimeraPracticaEstudiante($idUsuario) ?? 0);
-                }
+                $db = \Config\Database::connect();
+                $idSolicitado = $this->leerIdEnteroPost('id_practica');
+                $idPractica = $this->resolverIdPracticaEstudiante((int) $idUsuario, $idSolicitado);
                 if ($idPractica <= 0) {
                     return $this->response->setJSON([
                         'success' => false,
-                        'message' => 'No tienes una práctica preprofesional registrada. Regístrala primero.'
+                        'message' => $idSolicitado > 0
+                            ? 'La práctica seleccionada no es válida para tu usuario.'
+                            : 'No tienes una práctica preprofesional registrada. Solicita la asignación a vinculación primero.',
                     ]);
                 }
 
-                // Confirmar que la práctica pertenece al estudiante autenticado
-                if (!$this->practicaPerteneceAUsuario($idPractica, (int) $idUsuario)) {
+                // Revalidar existencia real justo antes del INSERT (misma conexión).
+                $practicaOk = $db->query(
+                    'SELECT ID_PRACTICA_PREPROFESIONAL FROM TAB_PRACTICAS_PREPROFESIONALES WHERE ID_PRACTICA_PREPROFESIONAL = ? LIMIT 1',
+                    [$idPractica]
+                )->getRowArray();
+                if (empty($practicaOk)) {
+                    log_message('error', 'Subida docs PP: ID_PRACTICA={id} no existe en TAB_PRACTICAS_PREPROFESIONALES (usuario={user}, post={post})', [
+                        'id' => $idPractica,
+                        'user' => $idUsuario,
+                        'post' => $idSolicitado,
+                    ]);
+
                     return $this->response->setJSON([
                         'success' => false,
-                        'message' => 'La práctica seleccionada no es válida para tu usuario.'
+                        'message' => 'No se encontró una práctica preprofesional válida en el sistema. Pide a vinculación que revise tu asignación.',
                     ]);
                 }
+                $idPractica = (int) $this->valorFila($practicaOk, 'ID_PRACTICA_PREPROFESIONAL');
 
-                $idTipoDocumento = (int) $this->request->getPost('tipo_documento');
+                $idTipoDocumento = $this->leerIdEnteroPost('tipo_documento');
                 if ($idTipoDocumento <= 0) {
                     return $this->response->setJSON([
                         'success' => false,
                         'message' => 'Tipo de documento no válido.'
+                    ]);
+                }
+
+                $tipoOk = $db->query(
+                    'SELECT ID_TIPO_DOCUMENTO_PREPROFESIONAL FROM TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES WHERE ID_TIPO_DOCUMENTO_PREPROFESIONAL = ? LIMIT 1',
+                    [$idTipoDocumento]
+                )->getRowArray();
+                if (empty($tipoOk)) {
+                    return $this->response->setJSON([
+                        'success' => false,
+                        'message' => 'El tipo de documento no existe o fue desactivado.',
                     ]);
                 }
 
@@ -210,10 +233,10 @@ class DocumentosPracticasEstudianteController extends BaseController
                 $nombreArchivo = $this->generarNombreArchivo($archivo, $idUsuario);
                 $archivo->move($uploadPath, $nombreArchivo);
 
-                // Campos base (siempre presentes en el esquema)
+                // Solo columnas seguras; ID de práctica ya verificado en BD.
                 $datos = [
                     'ID_PRACTICA_PREPROFESIONAL' => $idPractica,
-                    'ID_ESTADO_REVISION' => 1, // Pendiente
+                    'ID_ESTADO_REVISION' => 1,
                     'ID_TIPO_DOCUMENTO' => $idTipoDocumento,
                     'NOMBRE_ARCHIVO' => $nombreArchivo,
                     'TIPO_ARCHIVO' => $mimeType,
@@ -221,8 +244,6 @@ class DocumentosPracticasEstudianteController extends BaseController
                     'OBSERVACIONES' => (string) ($this->request->getPost('observaciones') ?? ''),
                 ];
 
-                // Campos opcionales según esquema desplegado
-                $db = \Config\Database::connect();
                 $camposOpcionales = [
                     'NOMBRE_ORIGINAL' => $nombreOriginal,
                     'TAMANO_ARCHIVO' => $tamanoArchivo,
@@ -236,34 +257,43 @@ class DocumentosPracticasEstudianteController extends BaseController
                     }
                 }
 
-                // skipValidation: evita fallos por StrictRules con enteros nativos (igual que servicio comunitario)
-                if ($this->documentosModel->skipValidation(true)->insert($datos)) {
+                // INSERT SQL directo con el ID ya verificado en la misma conexión.
+                $columnas = array_keys($datos);
+                $placeholders = implode(', ', array_fill(0, count($columnas), '?'));
+                $sql = 'INSERT INTO TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES ('
+                    . implode(', ', $columnas)
+                    . ') VALUES (' . $placeholders . ')';
+
+                try {
+                    $db->query($sql, array_values($datos));
                     return $this->response->setJSON([
                         'success' => true,
                         'message' => 'Documento subido exitosamente. Será revisado por el coordinador.',
                         'data' => [
-                            'id' => $this->documentosModel->getInsertID(),
+                            'id' => (int) $db->insertID(),
                             'nombre' => $nombreOriginal,
-                            'fecha' => date('d/m/Y H:i')
-                        ]
+                            'fecha' => date('d/m/Y H:i'),
+                        ],
                     ]);
+                } catch (\Throwable $insertEx) {
+                    @unlink($uploadPath . $nombreArchivo);
+                    $dbError = $db->error();
+                    log_message('error', 'Error al guardar documento prácticas. Ex: {ex}. DB: {db}. Data: {data}', [
+                        'ex' => $insertEx->getMessage(),
+                        'db' => json_encode($dbError, JSON_UNESCAPED_UNICODE),
+                        'data' => json_encode($datos, JSON_UNESCAPED_UNICODE),
+                    ]);
+
+                    $msgDb = (string) (($dbError['message'] ?? '') !== '' ? $dbError['message'] : $insertEx->getMessage());
+                    if (stripos($msgDb, 'foreign key') !== false || stripos($msgDb, 'CONSTRAINT') !== false) {
+                        throw new \Exception(
+                            'No se pudo vincular el archivo a tu práctica (ID ' . $idPractica . '). '
+                            . 'Verifica con vinculación que tu práctica preprofesional esté creada correctamente.'
+                        );
+                    }
+
+                    throw new \Exception($msgDb !== '' ? $msgDb : 'Error al guardar en la base de datos');
                 }
-
-                // Si falla la inserción, eliminar el archivo subido y reportar detalle
-                @unlink($uploadPath . $nombreArchivo);
-                $errores = $this->documentosModel->errors();
-                $dbError = $db->error();
-                log_message('error', 'Error al guardar documento prácticas. Validation: {errors}. DB: {db}. Data: {data}', [
-                    'errors' => json_encode($errores, JSON_UNESCAPED_UNICODE),
-                    'db' => json_encode($dbError, JSON_UNESCAPED_UNICODE),
-                    'data' => json_encode($datos, JSON_UNESCAPED_UNICODE),
-                ]);
-
-                $detalle = !empty($errores)
-                    ? implode(' ', array_values($errores))
-                    : (($dbError['message'] ?? '') !== '' ? $dbError['message'] : 'Error al guardar en la base de datos');
-
-                throw new \Exception($detalle);
             } else {
                 throw new \Exception('Archivo no válido o error al subir el archivo');
             }
@@ -445,29 +475,103 @@ class DocumentosPracticasEstudianteController extends BaseController
     }
 
     /**
-     * Verifica que la práctica preprofesional pertenezca al usuario de sesión.
+     * Lee un entero positivo desde POST (soporta arrays/duplicados del FormData).
      */
-    private function practicaPerteneceAUsuario(int $idPractica, int $idUsuario): bool
+    private function leerIdEnteroPost(string $campo): int
+    {
+        $raw = $this->request->getPost($campo);
+        if (is_array($raw)) {
+            $raw = end($raw);
+        }
+        $id = (int) $raw;
+
+        return $id > 0 ? $id : 0;
+    }
+
+    /**
+     * Obtiene un valor de fila tolerando mayúsculas/minúsculas en el nombre de columna.
+     *
+     * @param array<string, mixed> $fila
+     */
+    private function valorFila(array $fila, string $columna): mixed
+    {
+        if (array_key_exists($columna, $fila)) {
+            return $fila[$columna];
+        }
+        $lower = strtolower($columna);
+        foreach ($fila as $k => $v) {
+            if (strtolower((string) $k) === $lower) {
+                return $v;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Resuelve un ID_PRACTICA_PREPROFESIONAL real del estudiante autenticado.
+     * Acepta el ID de práctica o, por compatibilidad, el ID_ASIGNACION_PRACTICA.
+     */
+    private function resolverIdPracticaEstudiante(int $idUsuario, int $idSolicitado = 0): int
     {
         $db = \Config\Database::connect();
 
-        $est = $db->table('TAB_ESTUDIANTES e')
-            ->select('e.ID_ESTUDIANTE')
-            ->join('TAB_USUARIOS u', 'u.ID_DATO_PERSONA = e.ID_DATO_PERSONA')
-            ->where('u.ID_USUARIO', $idUsuario)
-            ->get()
-            ->getRowArray();
+        $est = $db->query(
+            'SELECT e.ID_ESTUDIANTE
+             FROM TAB_ESTUDIANTES e
+             INNER JOIN TAB_USUARIOS u ON u.ID_DATO_PERSONA = e.ID_DATO_PERSONA
+             WHERE u.ID_USUARIO = ?
+             LIMIT 1',
+            [$idUsuario]
+        )->getRowArray();
 
-        if (empty($est['ID_ESTUDIANTE'])) {
-            return false;
+        $idEst = (int) $this->valorFila($est ?? [], 'ID_ESTUDIANTE');
+        if ($idEst <= 0) {
+            return 0;
         }
 
-        $n = $db->table('TAB_PRACTICAS_PREPROFESIONALES')
-            ->where('ID_PRACTICA_PREPROFESIONAL', $idPractica)
-            ->where('ID_ESTUDIANTE', (int) $est['ID_ESTUDIANTE'])
-            ->countAllResults();
+        $practicas = $db->query(
+            'SELECT ID_PRACTICA_PREPROFESIONAL, ID_ASIGNACION_PRACTICA
+             FROM TAB_PRACTICAS_PREPROFESIONALES
+             WHERE ID_ESTUDIANTE = ?
+             ORDER BY FECHA_INICIO DESC, ID_PRACTICA_PREPROFESIONAL DESC',
+            [$idEst]
+        )->getResultArray();
 
-        return $n > 0;
+        if ($practicas === []) {
+            return 0;
+        }
+
+        $porPractica = [];
+        $porAsignacion = [];
+        foreach ($practicas as $p) {
+            $idP = (int) $this->valorFila($p, 'ID_PRACTICA_PREPROFESIONAL');
+            if ($idP <= 0) {
+                continue;
+            }
+            $porPractica[$idP] = $idP;
+            $idAsig = (int) $this->valorFila($p, 'ID_ASIGNACION_PRACTICA');
+            if ($idAsig > 0) {
+                $porAsignacion[$idAsig] = $idP;
+            }
+        }
+
+        if ($porPractica === []) {
+            return 0;
+        }
+
+        if ($idSolicitado > 0) {
+            if (isset($porPractica[$idSolicitado])) {
+                return $idSolicitado;
+            }
+            if (isset($porAsignacion[$idSolicitado])) {
+                return $porAsignacion[$idSolicitado];
+            }
+
+            return 0;
+        }
+
+        return (int) reset($porPractica);
     }
 
     /**

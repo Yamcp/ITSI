@@ -217,7 +217,7 @@ $practicasDocJs = array_map(static function (array $p): array {
                                         <div class="form-control form-control-sm bg-light border rounded px-3 py-2" id="doc_vis_tutor" style="min-height: 38px;">—</div>
                                     </div>
                                 </div>
-                                <input type="hidden" form="formSubirDocumento" name="id_practica" id="doc_meta_id_practica" value="">
+                                <input type="hidden" id="doc_meta_id_practica" value="">
                                 <input type="hidden" form="formSubirDocumento" name="entidad_receptora" id="doc_meta_entidad" value="">
                                 <input type="hidden" form="formSubirDocumento" name="docente_tutor" id="doc_meta_tutor" value="">
                             <?php endif; ?>
@@ -503,6 +503,7 @@ $practicasDocJs = array_map(static function (array $p): array {
             <div class="modal-body">
                 <form id="formSubirDocumento" enctype="multipart/form-data">
                     <input type="hidden" name="tipo_documento" id="tipo_documento_id">
+                    <input type="hidden" name="id_practica" id="form_id_practica" value="">
 
                     <div class="mb-3">
                         <label class="form-label">Tipo de Documento</label>
@@ -579,6 +580,10 @@ $practicasDocJs = array_map(static function (array $p): array {
         idIn.value = id;
         entIn.value = ent;
         tutIn.value = tut;
+        var formId = document.getElementById('form_id_practica');
+        if (formId) {
+            formId.value = id;
+        }
         if (ve) {
             ve.textContent = ent.trim() ? ent : '—';
         }
@@ -587,7 +592,32 @@ $practicasDocJs = array_map(static function (array $p): array {
         }
     }
 
+    function getIdPracticaDocumentacionSeleccionada() {
+        var sel = document.getElementById('selectorPracticaDocumentacion');
+        if (sel) {
+            var v = parseInt(sel.value, 10);
+            return Number.isFinite(v) && v > 0 ? v : 0;
+        }
+        var idIn = document.getElementById('doc_meta_id_practica');
+        if (idIn) {
+            var v2 = parseInt(idIn.value, 10);
+            if (Number.isFinite(v2) && v2 > 0) {
+                return v2;
+            }
+        }
+        if (practicasDocMetaList && practicasDocMetaList.length) {
+            var v3 = parseInt(practicasDocMetaList[0].id, 10);
+            return Number.isFinite(v3) && v3 > 0 ? v3 : 0;
+        }
+        return 0;
+    }
+
     function mostrarModalSubir(tipoId, tipoNombre) {
+        var idPractica = getIdPracticaDocumentacionSeleccionada();
+        if (!idPractica) {
+            showNotification('Necesitas una práctica preprofesional registrada para subir archivos.', 'error');
+            return;
+        }
         document.getElementById('tipo_documento_id').value = tipoId;
         document.getElementById('tipo_documento_nombre').value = tipoNombre;
         syncDocPracticaMetaDesdeDom();
@@ -608,6 +638,13 @@ $practicasDocJs = array_map(static function (array $p): array {
             showNotification('Debes seleccionar un archivo', 'error');
             return;
         }
+
+        const idPractica = getIdPracticaDocumentacionSeleccionada();
+        if (!idPractica) {
+            showNotification('Selecciona la práctica a la que corresponde el archivo.', 'error');
+            return;
+        }
+        formData.set('id_practica', String(idPractica));
 
         // Mostrar loading
         const btnSubir = document.querySelector('#modalSubirDocumento .btn-primary');

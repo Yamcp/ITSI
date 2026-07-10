@@ -386,13 +386,19 @@ class DocumentosPracticasModel extends Model
             ->where('ID_ESTUDIANTE', $estudiante['ID_ESTUDIANTE'])
             ->get()
             ->getResultArray();
-        $ids = array_column($idsPracticas, 'ID_PRACTICA_PREPROFESIONAL');
-        if (empty($ids)) {
+        $ids = array_map('intval', array_column($idsPracticas, 'ID_PRACTICA_PREPROFESIONAL'));
+        $ids = array_values(array_filter($ids, static fn (int $id): bool => $id > 0));
+        if ($ids === []) {
             return null;
         }
-        return $this->whereIn('ID_PRACTICA_PREPROFESIONAL', $ids)
-                    ->where('ID_TIPO_DOCUMENTO', $idTipoDocumento)
-                    ->first();
+
+        // Query independiente: no contaminar el builder del Model (whereIn + first deja estado residual).
+        return $this->db->table($this->table)
+            ->whereIn('ID_PRACTICA_PREPROFESIONAL', $ids)
+            ->where('ID_TIPO_DOCUMENTO', (int) $idTipoDocumento)
+            ->orderBy($this->primaryKey, 'DESC')
+            ->get()
+            ->getRowArray();
     }
 
     /**

@@ -294,18 +294,35 @@ class PracticasEstudianteController extends BaseController
         if (!session()->get('logged_in')) {
             return $this->response->setJSON(['success' => false, 'message' => 'No autorizado']);
         }
-        $userId = session()->get('id_usuario');
-        $idServicio = (int) $this->request->getPost('id_servicio');
+        $userId = (int) session()->get('id_usuario');
+        $rawServicio = $this->request->getPost('id_servicio');
+        if (is_array($rawServicio)) {
+            $rawServicio = end($rawServicio);
+        }
+        $idSolicitado = (int) $rawServicio;
+        $idServicio = $this->resolverIdServicioEstudiante($userId, $idSolicitado);
         if ($idServicio <= 0) {
-            $servicios = $this->obtenerServiciosComunitarios($userId);
-            $idServicio = !empty($servicios) ? (int) $servicios[0]['ID_SERVICIO_COMUNITARIO'] : 0;
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => $idSolicitado > 0
+                    ? 'No autorizado para este servicio.'
+                    : 'No tienes un servicio comunitario asignado.',
+            ]);
         }
-        if ($idServicio <= 0) {
-            return $this->response->setJSON(['success' => false, 'message' => 'No tienes un servicio comunitario asignado.']);
+
+        $db = \Config\Database::connect();
+        $servicioOk = $db->query(
+            'SELECT ID_SERVICIO_COMUNITARIO FROM TAB_SERVICIO_COMUNITARIO WHERE ID_SERVICIO_COMUNITARIO = ? LIMIT 1',
+            [$idServicio]
+        )->getRowArray();
+        if (empty($servicioOk)) {
+            return $this->response->setJSON([
+                'success' => false,
+                'message' => 'No se encontró un servicio comunitario válido. Pide a vinculación que revise tu asignación.',
+            ]);
         }
-        if (!$this->perteneceServicioAlEstudiante($idServicio, $userId)) {
-            return $this->response->setJSON(['success' => false, 'message' => 'No autorizado para este servicio.']);
-        }
+        $idServicio = (int) ($servicioOk['ID_SERVICIO_COMUNITARIO'] ?? $servicioOk['id_servicio_comunitario'] ?? $idServicio);
+
         $idTipo = (int) $this->request->getPost('tipo_documento');
         if ($idTipo <= 0) {
             return $this->response->setJSON(['success' => false, 'message' => 'Tipo de documento requerido.']);
@@ -339,11 +356,33 @@ class PracticasEstudianteController extends BaseController
             'FECHA_SUBIDA' => date('Y-m-d H:i:s'),
             'OBSERVACIONES' => $this->request->getPost('observaciones') ?? '',
         ];
-        if ($this->documentosServicioComunitarioModel->skipValidation(true)->insert($datos)) {
+
+        $columnas = array_keys($datos);
+        $placeholders = implode(', ', array_fill(0, count($columnas), '?'));
+        $sql = 'INSERT INTO TAB_DOCUMENTOS_SERVICIO_COMUNITARIO ('
+            . implode(', ', $columnas)
+            . ') VALUES (' . $placeholders . ')';
+
+        try {
+            $db->query($sql, array_values($datos));
             return $this->response->setJSON(['success' => true, 'message' => 'Documento subido correctamente. Será revisado por el coordinador.']);
+        } catch (\Throwable $e) {
+            @unlink($dir . $nombreArchivo);
+            $dbError = $db->error();
+            log_message('error', 'Error al guardar documento servicio. Ex: {ex}. DB: {db}. Data: {data}', [
+                'ex' => $e->getMessage(),
+                'db' => json_encode($dbError, JSON_UNESCAPED_UNICODE),
+                'data' => json_encode($datos, JSON_UNESCAPED_UNICODE),
+            ]);
+            $detalle = (($dbError['message'] ?? '') !== '')
+                ? $dbError['message']
+                : $e->getMessage();
+            if (stripos($detalle, 'foreign key') !== false) {
+                $detalle = 'No se pudo vincular el archivo a tu servicio comunitario (ID ' . $idServicio . '). Verifica la asignación con vinculación.';
+            }
+
+            return $this->response->setJSON(['success' => false, 'message' => $detalle]);
         }
-        @unlink($dir . $nombreArchivo);
-        return $this->response->setJSON(['success' => false, 'message' => 'Error al guardar el documento.']);
     }
 
     /**
@@ -395,13 +434,50 @@ class PracticasEstudianteController extends BaseController
      */
     private function perteneceServicioAlEstudiante(int $idServicio, int $userId): bool
     {
-        $servicios = $this->obtenerServiciosComunitarios($userId);
+        return $this->resolverIdServicioEstudiante((int) $userId, $idServicio) === $idServicio;
+    }
+
+    /**
+     * Resuelve un ID_SERVICIO_COMUNITARIO real del estudiante autenticado.
+     * Acepta el ID de servicio o, por compatibilidad, el ID_ASIGNACION_PRACTICA.
+     */
+    private function resolverIdServicioEstudiante(int $idUsuario, int $idSolicitado = 0): int
+    {
+        $servicios = $this->obtenerServiciosComunitarios($idUsuario);
+        if ($servicios === []) {
+            return 0;
+        }
+
+        $porServicio = [];
+        $porAsignacion = [];
         foreach ($servicios as $s) {
-            if ((int) $s['ID_SERVICIO_COMUNITARIO'] === $idServicio) {
-                return true;
+            $idS = (int) ($s['ID_SERVICIO_COMUNITARIO'] ?? 0);
+            if ($idS <= 0) {
+                continue;
+            }
+            $porServicio[$idS] = $idS;
+            $idAsig = (int) ($s['ID_ASIGNACION_PRACTICA'] ?? 0);
+            if ($idAsig > 0) {
+                $porAsignacion[$idAsig] = $idS;
             }
         }
-        return false;
+
+        if ($porServicio === []) {
+            return 0;
+        }
+
+        if ($idSolicitado > 0) {
+            if (isset($porServicio[$idSolicitado])) {
+                return $idSolicitado;
+            }
+            if (isset($porAsignacion[$idSolicitado])) {
+                return $porAsignacion[$idSolicitado];
+            }
+
+            return 0;
+        }
+
+        return (int) reset($porServicio);
     }
 
     public function detalle($id, $tipo)
