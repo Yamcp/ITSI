@@ -300,7 +300,9 @@ class DocumentosPracticasEstudianteController extends BaseController
                     if (stripos($msgDb, 'foreign key') !== false || stripos($msgDb, 'CONSTRAINT') !== false) {
                         // Identificar la FK real en vez de asumir siempre que es la práctica:
                         // esta tabla tiene 4 llaves foráneas (práctica, tipo, estado, revisor).
-                        preg_match('/CONSTRAINT `?([A-Za-z0-9_]+)`?/i', $msgDb, $m);
+                        // Las comillas invertidas son obligatorias: sin ellas, el "constraint"
+                        // genérico de "a foreign key constraint fails" se capturaba primero.
+                        preg_match('/CONSTRAINT `([A-Za-z0-9_]+)`/', $msgDb, $m);
                         $constraint = strtoupper($m[1] ?? '');
 
                         $mensajesPorFk = [
