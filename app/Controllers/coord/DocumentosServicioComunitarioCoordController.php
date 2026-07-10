@@ -454,21 +454,32 @@ class DocumentosServicioComunitarioCoordController extends BaseController
     public function getEstadisticas()
     {
         try {
-            // Misma convención que TAB_ESTADOS_REVISIONES y vista de prácticas preprofesionales
-            $aprobados = $this->documentosModel->where('ID_ESTADO_REVISION', 3)->countAllResults();
-            $pendientes = $this->documentosModel->where('ID_ESTADO_REVISION', 1)->countAllResults();
-            $rechazados = $this->documentosModel->where('ID_ESTADO_REVISION', 4)->countAllResults();
-            $requiereCorreccion = $this->documentosModel->where('ID_ESTADO_REVISION', 5)->countAllResults();
+            $db = \Config\Database::connect();
+            $query = $db->query('
+                SELECT
+                    COUNT(*) AS total,
+                    SUM(CASE WHEN ID_ESTADO_REVISION = 1 THEN 1 ELSE 0 END) AS pendientes,
+                    SUM(CASE WHEN ID_ESTADO_REVISION = 3 THEN 1 ELSE 0 END) AS aprobados,
+                    SUM(CASE WHEN ID_ESTADO_REVISION = 4 THEN 1 ELSE 0 END) AS rechazados,
+                    SUM(CASE WHEN ID_ESTADO_REVISION = 5 THEN 1 ELSE 0 END) AS requiere_correccion
+                FROM TAB_DOCUMENTOS_SERVICIO_COMUNITARIO
+            ');
+
+            $row = ($query === false) ? [] : ($query->getRowArray() ?: []);
+            $aprobados = (int) ($row['aprobados'] ?? 0);
+            $pendientes = (int) ($row['pendientes'] ?? 0);
+            $rechazados = (int) ($row['rechazados'] ?? 0);
+            $requiereCorreccion = (int) ($row['requiere_correccion'] ?? 0);
 
             return [
-                'total' => $this->documentosModel->countAllResults(),
+                'total' => (int) ($row['total'] ?? 0),
                 'Aprobados' => $aprobados,
                 'aprobados' => $aprobados,
                 'pendientes' => $pendientes,
                 'rechazados' => $rechazados,
                 'requiere_correccion' => $requiereCorreccion,
             ];
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             return [
                 'total' => 0,
                 'Aprobados' => 0,
@@ -486,13 +497,24 @@ class DocumentosServicioComunitarioCoordController extends BaseController
     public function getEstudiantes()
     {
         try {
-            return $this->usuariosModel
-                ->select('TAB_USUARIOS.ID_USUARIO, TAB_DATOS_PERSONAS.NOMBRE, TAB_DATOS_PERSONAS.APELLIDO, TAB_DATOS_PERSONAS.CEDULA')
-                ->join('TAB_DATOS_PERSONAS', 'TAB_USUARIOS.ID_DATO_PERSONA = TAB_DATOS_PERSONAS.ID_DATO_PERSONA')
-                ->join('TAB_ROLES', 'TAB_USUARIOS.ID_ROL = TAB_ROLES.ID_ROL')
-                ->where('TAB_ROLES.NOMBRE_ROL', 'Estudiante')
-                ->findAll();
-        } catch (\Exception $e) {
+            $db = \Config\Database::connect();
+            $query = $db->table('TAB_ESTUDIANTES e')
+                ->select('
+                    e.ID_ESTUDIANTE,
+                    u.ID_USUARIO,
+                    dp.NOMBRE,
+                    dp.APELLIDO,
+                    dp.CEDULA,
+                    CONCAT(dp.NOMBRE, " ", dp.APELLIDO) as NOMBRE_COMPLETO
+                ')
+                ->join('TAB_DATOS_PERSONAS dp', 'dp.ID_DATO_PERSONA = e.ID_DATO_PERSONA', 'left')
+                ->join('TAB_USUARIOS u', 'u.ID_DATO_PERSONA = e.ID_DATO_PERSONA', 'left')
+                ->orderBy('dp.NOMBRE', 'ASC')
+                ->get();
+
+            return $query === false ? [] : $query->getResultArray();
+        } catch (\Throwable $e) {
+            log_message('error', 'getEstudiantes servicio docs: ' . $e->getMessage());
             return [];
         }
     }
@@ -764,13 +786,13 @@ class DocumentosServicioComunitarioCoordController extends BaseController
     public function exportar($formato = 'excel')
     {
         try {
-            $documentos = $this->getDocumentosCompletos();
+            $documentos = $this->obtenerDocumentosParaExportar();
 
             switch (strtolower((string) $formato)) {
                 case 'excel':
-                    return $this->exportarExcel(is_array($documentos) ? $documentos : []);
+                    return $this->exportarExcel($documentos);
                 case 'pdf':
-                    return $this->exportarPDF(is_array($documentos) ? $documentos : []);
+                    return $this->exportarPDF($documentos);
                 default:
                     return $this->response->setJSON([
                         'success' => false,
@@ -783,6 +805,54 @@ class DocumentosServicioComunitarioCoordController extends BaseController
                 'success' => false,
                 'message' => 'Error al exportar: ' . $e->getMessage(),
             ])->setStatusCode(500);
+        }
+    }
+
+    /**
+     * Consulta directa para exportación (evita Model::findAll).
+     */
+    private function obtenerDocumentosParaExportar(): array
+    {
+        $db = \Config\Database::connect();
+        $sql = '
+            SELECT
+                dsc.ID_DOCUMENTO_SERVICIO,
+                dsc.NOMBRE_ARCHIVO,
+                dsc.FECHA_SUBIDA,
+                dsc.ID_ESTADO_REVISION,
+                tds.NOMBRE AS TIPO_DOCUMENTO_NOMBRE,
+                er.ESTADO AS ESTADO_REVISION,
+                dp.NOMBRE AS NOMBRE_ESTUDIANTE,
+                dp.APELLIDO AS APELLIDO_ESTUDIANTE
+            FROM TAB_DOCUMENTOS_SERVICIO_COMUNITARIO dsc
+            LEFT JOIN TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO tds
+                ON dsc.ID_TIPO_DOCUMENTO = tds.ID_TIPO_DOCUMENTO_SERVICIO
+            LEFT JOIN TAB_ESTADOS_REVISIONES er
+                ON dsc.ID_ESTADO_REVISION = er.ID_ESTADO_REVISION
+            LEFT JOIN TAB_SERVICIO_COMUNITARIO sc
+                ON dsc.ID_SERVICIO_COMUNITARIO = sc.ID_SERVICIO_COMUNITARIO
+            LEFT JOIN TAB_ESTUDIANTES e
+                ON sc.ID_ESTUDIANTE = e.ID_ESTUDIANTE
+            LEFT JOIN TAB_DATOS_PERSONAS dp
+                ON e.ID_DATO_PERSONA = dp.ID_DATO_PERSONA
+            ORDER BY dsc.FECHA_SUBIDA DESC
+        ';
+
+        try {
+            $query = $db->query($sql);
+            if ($query === false) {
+                $fallback = $db->query('SELECT ID_DOCUMENTO_SERVICIO, NOMBRE_ARCHIVO, FECHA_SUBIDA, ID_ESTADO_REVISION FROM TAB_DOCUMENTOS_SERVICIO_COMUNITARIO ORDER BY FECHA_SUBIDA DESC');
+                return $fallback === false ? [] : $fallback->getResultArray();
+            }
+            return $query->getResultArray();
+        } catch (\Throwable $e) {
+            log_message('error', 'obtenerDocumentosParaExportar servicio: ' . $e->getMessage());
+            try {
+                $fallback = $db->query('SELECT ID_DOCUMENTO_SERVICIO, NOMBRE_ARCHIVO, FECHA_SUBIDA, ID_ESTADO_REVISION FROM TAB_DOCUMENTOS_SERVICIO_COMUNITARIO ORDER BY FECHA_SUBIDA DESC');
+                return $fallback === false ? [] : $fallback->getResultArray();
+            } catch (\Throwable $e2) {
+                return [];
+            }
         }
     }
 

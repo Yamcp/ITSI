@@ -304,6 +304,7 @@ $routes->group('estudiante', ['namespace' => 'App\Controllers\estudiante', 'filt
     $routes->get('documentos-practicas', 'DocumentosPracticasEstudianteController::index'); // Ver documentos de prácticas
     $routes->get('documentos-servicio-comunitario', 'DocumentosServicioComunitarioEstudianteController::index'); // Documentos PSC
     $routes->post('documentos-practicas/subir', 'DocumentosPracticasEstudianteController::subirDocumento'); // Subir documento
+    $routes->get('documentos-practicas/diagnostico', 'DocumentosPracticasEstudianteController::diagnostico'); // Diagnóstico FK/tablas
     $routes->get('documentos-practicas/mis-documentos', 'DocumentosPracticasEstudianteController::misDocumentos'); // Mis documentos
     $routes->get('documentos-practicas/progreso', 'DocumentosPracticasEstudianteController::verProgreso'); // Ver progreso
     $routes->get('documentos-practicas/descargar/(:num)', 'DocumentosPracticasEstudianteController::descargarDocumento/$1'); // Descargar documento

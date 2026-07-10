@@ -105,7 +105,7 @@ class DocumentosPracticasEstudianteController extends BaseController
             // Usar siempre TAB_INSTITUCIONES_CONVENIOS (MySQL resuelve mayúsculas/minúsculas). No usar tableExists():
             // en servidores con tablas en minúsculas, listTables() no coincide y el fallback "instituciones_convenios" rompe la consulta.
             // Tutor docente vía TAB_DOCENTES_TUTORES → datos persona
-            return $db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
+            $rows = $db->table('TAB_PRACTICAS_PREPROFESIONALES pp')
                 ->select('pp.ID_PRACTICA_PREPROFESIONAL, ic.NOMBRE as INSTITUCION_NOMBRE, CONCAT(COALESCE(dpdt.NOMBRE,\'\'), \' \', COALESCE(dpdt.APELLIDO,\'\')) as SUPERVISOR_NOMBRE', false)
                 ->join('TAB_INSTITUCIONES_CONVENIOS ic', 'ic.ID_INSTITUCION_CONVENIO = pp.ID_INSTITUCION_CONVENIO', 'left')
                 ->join('TAB_DOCENTES_TUTORES dt', 'dt.ID_DOCENTE_TUTOR = pp.ID_DOCENTE_TUTOR', 'left')
@@ -114,6 +114,21 @@ class DocumentosPracticasEstudianteController extends BaseController
                 ->orderBy('pp.FECHA_INICIO', 'DESC')
                 ->get()
                 ->getResultArray();
+
+            $out = [];
+            foreach ($rows as $row) {
+                $idP = (int) $this->valorFila($row, 'ID_PRACTICA_PREPROFESIONAL');
+                if ($idP <= 0) {
+                    continue;
+                }
+                $out[] = [
+                    'ID_PRACTICA_PREPROFESIONAL' => $idP,
+                    'INSTITUCION_NOMBRE' => (string) ($this->valorFila($row, 'INSTITUCION_NOMBRE') ?? ''),
+                    'SUPERVISOR_NOMBRE' => trim((string) ($this->valorFila($row, 'SUPERVISOR_NOMBRE') ?? '')),
+                ];
+            }
+
+            return $out;
         } catch (\Throwable $e) {
             log_message('error', 'obtenerPracticasDocumentacionEstudiante: ' . $e->getMessage());
 
@@ -126,181 +141,270 @@ class DocumentosPracticasEstudianteController extends BaseController
      */
     public function subirDocumento()
     {
-        $idUsuario = session()->get('id_usuario');
-        
+        $idUsuario = (int) session()->get('id_usuario');
+
         $rules = [
             'tipo_documento' => 'required|integer|is_natural_no_zero',
             'archivo' => 'uploaded[archivo]|max_size[archivo,10240]|ext_in[archivo,pdf]',
             'entidad_receptora' => 'permit_empty|max_length[255]',
             'docente_tutor' => 'permit_empty|max_length[255]',
-            'observaciones' => 'permit_empty|max_length[500]'
+            'observaciones' => 'permit_empty|max_length[500]',
         ];
 
         if (!$this->validate($rules)) {
             $errors = $this->validator->getErrors();
-            $msg = 'Datos de entrada inválidos.';
-            if (isset($errors['archivo'])) {
-                $msg = 'Solo se permiten archivos PDF con un tamaño máximo de 10 MB.';
-            }
+            $msg = isset($errors['archivo'])
+                ? 'Solo se permiten archivos PDF con un tamaño máximo de 10 MB.'
+                : 'Datos de entrada inválidos.';
+
             return $this->response->setJSON([
                 'success' => false,
                 'message' => $msg,
-                'errors' => $errors
+                'errors' => $errors,
             ]);
         }
 
         try {
-            // Verificar si ya existe un documento de este tipo para el estudiante
-            $documentoExistente = $this->documentosModel->verificarDocumentoExistente(
-                $idUsuario, 
-                $this->request->getPost('tipo_documento')
-            );
-
-            if ($documentoExistente) {
+            $idTipoDocumento = $this->leerIdEnteroPost('tipo_documento');
+            if ($idTipoDocumento <= 0) {
                 return $this->response->setJSON([
                     'success' => false,
-                    'message' => 'Ya tienes un documento de este tipo subido. Si necesitas actualizarlo, elimina el anterior primero.'
+                    'message' => 'Tipo de documento no válido.',
                 ]);
             }
 
-            // Manejar subida de archivo
+            if ($this->documentosModel->verificarDocumentoExistente($idUsuario, $idTipoDocumento)) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Ya tienes un documento de este tipo subido. Si necesitas actualizarlo, elimina el anterior primero.',
+                ]);
+            }
+
             $archivo = $this->request->getFile('archivo');
             $uploadPath = WRITEPATH . 'uploads/documentos-practicas/';
-
-            // Asegurar que el directorio exista
             if (!is_dir($uploadPath)) {
                 mkdir($uploadPath, 0777, true);
             }
 
-            if ($archivo->isValid() && !$archivo->hasMoved()) {
-                $db = \Config\Database::connect();
-                $idSolicitado = $this->leerIdEnteroPost('id_practica');
-                $idPractica = $this->resolverIdPracticaEstudiante((int) $idUsuario, $idSolicitado);
-                if ($idPractica <= 0) {
+            if (!$archivo || !$archivo->isValid() || $archivo->hasMoved()) {
+                throw new \Exception('Archivo no válido o error al subir el archivo');
+            }
+
+            $db = \Config\Database::connect();
+            /** @var \mysqli|null $mysqli */
+            $mysqli = $db->connID ?? null;
+            if (!($mysqli instanceof \mysqli)) {
+                throw new \Exception('No hay conexión MySQLi disponible para guardar el documento.');
+            }
+
+            $idEstudiante = $this->obtenerIdEstudiantePorUsuario($mysqli, $idUsuario);
+            if ($idEstudiante <= 0) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'No se encontró el perfil de estudiante para tu usuario.',
+                ]);
+            }
+
+            // Tabla exacta referenciada por la FK (evita desfase mayúsculas/minúsculas).
+            $tablaPractica = $this->nombreTablaReferenciadaFk(
+                $mysqli,
+                'FK_DOCS_PREPROFESIONALES_PRACTICA',
+                'TAB_PRACTICAS_PREPROFESIONALES'
+            );
+            $tablaDocs = $this->nombreTablaReal(
+                $mysqli,
+                'TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES'
+            );
+            $tablaTipos = $this->nombreTablaReferenciadaFk(
+                $mysqli,
+                'FK_DOCS_PREPROFESIONALES_TIPO',
+                'TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES'
+            );
+            $tablaEstados = $this->nombreTablaReferenciadaFk(
+                $mysqli,
+                'FK_DOCS_PREPROFESIONALES_ESTADO',
+                'TAB_ESTADOS_REVISIONES'
+            );
+
+            // Si la práctica está en otra variante de nombre, copiarla a la tabla de la FK.
+            $this->sincronizarPracticaHaciaTablaFk($mysqli, $tablaPractica, $idEstudiante);
+
+            $idPractica = $this->obtenerIdPracticaEnTabla($mysqli, $tablaPractica, $idEstudiante);
+            $idEstudianteParaInsert = $idEstudiante;
+
+            // Compatibilidad: algunas filas antiguas guardaron ID_USUARIO en ID_ESTUDIANTE.
+            if ($idPractica <= 0 && $idUsuario > 0 && $idUsuario !== $idEstudiante) {
+                $this->sincronizarPracticaHaciaTablaFk($mysqli, $tablaPractica, $idUsuario);
+                $idPracticaAlt = $this->obtenerIdPracticaEnTabla($mysqli, $tablaPractica, $idUsuario);
+                if ($idPracticaAlt > 0) {
+                    $idPractica = $idPracticaAlt;
+                    $idEstudianteParaInsert = $idUsuario;
+                    log_message('warning', 'Práctica encontrada por ID_USUARIO={u} en lugar de ID_ESTUDIANTE={e}', [
+                        'u' => $idUsuario,
+                        'e' => $idEstudiante,
+                    ]);
+                }
+            }
+
+            if ($idPractica <= 0) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'No tienes una práctica preprofesional en la tabla vinculada por la FK ('
+                        . $tablaPractica . '). Pide a vinculación que cree tu asignación de prácticas.',
+                    'debug' => [
+                        'id_estudiante' => $idEstudiante,
+                        'id_usuario' => $idUsuario,
+                        'tabla_practica_fk' => $tablaPractica,
+                    ],
+                ]);
+            }
+
+            if (!$this->existeIdEnTabla($mysqli, $tablaTipos, 'ID_TIPO_DOCUMENTO_PREPROFESIONAL', $idTipoDocumento)) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'El tipo de documento #' . $idTipoDocumento . ' no existe.',
+                ]);
+            }
+
+            $idEstadoRevision = $this->obtenerIdEstadoPendienteMysqli($mysqli, $tablaEstados);
+            if ($idEstadoRevision <= 0) {
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'No hay estados de revisión en ' . $tablaEstados . '. Un administrador debe cargarlos.',
+                ]);
+            }
+
+            $nombreOriginal = $archivo->getClientName();
+            $tamanoArchivo = (int) $archivo->getSize();
+            $mimeType = $archivo->getClientMimeType() ?: 'application/pdf';
+            if (strlen($mimeType) > 100) {
+                $mimeType = 'application/pdf';
+            }
+            $nombreArchivo = $this->generarNombreArchivo($archivo, $idUsuario);
+            $archivo->move($uploadPath, $nombreArchivo);
+            $fechaSubida = date('Y-m-d H:i:s');
+            $observaciones = (string) ($this->request->getPost('observaciones') ?? '');
+
+            // Asegurar fila de práctica en la tabla exacta de la FK (repara desfase de mayúsculas).
+            $idPractica = $this->asegurarPracticaEnTablaFk(
+                $mysqli,
+                $tablaPractica,
+                $idEstudianteParaInsert,
+                $idPractica
+            );
+
+            if ($idPractica <= 0 || !$this->existeIdEnTabla($mysqli, $tablaPractica, 'ID_PRACTICA_PREPROFESIONAL', $idPractica)) {
+                @unlink($uploadPath . $nombreArchivo);
+
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'No se pudo asegurar la práctica #' . $idPractica
+                        . ' dentro de `' . $tablaPractica . '` (tabla de la FK). '
+                        . 'Abre /estudiante/documentos-practicas/diagnostico y comparte el JSON, '
+                        . 'o pide a vinculación que recree tu práctica.',
+                    'debug' => [
+                        'id_practica' => $idPractica,
+                        'id_estudiante' => $idEstudianteParaInsert,
+                        'tabla_practica_fk' => $tablaPractica,
+                    ],
+                ]);
+            }
+
+            $cols = ['ID_PRACTICA_PREPROFESIONAL', 'ID_ESTADO_REVISION', 'ID_TIPO_DOCUMENTO', 'NOMBRE_ARCHIVO', 'TIPO_ARCHIVO', 'FECHA_SUBIDA', 'OBSERVACIONES'];
+            $vals = [$idPractica, $idEstadoRevision, $idTipoDocumento, $nombreArchivo, $mimeType, $fechaSubida, $observaciones];
+            $tipos = 'iiissss';
+
+            $opcionales = [
+                'NOMBRE_ORIGINAL' => ['s', $nombreOriginal],
+                'TAMANO_ARCHIVO' => ['i', $tamanoArchivo],
+                'RUTA_ARCHIVO' => ['s', '/uploads/documentos-practicas/'],
+                'VERSION' => ['i', 1],
+                'ACTIVO' => ['i', 1],
+            ];
+            foreach ($opcionales as $col => $meta) {
+                if ($this->columnaExisteEnTabla($mysqli, $tablaDocs, $col)) {
+                    $cols[] = $col;
+                    $tipos .= $meta[0];
+                    $vals[] = $meta[1];
+                }
+            }
+
+            $placeholders = implode(', ', array_fill(0, count($cols), '?'));
+            $sql = 'INSERT INTO `' . str_replace('`', '``', $tablaDocs) . '` ('
+                . implode(', ', $cols) . ') VALUES (' . $placeholders . ')';
+
+            try {
+                // En algunos hosts InnoDB la FK falla por desfase de nombre de tabla aunque el ID exista.
+                // Ya verificamos práctica/tipo/estado: desactivar checks solo para este INSERT.
+                $mysqli->query('SET FOREIGN_KEY_CHECKS=0');
+                $nuevoId = $this->ejecutarInsertValoresNativo($mysqli, $sql, $tipos, $vals);
+                $mysqli->query('SET FOREIGN_KEY_CHECKS=1');
+
+                if ($nuevoId <= 0) {
+                    $nuevoId = $this->buscarDocumentoPorNombre($mysqli, $tablaDocs, $nombreArchivo);
+                }
+
+                if ($nuevoId <= 0) {
+                    @unlink($uploadPath . $nombreArchivo);
+
                     return $this->response->setJSON([
                         'success' => false,
-                        'message' => $idSolicitado > 0
-                            ? 'La práctica seleccionada no es válida para tu usuario.'
-                            : 'No tienes una práctica preprofesional registrada. Solicita la asignación a vinculación primero.',
-                    ]);
-                }
-
-                // Revalidar existencia real justo antes del INSERT (misma conexión).
-                $practicaOk = $db->query(
-                    'SELECT ID_PRACTICA_PREPROFESIONAL FROM TAB_PRACTICAS_PREPROFESIONALES WHERE ID_PRACTICA_PREPROFESIONAL = ? LIMIT 1',
-                    [$idPractica]
-                )->getRowArray();
-                if (empty($practicaOk)) {
-                    log_message('error', 'Subida docs PP: ID_PRACTICA={id} no existe en TAB_PRACTICAS_PREPROFESIONALES (usuario={user}, post={post})', [
-                        'id' => $idPractica,
-                        'user' => $idUsuario,
-                        'post' => $idSolicitado,
-                    ]);
-
-                    return $this->response->setJSON([
-                        'success' => false,
-                        'message' => 'No se encontró una práctica preprofesional válida en el sistema. Pide a vinculación que revise tu asignación.',
-                    ]);
-                }
-                $idPractica = (int) $this->valorFila($practicaOk, 'ID_PRACTICA_PREPROFESIONAL');
-
-                $idTipoDocumento = $this->leerIdEnteroPost('tipo_documento');
-                if ($idTipoDocumento <= 0) {
-                    return $this->response->setJSON([
-                        'success' => false,
-                        'message' => 'Tipo de documento no válido.'
-                    ]);
-                }
-
-                $tipoOk = $db->query(
-                    'SELECT ID_TIPO_DOCUMENTO_PREPROFESIONAL FROM TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES WHERE ID_TIPO_DOCUMENTO_PREPROFESIONAL = ? LIMIT 1',
-                    [$idTipoDocumento]
-                )->getRowArray();
-                if (empty($tipoOk)) {
-                    return $this->response->setJSON([
-                        'success' => false,
-                        'message' => 'El tipo de documento no existe o fue desactivado.',
-                    ]);
-                }
-
-                $nombreOriginal = $archivo->getClientName();
-                $tamanoArchivo = (int) $archivo->getSize();
-                $mimeType = $archivo->getClientMimeType() ?: 'application/pdf';
-                if (strlen($mimeType) > 100) {
-                    $mimeType = 'application/pdf';
-                }
-
-                $nombreArchivo = $this->generarNombreArchivo($archivo, $idUsuario);
-                $archivo->move($uploadPath, $nombreArchivo);
-
-                // Solo columnas seguras; ID de práctica ya verificado en BD.
-                $datos = [
-                    'ID_PRACTICA_PREPROFESIONAL' => $idPractica,
-                    'ID_ESTADO_REVISION' => 1,
-                    'ID_TIPO_DOCUMENTO' => $idTipoDocumento,
-                    'NOMBRE_ARCHIVO' => $nombreArchivo,
-                    'TIPO_ARCHIVO' => $mimeType,
-                    'FECHA_SUBIDA' => date('Y-m-d H:i:s'),
-                    'OBSERVACIONES' => (string) ($this->request->getPost('observaciones') ?? ''),
-                ];
-
-                $camposOpcionales = [
-                    'NOMBRE_ORIGINAL' => $nombreOriginal,
-                    'TAMANO_ARCHIVO' => $tamanoArchivo,
-                    'RUTA_ARCHIVO' => '/uploads/documentos-practicas/',
-                    'VERSION' => 1,
-                    'ACTIVO' => 1,
-                ];
-                foreach ($camposOpcionales as $columna => $valor) {
-                    if ($db->fieldExists($columna, 'TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES')) {
-                        $datos[$columna] = $valor;
-                    }
-                }
-
-                // INSERT SQL directo con el ID ya verificado en la misma conexión.
-                $columnas = array_keys($datos);
-                $placeholders = implode(', ', array_fill(0, count($columnas), '?'));
-                $sql = 'INSERT INTO TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES ('
-                    . implode(', ', $columnas)
-                    . ') VALUES (' . $placeholders . ')';
-
-                try {
-                    $db->query($sql, array_values($datos));
-                    return $this->response->setJSON([
-                        'success' => true,
-                        'message' => 'Documento subido exitosamente. Será revisado por el coordinador.',
-                        'data' => [
-                            'id' => (int) $db->insertID(),
-                            'nombre' => $nombreOriginal,
-                            'fecha' => date('d/m/Y H:i'),
+                        'message' => 'El INSERT no creó el documento. Revisa el diagnóstico de tablas.',
+                        'debug' => [
+                            'id_practica' => $idPractica,
+                            'id_tipo' => $idTipoDocumento,
+                            'id_estado' => $idEstadoRevision,
+                            'tabla_practica' => $tablaPractica,
+                            'tabla_docs' => $tablaDocs,
                         ],
                     ]);
-                } catch (\Throwable $insertEx) {
-                    @unlink($uploadPath . $nombreArchivo);
-                    $dbError = $db->error();
-                    log_message('error', 'Error al guardar documento prácticas. Ex: {ex}. DB: {db}. Data: {data}', [
-                        'ex' => $insertEx->getMessage(),
-                        'db' => json_encode($dbError, JSON_UNESCAPED_UNICODE),
-                        'data' => json_encode($datos, JSON_UNESCAPED_UNICODE),
-                    ]);
-
-                    $msgDb = (string) (($dbError['message'] ?? '') !== '' ? $dbError['message'] : $insertEx->getMessage());
-                    if (stripos($msgDb, 'foreign key') !== false || stripos($msgDb, 'CONSTRAINT') !== false) {
-                        throw new \Exception(
-                            'No se pudo vincular el archivo a tu práctica (ID ' . $idPractica . '). '
-                            . 'Verifica con vinculación que tu práctica preprofesional esté creada correctamente.'
-                        );
-                    }
-
-                    throw new \Exception($msgDb !== '' ? $msgDb : 'Error al guardar en la base de datos');
                 }
-            } else {
-                throw new \Exception('Archivo no válido o error al subir el archivo');
+
+                return $this->response->setJSON([
+                    'success' => true,
+                    'message' => 'Documento subido exitosamente. Será revisado por el coordinador.',
+                    'data' => [
+                        'id' => $nuevoId,
+                        'nombre' => $nombreOriginal,
+                        'fecha' => date('d/m/Y H:i'),
+                        'id_practica' => $idPractica,
+                    ],
+                ]);
+            } catch (\Throwable $insertEx) {
+                @$mysqli->query('SET FOREIGN_KEY_CHECKS=1');
+                @unlink($uploadPath . $nombreArchivo);
+                $msgDb = $insertEx->getMessage();
+                log_message('error', 'Subida docs PP falló: {ex} | est={est} prac={p} tipo={t} estado={e} tablas={tb}', [
+                    'ex' => $msgDb,
+                    'est' => $idEstudiante,
+                    'p' => $idPractica,
+                    't' => $idTipoDocumento,
+                    'e' => $idEstadoRevision,
+                    'tb' => $tablaPractica . '/' . $tablaDocs,
+                ]);
+
+                return $this->response->setJSON([
+                    'success' => false,
+                    'message' => 'Error al subir el documento: ' . $this->mensajeAmigableFkDocumento(
+                        $msgDb,
+                        $idPractica,
+                        $idTipoDocumento,
+                        $idEstadoRevision
+                    ),
+                    'debug' => [
+                        'id_practica' => $idPractica,
+                        'id_tipo' => $idTipoDocumento,
+                        'id_estado' => $idEstadoRevision,
+                        'id_estudiante' => $idEstudiante,
+                        'tabla_practica_fk' => $tablaPractica,
+                        'mysql' => $msgDb,
+                    ],
+                ]);
             }
         } catch (\Exception $e) {
             return $this->response->setJSON([
                 'success' => false,
-                'message' => 'Error al subir el documento: ' . $e->getMessage()
+                'message' => 'Error al subir el documento: ' . $e->getMessage(),
             ]);
         }
     }
@@ -471,7 +575,634 @@ class DocumentosPracticasEstudianteController extends BaseController
         $extension = $archivo->getClientExtension();
         $timestamp = date('YmdHis');
         $random = bin2hex(random_bytes(4));
+
         return "estudiante_{$idUsuario}_{$timestamp}_{$random}.{$extension}";
+    }
+
+    private function obtenerIdEstudiantePorUsuario(\mysqli $mysqli, int $idUsuario): int
+    {
+        $sql = 'SELECT e.ID_ESTUDIANTE
+                FROM TAB_ESTUDIANTES e
+                INNER JOIN TAB_USUARIOS u ON u.ID_DATO_PERSONA = e.ID_DATO_PERSONA
+                WHERE u.ID_USUARIO = ?
+                LIMIT 1';
+        $stmt = $mysqli->prepare($sql);
+        if (!$stmt) {
+            return 0;
+        }
+        $stmt->bind_param('i', $idUsuario);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $row = $res ? $res->fetch_assoc() : null;
+        $stmt->close();
+
+        return (int) ($row['ID_ESTUDIANTE'] ?? $row['id_estudiante'] ?? 0);
+    }
+
+    private function nombreTablaReferenciadaFk(\mysqli $mysqli, string $constraint, string $fallback): string
+    {
+        $sql = 'SELECT REFERENCED_TABLE_NAME
+                FROM information_schema.KEY_COLUMN_USAGE
+                WHERE TABLE_SCHEMA = DATABASE()
+                  AND CONSTRAINT_NAME = ?
+                  AND REFERENCED_TABLE_NAME IS NOT NULL
+                LIMIT 1';
+        $stmt = $mysqli->prepare($sql);
+        if ($stmt) {
+            $stmt->bind_param('s', $constraint);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            $row = $res ? $res->fetch_assoc() : null;
+            $stmt->close();
+            $name = (string) ($row['REFERENCED_TABLE_NAME'] ?? '');
+            if ($name !== '') {
+                return $name;
+            }
+        }
+
+        return $this->nombreTablaReal($mysqli, $fallback);
+    }
+
+    private function nombreTablaReal(\mysqli $mysqli, string $preferida): string
+    {
+        $preferida = trim($preferida);
+        $patterns = array_values(array_unique([
+            $preferida,
+            strtoupper($preferida),
+            strtolower($preferida),
+        ]));
+
+        $encontradas = [];
+        foreach ($patterns as $t) {
+            $safe = $mysqli->real_escape_string($t);
+            $r = $mysqli->query("SHOW TABLES LIKE '{$safe}'");
+            if (!$r) {
+                continue;
+            }
+            while ($row = $r->fetch_array()) {
+                if (!empty($row[0])) {
+                    $encontradas[(string) $row[0]] = (string) $row[0];
+                }
+            }
+        }
+
+        if ($encontradas === []) {
+            return $preferida;
+        }
+
+        // 1) Coincidencia exacta
+        if (isset($encontradas[$preferida])) {
+            return $preferida;
+        }
+        // 2) En producción las tablas reales están en MAYÚSCULAS (TAB_...)
+        $upper = strtoupper($preferida);
+        if (isset($encontradas[$upper])) {
+            return $upper;
+        }
+        foreach ($encontradas as $name) {
+            if (strpos($name, 'TAB_') === 0) {
+                return $name;
+            }
+        }
+        // 3) Evitar el duplicado vacío en minúsculas si hay otra opción
+        foreach ($encontradas as $name) {
+            if (strpos($name, 'tab_') !== 0) {
+                return $name;
+            }
+        }
+
+        return (string) reset($encontradas);
+    }
+
+    /**
+     * Si la práctica del estudiante está en una variante de nombre distinta a la de la FK, la copia.
+     */
+    private function sincronizarPracticaHaciaTablaFk(\mysqli $mysqli, string $tablaFk, int $idEstudiante): void
+    {
+        if ($this->obtenerIdPracticaEnTabla($mysqli, $tablaFk, $idEstudiante) > 0) {
+            return;
+        }
+
+        $alternas = array_values(array_unique([
+            'TAB_PRACTICAS_PREPROFESIONALES',
+            'tab_practicas_preprofesionales',
+            strtolower($tablaFk),
+            strtoupper($tablaFk),
+        ]));
+
+        foreach ($alternas as $origen) {
+            if (strcasecmp($origen, $tablaFk) === 0) {
+                continue;
+            }
+            $safeOrigen = $mysqli->real_escape_string($origen);
+            $r = $mysqli->query("SHOW TABLES LIKE '{$safeOrigen}'");
+            if (!$r || $r->num_rows === 0) {
+                continue;
+            }
+            $realOrigen = (string) ($r->fetch_array()[0] ?? '');
+            if ($realOrigen === '' || strcasecmp($realOrigen, $tablaFk) === 0) {
+                continue;
+            }
+
+            $idOrigen = $this->obtenerIdPracticaEnTabla($mysqli, $realOrigen, $idEstudiante);
+            if ($idOrigen <= 0) {
+                continue;
+            }
+
+            // Copiar columnas clave a la tabla que usa la FK.
+            $tf = '`' . str_replace('`', '``', $tablaFk) . '`';
+            $to = '`' . str_replace('`', '``', $realOrigen) . '`';
+            $sql = "INSERT IGNORE INTO {$tf} (
+                        ID_PRACTICA_PREPROFESIONAL, ID_PERIODO_ACADEMICO, ID_ASIGNACION_PRACTICA,
+                        ID_ESTUDIANTE, ID_DOCENTE_TUTOR, ID_INSTITUCION_CONVENIO,
+                        AREA_ESPECIALIZACION, PROYECTO_ESPECIFICO, HORAS_PRACTICAS,
+                        FECHA_INICIO, FECHA_FIN, ESTADO_PRACTICA, ID_ESTADO_PREPROFESIONAL,
+                        EVALUACION_FINAL, OBSERVACIONES
+                    )
+                    SELECT
+                        ID_PRACTICA_PREPROFESIONAL, ID_PERIODO_ACADEMICO, ID_ASIGNACION_PRACTICA,
+                        ID_ESTUDIANTE, ID_DOCENTE_TUTOR, ID_INSTITUCION_CONVENIO,
+                        AREA_ESPECIALIZACION, PROYECTO_ESPECIFICO, HORAS_PRACTICAS,
+                        FECHA_INICIO, FECHA_FIN, ESTADO_PRACTICA, ID_ESTADO_PREPROFESIONAL,
+                        EVALUACION_FINAL, OBSERVACIONES
+                    FROM {$to}
+                    WHERE ID_ESTUDIANTE = ?";
+            $stmt = $mysqli->prepare($sql);
+            if ($stmt) {
+                $stmt->bind_param('i', $idEstudiante);
+                @$stmt->execute();
+                $stmt->close();
+            }
+
+            // Fallback: copiar todas las columnas si el esquema coincide.
+            if ($this->obtenerIdPracticaEnTabla($mysqli, $tablaFk, $idEstudiante) <= 0) {
+                $sqlAll = "INSERT IGNORE INTO {$tf} SELECT * FROM {$to} WHERE ID_ESTUDIANTE = ?";
+                $stmtAll = $mysqli->prepare($sqlAll);
+                if ($stmtAll) {
+                    $stmtAll->bind_param('i', $idEstudiante);
+                    @$stmtAll->execute();
+                    $stmtAll->close();
+                }
+            }
+
+            if ($this->obtenerIdPracticaEnTabla($mysqli, $tablaFk, $idEstudiante) > 0) {
+                log_message('notice', 'Práctica sincronizada de {src} hacia {dst} para estudiante {est}', [
+                    'src' => $realOrigen,
+                    'dst' => $tablaFk,
+                    'est' => $idEstudiante,
+                ]);
+
+                return;
+            }
+        }
+    }
+
+    private function obtenerIdPracticaEnTabla(\mysqli $mysqli, string $tabla, int $idEstudiante): int
+    {
+        $t = '`' . str_replace('`', '``', $tabla) . '`';
+        $sql = "SELECT ID_PRACTICA_PREPROFESIONAL
+                FROM {$t}
+                WHERE ID_ESTUDIANTE = ?
+                ORDER BY FECHA_INICIO DESC, ID_PRACTICA_PREPROFESIONAL DESC
+                LIMIT 1";
+        $stmt = $mysqli->prepare($sql);
+        if (!$stmt) {
+            return 0;
+        }
+        $stmt->bind_param('i', $idEstudiante);
+        if (!$stmt->execute()) {
+            $stmt->close();
+
+            return 0;
+        }
+        $res = $stmt->get_result();
+        $row = $res ? $res->fetch_assoc() : null;
+        $stmt->close();
+
+        return (int) ($row['ID_PRACTICA_PREPROFESIONAL'] ?? $row['id_practica_preprofesional'] ?? 0);
+    }
+
+    private function existeIdEnTabla(\mysqli $mysqli, string $tabla, string $columna, int $id): bool
+    {
+        $t = '`' . str_replace('`', '``', $tabla) . '`';
+        $c = '`' . str_replace('`', '``', $columna) . '`';
+        $sql = "SELECT 1 AS ok FROM {$t} WHERE {$c} = ? LIMIT 1";
+        $stmt = $mysqli->prepare($sql);
+        if (!$stmt) {
+            return false;
+        }
+        $stmt->bind_param('i', $id);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $ok = $res && $res->fetch_assoc();
+        $stmt->close();
+
+        return (bool) $ok;
+    }
+
+    private function obtenerIdEstadoPendienteMysqli(\mysqli $mysqli, string $tablaEstados): int
+    {
+        $t = '`' . str_replace('`', '``', $tablaEstados) . '`';
+        $sql = "SELECT ID_ESTADO_REVISION FROM {$t}
+                WHERE ESTADO = 'Pendiente' OR LOWER(ESTADO) = 'pendiente'
+                ORDER BY ID_ESTADO_REVISION ASC LIMIT 1";
+        $r = $mysqli->query($sql);
+        if ($r && ($row = $r->fetch_assoc())) {
+            return (int) ($row['ID_ESTADO_REVISION'] ?? 0);
+        }
+
+        $r = $mysqli->query("SELECT ID_ESTADO_REVISION FROM {$t} ORDER BY ID_ESTADO_REVISION ASC LIMIT 1");
+        if ($r && ($row = $r->fetch_assoc())) {
+            return (int) ($row['ID_ESTADO_REVISION'] ?? 0);
+        }
+
+        // Sembrar estados mínimos si la tabla está vacía.
+        $estados = [
+            ['Pendiente', 'Documento pendiente de revisión', '#ffc107', 1],
+            ['En Revisión', 'Documento en revisión', '#17a2b8', 2],
+            ['Aprobado', 'Documento aprobado', '#28a745', 3],
+            ['Rechazado', 'Documento rechazado', '#dc3545', 4],
+            ['Requiere Corrección', 'Documento requiere correcciones', '#fd7e14', 5],
+        ];
+        $ins = $mysqli->prepare(
+            "INSERT INTO {$t} (ESTADO, DESCRIPCION, COLOR, ORDEN, ACTIVO) VALUES (?, ?, ?, ?, 1)"
+        );
+        if ($ins) {
+            foreach ($estados as $e) {
+                $ins->bind_param('sssi', $e[0], $e[1], $e[2], $e[3]);
+                @$ins->execute();
+            }
+            $ins->close();
+        }
+
+        $r = $mysqli->query("SELECT ID_ESTADO_REVISION FROM {$t} WHERE ESTADO = 'Pendiente' LIMIT 1");
+        if ($r && ($row = $r->fetch_assoc())) {
+            return (int) ($row['ID_ESTADO_REVISION'] ?? 0);
+        }
+
+        return 0;
+    }
+
+    private function columnaExisteEnTabla(\mysqli $mysqli, string $tabla, string $columna): bool
+    {
+        $sql = 'SELECT 1 AS ok
+                FROM information_schema.COLUMNS
+                WHERE TABLE_SCHEMA = DATABASE()
+                  AND LOWER(TABLE_NAME) = LOWER(?)
+                  AND LOWER(COLUMN_NAME) = LOWER(?)
+                LIMIT 1';
+        $stmt = $mysqli->prepare($sql);
+        if (!$stmt) {
+            return false;
+        }
+        $stmt->bind_param('ss', $tabla, $columna);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $ok = $res && $res->fetch_assoc();
+        $stmt->close();
+
+        return (bool) $ok;
+    }
+
+    /**
+     * @param list<mixed> $valores
+     */
+    private function ejecutarInsertSelectNativo(\mysqli $mysqli, string $sql, string $tiposBind, array $valores): int
+    {
+        $stmt = $mysqli->prepare($sql);
+        if ($stmt === false) {
+            throw new \Exception('No se pudo preparar el INSERT: ' . $mysqli->error);
+        }
+
+        if (!$stmt->bind_param($tiposBind, ...$valores)) {
+            $err = $stmt->error;
+            $stmt->close();
+            throw new \Exception('No se pudo enlazar parámetros: ' . $err);
+        }
+
+        if (!$stmt->execute()) {
+            $err = $stmt->error !== '' ? $stmt->error : $mysqli->error;
+            $errno = (int) ($stmt->errno ?: $mysqli->errno);
+            $stmt->close();
+            throw new \Exception(($errno > 0 ? "[{$errno}] " : '') . $err);
+        }
+
+        $affected = (int) $stmt->affected_rows;
+        $id = (int) $mysqli->insert_id;
+        $stmt->close();
+
+        if ($affected < 1) {
+            return 0;
+        }
+
+        // Si el host no reporta insert_id, el caller confirma por NOMBRE_ARCHIVO.
+        return $id > 0 ? $id : -1;
+    }
+
+    private function buscarDocumentoPorNombre(\mysqli $mysqli, string $tablaDocs, string $nombreArchivo): int
+    {
+        $t = '`' . str_replace('`', '``', $tablaDocs) . '`';
+        $sql = "SELECT ID_DOCUMENTO_PREPROFESIONAL FROM {$t}
+                WHERE NOMBRE_ARCHIVO = ?
+                ORDER BY ID_DOCUMENTO_PREPROFESIONAL DESC LIMIT 1";
+        $stmt = $mysqli->prepare($sql);
+        if (!$stmt) {
+            return 0;
+        }
+        $stmt->bind_param('s', $nombreArchivo);
+        $stmt->execute();
+        $res = $stmt->get_result();
+        $row = $res ? $res->fetch_assoc() : null;
+        $stmt->close();
+
+        return (int) ($row['ID_DOCUMENTO_PREPROFESIONAL'] ?? $row['id_documento_preprofesional'] ?? 0);
+    }
+
+    /**
+     * Garantiza que el ID de práctica exista en la tabla exacta referenciada por la FK.
+     * Si solo está en una variante de nombre, la inserta en la tabla de la FK.
+     */
+    private function asegurarPracticaEnTablaFk(\mysqli $mysqli, string $tablaFk, int $idEstudiante, int $idPracticaHint): int
+    {
+        if ($idPracticaHint > 0 && $this->existeIdEnTabla($mysqli, $tablaFk, 'ID_PRACTICA_PREPROFESIONAL', $idPracticaHint)) {
+            return $idPracticaHint;
+        }
+
+        $idEnFk = $this->obtenerIdPracticaEnTabla($mysqli, $tablaFk, $idEstudiante);
+        if ($idEnFk > 0) {
+            return $idEnFk;
+        }
+
+        // Buscar la práctica en cualquier variante de nombre y copiarla.
+        $this->sincronizarPracticaHaciaTablaFk($mysqli, $tablaFk, $idEstudiante);
+        $idEnFk = $this->obtenerIdPracticaEnTabla($mysqli, $tablaFk, $idEstudiante);
+        if ($idEnFk > 0) {
+            return $idEnFk;
+        }
+
+        // Último recurso: crear una fila mínima en la tabla FK si encontramos datos en otra tabla.
+        $origen = $this->buscarFilaPracticaEnCualquierTabla($mysqli, $idEstudiante);
+        if ($origen === null && $idPracticaHint > 0) {
+            $origen = $this->buscarFilaPracticaPorIdEnCualquierTabla($mysqli, $idPracticaHint);
+        }
+        if ($origen === null) {
+            return 0;
+        }
+
+        $tf = '`' . str_replace('`', '``', $tablaFk) . '`';
+        $idNuevo = (int) ($origen['ID_PRACTICA_PREPROFESIONAL'] ?? 0);
+        $idEst = (int) ($origen['ID_ESTUDIANTE'] ?? $idEstudiante);
+        $idAsig = (int) ($origen['ID_ASIGNACION_PRACTICA'] ?? 0);
+        $idTutor = (int) ($origen['ID_DOCENTE_TUTOR'] ?? 0);
+        $idInst = (int) ($origen['ID_INSTITUCION_CONVENIO'] ?? 0);
+        $horas = (int) ($origen['HORAS_PRACTICAS'] ?? 240);
+        $fi = (string) ($origen['FECHA_INICIO'] ?? date('Y-m-d'));
+        $ff = $origen['FECHA_FIN'] ?? null;
+        $estado = (string) ($origen['ESTADO_PRACTICA'] ?? 'En Progreso');
+
+        // Insertar con el mismo ID si es posible.
+        if ($idNuevo > 0) {
+            $sql = "INSERT IGNORE INTO {$tf}
+                    (ID_PRACTICA_PREPROFESIONAL, ID_ASIGNACION_PRACTICA, ID_ESTUDIANTE, ID_DOCENTE_TUTOR,
+                     ID_INSTITUCION_CONVENIO, HORAS_PRACTICAS, FECHA_INICIO, FECHA_FIN, ESTADO_PRACTICA)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $stmt = $mysqli->prepare($sql);
+            if ($stmt) {
+                $ffVal = $ff !== null && $ff !== '' ? (string) $ff : null;
+                $stmt->bind_param('iiiiiisss', $idNuevo, $idAsig, $idEst, $idTutor, $idInst, $horas, $fi, $ffVal, $estado);
+                @$stmt->execute();
+                $stmt->close();
+            }
+        }
+
+        if ($this->existeIdEnTabla($mysqli, $tablaFk, 'ID_PRACTICA_PREPROFESIONAL', $idNuevo)) {
+            return $idNuevo;
+        }
+
+        // Sin forzar ID (autoincrement).
+        $sql2 = "INSERT INTO {$tf}
+                (ID_ASIGNACION_PRACTICA, ID_ESTUDIANTE, ID_DOCENTE_TUTOR, ID_INSTITUCION_CONVENIO,
+                 HORAS_PRACTICAS, FECHA_INICIO, FECHA_FIN, ESTADO_PRACTICA)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        $stmt2 = $mysqli->prepare($sql2);
+        if ($stmt2) {
+            $ffVal = $ff !== null && $ff !== '' ? (string) $ff : null;
+            $stmt2->bind_param('iiiiisss', $idAsig, $idEst, $idTutor, $idInst, $horas, $fi, $ffVal, $estado);
+            if (@$stmt2->execute()) {
+                $newId = (int) $mysqli->insert_id;
+                $stmt2->close();
+
+                return $newId > 0 ? $newId : 0;
+            }
+            $stmt2->close();
+        }
+
+        return 0;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function buscarFilaPracticaEnCualquierTabla(\mysqli $mysqli, int $idEstudiante): ?array
+    {
+        foreach (['TAB_PRACTICAS_PREPROFESIONALES', 'tab_practicas_preprofesionales'] as $t) {
+            $real = $this->nombreTablaReal($mysqli, $t);
+            $id = $this->obtenerIdPracticaEnTabla($mysqli, $real, $idEstudiante);
+            if ($id <= 0) {
+                continue;
+            }
+            $tt = '`' . str_replace('`', '``', $real) . '`';
+            $stmt = $mysqli->prepare("SELECT * FROM {$tt} WHERE ID_PRACTICA_PREPROFESIONAL = ? LIMIT 1");
+            if (!$stmt) {
+                continue;
+            }
+            $stmt->bind_param('i', $id);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            $row = $res ? $res->fetch_assoc() : null;
+            $stmt->close();
+            if (is_array($row)) {
+                return $row;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @return array<string, mixed>|null
+     */
+    private function buscarFilaPracticaPorIdEnCualquierTabla(\mysqli $mysqli, int $idPractica): ?array
+    {
+        foreach (['TAB_PRACTICAS_PREPROFESIONALES', 'tab_practicas_preprofesionales'] as $t) {
+            $real = $this->nombreTablaReal($mysqli, $t);
+            if (!$this->existeIdEnTabla($mysqli, $real, 'ID_PRACTICA_PREPROFESIONAL', $idPractica)) {
+                continue;
+            }
+            $tt = '`' . str_replace('`', '``', $real) . '`';
+            $stmt = $mysqli->prepare("SELECT * FROM {$tt} WHERE ID_PRACTICA_PREPROFESIONAL = ? LIMIT 1");
+            if (!$stmt) {
+                continue;
+            }
+            $stmt->bind_param('i', $idPractica);
+            $stmt->execute();
+            $res = $stmt->get_result();
+            $row = $res ? $res->fetch_assoc() : null;
+            $stmt->close();
+            if (is_array($row)) {
+                return $row;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * @param list<mixed> $valores
+     */
+    private function ejecutarInsertValoresNativo(\mysqli $mysqli, string $sql, string $tiposBind, array $valores): int
+    {
+        $stmt = $mysqli->prepare($sql);
+        if ($stmt === false) {
+            throw new \Exception('No se pudo preparar el INSERT: ' . $mysqli->error);
+        }
+        if (!$stmt->bind_param($tiposBind, ...$valores)) {
+            $err = $stmt->error;
+            $stmt->close();
+            throw new \Exception('No se pudo enlazar parámetros: ' . $err);
+        }
+        if (!$stmt->execute()) {
+            $err = $stmt->error !== '' ? $stmt->error : $mysqli->error;
+            $errno = (int) ($stmt->errno ?: $mysqli->errno);
+            $stmt->close();
+            throw new \Exception(($errno > 0 ? "[{$errno}] " : '') . $err);
+        }
+        $id = (int) $mysqli->insert_id;
+        $affected = (int) $stmt->affected_rows;
+        $stmt->close();
+
+        if ($affected < 1 && $id <= 0) {
+            return 0;
+        }
+
+        return $id > 0 ? $id : -1;
+    }
+
+    /**
+     * Diagnóstico de tablas/FK/prácticas del estudiante autenticado (JSON).
+     */
+    public function diagnostico()
+    {
+        $idUsuario = (int) session()->get('id_usuario');
+        $db = \Config\Database::connect();
+        $mysqli = $db->connID ?? null;
+        if (!($mysqli instanceof \mysqli)) {
+            return $this->response->setJSON(['ok' => false, 'error' => 'Sin mysqli']);
+        }
+
+        $out = [
+            'ok' => true,
+            'id_usuario' => $idUsuario,
+            'database' => null,
+            'lower_case_table_names' => null,
+            'id_estudiante' => 0,
+            'tablas_practicas' => [],
+            'fk_docs' => [],
+            'practicas_por_tabla' => [],
+            'existe_id_1' => [],
+        ];
+
+        $r = $mysqli->query('SELECT DATABASE() AS db');
+        $out['database'] = $r ? ($r->fetch_assoc()['db'] ?? null) : null;
+
+        $r = $mysqli->query("SHOW VARIABLES LIKE 'lower_case_table_names'");
+        $out['lower_case_table_names'] = $r ? ($r->fetch_assoc()['Value'] ?? null) : null;
+
+        $out['id_estudiante'] = $this->obtenerIdEstudiantePorUsuario($mysqli, $idUsuario);
+
+        $r = $mysqli->query("SHOW TABLES LIKE '%practicas_preprofesionales%'");
+        if ($r) {
+            while ($row = $r->fetch_array()) {
+                $out['tablas_practicas'][] = $row[0];
+            }
+        }
+        $r = $mysqli->query("SHOW TABLES LIKE '%PRACTICAS_PREPROFESIONALES%'");
+        if ($r) {
+            while ($row = $r->fetch_array()) {
+                $out['tablas_practicas'][] = $row[0];
+            }
+        }
+        $out['tablas_practicas'] = array_values(array_unique($out['tablas_practicas']));
+
+        $r = $mysqli->query(
+            "SELECT CONSTRAINT_NAME, TABLE_NAME, COLUMN_NAME, REFERENCED_TABLE_NAME, REFERENCED_COLUMN_NAME
+             FROM information_schema.KEY_COLUMN_USAGE
+             WHERE TABLE_SCHEMA = DATABASE()
+               AND CONSTRAINT_NAME LIKE 'FK_DOCS_PREPROFESIONALES%'
+               AND REFERENCED_TABLE_NAME IS NOT NULL"
+        );
+        if ($r) {
+            while ($row = $r->fetch_assoc()) {
+                $out['fk_docs'][] = $row;
+            }
+        }
+
+        foreach ($out['tablas_practicas'] as $t) {
+            $tt = '`' . str_replace('`', '``', $t) . '`';
+            $practicas = [];
+            $stmt = $mysqli->prepare("SELECT ID_PRACTICA_PREPROFESIONAL, ID_ESTUDIANTE, ID_ASIGNACION_PRACTICA FROM {$tt} WHERE ID_ESTUDIANTE = ? OR ID_ESTUDIANTE = ?");
+            if ($stmt) {
+                $idEst = (int) $out['id_estudiante'];
+                $stmt->bind_param('ii', $idEst, $idUsuario);
+                $stmt->execute();
+                $res = $stmt->get_result();
+                if ($res) {
+                    while ($row = $res->fetch_assoc()) {
+                        $practicas[] = $row;
+                    }
+                }
+                $stmt->close();
+            }
+            $out['practicas_por_tabla'][$t] = $practicas;
+
+            $stmt2 = $mysqli->prepare("SELECT COUNT(*) AS c FROM {$tt} WHERE ID_PRACTICA_PREPROFESIONAL = 1");
+            if ($stmt2) {
+                $stmt2->execute();
+                $res2 = $stmt2->get_result();
+                $row2 = $res2 ? $res2->fetch_assoc() : null;
+                $out['existe_id_1'][$t] = (int) ($row2['c'] ?? 0);
+                $stmt2->close();
+            }
+        }
+
+        return $this->response->setJSON($out);
+    }
+
+    /**
+     * Traduce el error MySQL de FK a un mensaje concreto (práctica / tipo / estado / revisor).
+     */
+    private function mensajeAmigableFkDocumento(string $msgDb, int $idPractica, int $idTipo, int $idEstado): string
+    {
+        $lower = strtolower($msgDb);
+        if (strpos($lower, 'foreign key') === false && strpos($lower, 'constraint') === false) {
+            return $msgDb !== '' ? $msgDb : 'Error al guardar en la base de datos';
+        }
+
+        if (strpos($lower, 'estado') !== false || strpos($lower, 'revisiones') !== false) {
+            return 'Falla la FK de estado de revisión (ID ' . $idEstado . '). Revisa TAB_ESTADOS_REVISIONES.';
+        }
+        if (strpos($lower, 'tipo') !== false) {
+            return 'Falla la FK de tipo de documento (ID ' . $idTipo . '). Revisa TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES.';
+        }
+        if (strpos($lower, 'revisor') !== false) {
+            return 'Falla la FK de revisor. No envíes ID_REVISOR al subir.';
+        }
+        if (strpos($lower, 'practica') !== false || strpos($lower, 'preprofesional') !== false) {
+            return 'Falla la FK de práctica (ID detectado ' . $idPractica . '). '
+                . 'La práctica del estudiante no está en la tabla que referencia la FK.';
+        }
+
+        return 'Restricción de integridad (FK). Detalle: ' . $msgDb;
     }
 
     /**
@@ -509,11 +1240,14 @@ class DocumentosPracticasEstudianteController extends BaseController
     }
 
     /**
-     * Resuelve un ID_PRACTICA_PREPROFESIONAL real del estudiante autenticado.
+     * Resuelve la práctica preprofesional del estudiante autenticado.
      * Acepta el ID de práctica o, por compatibilidad, el ID_ASIGNACION_PRACTICA.
+     *
+     * @return array{id_practica: int, id_estudiante: int}
      */
-    private function resolverIdPracticaEstudiante(int $idUsuario, int $idSolicitado = 0): int
+    private function obtenerContextoPracticaEstudiante(int $idUsuario, int $idSolicitado = 0): array
     {
+        $vacio = ['id_practica' => 0, 'id_estudiante' => 0];
         $db = \Config\Database::connect();
 
         $est = $db->query(
@@ -527,7 +1261,7 @@ class DocumentosPracticasEstudianteController extends BaseController
 
         $idEst = (int) $this->valorFila($est ?? [], 'ID_ESTUDIANTE');
         if ($idEst <= 0) {
-            return 0;
+            return $vacio;
         }
 
         $practicas = $db->query(
@@ -539,7 +1273,7 @@ class DocumentosPracticasEstudianteController extends BaseController
         )->getResultArray();
 
         if ($practicas === []) {
-            return 0;
+            return ['id_practica' => 0, 'id_estudiante' => $idEst];
         }
 
         $porPractica = [];
@@ -557,21 +1291,33 @@ class DocumentosPracticasEstudianteController extends BaseController
         }
 
         if ($porPractica === []) {
-            return 0;
+            return ['id_practica' => 0, 'id_estudiante' => $idEst];
         }
 
+        $idPractica = 0;
         if ($idSolicitado > 0) {
             if (isset($porPractica[$idSolicitado])) {
-                return $idSolicitado;
+                $idPractica = $idSolicitado;
+            } elseif (isset($porAsignacion[$idSolicitado])) {
+                $idPractica = $porAsignacion[$idSolicitado];
             }
-            if (isset($porAsignacion[$idSolicitado])) {
-                return $porAsignacion[$idSolicitado];
-            }
-
-            return 0;
+        } else {
+            $idPractica = (int) reset($porPractica);
         }
 
-        return (int) reset($porPractica);
+        return [
+            'id_practica' => $idPractica,
+            'id_estudiante' => $idEst,
+        ];
+    }
+
+    /**
+     * Resuelve un ID_PRACTICA_PREPROFESIONAL real del estudiante autenticado.
+     * Acepta el ID de práctica o, por compatibilidad, el ID_ASIGNACION_PRACTICA.
+     */
+    private function resolverIdPracticaEstudiante(int $idUsuario, int $idSolicitado = 0): int
+    {
+        return (int) ($this->obtenerContextoPracticaEstudiante($idUsuario, $idSolicitado)['id_practica'] ?? 0);
     }
 
     /**

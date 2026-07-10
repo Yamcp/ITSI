@@ -5,6 +5,7 @@ namespace App\Controllers\estudiante;
 use App\Controllers\BaseController;
 use App\Models\ActividadesEducacionModel;
 use App\Models\EstudiantesModel;
+use App\Models\InscripcionesActividadesModel;
 use App\Services\CoordinadorVinculacionContactoService;
 use App\Services\EstudianteAsistenciaService;
 use CodeIgniter\Database\BaseConnection;
@@ -20,6 +21,47 @@ class DashboardEstudianteController extends BaseController
         $this->actividadesModel = new ActividadesEducacionModel();
         $this->estudiantesModel = new EstudiantesModel();
         $this->db = \Config\Database::connect();
+    }
+
+    /**
+     * Actividades vigentes en las que el estudiante aún no está inscrito (para el dashboard).
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function obtenerActividadesDisponiblesDashboard(?int $idEstudiante, int $limite = 6): array
+    {
+        try {
+            $vigentes = $this->actividadesModel->getActividadesVigentesConDatos();
+            if (empty($vigentes)) {
+                return [];
+            }
+
+            $inscritas = [];
+            if ($idEstudiante !== null && $idEstudiante > 0) {
+                $inscripcionesModel = new InscripcionesActividadesModel();
+                foreach ($inscripcionesModel->where('ID_ESTUDIANTE', $idEstudiante)->findAll() as $row) {
+                    $inscritas[(int) $row['ID_ACTIVIDAD_EDUCACION']] = true;
+                }
+            }
+
+            $disponibles = [];
+            foreach ($vigentes as $actividad) {
+                $idAct = (int) ($actividad['ID_ACTIVIDAD_EDUCACION'] ?? 0);
+                if ($idAct < 1 || !empty($inscritas[$idAct])) {
+                    continue;
+                }
+                $disponibles[] = $actividad;
+                if (count($disponibles) >= $limite) {
+                    break;
+                }
+            }
+
+            return $disponibles;
+        } catch (\Throwable $e) {
+            log_message('error', 'Dashboard actividades disponibles: ' . $e->getMessage());
+
+            return [];
+        }
     }
 
     public function index()
@@ -47,6 +89,8 @@ class DashboardEstudianteController extends BaseController
         }
 
         $carreraNombre = trim((string) ($estudiante['CARRERA_NOMBRE'] ?? ''));
+        $idEstudiante = !empty($estudiante['ID_ESTUDIANTE']) ? (int) $estudiante['ID_ESTUDIANTE'] : null;
+        $actividadesDisponibles = $this->obtenerActividadesDisponiblesDashboard($idEstudiante);
 
         // Sin ID_DATO_PERSONA no podemos filtrar prácticas; dejar estadísticas en 0
         if (!$idDatoPersona) {
@@ -56,7 +100,8 @@ class DashboardEstudianteController extends BaseController
                 'carrera_nombre' => $carreraNombre !== '' ? $carreraNombre : null,
                 'total_practicas' => 0,
                 'practicas_activas' => 0,
-                'total_actividades' => $this->actividadesModel->countAllResults(),
+                'total_actividades' => count($actividadesDisponibles),
+                'actividades_disponibles' => $actividadesDisponibles,
                 'total_preprofesionales' => 0,
                 'preprofesionales_activas' => 0,
                 'total_servicio_comunitario' => 0,
@@ -142,7 +187,8 @@ class DashboardEstudianteController extends BaseController
             'carrera_nombre' => $carreraNombre !== '' ? $carreraNombre : null,
             'total_practicas' => $totalPracticas,
             'practicas_activas' => $practicasActivas,
-            'total_actividades' => $this->actividadesModel->countAllResults(),
+            'total_actividades' => count($actividadesDisponibles),
+            'actividades_disponibles' => $actividadesDisponibles,
             'total_preprofesionales' => $totalPreprofesionales,
             'preprofesionales_activas' => $preprofesionalesActivas,
             'total_servicio_comunitario' => $totalServicioComunitario,

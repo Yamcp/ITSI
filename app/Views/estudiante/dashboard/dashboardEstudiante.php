@@ -288,6 +288,23 @@
         color: #64748b;
         margin-bottom: 0.5rem;
     }
+
+    .activity-card a.stretched-link {
+        text-decoration: none;
+    }
+
+    .activities-empty {
+        text-align: center;
+        padding: 1.75rem 1rem;
+        color: #64748b;
+    }
+
+    .activities-empty i {
+        font-size: 2.25rem;
+        opacity: 0.55;
+        margin-bottom: 0.75rem;
+        display: block;
+    }
 </style>
 <?= $this->endSection() ?>
 
@@ -436,42 +453,71 @@
 
         <!-- Actividades disponibles -->
         <div class="card card-dash">
-            <div class="card-header">
-                <i class="fas fa-graduation-cap me-2 text-primary"></i>Actividades disponibles
+            <div class="card-header d-flex flex-wrap justify-content-between align-items-center gap-2">
+                <span><i class="fas fa-graduation-cap me-2 text-primary"></i>Actividades disponibles</span>
+                <a href="<?= site_url('estudiante/educacion') ?>" class="btn btn-sm btn-outline-primary">Ver todas</a>
             </div>
             <div class="card-body p-3 p-md-4">
+                <?php
+                $actividadesDisponibles = $actividades_disponibles ?? [];
+                $hoyDash = date('Y-m-d');
+                if (!empty($actividadesDisponibles)):
+                ?>
                 <div class="row g-3">
+                    <?php foreach ($actividadesDisponibles as $act):
+                        $tipoAct = (string) ($act['ACTIVIDAD'] ?? '');
+                        $nombreAct = trim((string) ($act['NOMBRE_ACTIVIDAD'] ?? 'Actividad'));
+                        $descAct = trim((string) ($act['DESCRIPCION'] ?? ''));
+                        if ($descAct === '') {
+                            $modalidad = trim((string) ($act['MODALIDAD'] ?? ''));
+                            $horas = $act['DURACION_HORAS'] ?? null;
+                            $partes = array_filter([
+                                $tipoAct !== '' ? $tipoAct : null,
+                                $modalidad !== '' ? $modalidad : null,
+                                $horas !== null && $horas !== '' ? ((int) $horas) . ' h' : null,
+                            ]);
+                            $descAct = $partes !== [] ? implode(' · ', $partes) : 'Educación continua';
+                        }
+                        $fechaInicioAct = (string) ($act['FECHA_INICIO'] ?? '');
+                        $esProximamente = $fechaInicioAct !== '' && $fechaInicioAct > $hoyDash;
+
+                        if ($tipoAct === 'Taller') {
+                            $iconClass = 'fas fa-wrench';
+                            $colorClass = 'success';
+                        } elseif ($tipoAct === 'Curso') {
+                            $iconClass = 'fas fa-laptop-code';
+                            $colorClass = 'primary';
+                        } else {
+                            $iconClass = 'fas fa-comments';
+                            $colorClass = 'info';
+                        }
+                    ?>
                     <div class="col-md-4">
-                        <div class="activity-card">
-                            <div class="activity-icon bg-primary bg-opacity-10 text-primary">
-                                <i class="fas fa-laptop-code"></i>
+                        <div class="activity-card position-relative">
+                            <div class="activity-icon bg-<?= $colorClass ?> bg-opacity-10 text-<?= $colorClass ?>">
+                                <i class="<?= $iconClass ?>"></i>
                             </div>
-                            <h6>Curso de Programación</h6>
-                            <p class="mb-0">Desarrollo web con PHP</p>
-                            <span class="badge bg-primary">Disponible</span>
+                            <h6><?= esc($nombreAct) ?></h6>
+                            <p class="mb-2"><?= esc(strlen($descAct) > 90 ? substr($descAct, 0, 87) . '…' : $descAct) ?></p>
+                            <?php if ($esProximamente): ?>
+                                <span class="badge bg-info">Próximamente</span>
+                            <?php else: ?>
+                                <span class="badge bg-primary">Disponible</span>
+                            <?php endif; ?>
+                            <a href="<?= site_url('estudiante/educacion') ?>" class="stretched-link" aria-label="Ver actividad <?= esc($nombreAct) ?>"></a>
                         </div>
                     </div>
-                    <div class="col-md-4">
-                        <div class="activity-card">
-                            <div class="activity-icon bg-success bg-opacity-10 text-success">
-                                <i class="fas fa-database"></i>
-                            </div>
-                            <h6>Taller de Bases de Datos</h6>
-                            <p class="mb-0">MySQL y PostgreSQL</p>
-                            <span class="badge bg-success">Inscrito</span>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="activity-card">
-                            <div class="activity-icon bg-info bg-opacity-10 text-info">
-                                <i class="fas fa-chart-bar"></i>
-                            </div>
-                            <h6>Seminario de Análisis</h6>
-                            <p class="mb-0">Estadística aplicada</p>
-                            <span class="badge bg-info">Próximamente</span>
-                        </div>
-                    </div>
+                    <?php endforeach; ?>
                 </div>
+                <?php else: ?>
+                <div class="activities-empty">
+                    <i class="fas fa-inbox"></i>
+                    <p class="mb-2">No hay actividades disponibles en este momento.</p>
+                    <a href="<?= site_url('estudiante/educacion') ?>" class="btn btn-sm btn-outline-primary">
+                        Ir a educación continua
+                    </a>
+                </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>

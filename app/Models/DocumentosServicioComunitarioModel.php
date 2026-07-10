@@ -378,20 +378,21 @@ class DocumentosServicioComunitarioModel extends Model
      */
     public function getResumenPorTipo()
     {
-        $builder = $this->db->table($this->table . ' dsc');
-        $builder->select('
-            dsc.ID_TIPO_DOCUMENTO,
-            tdsc.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
-            COUNT(*) as total,
-            SUM(CASE WHEN dsc.ESTADO_REVISION = "Pendiente" THEN 1 ELSE 0 END) as pendientes,
-            SUM(CASE WHEN dsc.ESTADO_REVISION = "Aprobado" THEN 1 ELSE 0 END) as aprobados,
-            SUM(CASE WHEN dsc.ESTADO_REVISION = "Rechazado" THEN 1 ELSE 0 END) as rechazados
-        ')
-        ->join('TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO tdsc', 'dsc.ID_TIPO_DOCUMENTO = tdsc.ID_TIPO_DOCUMENTO_SERVICIO')
-        ->groupBy('dsc.ID_TIPO_DOCUMENTO, tdsc.NOMBRE')
-        ->orderBy('total', 'DESC');
-        
-        return $builder->get()->getResultArray();
+        $query = $this->db->table($this->table . ' dsc')
+            ->select('
+                dsc.ID_TIPO_DOCUMENTO,
+                tdsc.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
+                COUNT(*) as total,
+                SUM(CASE WHEN dsc.ID_ESTADO_REVISION = 1 THEN 1 ELSE 0 END) as pendientes,
+                SUM(CASE WHEN dsc.ID_ESTADO_REVISION = 3 THEN 1 ELSE 0 END) as aprobados,
+                SUM(CASE WHEN dsc.ID_ESTADO_REVISION = 4 THEN 1 ELSE 0 END) as rechazados
+            ')
+            ->join('TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO tdsc', 'dsc.ID_TIPO_DOCUMENTO = tdsc.ID_TIPO_DOCUMENTO_SERVICIO', 'left')
+            ->groupBy('dsc.ID_TIPO_DOCUMENTO, tdsc.NOMBRE')
+            ->orderBy('total', 'DESC')
+            ->get();
+
+        return $query === false ? [] : $query->getResultArray();
     }
 
     /**
@@ -419,11 +420,28 @@ class DocumentosServicioComunitarioModel extends Model
      */
     public function actualizarEstadoRevision($id, $estado, $observaciones = null)
     {
-        $data = ['ESTADO_REVISION' => $estado];
-        if ($observaciones) {
-            $data['OBSERVACIONES'] = $observaciones;
+        $data = [];
+        if (is_numeric($estado)) {
+            $data['ID_ESTADO_REVISION'] = (int) $estado;
+        } else {
+            $estadoRow = $this->db->table('TAB_ESTADOS_REVISIONES')
+                ->select('ID_ESTADO_REVISION')
+                ->where('ESTADO', (string) $estado)
+                ->get()
+                ->getRowArray();
+            if ($estadoRow) {
+                $data['ID_ESTADO_REVISION'] = (int) $estadoRow['ID_ESTADO_REVISION'];
+            }
         }
-        
+
+        if ($observaciones) {
+            $data['OBSERVACIONES_REVISOR'] = $observaciones;
+        }
+
+        if ($data === []) {
+            return false;
+        }
+
         return $this->update($id, $data);
     }
 }

@@ -577,9 +577,16 @@ class DocumentosPracticasModel extends Model
      */
     public function getDocumentosPorPrioridad($prioridad)
     {
-        return $this->where('PRIORIDAD', $prioridad)
-                    ->orderBy('FECHA_SUBIDA', 'DESC')
-                    ->findAll();
+        // La tabla actual no tiene columna PRIORIDAD; se mantiene por compatibilidad.
+        try {
+            $query = $this->db->table($this->table)
+                ->orderBy('FECHA_SUBIDA', 'DESC')
+                ->get();
+            return $query === false ? [] : $query->getResultArray();
+        } catch (\Throwable $e) {
+            log_message('error', 'getDocumentosPorPrioridad: ' . $e->getMessage());
+            return [];
+        }
     }
 
     /**

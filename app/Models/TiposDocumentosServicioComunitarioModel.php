@@ -95,10 +95,16 @@ class TiposDocumentosServicioComunitarioModel extends Model
      */
     public function getTiposPorEstado($activo = 1)
     {
-        return $this->where('ACTIVO', $activo)
-                   ->orderBy('ORDEN', 'ASC')
-                   ->orderBy('CODIGO', 'ASC')
-                   ->findAll();
+        try {
+            $query = $this->db->table($this->table)
+                ->where('ACTIVO', $activo)
+                ->orderBy('ORDEN', 'ASC')
+                ->orderBy('CODIGO', 'ASC')
+                ->get();
+            return $query === false ? [] : $query->getResultArray();
+        } catch (\Throwable $e) {
+            return [];
+        }
     }
 
     /**
@@ -106,9 +112,18 @@ class TiposDocumentosServicioComunitarioModel extends Model
      */
     public function getTipoPorCodigo($codigo)
     {
-        return $this->where('CODIGO', $codigo)
-                   ->where('ACTIVO', 1)
-                   ->first();
+        try {
+            $query = $this->db->table($this->table)
+                ->where('CODIGO', $codigo)
+                ->where('ACTIVO', 1)
+                ->get();
+            if ($query === false) {
+                return null;
+            }
+            return $query->getRowArray();
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 
     /**
@@ -116,10 +131,16 @@ class TiposDocumentosServicioComunitarioModel extends Model
      */
     public function getTiposObligatorios()
     {
-        return $this->where('OBLIGATORIO', 1)
-                   ->where('ACTIVO', 1)
-                   ->orderBy('ORDEN', 'ASC')
-                   ->findAll();
+        try {
+            $query = $this->db->table($this->table)
+                ->where('OBLIGATORIO', 1)
+                ->where('ACTIVO', 1)
+                ->orderBy('ORDEN', 'ASC')
+                ->get();
+            return $query === false ? [] : $query->getResultArray();
+        } catch (\Throwable $e) {
+            return [];
+        }
     }
 
     /**
