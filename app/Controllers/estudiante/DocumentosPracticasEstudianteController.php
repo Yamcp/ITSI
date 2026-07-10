@@ -443,6 +443,38 @@ class DocumentosPracticasEstudianteController extends BaseController
     }
 
     /**
+     * Ver documento en el navegador (inline, sin forzar descarga).
+     */
+    public function verDocumento($id)
+    {
+        $idUsuario = session()->get('id_usuario');
+        $documento = $this->documentosModel->find($id);
+
+        if (!$documento) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Documento no encontrado');
+        }
+
+        if (!$this->documentosModel->documentoPerteneceAUsuario((int) $id, $idUsuario)) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('No tienes permisos para acceder a este documento');
+        }
+
+        $rutaArchivo = WRITEPATH . 'uploads/documentos-practicas/' . $documento['NOMBRE_ARCHIVO'];
+
+        if (!file_exists($rutaArchivo)) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Archivo no encontrado');
+        }
+
+        $nombreMostrar = $documento['NOMBRE_ORIGINAL'] ?? $documento['NOMBRE_ARCHIVO'];
+        $tipoMime = mime_content_type($rutaArchivo) ?: 'application/pdf';
+
+        $this->response->setHeader('Content-Type', $tipoMime);
+        $this->response->setHeader('Content-Disposition', 'inline; filename="' . str_replace('"', '', (string) $nombreMostrar) . '"');
+        $this->response->setHeader('Content-Length', (string) filesize($rutaArchivo));
+
+        return $this->response->setBody(file_get_contents($rutaArchivo));
+    }
+
+    /**
      * Descargar documento
      */
     public function descargarDocumento($id)
