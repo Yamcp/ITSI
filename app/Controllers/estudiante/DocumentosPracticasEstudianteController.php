@@ -265,7 +265,14 @@ class DocumentosPracticasEstudianteController extends BaseController
                     . ') VALUES (' . $placeholders . ')';
 
                 try {
-                    $db->query($sql, array_values($datos));
+                    $resultado = $db->query($sql, array_values($datos));
+                    // Con DBDebug=false, una consulta fallida no lanza excepción: solo
+                    // retorna false. Hay que comprobarlo explícitamente para no reportar
+                    // éxito cuando el INSERT nunca se guardó.
+                    if ($resultado === false || (int) $db->affectedRows() < 1) {
+                        throw new \RuntimeException('DB query returned false or affected 0 rows');
+                    }
+
                     return $this->response->setJSON([
                         'success' => true,
                         'message' => 'Documento subido exitosamente. Será revisado por el coordinador.',
