@@ -386,6 +386,34 @@ class PracticasEstudianteController extends BaseController
     }
 
     /**
+     * Ver documento de servicio comunitario en el navegador (inline).
+     */
+    public function verDocumentoServicioComunitario($id)
+    {
+        if (!session()->get('logged_in')) {
+            return $this->response->setStatusCode(403)->setBody('No autorizado');
+        }
+        $userId = session()->get('id_usuario');
+        $doc = $this->documentosServicioComunitarioModel->find($id);
+        if (!$doc || !$this->perteneceServicioAlEstudiante($doc['ID_SERVICIO_COMUNITARIO'], $userId)) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Documento no encontrado');
+        }
+        $ruta = WRITEPATH . 'uploads/documentos-servicio/' . $doc['NOMBRE_ARCHIVO'];
+        if (!file_exists($ruta) || !is_file($ruta)) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Archivo no encontrado');
+        }
+
+        $nombreMostrar = $doc['NOMBRE_ORIGINAL'] ?? $doc['NOMBRE_ARCHIVO'];
+        $tipoMime = mime_content_type($ruta) ?: 'application/pdf';
+
+        $this->response->setHeader('Content-Type', $tipoMime);
+        $this->response->setHeader('Content-Disposition', 'inline; filename="' . str_replace('"', '', (string) $nombreMostrar) . '"');
+        $this->response->setHeader('Content-Length', (string) filesize($ruta));
+
+        return $this->response->setBody(file_get_contents($ruta));
+    }
+
+    /**
      * Descargar documento de servicio comunitario (estudiante).
      */
     public function descargarDocumentoServicioComunitario($id)

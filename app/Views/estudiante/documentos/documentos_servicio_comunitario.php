@@ -505,6 +505,36 @@ foreach ($servicios_documentacion ?? [] as $row) {
 <?= $this->endSection() ?>
 
 <?= $this->section('modal') ?>
+<!-- Modal Ver Documento -->
+<div class="modal fade" id="modalVerDocumento" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-eye me-2"></i>Visualizar Documento
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body p-0">
+                <iframe
+                    id="iframeDocumento"
+                    src=""
+                    style="width: 100%; height: 75vh; border: none;"
+                    title="Vista previa del documento">
+                </iframe>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cerrar
+                </button>
+                <button type="button" class="btn btn-success" id="btnDescargarDesdeModal">
+                    <i class="fas fa-download me-1"></i>Descargar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Subir Documento -->
 <div class="modal fade" id="modalSubirDocumento" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -662,13 +692,44 @@ foreach ($servicios_documentacion ?? [] as $row) {
             });
     }
 
+    var documentoActualId = null;
+
     function verDocumento(id) {
-        window.open('<?= base_url('estudiante/documentos-servicio-comunitario/descargar') ?>/' + id, '_blank');
+        documentoActualId = id;
+        var modalEl = document.getElementById('modalVerDocumento');
+        var iframe = document.getElementById('iframeDocumento');
+        if (!modalEl || !iframe) {
+            window.open('<?= base_url('estudiante/documentos-servicio-comunitario/ver') ?>/' + id, '_blank');
+            return;
+        }
+        iframe.src = '<?= base_url('estudiante/documentos-servicio-comunitario/ver') ?>/' + id;
+        bootstrap.Modal.getOrCreateInstance(modalEl).show();
     }
 
     function descargarDocumento(id) {
         window.location.href = '<?= base_url('estudiante/documentos-servicio-comunitario/descargar') ?>/' + id;
     }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var btnDescModal = document.getElementById('btnDescargarDesdeModal');
+        if (btnDescModal) {
+            btnDescModal.addEventListener('click', function() {
+                if (documentoActualId) {
+                    descargarDocumento(documentoActualId);
+                }
+            });
+        }
+        var modalVer = document.getElementById('modalVerDocumento');
+        if (modalVer) {
+            modalVer.addEventListener('hidden.bs.modal', function() {
+                var iframe = document.getElementById('iframeDocumento');
+                if (iframe) {
+                    iframe.src = '';
+                }
+                documentoActualId = null;
+            });
+        }
+    });
 
     function eliminarDocumento(id) {
         if (true) {

@@ -488,65 +488,96 @@
 
     <?= $this->endSection() ?>
 
-    <?= $this->section('modal') ?>
-    <!-- Modal Subir Documento -->
-    <div class="modal fade" id="modalSubirDocumento" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">
-                        <i class="fas fa-cloud-upload-alt me-2"></i>
-                        Subir Documento
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="formSubirDocumento" enctype="multipart/form-data">
-                        <input type="hidden" name="tipo_documento" id="tipo_documento_id">
-                        <input type="hidden" name="id_practica" id="form_id_practica" value="">
-
-                        <div class="mb-3">
-                            <label class="form-label">Tipo de Documento</label>
-                            <input type="text" class="form-control" id="tipo_documento_nombre" readonly>
-                        </div>
-
-                        <p class="small text-muted mb-3">
-                            <?php if (!empty($practicas_documentacion)): ?>
-                                La entidad receptora y el docente tutor se envían según la información mostrada arriba («Datos de documentación de la práctica»).
-                            <?php else: ?>
-                                Aún no hay entidad ni tutor asociados a tu práctica en el sistema; revisa con vinculación si corresponde.
-                            <?php endif; ?>
-                        </p>
-
-                        <div class="mb-3">
-                            <label class="form-label">Archivo</label>
-                            <div class="upload-area" id="uploadArea">
-                                <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
-                                <h5 class="text-muted">Arrastra y suelta tu archivo aquí</h5>
-                                <p class="text-muted mb-3">o</p>
-                                <input type="file" class="form-control" name="archivo" id="archivoInput"
-                                    accept=".pdf,application/pdf" required>
-                                <small class="text-muted">Solo PDF. Máximo 10 MB.</small>
-                            </div>
-                        </div>
-
-                        <div class="mb-3">
-                            <label class="form-label">Observaciones (Opcional)</label>
-                            <textarea class="form-control" name="observaciones" rows="3"
-                                placeholder="Observaciones adicionales sobre el documento..."></textarea>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" onclick="subirDocumento()">
-                        <i class="fas fa-upload me-1"></i>Subir Documento
-                    </button>
-                </div>
+<?= $this->section('modal') ?>
+<!-- Modal Ver Documento -->
+<div class="modal fade" id="modalVerDocumento" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-eye me-2"></i>
+                    Visualizar Documento
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body p-0">
+                <iframe
+                    id="iframeDocumento"
+                    src=""
+                    style="width: 100%; height: 75vh; border: none;"
+                    title="Vista previa del documento">
+                </iframe>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cerrar
+                </button>
+                <button type="button" class="btn btn-success" id="btnDescargarDesdeModal">
+                    <i class="fas fa-download me-1"></i>Descargar
+                </button>
             </div>
         </div>
     </div>
-    <?= $this->endSection() ?>
+</div>
+
+<!-- Modal Subir Documento -->
+<div class="modal fade" id="modalSubirDocumento" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-cloud-upload-alt me-2"></i>
+                    Subir Documento
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formSubirDocumento" enctype="multipart/form-data">
+                    <input type="hidden" name="tipo_documento" id="tipo_documento_id">
+                    <input type="hidden" name="id_practica" id="form_id_practica" value="">
+
+                    <div class="mb-3">
+                        <label class="form-label">Tipo de Documento</label>
+                        <input type="text" class="form-control" id="tipo_documento_nombre" readonly>
+                    </div>
+
+                    <p class="small text-muted mb-3">
+                        <?php if (!empty($practicas_documentacion)): ?>
+                            La entidad receptora y el docente tutor se envían según la información mostrada arriba («Datos de documentación de la práctica»).
+                        <?php else: ?>
+                            Aún no hay entidad ni tutor asociados a tu práctica en el sistema; revisa con vinculación si corresponde.
+                        <?php endif; ?>
+                    </p>
+
+                    <div class="mb-3">
+                        <label class="form-label">Archivo</label>
+                        <div class="upload-area" id="uploadArea">
+                            <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                            <h5 class="text-muted">Arrastra y suelta tu archivo aquí</h5>
+                            <p class="text-muted mb-3">o</p>
+                            <input type="file" class="form-control" name="archivo" id="archivoInput"
+                                accept=".pdf,application/pdf" required>
+                            <small class="text-muted">Solo PDF. Máximo 10 MB.</small>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Observaciones (Opcional)</label>
+                        <textarea class="form-control" name="observaciones" rows="3"
+                            placeholder="Observaciones adicionales sobre el documento..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="subirDocumento()">
+                    <i class="fas fa-upload me-1"></i>Subir Documento
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<?= $this->endSection() ?>
 
     <?= $this->section('scripts') ?>
     <script>
@@ -686,13 +717,44 @@
                 });
         }
 
+        var documentoActualId = null;
+
         function verDocumento(id) {
-            window.open('<?= base_url('estudiante/documentos-practicas/descargar') ?>/' + id, '_blank');
+            documentoActualId = id;
+            var modalEl = document.getElementById('modalVerDocumento');
+            var iframe = document.getElementById('iframeDocumento');
+            if (!modalEl || !iframe) {
+                window.open('<?= base_url('estudiante/documentos-practicas/ver') ?>/' + id, '_blank');
+                return;
+            }
+            iframe.src = '<?= base_url('estudiante/documentos-practicas/ver') ?>/' + id;
+            bootstrap.Modal.getOrCreateInstance(modalEl).show();
         }
 
         function descargarDocumento(id) {
             window.location.href = '<?= base_url('estudiante/documentos-practicas/descargar') ?>/' + id;
         }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            var btnDescModal = document.getElementById('btnDescargarDesdeModal');
+            if (btnDescModal) {
+                btnDescModal.addEventListener('click', function() {
+                    if (documentoActualId) {
+                        descargarDocumento(documentoActualId);
+                    }
+                });
+            }
+            var modalVer = document.getElementById('modalVerDocumento');
+            if (modalVer) {
+                modalVer.addEventListener('hidden.bs.modal', function() {
+                    var iframe = document.getElementById('iframeDocumento');
+                    if (iframe) {
+                        iframe.src = '';
+                    }
+                    documentoActualId = null;
+                });
+            }
+        });
 
         function eliminarDocumento(id) {
             if (true) {

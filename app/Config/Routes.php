@@ -307,11 +307,13 @@ $routes->group('estudiante', ['namespace' => 'App\Controllers\estudiante', 'filt
     $routes->get('documentos-practicas/diagnostico', 'DocumentosPracticasEstudianteController::diagnostico'); // Diagnóstico FK/tablas
     $routes->get('documentos-practicas/mis-documentos', 'DocumentosPracticasEstudianteController::misDocumentos'); // Mis documentos
     $routes->get('documentos-practicas/progreso', 'DocumentosPracticasEstudianteController::verProgreso'); // Ver progreso
+    $routes->get('documentos-practicas/ver/(:num)', 'DocumentosPracticasEstudianteController::verDocumento/$1'); // Ver documento (inline)
     $routes->get('documentos-practicas/descargar/(:num)', 'DocumentosPracticasEstudianteController::descargarDocumento/$1'); // Descargar documento
     $routes->post('documentos-practicas/eliminar/(:num)', 'DocumentosPracticasEstudianteController::eliminarDocumento/$1'); // Eliminar documento
 
     // Rutas para documentos de servicio comunitario (estudiante)
     $routes->post('documentos-servicio-comunitario/subir', 'PracticasEstudianteController::subirDocumentoServicioComunitario');
+    $routes->get('documentos-servicio-comunitario/ver/(:num)', 'PracticasEstudianteController::verDocumentoServicioComunitario/$1');
     $routes->get('documentos-servicio-comunitario/descargar/(:num)', 'PracticasEstudianteController::descargarDocumentoServicioComunitario/$1');
     $routes->post('documentos-servicio-comunitario/eliminar/(:num)', 'PracticasEstudianteController::eliminarDocumentoServicioComunitario/$1');
     

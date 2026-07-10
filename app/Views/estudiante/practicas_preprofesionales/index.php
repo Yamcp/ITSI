@@ -728,6 +728,36 @@
     </div>
 </div>
 
+<!-- Modal Ver Documento -->
+<div class="modal fade" id="modalVerDocumentoPractica" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-eye me-2"></i>Visualizar Documento
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body p-0">
+                <iframe
+                    id="iframeDocumentoPractica"
+                    src=""
+                    style="width: 100%; height: 75vh; border: none;"
+                    title="Vista previa del documento">
+                </iframe>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cerrar
+                </button>
+                <button type="button" class="btn btn-success" id="btnDescargarDesdeModalPractica">
+                    <i class="fas fa-download me-1"></i>Descargar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Modal Subir Documento (checklist prácticas) -->
 <div class="modal fade" id="modalSubirDocumentoPractica" tabindex="-1">
     <div class="modal-dialog modal-lg">
@@ -1060,16 +1090,46 @@
             });
     }
 
+    var documentoPracticaActualId = null;
+
     function verDocumentoPractica(id) {
-        window.open(baseUrlDocumentos + '/descargar/' + id, '_blank');
+        documentoPracticaActualId = id;
+        var modalEl = document.getElementById('modalVerDocumentoPractica');
+        var iframe = document.getElementById('iframeDocumentoPractica');
+        if (!modalEl || !iframe) {
+            window.open(baseUrlDocumentos + '/ver/' + id, '_blank');
+            return;
+        }
+        iframe.src = baseUrlDocumentos + '/ver/' + id;
+        bootstrap.Modal.getOrCreateInstance(modalEl).show();
     }
 
     function descargarDocumentoPractica(id) {
         window.location.href = baseUrlDocumentos + '/descargar/' + id;
     }
 
+    document.addEventListener('DOMContentLoaded', function() {
+        var btnDescModal = document.getElementById('btnDescargarDesdeModalPractica');
+        if (btnDescModal) {
+            btnDescModal.addEventListener('click', function() {
+                if (documentoPracticaActualId) {
+                    descargarDocumentoPractica(documentoPracticaActualId);
+                }
+            });
+        }
+        var modalVer = document.getElementById('modalVerDocumentoPractica');
+        if (modalVer) {
+            modalVer.addEventListener('hidden.bs.modal', function() {
+                var iframe = document.getElementById('iframeDocumentoPractica');
+                if (iframe) {
+                    iframe.src = '';
+                }
+                documentoPracticaActualId = null;
+            });
+        }
+    });
+
     function eliminarDocumentoPractica(id) {
-        if (true) {
         fetch(baseUrlDocumentos + '/eliminar/' + id, {
                 method: 'POST'
             })
