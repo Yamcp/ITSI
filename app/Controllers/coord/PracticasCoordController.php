@@ -538,7 +538,7 @@ class PracticasCoordController extends BaseController
 
     /**
      * Nueva asignación: siempre "En Progreso" (iniciada).
-     * IDs según TAB_ESTADOS_PRACTICAS_PREPROFESIONALES / TAB_ESTADOS_SERVICIO_COMUNITARIO en bddITSI.sql.
+     * IDs según TAB_ESTADOS_PRACTICAS_PREPROFESIONALES / TAB_ESTADOS_SERVICIO_COMUNITARIO en bddITSI_completo.sql.
      */
     private const ID_ESTADO_ASIGNACION_EN_PROGRESO = 2;
     private const ID_ESTADO_PREPROF_EN_PROGRESO = 2;

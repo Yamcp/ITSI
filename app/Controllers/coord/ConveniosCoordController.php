@@ -354,7 +354,7 @@ class ConveniosCoordController extends BaseController
             return $this->response->setJSON(['success' => false, 'message' => 'Convenio no encontrado.']);
         }
         if (!$this->conveniosModel->tieneColumnasCarreraYPlazas()) {
-            return $this->response->setJSON(['success' => false, 'message' => 'La base de datos no tiene la columna de plazas (ni el esquema esperado de convenios). Actualice el esquema según bddITSI.sql (TAB_DETALLES_CONVENIOS: ID_CARRERA, PLAZAS_DISPONIBLES) o importe de nuevo ese script.']);
+            return $this->response->setJSON(['success' => false, 'message' => 'La base de datos no tiene la columna de plazas (ni el esquema esperado de convenios). Actualice el esquema según bddITSI_completo.sql (TAB_DETALLES_CONVENIOS: ID_CARRERA, PLAZAS_DISPONIBLES) o importe de nuevo ese script.']);
         }
         if ($this->conveniosModel->update($id, ['PLAZAS_DISPONIBLES' => $plazas])) {
             return $this->response->setJSON(['success' => true, 'message' => 'Plazas actualizadas correctamente.', 'plazas_disponibles' => $plazas]);

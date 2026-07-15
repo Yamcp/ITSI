@@ -1,11 +1,12 @@
 /*==============================================================*/
 /* ITSI — Datos iniciales (INSERT)                              */
-/* Requisito: haber importado antes bddITSI.sql (esquema)       */
+/* Requisito: haber importado antes bddITSI_completo.sql        */
 /* Motor: MySQL 5.7+ / MariaDB 10.2+ · utf8mb4_unicode_ci      */
 /*                                                              */
 /* En phpMyAdmin: selecciona primero tu base de datos y luego   */
 /* importa este archivo.                                        */
-/* No importes bddITSI_vistas_local.sql en InfinityFree.        */
+/* En InfinityFree: no ejecutes la sección 3 (vistas) del       */
+/* esquema completo.                                            */
 /*==============================================================*/
 
 -- Solo en local (descomentar si hace falta):

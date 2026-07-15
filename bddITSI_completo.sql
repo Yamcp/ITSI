@@ -1,21 +1,30 @@
 /*==============================================================*/
-/* ITSI — Esquema (tablas, vistas, procedimientos)               */
-/* Motor: MySQL 5.7+ / MariaDB 10.2+ · utf8mb4_unicode_ci      */
-/* Uso: importar primero este archivo, luego bddITSI_datos.sql  */
+/* ITSI — Script SQL unificado                                  */
 /*                                                              */
-/* IMPORTANTE (hosting compartido / InfinityFree / etc.):       */
-/*   1. En el panel elige la BD que te asignaron.                */
-/*   2. En phpMyAdmin selecciona ESA base (clic a la izquierda).*/
-/*   3. Importa este archivo, luego bddITSI_datos.sql.          */
-/*   4. NO importes bddITSI_vistas_local.sql (CREATE VIEW #1142)*/
+/* Incluye:                                                     */
+/*   1) Esquema (tablas)                                        */
+/*   2) Reparación FK prácticas                                 */
+/*   3) Vistas / procedimientos (opcional, solo local)          */
 /*                                                              */
-/* Local (XAMPP): crea la BD `itsi` a mano o descomenta abajo.  */
-/*   Opcional local: después importa bddITSI_vistas_local.sql.  */
+/* Uso recomendado:                                             */
+/*   • Local (XAMPP): importar este archivo completo.           */
+/*     Opcional: crear BD `itsi` y USE `itsi` antes.            */
+/*   • Hosting compartido (InfinityFree, etc.):                 */
+/*     Importar SOLO la SECCIÓN 1 (esquema). NO importar        */
+/*     la sección 3 (CREATE VIEW suele fallar #1142).           */
+/*   • Datos de prueba: después importar bddITSI_datos.sql      */
+/*                                                              */
+/* Motor: MySQL 5.7+ / MariaDB 10.2+ · utf8mb4_unicode_ci       */
 /*==============================================================*/
 
--- Solo en local con permisos de root (descomentar si hace falta):
+-- Solo en local con permisos (descomentar si hace falta):
 -- CREATE DATABASE IF NOT EXISTS `itsi` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 -- USE `itsi`;
+
+/*==============================================================*/
+/* SECCIÓN 1 — ESQUEMA (tablas)                                 */
+/* Origen: bddITSI.sql                                          */
+/*==============================================================*/
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
@@ -1390,3 +1399,667 @@ CREATE INDEX `idx_notificaciones_usuario_leida` ON `TAB_NOTIFICACIONES` (`ID_USU
 CREATE INDEX `idx_notificaciones_fecha_tipo` ON `TAB_NOTIFICACIONES` (`FECHA_CREACION`, `TIPO_NOTIFICACION`, `ACTIVA`);
 
 SET FOREIGN_KEY_CHECKS = 1;
+
+/*==============================================================*/
+/* SECCIÓN 2 — REPARACIÓN FK PRÁCTICAS                          */
+/* Origen: sql_reparar_fk_practicas.sql                         */
+/*                                                              */
+/* En algunos entornos existió un duplicado en minúsculas:      */
+/*   tab_practicas_preprofesionales                             */
+/* La tabla correcta es:                                        */
+/*   TAB_PRACTICAS_PREPROFESIONALES                             */
+/* Este bloque elimina el duplicado vacío si aún existe.        */
+/*==============================================================*/
+
+-- (Opcional) Verificar datos en la tabla real:
+-- SELECT ID_PRACTICA_PREPROFESIONAL, ID_ESTUDIANTE, ESTADO_PRACTICA
+-- FROM TAB_PRACTICAS_PREPROFESIONALES
+-- ORDER BY ID_PRACTICA_PREPROFESIONAL;
+
+-- (Opcional) Ver a qué tabla apunta la FK de documentos:
+-- SELECT CONSTRAINT_NAME, TABLE_NAME, REFERENCED_TABLE_NAME
+-- FROM information_schema.KEY_COLUMN_USAGE
+-- WHERE TABLE_SCHEMA = DATABASE()
+--   AND CONSTRAINT_NAME = 'FK_DOCS_PREPROFESIONALES_PRACTICA';
+
+-- Borrar el duplicado vacío (minúsculas), si existe
+DROP TABLE IF EXISTS `tab_practicas_preprofesionales`;
+
+-- Verificar que solo quede la de MAYÚSCULAS:
+-- SHOW TABLES LIKE '%practicas_preprofesionales%';
+-- Debe mostrar SOLO: TAB_PRACTICAS_PREPROFESIONALES
+
+/*==============================================================*/
+/* SECCIÓN 3 — VISTAS Y PROCEDIMIENTOS (OPCIONAL / LOCAL)       */
+/* Origen: bddITSI_vistas_local.sql                             */
+/*                                                              */
+/* InfinityFree y muchos hostings NO permiten CREATE VIEW.      */
+/* En hosting: omitir esta sección o comentarla.                */
+/* En XAMPP/local con root: dejarla y ejecutar.                 */
+/* La aplicación también funciona sin estas vistas.             */
+/*==============================================================*/
+
+-- ==============================================================
+-- VISTAS PARA FACILITAR CONSULTAS
+-- ==============================================================
+
+CREATE OR REPLACE VIEW V_DOCUMENTOS_PRACTICAS_COMPLETOS AS
+SELECT 
+    dp.ID_DOCUMENTO_PREPROFESIONAL,
+    dp.ID_PRACTICA_PREPROFESIONAL,
+    dp.ID_TIPO_DOCUMENTO,
+    dp.ID_ESTADO_REVISION,
+    dp.NOMBRE_ARCHIVO,
+    dp.NOMBRE_ORIGINAL,
+    dp.TIPO_ARCHIVO,
+    dp.TAMANO_ARCHIVO,
+    dp.RUTA_ARCHIVO,
+    dp.FECHA_SUBIDA,
+    dp.FECHA_REVISION,
+    dp.ID_REVISOR,
+    dp.OBSERVACIONES,
+    dp.OBSERVACIONES_REVISOR,
+    dp.VERSION,
+    dp.ACTIVO,
+    'PRACTICAS' as TIPO_MODALIDAD,
+    
+    -- Información del período académico (tabla: solo mes/año inicio-fin; resto derivado)
+    pp.ID_PERIODO_ACADEMICO,
+    CONCAT(LPAD(pa.MES_INICIO, 2, '0'), '/', pa.AÑO_INICIO, ' - ', LPAD(pa.MES_FIN, 2, '0'), '/', pa.AÑO_FIN) AS NOMBRE_PERIODO,
+    pa.AÑO_INICIO AS AÑO_ACADEMICO,
+    pa.MES_INICIO,
+    pa.AÑO_INICIO,
+    pa.MES_FIN,
+    pa.AÑO_FIN,
+    STR_TO_DATE(CONCAT(pa.AÑO_INICIO, '-', LPAD(pa.MES_INICIO, 2, '0'), '-01'), '%Y-%m-%d') AS PERIODO_FECHA_INICIO,
+    LAST_DAY(STR_TO_DATE(CONCAT(pa.AÑO_FIN, '-', LPAD(pa.MES_FIN, 2, '0'), '-01'), '%Y-%m-%d')) AS PERIODO_FECHA_FIN,
+    'N/D' AS TIPO_PERIODO,
+    0 AS NUMERO_PERIODO,
+    NULL AS PERIODO_ESTADO,
+    CONCAT(LPAD(pa.MES_INICIO, 2, '0'), '/', pa.AÑO_INICIO, ' - ', LPAD(pa.MES_FIN, 2, '0'), '/', pa.AÑO_FIN) AS PERIODO_COMPLETO,
+    
+    -- Información del tipo de documento
+    tdp.CODIGO as TIPO_DOCUMENTO_CODIGO,
+    tdp.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
+    tdp.DESCRIPCION as TIPO_DOCUMENTO_DESCRIPCION,
+    tdp.ORDEN as TIPO_DOCUMENTO_ORDEN,
+    tdp.OBLIGATORIO as TIPO_DOCUMENTO_OBLIGATORIO,
+    
+    -- Información del estado
+    er.ESTADO as ESTADO_REVISION,
+    er.DESCRIPCION as ESTADO_DESCRIPCION,
+    er.COLOR as ESTADO_COLOR,
+    
+    -- Información del estudiante
+    pp.ID_ESTUDIANTE,
+    CONCAT(persona.NOMBRE, ' ', persona.APELLIDO) as ESTUDIANTE_NOMBRE,
+    persona.NOMBRE as NOMBRE_ESTUDIANTE,
+    persona.APELLIDO as APELLIDO_ESTUDIANTE,
+    persona.CEDULA as CEDULA_ESTUDIANTE,
+    
+    -- Información de la entidad receptora
+    ic.NOMBRE as ENTIDAD_RECEPTORA,
+    ic.RUC as ENTIDAD_RUC,
+    ic.CIUDAD as ENTIDAD_CIUDAD,
+    
+    -- Información del revisor
+    CONCAT(rev_persona.NOMBRE, ' ', rev_persona.APELLIDO) as REVISOR_NOMBRE,
+    rev_persona.NOMBRE as NOMBRE_REVISOR,
+    rev_persona.APELLIDO as APELLIDO_REVISOR,
+    
+    -- Información del docente tutor
+    CONCAT(dt_persona.NOMBRE, ' ', dt_persona.APELLIDO) as DOCENTE_TUTOR,
+    dt_persona.NOMBRE as NOMBRE_DOCENTE,
+    dt_persona.APELLIDO as APELLIDO_DOCENTE,
+    dt.ESPECIALIDAD as DOCENTE_ESPECIALIDAD,
+    dt.TITULO_PROFESIONAL as DOCENTE_TITULO
+
+FROM TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES dp
+LEFT JOIN TAB_TIPOS_DOCUMENTOS_PREPROFESIONALES tdp ON dp.ID_TIPO_DOCUMENTO = tdp.ID_TIPO_DOCUMENTO_PREPROFESIONAL
+LEFT JOIN TAB_ESTADOS_REVISIONES er ON dp.ID_ESTADO_REVISION = er.ID_ESTADO_REVISION
+LEFT JOIN TAB_PRACTICAS_PREPROFESIONALES pp ON dp.ID_PRACTICA_PREPROFESIONAL = pp.ID_PRACTICA_PREPROFESIONAL
+LEFT JOIN TAB_PERIODOS_ACADEMICOS pa ON pp.ID_PERIODO_ACADEMICO = pa.ID_PERIODO_ACADEMICO
+LEFT JOIN TAB_ESTUDIANTES e ON pp.ID_ESTUDIANTE = e.ID_ESTUDIANTE
+LEFT JOIN TAB_DATOS_PERSONAS persona ON e.ID_DATO_PERSONA = persona.ID_DATO_PERSONA
+LEFT JOIN TAB_INSTITUCIONES_CONVENIOS ic ON pp.ID_INSTITUCION_CONVENIO = ic.ID_INSTITUCION_CONVENIO
+LEFT JOIN TAB_USUARIOS rev_usuario ON dp.ID_REVISOR = rev_usuario.ID_USUARIO
+LEFT JOIN TAB_DATOS_PERSONAS rev_persona ON rev_usuario.ID_DATO_PERSONA = rev_persona.ID_DATO_PERSONA
+LEFT JOIN TAB_ASIGNACIONES_DOCENTES_PRACTICAS adp ON pp.ID_PRACTICA_PREPROFESIONAL = adp.ID_PRACTICA_PREPROFESIONAL AND adp.TIPO_ASIGNACION = 'Principal'
+LEFT JOIN TAB_DOCENTES_TUTORES dt ON adp.ID_DOCENTE_TUTOR = dt.ID_DOCENTE_TUTOR
+LEFT JOIN TAB_USUARIOS dt_usuario ON dt.ID_USUARIO = dt_usuario.ID_USUARIO
+LEFT JOIN TAB_DATOS_PERSONAS dt_persona ON dt_usuario.ID_DATO_PERSONA = dt_persona.ID_DATO_PERSONA
+WHERE dp.ACTIVO = true;
+
+-- Vista para documentos de servicio comunitario
+CREATE OR REPLACE VIEW V_DOCUMENTOS_SERVICIO_COMPLETOS AS
+SELECT 
+    ds.ID_DOCUMENTO_SERVICIO as ID_DOCUMENTO_PREPROFESIONAL,
+    ds.ID_SERVICIO_COMUNITARIO as ID_PRACTICA_PREPROFESIONAL,
+    ds.ID_TIPO_DOCUMENTO,
+    ds.ID_ESTADO_REVISION,
+    ds.NOMBRE_ARCHIVO,
+    ds.NOMBRE_ORIGINAL,
+    ds.TIPO_ARCHIVO,
+    ds.TAMANO_ARCHIVO,
+    ds.RUTA_ARCHIVO,
+    ds.FECHA_SUBIDA,
+    ds.FECHA_REVISION,
+    ds.ID_REVISOR,
+    ds.OBSERVACIONES,
+    ds.OBSERVACIONES_REVISOR,
+    ds.VERSION,
+    ds.ACTIVO,
+    'SERVICIO_COMUNITARIO' as TIPO_MODALIDAD,
+    
+    -- Información del período académico (tabla: solo mes/año inicio-fin; resto derivado)
+    sc.ID_PERIODO_ACADEMICO,
+    CONCAT(LPAD(pa.MES_INICIO, 2, '0'), '/', pa.AÑO_INICIO, ' - ', LPAD(pa.MES_FIN, 2, '0'), '/', pa.AÑO_FIN) AS NOMBRE_PERIODO,
+    pa.AÑO_INICIO AS AÑO_ACADEMICO,
+    pa.MES_INICIO,
+    pa.AÑO_INICIO,
+    pa.MES_FIN,
+    pa.AÑO_FIN,
+    STR_TO_DATE(CONCAT(pa.AÑO_INICIO, '-', LPAD(pa.MES_INICIO, 2, '0'), '-01'), '%Y-%m-%d') AS PERIODO_FECHA_INICIO,
+    LAST_DAY(STR_TO_DATE(CONCAT(pa.AÑO_FIN, '-', LPAD(pa.MES_FIN, 2, '0'), '-01'), '%Y-%m-%d')) AS PERIODO_FECHA_FIN,
+    'N/D' AS TIPO_PERIODO,
+    0 AS NUMERO_PERIODO,
+    NULL AS PERIODO_ESTADO,
+    CONCAT(LPAD(pa.MES_INICIO, 2, '0'), '/', pa.AÑO_INICIO, ' - ', LPAD(pa.MES_FIN, 2, '0'), '/', pa.AÑO_FIN) AS PERIODO_COMPLETO,
+    
+    -- Información del tipo de documento
+    tds.CODIGO as TIPO_DOCUMENTO_CODIGO,
+    tds.NOMBRE as TIPO_DOCUMENTO_NOMBRE,
+    tds.DESCRIPCION as TIPO_DOCUMENTO_DESCRIPCION,
+    tds.ORDEN as TIPO_DOCUMENTO_ORDEN,
+    tds.OBLIGATORIO as TIPO_DOCUMENTO_OBLIGATORIO,
+    
+    -- Información del estado
+    er.ESTADO as ESTADO_REVISION,
+    er.DESCRIPCION as ESTADO_DESCRIPCION,
+    er.COLOR as ESTADO_COLOR,
+    
+    -- Información del estudiante
+    sc.ID_ESTUDIANTE,
+    CONCAT(persona.NOMBRE, ' ', persona.APELLIDO) as ESTUDIANTE_NOMBRE,
+    persona.NOMBRE as NOMBRE_ESTUDIANTE,
+    persona.APELLIDO as APELLIDO_ESTUDIANTE,
+    persona.CEDULA as CEDULA_ESTUDIANTE,
+    
+    -- Información de la entidad receptora
+    ic.NOMBRE as ENTIDAD_RECEPTORA,
+    ic.RUC as ENTIDAD_RUC,
+    ic.CIUDAD as ENTIDAD_CIUDAD,
+    
+    -- Información del revisor
+    CONCAT(rev_persona.NOMBRE, ' ', rev_persona.APELLIDO) as REVISOR_NOMBRE,
+    rev_persona.NOMBRE as NOMBRE_REVISOR,
+    rev_persona.APELLIDO as APELLIDO_REVISOR,
+    
+    -- Información del docente tutor
+    CONCAT(dt_persona.NOMBRE, ' ', dt_persona.APELLIDO) as DOCENTE_TUTOR,
+    dt_persona.NOMBRE as NOMBRE_DOCENTE,
+    dt_persona.APELLIDO as APELLIDO_DOCENTE,
+    dt.ESPECIALIDAD as DOCENTE_ESPECIALIDAD,
+    dt.TITULO_PROFESIONAL as DOCENTE_TITULO
+
+FROM TAB_DOCUMENTOS_SERVICIO_COMUNITARIO ds
+LEFT JOIN TAB_TIPOS_DOCUMENTOS_SERVICIO_COMUNITARIO tds ON ds.ID_TIPO_DOCUMENTO = tds.ID_TIPO_DOCUMENTO_SERVICIO
+LEFT JOIN TAB_ESTADOS_REVISIONES er ON ds.ID_ESTADO_REVISION = er.ID_ESTADO_REVISION
+LEFT JOIN TAB_SERVICIO_COMUNITARIO sc ON ds.ID_SERVICIO_COMUNITARIO = sc.ID_SERVICIO_COMUNITARIO
+LEFT JOIN TAB_PERIODOS_ACADEMICOS pa ON sc.ID_PERIODO_ACADEMICO = pa.ID_PERIODO_ACADEMICO
+LEFT JOIN TAB_ESTUDIANTES e ON sc.ID_ESTUDIANTE = e.ID_ESTUDIANTE
+LEFT JOIN TAB_DATOS_PERSONAS persona ON e.ID_DATO_PERSONA = persona.ID_DATO_PERSONA
+LEFT JOIN TAB_INSTITUCIONES_CONVENIOS ic ON sc.ID_INSTITUCION_CONVENIO = ic.ID_INSTITUCION_CONVENIO
+LEFT JOIN TAB_USUARIOS rev_usuario ON ds.ID_REVISOR = rev_usuario.ID_USUARIO
+LEFT JOIN TAB_DATOS_PERSONAS rev_persona ON rev_usuario.ID_DATO_PERSONA = rev_persona.ID_DATO_PERSONA
+LEFT JOIN TAB_ASIGNACIONES_DOCENTES_PRACTICAS adp ON sc.ID_SERVICIO_COMUNITARIO = adp.ID_SERVICIO_COMUNITARIO AND adp.TIPO_ASIGNACION = 'Principal'
+LEFT JOIN TAB_DOCENTES_TUTORES dt ON adp.ID_DOCENTE_TUTOR = dt.ID_DOCENTE_TUTOR
+LEFT JOIN TAB_USUARIOS dt_usuario ON dt.ID_USUARIO = dt_usuario.ID_USUARIO
+LEFT JOIN TAB_DATOS_PERSONAS dt_persona ON dt_usuario.ID_DATO_PERSONA = dt_persona.ID_DATO_PERSONA
+WHERE ds.ACTIVO = true;
+
+-- Vista unificada para ambos tipos
+CREATE OR REPLACE VIEW V_DOCUMENTOS_UNIFICADOS AS
+SELECT * FROM V_DOCUMENTOS_PRACTICAS_COMPLETOS
+UNION ALL
+SELECT * FROM V_DOCUMENTOS_SERVICIO_COMPLETOS
+ORDER BY FECHA_SUBIDA DESC;
+
+-- ==============================================================
+-- VISTAS ESPECIALIZADAS PARA PERÍODOS ACADÉMICOS
+-- ==============================================================
+
+-- Vista para obtener el período académico actual (el de inicio más reciente por calendario)
+CREATE OR REPLACE VIEW V_PERIODO_ACADEMICO_ACTUAL AS
+SELECT 
+    ID_PERIODO_ACADEMICO,
+    CONCAT(LPAD(MES_INICIO, 2, '0'), '/', AÑO_INICIO, ' - ', LPAD(MES_FIN, 2, '0'), '/', AÑO_FIN) AS NOMBRE_PERIODO,
+    AÑO_INICIO AS AÑO_ACADEMICO,
+    MES_INICIO,
+    AÑO_INICIO,
+    MES_FIN,
+    AÑO_FIN,
+    STR_TO_DATE(CONCAT(AÑO_INICIO, '-', LPAD(MES_INICIO, 2, '0'), '-01'), '%Y-%m-%d') AS FECHA_INICIO,
+    LAST_DAY(STR_TO_DATE(CONCAT(AÑO_FIN, '-', LPAD(MES_FIN, 2, '0'), '-01'), '%Y-%m-%d')) AS FECHA_FIN,
+    'N/D' AS TIPO_PERIODO,
+    0 AS NUMERO_PERIODO,
+    'N/D' AS ESTADO,
+    NULL AS DESCRIPCION,
+    CONCAT(LPAD(MES_INICIO, 2, '0'), '/', AÑO_INICIO, ' - ', LPAD(MES_FIN, 2, '0'), '/', AÑO_FIN) AS PERIODO_COMPLETO
+FROM TAB_PERIODOS_ACADEMICOS
+ORDER BY AÑO_INICIO DESC, MES_INICIO DESC
+LIMIT 1;
+
+-- Vista para obtener todos los períodos académicos ordenados
+CREATE OR REPLACE VIEW V_PERIODOS_ACADEMICOS_ORDENADOS AS
+SELECT 
+    ID_PERIODO_ACADEMICO,
+    CONCAT(LPAD(MES_INICIO, 2, '0'), '/', AÑO_INICIO, ' - ', LPAD(MES_FIN, 2, '0'), '/', AÑO_FIN) AS NOMBRE_PERIODO,
+    AÑO_INICIO AS AÑO_ACADEMICO,
+    MES_INICIO,
+    AÑO_INICIO,
+    MES_FIN,
+    AÑO_FIN,
+    STR_TO_DATE(CONCAT(AÑO_INICIO, '-', LPAD(MES_INICIO, 2, '0'), '-01'), '%Y-%m-%d') AS FECHA_INICIO,
+    LAST_DAY(STR_TO_DATE(CONCAT(AÑO_FIN, '-', LPAD(MES_FIN, 2, '0'), '-01'), '%Y-%m-%d')) AS FECHA_FIN,
+    'N/D' AS TIPO_PERIODO,
+    0 AS NUMERO_PERIODO,
+    'N/D' AS ESTADO,
+    NULL AS DESCRIPCION,
+    CONCAT(LPAD(MES_INICIO, 2, '0'), '/', AÑO_INICIO, ' - ', LPAD(MES_FIN, 2, '0'), '/', AÑO_FIN) AS PERIODO_COMPLETO,
+    0 AS ORDEN_ESTADO
+FROM TAB_PERIODOS_ACADEMICOS
+ORDER BY AÑO_INICIO DESC, MES_INICIO DESC;
+
+-- Vista para estadísticas por período académico
+CREATE OR REPLACE VIEW V_ESTADISTICAS_PERIODOS AS
+SELECT 
+    pa.ID_PERIODO_ACADEMICO,
+    CONCAT(LPAD(pa.MES_INICIO, 2, '0'), '/', pa.AÑO_INICIO, ' - ', LPAD(pa.MES_FIN, 2, '0'), '/', pa.AÑO_FIN) AS NOMBRE_PERIODO,
+    pa.AÑO_INICIO AS AÑO_ACADEMICO,
+    'N/D' AS TIPO_PERIODO,
+    NULL AS ESTADO,
+    CONCAT(LPAD(pa.MES_INICIO, 2, '0'), '/', pa.AÑO_INICIO, ' - ', LPAD(pa.MES_FIN, 2, '0'), '/', pa.AÑO_FIN) AS PERIODO_COMPLETO,
+    
+    -- Estadísticas de prácticas preprofesionales
+    COUNT(DISTINCT pp.ID_PRACTICA_PREPROFESIONAL) as TOTAL_PRACTICAS_PREPROFESIONALES,
+    COUNT(DISTINCT CASE WHEN pp.ESTADO_PRACTICA = 'En Progreso' THEN pp.ID_PRACTICA_PREPROFESIONAL END) as PRACTICAS_EN_PROGRESO,
+    COUNT(DISTINCT CASE WHEN pp.ESTADO_PRACTICA = 'Completada' THEN pp.ID_PRACTICA_PREPROFESIONAL END) as PRACTICAS_COMPLETADAS,
+    COUNT(DISTINCT CASE WHEN pp.ESTADO_PRACTICA = 'Cancelada' THEN pp.ID_PRACTICA_PREPROFESIONAL END) as PRACTICAS_CANCELADAS,
+    
+    -- Estadísticas de servicio comunitario
+    COUNT(DISTINCT sc.ID_SERVICIO_COMUNITARIO) as TOTAL_SERVICIOS_COMUNITARIOS,
+    COUNT(DISTINCT CASE WHEN sc.ESTADO_SERVICIO = 'En Progreso' THEN sc.ID_SERVICIO_COMUNITARIO END) as SERVICIOS_EN_PROGRESO,
+    COUNT(DISTINCT CASE WHEN sc.ESTADO_SERVICIO = 'Completado' THEN sc.ID_SERVICIO_COMUNITARIO END) as SERVICIOS_COMPLETADOS,
+    COUNT(DISTINCT CASE WHEN sc.ESTADO_SERVICIO = 'Cancelado' THEN sc.ID_SERVICIO_COMUNITARIO END) as SERVICIOS_CANCELADOS,
+    
+    -- Estadísticas de actividades educativas
+    COUNT(DISTINCT ae.ID_ACTIVIDAD_EDUCACION) as TOTAL_ACTIVIDADES_EDUCATIVAS,
+    
+    -- Estadísticas de estudiantes
+    COUNT(DISTINCT e.ID_ESTUDIANTE) as TOTAL_ESTUDIANTES_PARTICIPANTES,
+    
+    -- Estadísticas de documentos
+    COUNT(DISTINCT dp.ID_DOCUMENTO_PREPROFESIONAL) as TOTAL_DOCUMENTOS_PRACTICAS,
+    COUNT(DISTINCT ds.ID_DOCUMENTO_SERVICIO) as TOTAL_DOCUMENTOS_SERVICIO,
+    
+    -- Rango del período (derivado de mes/año; útil para reportes)
+    STR_TO_DATE(CONCAT(pa.AÑO_INICIO, '-', LPAD(pa.MES_INICIO, 2, '0'), '-01'), '%Y-%m-%d') AS FECHA_INICIO,
+    LAST_DAY(STR_TO_DATE(CONCAT(pa.AÑO_FIN, '-', LPAD(pa.MES_FIN, 2, '0'), '-01'), '%Y-%m-%d')) AS FECHA_FIN,
+    DATEDIFF(
+        LAST_DAY(STR_TO_DATE(CONCAT(pa.AÑO_FIN, '-', LPAD(pa.MES_FIN, 2, '0'), '-01'), '%Y-%m-%d')),
+        STR_TO_DATE(CONCAT(pa.AÑO_INICIO, '-', LPAD(pa.MES_INICIO, 2, '0'), '-01'), '%Y-%m-%d')
+    ) + 1 AS DIAS_DURACION
+
+FROM TAB_PERIODOS_ACADEMICOS pa
+LEFT JOIN TAB_PRACTICAS_PREPROFESIONALES pp ON pa.ID_PERIODO_ACADEMICO = pp.ID_PERIODO_ACADEMICO
+LEFT JOIN TAB_SERVICIO_COMUNITARIO sc ON pa.ID_PERIODO_ACADEMICO = sc.ID_PERIODO_ACADEMICO
+LEFT JOIN TAB_ACTIVIDADES_EDUCACION ae ON pa.ID_PERIODO_ACADEMICO = ae.ID_PERIODO_ACADEMICO
+LEFT JOIN TAB_ESTUDIANTES e ON (pp.ID_ESTUDIANTE = e.ID_ESTUDIANTE OR sc.ID_ESTUDIANTE = e.ID_ESTUDIANTE)
+LEFT JOIN TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES dp ON pp.ID_PRACTICA_PREPROFESIONAL = dp.ID_PRACTICA_PREPROFESIONAL
+LEFT JOIN TAB_DOCUMENTOS_SERVICIO_COMUNITARIO ds ON sc.ID_SERVICIO_COMUNITARIO = ds.ID_SERVICIO_COMUNITARIO
+GROUP BY pa.ID_PERIODO_ACADEMICO, pa.MES_INICIO, pa.AÑO_INICIO, pa.MES_FIN, pa.AÑO_FIN
+ORDER BY pa.AÑO_INICIO DESC, pa.MES_INICIO DESC;
+
+-- Vista para documentos filtrados por período académico
+-- vd.* ya incluye columnas de período; no duplicar con pa.* (error #1060 en MySQL/MariaDB).
+CREATE OR REPLACE VIEW V_DOCUMENTOS_POR_PERIODO AS
+SELECT vd.*
+FROM V_DOCUMENTOS_UNIFICADOS vd
+INNER JOIN TAB_PERIODOS_ACADEMICOS pa ON vd.ID_PERIODO_ACADEMICO = pa.ID_PERIODO_ACADEMICO
+ORDER BY pa.AÑO_INICIO DESC, pa.MES_INICIO DESC, vd.FECHA_SUBIDA DESC;
+
+-- Vista para prácticas por período académico
+CREATE OR REPLACE VIEW V_PRACTICAS_POR_PERIODO AS
+SELECT 
+    pp.ID_PRACTICA_PREPROFESIONAL,
+    pp.ID_ASIGNACION_PRACTICA,
+    pp.ID_ESTUDIANTE,
+    pp.ID_DOCENTE_TUTOR,
+    pp.ID_INSTITUCION_CONVENIO,
+    pp.AREA_ESPECIALIZACION,
+    pp.PROYECTO_ESPECIFICO,
+    pp.HORAS_PRACTICAS,
+    pp.FECHA_INICIO,
+    pp.FECHA_FIN,
+    pp.ESTADO_PRACTICA,
+    pp.EVALUACION_FINAL,
+    pp.OBSERVACIONES,
+    pp.ID_PERIODO_ACADEMICO,
+    
+    -- Información del período académico (derivada de mes/año)
+    CONCAT(LPAD(pa.MES_INICIO, 2, '0'), '/', pa.AÑO_INICIO, ' - ', LPAD(pa.MES_FIN, 2, '0'), '/', pa.AÑO_FIN) AS NOMBRE_PERIODO,
+    pa.AÑO_INICIO AS AÑO_ACADEMICO,
+    'N/D' AS TIPO_PERIODO,
+    NULL AS PERIODO_ESTADO,
+    CONCAT(LPAD(pa.MES_INICIO, 2, '0'), '/', pa.AÑO_INICIO, ' - ', LPAD(pa.MES_FIN, 2, '0'), '/', pa.AÑO_FIN) AS PERIODO_COMPLETO,
+    
+    -- Información del estudiante
+    CONCAT(persona.NOMBRE, ' ', persona.APELLIDO) as ESTUDIANTE_NOMBRE,
+    persona.CEDULA as CEDULA_ESTUDIANTE,
+    c.NOMBRE as CARRERA_NOMBRE,
+    e.SEMESTRE_ACTUAL,
+    
+    -- Información de la entidad receptora
+    ic.NOMBRE as ENTIDAD_RECEPTORA,
+    ic.CIUDAD as ENTIDAD_CIUDAD,
+    
+    -- Información del docente tutor
+    CONCAT(dt_persona.NOMBRE, ' ', dt_persona.APELLIDO) as INSTRUCTOR_NOMBRE,
+    dt.ESPECIALIDAD as INSTRUCTOR_ESPECIALIDAD
+
+FROM TAB_PRACTICAS_PREPROFESIONALES pp
+LEFT JOIN TAB_PERIODOS_ACADEMICOS pa ON pp.ID_PERIODO_ACADEMICO = pa.ID_PERIODO_ACADEMICO
+LEFT JOIN TAB_ESTUDIANTES e ON pp.ID_ESTUDIANTE = e.ID_ESTUDIANTE
+LEFT JOIN TAB_DATOS_PERSONAS persona ON e.ID_DATO_PERSONA = persona.ID_DATO_PERSONA
+LEFT JOIN TAB_CARRERAS c ON e.ID_CARRERA = c.ID_CARRERA
+LEFT JOIN TAB_INSTITUCIONES_CONVENIOS ic ON pp.ID_INSTITUCION_CONVENIO = ic.ID_INSTITUCION_CONVENIO
+LEFT JOIN TAB_DOCENTES_TUTORES dt ON pp.ID_DOCENTE_TUTOR = dt.ID_DOCENTE_TUTOR
+LEFT JOIN TAB_DATOS_PERSONAS dt_persona ON dt.ID_DATO_PERSONA = dt_persona.ID_DATO_PERSONA
+ORDER BY pa.AÑO_INICIO DESC, pa.MES_INICIO DESC, pp.FECHA_INICIO DESC;
+
+-- Vista para servicios comunitarios por período académico
+CREATE OR REPLACE VIEW V_SERVICIOS_POR_PERIODO AS
+SELECT 
+    sc.ID_SERVICIO_COMUNITARIO,
+    sc.ID_ASIGNACION_PRACTICA,
+    sc.ID_ESTUDIANTE,
+    sc.ID_DOCENTE_TUTOR,
+    sc.ID_INSTITUCION_CONVENIO,
+    sc.PROYECTO_SOCIAL,
+    sc.COMUNIDAD_BENEFICIADA,
+    sc.HORAS_SERVICIO,
+    sc.FECHA_INICIO,
+    sc.FECHA_FIN,
+    sc.ESTADO_SERVICIO,
+    sc.IMPACTO_SOCIAL,
+    sc.OBSERVACIONES,
+    sc.ID_PERIODO_ACADEMICO,
+    
+    -- Información del período académico (derivada de mes/año)
+    CONCAT(LPAD(pa.MES_INICIO, 2, '0'), '/', pa.AÑO_INICIO, ' - ', LPAD(pa.MES_FIN, 2, '0'), '/', pa.AÑO_FIN) AS NOMBRE_PERIODO,
+    pa.AÑO_INICIO AS AÑO_ACADEMICO,
+    'N/D' AS TIPO_PERIODO,
+    NULL AS PERIODO_ESTADO,
+    CONCAT(LPAD(pa.MES_INICIO, 2, '0'), '/', pa.AÑO_INICIO, ' - ', LPAD(pa.MES_FIN, 2, '0'), '/', pa.AÑO_FIN) AS PERIODO_COMPLETO,
+    
+    -- Información del estudiante
+    CONCAT(persona.NOMBRE, ' ', persona.APELLIDO) as ESTUDIANTE_NOMBRE,
+    persona.CEDULA as CEDULA_ESTUDIANTE,
+    c.NOMBRE as CARRERA_NOMBRE,
+    e.SEMESTRE_ACTUAL,
+    
+    -- Información de la entidad receptora
+    ic.NOMBRE as ENTIDAD_RECEPTORA,
+    ic.CIUDAD as ENTIDAD_CIUDAD,
+    
+    -- Información del docente tutor
+    CONCAT(dt_persona.NOMBRE, ' ', dt_persona.APELLIDO) as INSTRUCTOR_NOMBRE,
+    dt.ESPECIALIDAD as INSTRUCTOR_ESPECIALIDAD
+
+FROM TAB_SERVICIO_COMUNITARIO sc
+LEFT JOIN TAB_PERIODOS_ACADEMICOS pa ON sc.ID_PERIODO_ACADEMICO = pa.ID_PERIODO_ACADEMICO
+LEFT JOIN TAB_ESTUDIANTES e ON sc.ID_ESTUDIANTE = e.ID_ESTUDIANTE
+LEFT JOIN TAB_DATOS_PERSONAS persona ON e.ID_DATO_PERSONA = persona.ID_DATO_PERSONA
+LEFT JOIN TAB_CARRERAS c ON e.ID_CARRERA = c.ID_CARRERA
+LEFT JOIN TAB_INSTITUCIONES_CONVENIOS ic ON sc.ID_INSTITUCION_CONVENIO = ic.ID_INSTITUCION_CONVENIO
+LEFT JOIN TAB_DOCENTES_TUTORES dt ON sc.ID_DOCENTE_TUTOR = dt.ID_DOCENTE_TUTOR
+LEFT JOIN TAB_DATOS_PERSONAS dt_persona ON dt.ID_DATO_PERSONA = dt_persona.ID_DATO_PERSONA
+ORDER BY pa.AÑO_INICIO DESC, pa.MES_INICIO DESC, sc.FECHA_INICIO DESC;
+
+-- ==============================================================
+-- PROCEDIMIENTOS ALMACENADOS PARA PERÍODOS ACADÉMICOS
+-- ==============================================================
+
+-- Procedimiento para obtener el período académico actual
+DELIMITER //
+CREATE PROCEDURE IF NOT EXISTS SP_OBTENER_PERIODO_ACTUAL()
+BEGIN
+    SELECT 
+        ID_PERIODO_ACADEMICO,
+        CONCAT(LPAD(MES_INICIO, 2, '0'), '/', AÑO_INICIO, ' - ', LPAD(MES_FIN, 2, '0'), '/', AÑO_FIN) AS NOMBRE_PERIODO,
+        AÑO_INICIO AS AÑO_ACADEMICO,
+        MES_INICIO,
+        AÑO_INICIO,
+        MES_FIN,
+        AÑO_FIN,
+        STR_TO_DATE(CONCAT(AÑO_INICIO, '-', LPAD(MES_INICIO, 2, '0'), '-01'), '%Y-%m-%d') AS FECHA_INICIO,
+        LAST_DAY(STR_TO_DATE(CONCAT(AÑO_FIN, '-', LPAD(MES_FIN, 2, '0'), '-01'), '%Y-%m-%d')) AS FECHA_FIN,
+        'N/D' AS TIPO_PERIODO,
+        0 AS NUMERO_PERIODO,
+        'N/D' AS ESTADO,
+        NULL AS DESCRIPCION,
+        CONCAT(LPAD(MES_INICIO, 2, '0'), '/', AÑO_INICIO, ' - ', LPAD(MES_FIN, 2, '0'), '/', AÑO_FIN) AS PERIODO_COMPLETO
+    FROM TAB_PERIODOS_ACADEMICOS
+    ORDER BY AÑO_INICIO DESC, MES_INICIO DESC
+    LIMIT 1;
+END //
+DELIMITER ;
+
+-- Procedimiento para obtener estadísticas de un período específico
+DELIMITER //
+CREATE PROCEDURE IF NOT EXISTS SP_ESTADISTICAS_PERIODO(
+    IN p_id_periodo INT
+)
+BEGIN
+    SELECT 
+        pa.ID_PERIODO_ACADEMICO,
+        CONCAT(LPAD(pa.MES_INICIO, 2, '0'), '/', pa.AÑO_INICIO, ' - ', LPAD(pa.MES_FIN, 2, '0'), '/', pa.AÑO_FIN) AS NOMBRE_PERIODO,
+        pa.AÑO_INICIO AS AÑO_ACADEMICO,
+        'N/D' AS TIPO_PERIODO,
+        NULL AS ESTADO,
+        CONCAT(LPAD(pa.MES_INICIO, 2, '0'), '/', pa.AÑO_INICIO, ' - ', LPAD(pa.MES_FIN, 2, '0'), '/', pa.AÑO_FIN) AS PERIODO_COMPLETO,
+        
+        -- Estadísticas de prácticas preprofesionales
+        COUNT(DISTINCT pp.ID_PRACTICA_PREPROFESIONAL) as TOTAL_PRACTICAS_PREPROFESIONALES,
+        COUNT(DISTINCT CASE WHEN pp.ESTADO_PRACTICA = 'En Progreso' THEN pp.ID_PRACTICA_PREPROFESIONAL END) as PRACTICAS_EN_PROGRESO,
+        COUNT(DISTINCT CASE WHEN pp.ESTADO_PRACTICA = 'Completada' THEN pp.ID_PRACTICA_PREPROFESIONAL END) as PRACTICAS_COMPLETADAS,
+        COUNT(DISTINCT CASE WHEN pp.ESTADO_PRACTICA = 'Cancelada' THEN pp.ID_PRACTICA_PREPROFESIONAL END) as PRACTICAS_CANCELADAS,
+        
+        -- Estadísticas de servicio comunitario
+        COUNT(DISTINCT sc.ID_SERVICIO_COMUNITARIO) as TOTAL_SERVICIOS_COMUNITARIOS,
+        COUNT(DISTINCT CASE WHEN sc.ESTADO_SERVICIO = 'En Progreso' THEN sc.ID_SERVICIO_COMUNITARIO END) as SERVICIOS_EN_PROGRESO,
+        COUNT(DISTINCT CASE WHEN sc.ESTADO_SERVICIO = 'Completado' THEN sc.ID_SERVICIO_COMUNITARIO END) as SERVICIOS_COMPLETADOS,
+        COUNT(DISTINCT CASE WHEN sc.ESTADO_SERVICIO = 'Cancelado' THEN sc.ID_SERVICIO_COMUNITARIO END) as SERVICIOS_CANCELADOS,
+        
+        -- Estadísticas de actividades educativas
+        COUNT(DISTINCT ae.ID_ACTIVIDAD_EDUCACION) as TOTAL_ACTIVIDADES_EDUCATIVAS,
+        
+        -- Estadísticas de estudiantes
+        COUNT(DISTINCT e.ID_ESTUDIANTE) as TOTAL_ESTUDIANTES_PARTICIPANTES,
+        
+        -- Estadísticas de documentos
+        COUNT(DISTINCT dp.ID_DOCUMENTO_PREPROFESIONAL) as TOTAL_DOCUMENTOS_PRACTICAS,
+        COUNT(DISTINCT ds.ID_DOCUMENTO_SERVICIO) as TOTAL_DOCUMENTOS_SERVICIO,
+        
+        STR_TO_DATE(CONCAT(pa.AÑO_INICIO, '-', LPAD(pa.MES_INICIO, 2, '0'), '-01'), '%Y-%m-%d') AS FECHA_INICIO,
+        LAST_DAY(STR_TO_DATE(CONCAT(pa.AÑO_FIN, '-', LPAD(pa.MES_FIN, 2, '0'), '-01'), '%Y-%m-%d')) AS FECHA_FIN,
+        DATEDIFF(
+            LAST_DAY(STR_TO_DATE(CONCAT(pa.AÑO_FIN, '-', LPAD(pa.MES_FIN, 2, '0'), '-01'), '%Y-%m-%d')),
+            STR_TO_DATE(CONCAT(pa.AÑO_INICIO, '-', LPAD(pa.MES_INICIO, 2, '0'), '-01'), '%Y-%m-%d')
+        ) + 1 AS DIAS_DURACION
+
+    FROM TAB_PERIODOS_ACADEMICOS pa
+    LEFT JOIN TAB_PRACTICAS_PREPROFESIONALES pp ON pa.ID_PERIODO_ACADEMICO = pp.ID_PERIODO_ACADEMICO
+    LEFT JOIN TAB_SERVICIO_COMUNITARIO sc ON pa.ID_PERIODO_ACADEMICO = sc.ID_PERIODO_ACADEMICO
+    LEFT JOIN TAB_ACTIVIDADES_EDUCACION ae ON pa.ID_PERIODO_ACADEMICO = ae.ID_PERIODO_ACADEMICO
+    LEFT JOIN TAB_ESTUDIANTES e ON (pp.ID_ESTUDIANTE = e.ID_ESTUDIANTE OR sc.ID_ESTUDIANTE = e.ID_ESTUDIANTE)
+    LEFT JOIN TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES dp ON pp.ID_PRACTICA_PREPROFESIONAL = dp.ID_PRACTICA_PREPROFESIONAL
+    LEFT JOIN TAB_DOCUMENTOS_SERVICIO_COMUNITARIO ds ON sc.ID_SERVICIO_COMUNITARIO = ds.ID_SERVICIO_COMUNITARIO
+    WHERE pa.ID_PERIODO_ACADEMICO = p_id_periodo
+    GROUP BY pa.ID_PERIODO_ACADEMICO, pa.MES_INICIO, pa.AÑO_INICIO, pa.MES_FIN, pa.AÑO_FIN;
+END //
+DELIMITER ;
+
+-- Procedimiento legado: la tabla ya no tiene ESTADO; no modifica filas.
+DROP PROCEDURE IF EXISTS SP_CAMBIAR_ESTADO_PERIODO;
+DELIMITER //
+CREATE PROCEDURE SP_CAMBIAR_ESTADO_PERIODO(
+    IN p_id_periodo INT,
+    IN p_nuevo_estado VARCHAR(20)
+)
+BEGIN
+    SELECT 'TAB_PERIODOS_ACADEMICOS solo guarda mes/año inicio-fin; no hay estado que actualizar.' AS RESULTADO,
+           p_id_periodo AS ID_PERIODO_SOLICITADO,
+           p_nuevo_estado AS ESTADO_IGNORADO;
+END //
+DELIMITER ;
+
+-- Procedimiento para obtener documentos por período académico
+DELIMITER //
+CREATE PROCEDURE IF NOT EXISTS SP_DOCUMENTOS_POR_PERIODO(
+    IN p_id_periodo INT,
+    IN p_tipo_modalidad VARCHAR(50)
+)
+BEGIN
+    IF p_tipo_modalidad = 'PRACTICAS' OR p_tipo_modalidad IS NULL THEN
+        SELECT * FROM V_DOCUMENTOS_PRACTICAS_COMPLETOS 
+        WHERE ID_PERIODO_ACADEMICO = p_id_periodo
+        ORDER BY FECHA_SUBIDA DESC;
+    END IF;
+    
+    IF p_tipo_modalidad = 'SERVICIO_COMUNITARIO' OR p_tipo_modalidad IS NULL THEN
+        SELECT * FROM V_DOCUMENTOS_SERVICIO_COMPLETOS 
+        WHERE ID_PERIODO_ACADEMICO = p_id_periodo
+        ORDER BY FECHA_SUBIDA DESC;
+    END IF;
+    
+    IF p_tipo_modalidad IS NULL THEN
+        SELECT * FROM V_DOCUMENTOS_UNIFICADOS 
+        WHERE ID_PERIODO_ACADEMICO = p_id_periodo
+        ORDER BY FECHA_SUBIDA DESC;
+    END IF;
+END //
+DELIMITER ;
+
+-- ==============================================================
+-- PROCEDIMIENTOS ALMACENADOS ORIGINALES
+-- ==============================================================
+
+-- Procedimiento para cambiar estado de documento preprofesional
+DELIMITER //
+CREATE PROCEDURE IF NOT EXISTS SP_CAMBIAR_ESTADO_DOCUMENTO_PRACTICAS(
+    IN p_id_documento INT,
+    IN p_nuevo_estado INT,
+    IN p_id_revisor INT,
+    IN p_observaciones TEXT
+)
+BEGIN
+    DECLARE v_estado_anterior INT;
+    DECLARE v_estado_anterior_texto VARCHAR(50);
+    DECLARE v_nuevo_estado_texto VARCHAR(50);
+    
+    -- Obtener estado anterior
+    SELECT ID_ESTADO_REVISION, (SELECT ESTADO FROM TAB_ESTADOS_REVISIONES WHERE ID_ESTADO_REVISION = dp.ID_ESTADO_REVISION)
+    INTO v_estado_anterior, v_estado_anterior_texto
+    FROM TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES dp
+    WHERE ID_DOCUMENTO_PREPROFESIONAL = p_id_documento;
+    
+    -- Obtener nombre del nuevo estado
+    SELECT ESTADO INTO v_nuevo_estado_texto
+    FROM TAB_ESTADOS_REVISIONES
+    WHERE ID_ESTADO_REVISION = p_nuevo_estado;
+    
+    -- Actualizar documento
+    UPDATE TAB_DOCUMENTOS_PRACTICAS_PREPROFESIONALES 
+    SET 
+        ID_ESTADO_REVISION = p_nuevo_estado,
+        ID_REVISOR = p_id_revisor,
+        OBSERVACIONES_REVISOR = p_observaciones,
+        FECHA_REVISION = CURRENT_TIMESTAMP
+    WHERE ID_DOCUMENTO_PREPROFESIONAL = p_id_documento;
+    
+    -- Registrar en historial
+    INSERT INTO TAB_HISTORIAL_CAMBIOS_DOCUMENTOS (
+        ID_DOCUMENTO_PREPROFESIONAL,
+        ID_USUARIO,
+        TIPO_CAMBIO,
+        VALOR_ANTERIOR,
+        VALOR_NUEVO,
+        OBSERVACIONES
+    ) VALUES (
+        p_id_documento,
+        p_id_revisor,
+        'Estado',
+        v_estado_anterior_texto,
+        v_nuevo_estado_texto,
+        p_observaciones
+    );
+    
+END //
+DELIMITER ;
+
+-- Procedimiento para cambiar estado de documento servicio comunitario
+DELIMITER //
+CREATE PROCEDURE IF NOT EXISTS SP_CAMBIAR_ESTADO_DOCUMENTO_SERVICIO(
+    IN p_id_documento INT,
+    IN p_nuevo_estado INT,
+    IN p_id_revisor INT,
+    IN p_observaciones TEXT
+)
+BEGIN
+    DECLARE v_estado_anterior INT;
+    DECLARE v_estado_anterior_texto VARCHAR(50);
+    DECLARE v_nuevo_estado_texto VARCHAR(50);
+    
+    -- Obtener estado anterior
+    SELECT ID_ESTADO_REVISION, (SELECT ESTADO FROM TAB_ESTADOS_REVISIONES WHERE ID_ESTADO_REVISION = ds.ID_ESTADO_REVISION)
+    INTO v_estado_anterior, v_estado_anterior_texto
+    FROM TAB_DOCUMENTOS_SERVICIO_COMUNITARIO ds
+    WHERE ID_DOCUMENTO_SERVICIO = p_id_documento;
+    
+    -- Obtener nombre del nuevo estado
+    SELECT ESTADO INTO v_nuevo_estado_texto
+    FROM TAB_ESTADOS_REVISIONES
+    WHERE ID_ESTADO_REVISION = p_nuevo_estado;
+    
+    -- Actualizar documento
+    UPDATE TAB_DOCUMENTOS_SERVICIO_COMUNITARIO 
+    SET 
+        ID_ESTADO_REVISION = p_nuevo_estado,
+        ID_REVISOR = p_id_revisor,
+        OBSERVACIONES_REVISOR = p_observaciones,
+        FECHA_REVISION = CURRENT_TIMESTAMP
+    WHERE ID_DOCUMENTO_SERVICIO = p_id_documento;
+    
+    -- Registrar en historial
+    INSERT INTO TAB_HISTORIAL_CAMBIOS_DOCUMENTOS (
+        ID_DOCUMENTO_SERVICIO,
+        ID_USUARIO,
+        TIPO_CAMBIO,
+        VALOR_ANTERIOR,
+        VALOR_NUEVO,
+        OBSERVACIONES
+    ) VALUES (
+        p_id_documento,
+        p_id_revisor,
+        'Estado',
+        v_estado_anterior_texto,
+        v_nuevo_estado_texto,
+        p_observaciones
+    );
+    
+END //
+DELIMITER ;
+
+
