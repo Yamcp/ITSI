@@ -137,7 +137,21 @@
                                 <input type="date" class="form-control" name="fecha_fin"
                                     value="<?= $filtros['fecha_fin'] ?? '' ?>">
                             </div>
-                            <div class="col-md-9 mb-3 d-flex align-items-end">
+                            <div class="col-md-3 mb-3">
+                                <label class="form-label">Carrera</label>
+                                <select class="form-select" name="carrera">
+                                    <option value="">Todas las carreras</option>
+                                    <?php if (!empty($carreras)): ?>
+                                        <?php foreach ($carreras as $carrera): ?>
+                                            <option value="<?= (int) $carrera['ID_CARRERA'] ?>"
+                                                <?= (isset($filtros['carrera']) && (string)$filtros['carrera'] === (string)$carrera['ID_CARRERA']) ? 'selected' : '' ?>>
+                                                <?= esc($carrera['NOMBRE']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3 d-flex align-items-end">
                                 <button type="submit" class="btn btn-primary me-2">
                                     <i class="fas fa-search me-1"></i>Filtrar
                                 </button>

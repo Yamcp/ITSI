@@ -8,6 +8,7 @@ use App\Models\LineasInvestigacionModel;
 use App\Models\TiposModalidadesModel;
 use App\Models\TiposActividadesModel;
 use App\Models\EvaluacionesEnlacesModel;
+use App\Models\CarrerasModel;
 use App\Controllers\BaseController;
 
 class ActividadesEducacionCoordController extends BaseController
@@ -18,6 +19,7 @@ class ActividadesEducacionCoordController extends BaseController
     protected $tiposModalidadesModel;
     protected $tiposActividadesModel;
     protected $evaluacionesEnlacesModel;
+    protected $carrerasModel;
 
     public function __construct()
     {
@@ -27,6 +29,7 @@ class ActividadesEducacionCoordController extends BaseController
         $this->tiposModalidadesModel = new TiposModalidadesModel();
         $this->tiposActividadesModel = new TiposActividadesModel();
         $this->evaluacionesEnlacesModel = new EvaluacionesEnlacesModel();
+        $this->carrerasModel = new CarrerasModel();
     }
 
     public function index()
@@ -439,7 +442,8 @@ class ActividadesEducacionCoordController extends BaseController
                 'modalidad' => $this->request->getGet('modalidad'),
                 'fecha_inicio' => $this->request->getGet('fecha_inicio'),
                 'fecha_fin' => $this->request->getGet('fecha_fin'),
-                'instructor' => $this->request->getGet('instructor')
+                'instructor' => $this->request->getGet('instructor'),
+                'carrera' => $this->request->getGet('carrera')
             ];
 
             $actividades = $this->aplicarFiltrosReporte($filtros);
@@ -450,7 +454,8 @@ class ActividadesEducacionCoordController extends BaseController
                 'filtros' => $filtros,
                 'tipos_actividades' => $this->tiposActividadesModel->findAll(),
                 'modalidades' => $this->tiposModalidadesModel->findAll(),
-                'instructores' => $this->instructoresModel->getInstructoresConDatos()
+                'instructores' => $this->instructoresModel->getInstructoresConDatos(),
+                'carreras' => $this->carrerasModel->orderBy('NOMBRE')->findAll()
             ];
 
             return view('coord/educacion/reportes', $data);
@@ -497,6 +502,24 @@ class ActividadesEducacionCoordController extends BaseController
                 });
             }
 
+            if (!empty($filtros['carrera'])) {
+                $idCarrera = (int) $filtros['carrera'];
+                if ($idCarrera > 0) {
+                    $db = \Config\Database::connect();
+                    $ids = $db->table('TAB_INSCRIPCIONES_ACTIVIDADES ia')
+                        ->select('ia.ID_ACTIVIDAD_EDUCACION')
+                        ->join('TAB_ESTUDIANTES e', 'e.ID_ESTUDIANTE = ia.ID_ESTUDIANTE')
+                        ->where('e.ID_CARRERA', $idCarrera)
+                        ->groupBy('ia.ID_ACTIVIDAD_EDUCACION')
+                        ->get()
+                        ->getResultArray();
+                    $idsActividad = array_map('intval', array_column($ids, 'ID_ACTIVIDAD_EDUCACION'));
+                    $actividades = array_filter($actividades, function ($actividad) use ($idsActividad) {
+                        return in_array((int) $actividad['ID_ACTIVIDAD_EDUCACION'], $idsActividad, true);
+                    });
+                }
+            }
+
             return array_values($actividades); // Reindexar el array
         } catch (\Exception $e) {
             log_message('error', 'Error en aplicarFiltrosReporte: ' . $e->getMessage());
@@ -511,7 +534,8 @@ class ActividadesEducacionCoordController extends BaseController
             'modalidad' => $this->request->getGet('modalidad'),
             'fecha_inicio' => $this->request->getGet('fecha_inicio'),
             'fecha_fin' => $this->request->getGet('fecha_fin'),
-            'instructor' => $this->request->getGet('instructor')
+            'instructor' => $this->request->getGet('instructor'),
+            'carrera' => $this->request->getGet('carrera')
         ];
 
         $actividades = $this->aplicarFiltrosReporte($filtros);
@@ -540,7 +564,8 @@ class ActividadesEducacionCoordController extends BaseController
             'modalidad' => $this->request->getGet('modalidad'),
             'fecha_inicio' => $this->request->getGet('fecha_inicio'),
             'fecha_fin' => $this->request->getGet('fecha_fin'),
-            'instructor' => $this->request->getGet('instructor')
+            'instructor' => $this->request->getGet('instructor'),
+            'carrera' => $this->request->getGet('carrera')
         ];
 
         $actividades = $this->aplicarFiltrosReporte($filtros);
@@ -624,7 +649,8 @@ class ActividadesEducacionCoordController extends BaseController
             'modalidad' => $this->request->getGet('modalidad'),
             'fecha_inicio' => $this->request->getGet('fecha_inicio'),
             'fecha_fin' => $this->request->getGet('fecha_fin'),
-            'instructor' => $this->request->getGet('instructor')
+            'instructor' => $this->request->getGet('instructor'),
+            'carrera' => $this->request->getGet('carrera')
         ];
 
         $actividades = $this->aplicarFiltrosReporte($filtros);

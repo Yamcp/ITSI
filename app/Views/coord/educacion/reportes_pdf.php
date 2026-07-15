@@ -233,6 +233,13 @@
                         <span class="info-value"><?= $filtros['instructor'] ?></span>
                     </div>
                 <?php endif; ?>
+
+                <?php if (!empty($filtros['carrera'])): ?>
+                    <div class="info-item">
+                        <span class="info-label">Carrera:</span>
+                        <span class="info-value"><?= esc($filtros['carrera']) ?></span>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     <?php endif; ?>
